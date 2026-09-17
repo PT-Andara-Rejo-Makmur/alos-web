@@ -1,0 +1,19 @@
+# dependencies
+/node_modules/
+
+# Next.js
+/.next/
+/out/
+
+# test dan tooling
+/coverage/
+*.tsbuildinfo
+
+# environment lokal; contoh tetap dilacak
+.env*
+!.env.example
+
+# logs dan OS
+*.log
+.DS_Store
+Thumbs.db
