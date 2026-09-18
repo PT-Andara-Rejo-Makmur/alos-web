@@ -11,9 +11,22 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workspace/alos-web
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          path: workspace/alos-web
+
+      - name: Checkout canonical contracts
+        uses: actions/checkout@v4
+        with:
+          repository: PT-Andara-Rejo-Makmur/alos-contracts
+          ref: main
+          path: workspace/alos-contracts
+          token: ${{ secrets.CROSS_REPO_READ_TOKEN || github.token }}
 
       - name: Siapkan pnpm
         uses: pnpm/action-setup@v4
@@ -25,6 +38,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: workspace/alos-web/pnpm-lock.yaml
 
       - name: Pasang dependency
         run: pnpm install --frozen-lockfile
