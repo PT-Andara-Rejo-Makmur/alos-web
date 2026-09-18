@@ -95,20 +95,28 @@ Build production dapat dijalankan dengan `pnpm start` setelah `pnpm build` seles
 
 - `/`: landing shell dan status koneksi.
 - `/business`: operasi bisnis.
+- `/business/[module]`: projection MVP-1 untuk divisi, proyek, task, approval, dokumen, report,
+  finding, Genesis shortcut, dan settings.
 - `/ara`: Human AI Workspace.
 - `/genesis`: IT Control Plane.
 - `/director`: executive decision workspace.
 - `/giivepro`: tenant/product experience.
 
-Route awal tidak berisi fake business data. Setiap pengalaman menjelaskan status integrasi dan
-boundary authority yang berlaku.
+Route awal tidak berisi fake business data. Shell utama memeriksa
+`GET /api/v1/system/integration` hanya melalui Backend dan menampilkan correlation ID untuk
+troubleshooting ketika sukses. Setiap pengalaman menjelaskan status integrasi serta boundary
+authority yang berlaku.
+
+UI MVP-1 yang dipertahankan beserta status dependency Backend dijelaskan pada
+[Migrasi Frontend MVP-1](docs/MVP1_FRONTEND_MIGRATION.md).
 
 ## Integrasi contract
 
 Contract lintas service harus berasal dari generated TypeScript package `alos-contracts`.
-Selama package tersebut belum dipublikasikan, `src/lib/contracts/` hanya menjadi integration
-boundary dan tidak mendefinisikan ulang `AgentRunResult`, `ReviewPackage`, `ReleaseState`, atau
-`Decision`. View model review bersifat projection-only dan berada di feature UI.
+Selama package tersebut belum dipublikasikan, `src/lib/contracts/` menjadi integration boundary
+dengan projection sempit sementara untuk diagnostic baseline. Boundary ini tidak mendefinisikan
+ulang `AgentRunResult`, `ReviewPackage`, `ReleaseState`, atau `Decision`. View model review bersifat
+projection-only dan berada di feature UI.
 
 ## Keamanan frontend
 
@@ -123,7 +131,7 @@ boundary dan tidak mendefinisikan ulang `AgentRunResult`, `ReviewPackage`, `Rele
 
 Lihat [Arsitektur](ARCHITECTURE.md), [Struktur Folder](docs/FOLDER_STRUCTURE.md),
 [Experiences](docs/EXPERIENCES.md), [Integrasi API](docs/API_INTEGRATION.md), dan
-[Review UX](docs/REVIEW_UX.md).
+[Review UX](docs/REVIEW_UX.md), serta [Migrasi Frontend MVP-1](docs/MVP1_FRONTEND_MIGRATION.md).
 
 ## Workflow perubahan
 

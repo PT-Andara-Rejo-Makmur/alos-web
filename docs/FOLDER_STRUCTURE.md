@@ -16,6 +16,8 @@
   untuk route composition.
 - `features/`: capability UI reusable untuk agents, skills, research, reviews, approvals,
   releases, evidence, dan monitoring. Feature tidak memiliki business authority.
+- `features/mvp1/`: compatibility layer UI MVP-1 yang dipertahankan selama ekstraksi bertahap;
+  seluruh request tetap melewati `lib/api` dan type legacy bukan contract source of truth.
 - `components/layout/`: shell, navigation, dan shared page composition.
 - `components/feedback/`: disconnected, not-configured, loading, dan error presentation.
 - `components/shared/`: primitive presentational yang tidak terikat domain.
@@ -33,6 +35,7 @@
 - Test component memastikan explicit disconnected state dan Review UX tidak mengklaim approval.
 - Architecture test memindai source agar tidak ada direct GENESIS/provider URL atau sensitive
   public environment variable.
+- `tests/mvp1/` mempertahankan 24 test helper/component dari frontend legacy yang masih valid.
 
 ## `public`, `docs`, dan `.github`
 

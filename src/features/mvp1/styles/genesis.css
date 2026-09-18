@@ -1,0 +1,322 @@
+/* GENESIS landing state and composer. The governed analysis/upload flows remain
+   unchanged; these rules only reshape their presentation. */
+.alos-genesis-empty-welcome {
+  background: linear-gradient(135deg, #fffdf8 0%, #fff 58%, #fbf5e8 100%);
+  border: 1px solid #ece5d9;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 5px rgba(250, 247, 240, .64);
+  display: grid;
+  overflow: hidden;
+}
+
+.alos-genesis-welcome-hero {
+  min-height: 218px;
+  overflow: hidden;
+  padding: 42px 36px 31px;
+  position: relative;
+}
+
+.alos-genesis-welcome-hero::after {
+  background: linear-gradient(135deg, transparent 36%, rgba(215, 177, 99, .12) 36%, rgba(215, 177, 99, .12) 46%, transparent 46%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.alos-genesis-welcome-copy {
+  max-width: 590px;
+  position: relative;
+  z-index: 2;
+}
+
+.alos-genesis-welcome-copy p {
+  color: #b67613;
+  font-size: .65rem;
+  font-weight: 850;
+  letter-spacing: .28em;
+  margin: 0 0 14px;
+}
+
+.alos-genesis-welcome-copy h3 {
+  color: #123c32;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.75rem, 2.55vw, 2.45rem);
+  font-weight: 600;
+  letter-spacing: -.035em;
+  line-height: 1.08;
+  margin: 0 0 12px;
+}
+
+.alos-genesis-welcome-copy > span {
+  color: #587168;
+  display: block;
+  font-size: .83rem;
+  line-height: 1.52;
+  max-width: 515px;
+}
+
+.alos-genesis-welcome-art {
+  bottom: 17px;
+  height: 180px;
+  position: absolute;
+  right: 19px;
+  width: 225px;
+  z-index: 1;
+}
+
+.alos-genesis-welcome-art i {
+  background: #fff;
+  border: 1px solid #e8e7e3;
+  border-radius: 9px;
+  box-shadow: 0 12px 26px rgba(42, 55, 49, .1);
+  height: 132px;
+  position: absolute;
+  right: 37px;
+  top: 25px;
+  transform: rotate(4deg);
+  width: 104px;
+}
+
+.alos-genesis-welcome-art i:nth-child(2) { right: 45px; top: 17px; transform: rotate(-1deg); }
+.alos-genesis-welcome-art i:nth-child(3) { right: 53px; top: 9px; transform: rotate(-5deg); }
+.alos-genesis-welcome-art strong { color: #be811b; position: absolute; right: 107px; top: 48px; z-index: 2; }
+.alos-genesis-welcome-art strong .alos-genesis-icon { height: 30px; width: 30px; }
+.alos-genesis-welcome-art::before,
+.alos-genesis-welcome-art::after {
+  background: #e7e7e3;
+  border-radius: 99px;
+  content: "";
+  height: 6px;
+  position: absolute;
+  right: 64px;
+  top: 96px;
+  width: 54px;
+  z-index: 2;
+}
+.alos-genesis-welcome-art::after { top: 112px; width: 66px; }
+.alos-genesis-welcome-art > span {
+  background: rgba(255, 253, 248, .96);
+  border: 1px solid #eee5d6;
+  border-radius: 12px;
+  bottom: 3px;
+  box-shadow: 0 7px 20px rgba(75, 59, 30, .08);
+  color: #27483d;
+  font-size: .68rem;
+  line-height: 1.3;
+  padding: 11px 13px;
+  position: absolute;
+  right: 0;
+  z-index: 3;
+}
+
+.alos-genesis-capabilities {
+  background: rgba(255, 255, 255, .72);
+  border: 1px solid #e8ece6;
+  border-radius: 13px;
+  margin: 0 14px 14px;
+  padding: 15px 14px;
+  position: relative;
+  z-index: 2;
+}
+
+.alos-genesis-capabilities h4 {
+  color: #175142;
+  font-size: .78rem;
+  margin: 0 0 11px;
+}
+
+.alos-genesis-capabilities > div {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.alos-genesis-capabilities button {
+  align-items: flex-start;
+  background: #fffefa;
+  border: 1px solid #e4e8e2;
+  border-radius: 10px;
+  color: #23463a;
+  display: flex;
+  font: inherit;
+  gap: 9px;
+  min-height: 95px;
+  padding: 10px;
+  text-align: left;
+}
+
+.alos-genesis-capabilities button:hover {
+  background: #fffaf0;
+  border-color: #dfc58e;
+  transform: translateY(-1px);
+}
+
+.alos-genesis-capabilities button > span {
+  align-items: center;
+  background: #fff4dc;
+  border-radius: 9px;
+  color: #be8018;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 1rem;
+  height: 37px;
+  justify-content: center;
+  width: 37px;
+}
+
+.alos-genesis-capabilities button > div { display: grid; gap: 5px; }
+.alos-genesis-capabilities strong { color: #224438; font-size: .7rem; }
+.alos-genesis-capabilities small { color: #6d8078; font-size: .6rem; line-height: 1.42; }
+
+.alos-genesis-empty-composer {
+  border-color: #799b8f;
+  border-radius: 13px;
+  box-shadow: 0 2px 9px rgba(28, 67, 54, .04);
+  min-height: 134px;
+  padding: 17px 16px 12px;
+}
+
+.alos-genesis-draft-form .alos-genesis-prompt-field textarea {
+  font-size: .8rem;
+  line-height: 1.5;
+  min-height: 58px;
+  width: 100%;
+}
+
+.alos-genesis-chat-composer {
+  border-color: #b3c4bb;
+  box-shadow: 0 7px 24px rgba(23, 63, 50, .06);
+  margin-top: auto;
+  min-height: 112px;
+}
+
+.alos-genesis-draft-form > .alos-genesis-composer-actions {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.alos-genesis-composer-left { align-items: center; display: flex; gap: 10px; min-width: 0; }
+.alos-genesis-draft-form .alos-genesis-attach-button {
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  color: #29594b;
+  flex: 0 0 auto;
+  height: 34px;
+  min-height: 34px;
+  padding: 6px;
+  width: 34px;
+}
+.alos-genesis-draft-form .alos-genesis-attach-button:hover:not(:disabled) { background: #edf5ef; }
+.alos-genesis-draft-form .alos-genesis-attach-button:disabled { color: #a8b5af; cursor: not-allowed; }
+.alos-genesis-attach-button svg { height: 21px; width: 21px; }
+
+.alos-genesis-knowledge-source {
+  align-items: center;
+  background: #f1f5f3;
+  border-radius: 9px;
+  color: #416259;
+  display: flex;
+  font-size: .66rem;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px 10px;
+}
+.alos-genesis-knowledge-source .alos-genesis-icon { color: #08764a; height: 16px; width: 16px; }
+.alos-genesis-knowledge-source strong { color: #174b3b; font-weight: 800; }
+.alos-genesis-composer-actions > small {
+  margin-left: auto;
+  max-width: 170px;
+  text-align: right;
+}
+.alos-genesis-draft-form .alos-genesis-send-button {
+  background: linear-gradient(135deg, #075342, #003e33);
+  border: 0;
+  border-radius: 9px;
+  color: #fff;
+  flex: 0 0 auto;
+  height: 40px;
+  min-height: 40px;
+  padding: 9px;
+  width: 43px;
+}
+.alos-genesis-draft-form .alos-genesis-send-button:hover:not(:disabled) { background: #087249; }
+.alos-genesis-draft-form .alos-genesis-send-button:disabled { cursor: not-allowed; opacity: .48; }
+.alos-genesis-send-button svg { height: 21px; width: 21px; }
+
+.alos-genesis-recent .alos-panel-heading-row h3 { align-items: center; display: flex; gap: 7px; }
+.alos-genesis-recent .alos-panel-heading-row h3 > .alos-genesis-icon { color: #08754a; height: 16px; width: 16px; }
+.alos-genesis-sidebar-empty { align-items: center; border-top: 1px solid #e9ede8; display: flex; flex-direction: column; margin-top: 13px; padding: 18px 9px 5px; text-align: center; }
+.alos-genesis-sidebar-empty > span { align-items: center; background: #eff3f2; border-radius: 50%; color: #5e7880; display: inline-flex; font-size: 1.25rem; height: 55px; justify-content: center; margin-bottom: 11px; width: 55px; }
+.alos-genesis-sidebar-empty > span .alos-genesis-icon { height: 25px; width: 25px; }
+.alos-genesis-sidebar-empty strong { color: #244438; font-size: .73rem; }
+.alos-genesis-sidebar-empty p { color: #71867d; font-size: .66rem; line-height: 1.45; margin: 6px 0 0; max-width: 240px; }
+
+.alos-genesis-agents .alos-panel-heading-row h3 { align-items: center; display: flex; gap: 7px; }
+.alos-genesis-agents .alos-panel-heading-row h3 .alos-genesis-icon { color: #08754a; height: 18px; width: 18px; }
+.alos-genesis-agent-empty > span .alos-genesis-icon { height: 18px; width: 18px; }
+
+.alos-genesis-executive-focus { min-height: 0 !important; }
+.alos-genesis-focus-heading { align-items: center; display: flex; gap: 10px; }
+.alos-genesis-focus-heading > span { color: #c38316; font-size: 1.55rem; }
+.alos-genesis-focus-heading h3 { color: #244339; font-size: .92rem; margin: 0; }
+.alos-genesis-focus-heading p { color: #7c8e87; font-size: .67rem; margin: 3px 0 0; }
+.alos-genesis-focus-list { display: grid; gap: 6px; margin-top: 13px; }
+.alos-genesis-focus-list > div,
+.alos-genesis-focus-list > button { align-items: center; background: #fffefa; border: 1px solid #e7ebe5; border-radius: 8px; color: #294a3f; display: grid; font: inherit; gap: 8px; grid-template-columns: 31px 20px minmax(0, 1fr) auto; min-height: 43px; padding: 5px 8px; text-align: left; width: 100%; }
+.alos-genesis-focus-list > button { cursor: pointer; grid-template-columns: 31px minmax(0, 1fr) auto; }
+.alos-genesis-focus-list > button:hover { background: #f3f8f3; border-color: #bfd6c4; }
+.alos-genesis-focus-list span { align-items: center; background: #fff3dc; border-radius: 7px; color: #ba7710; display: inline-flex; font-size: .8rem; height: 27px; justify-content: center; width: 27px; }
+.alos-genesis-focus-list span.approval { background: #e8f5eb; color: #0c814a; }
+.alos-genesis-focus-list span.risk { background: #fff0ed; color: #d85042; }
+.alos-genesis-focus-list > button span { background: #e8f2ff; color: #2679d0; }
+.alos-genesis-focus-list strong { color: #153f33; font-size: .82rem; }
+.alos-genesis-focus-list p { color: #38564b; font-size: .67rem; margin: 0; }
+.alos-genesis-focus-list b { color: #6c8279; font-size: .9rem; }
+.alos-genesis-focus-list b .alos-genesis-icon { height: 14px; width: 14px; }
+
+.alos-genesis-icon {
+  display: block;
+  height: 20px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.75;
+  width: 20px;
+}
+
+.alos-genesis-workspace-star .alos-genesis-icon { height: 34px; width: 34px; }
+.alos-genesis-assistant-message > span .alos-genesis-icon { height: 21px; width: 21px; }
+.alos-genesis-source-chip i .alos-genesis-icon { height: 12px; width: 12px; }
+.alos-genesis-capabilities button > span .alos-genesis-icon { height: 20px; width: 20px; }
+.alos-genesis-focus-heading > span .alos-genesis-icon { height: 25px; width: 25px; }
+.alos-genesis-focus-list span .alos-genesis-icon { height: 16px; width: 16px; }
+.alos-genesis-recent-list button > span .alos-genesis-icon { height: 13px; width: 13px; }
+.alos-genesis-recent-list button em .alos-genesis-icon { height: 14px; width: 14px; }
+
+@media (max-width: 1280px) {
+  .alos-genesis-capabilities > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .alos-genesis-welcome-copy { max-width: calc(100% - 185px); }
+}
+
+@media (max-width: 720px) {
+  .alos-genesis-welcome-hero { min-height: 0; padding: 28px 22px; }
+  .alos-genesis-welcome-copy { max-width: none; }
+  .alos-genesis-welcome-art { display: none; }
+  .alos-genesis-capabilities > div { grid-template-columns: 1fr; }
+  .alos-genesis-capabilities button { min-height: 75px; }
+  .alos-genesis-draft-form > .alos-genesis-composer-actions { align-items: stretch; flex-direction: row; }
+  .alos-genesis-composer-left { flex: 1; }
+  .alos-genesis-composer-actions > small { display: none; }
+}
+
+@media (max-width: 450px) {
+  .alos-genesis-capabilities { margin-inline: 8px; }
+  .alos-genesis-welcome-copy h3 { font-size: 1.65rem; }
+  .alos-genesis-workspace-heading h2 { font-size: 1.8rem; }
+}
+
+

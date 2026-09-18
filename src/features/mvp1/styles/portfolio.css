@@ -1,0 +1,157 @@
+/* Divisions and project portfolio — persisted data only, scoped by workspace. */
+.alos-divisions-dashboard, .alos-projects-dashboard { max-width: 1720px; padding-top: 15px; }
+.alos-portfolio-freshness { align-items: center; color: #718079; display: flex; font-size: .64rem; gap: 7px; justify-content: flex-end; margin: 0 1px 8px; }
+.alos-portfolio-freshness i { background: #0ba157; border-radius: 50%; box-shadow: 0 0 0 3px #e0f2e6; height: 6px; width: 6px; }
+.alos-portfolio-panel { background: #fffefa; border: 1px solid #dfe5df; border-radius: 13px; min-width: 0; padding: 18px; }
+.alos-portfolio-panel-heading h2 { color: #173d32; font-size: .91rem; margin: 0; }
+.alos-portfolio-panel-heading p { color: #7a8982; font-size: .63rem; margin: 4px 0 0; }
+.alos-portfolio-empty { align-items: center; color: #73837b; display: flex; flex-direction: column; gap: 8px; justify-content: center; min-height: 135px; padding: 20px; text-align: center; }
+.alos-portfolio-empty span { align-items: center; background: #eef4ee; border-radius: 50%; color: #4e8068; display: inline-flex; font-size: 1.1rem; height: 36px; justify-content: center; width: 36px; }
+.alos-portfolio-empty p { font-size: .72rem; line-height: 1.45; margin: 0; max-width: 280px; }
+.alos-portfolio-loading { display: grid; gap: 14px; }
+.alos-portfolio-loading p { color: #496057; font-size: .78rem; }
+.alos-portfolio-loading div { animation: portfolio-shimmer 1.4s ease-in-out infinite; background: linear-gradient(100deg, #edf1ec 20%, #fafbf9 45%, #edf1ec 70%); background-size: 220% 100%; border-radius: 13px; height: 180px; }
+@keyframes portfolio-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+.alos-division-card-grid { display: grid; gap: 12px; grid-template-columns: repeat(6, minmax(170px, 1fr)); }
+.alos-division-card { background: linear-gradient(145deg, #fffefa, #fbfcf9); border: 1px solid #dfe5df; border-radius: 13px; min-width: 0; padding: 15px 15px 12px; }
+.alos-division-card header { align-items: center; display: flex; gap: 10px; }
+.alos-division-card header > span { align-items: center; background: #e6f3e8; border-radius: 50%; color: #078347; display: inline-flex; flex: 0 0 auto; font-size: 1.06rem; font-weight: 850; height: 41px; justify-content: center; width: 41px; }
+.alos-division-card header div { display: grid; gap: 4px; min-width: 0; }
+.alos-division-card h2 { color: #173d32; font-size: .86rem; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.alos-division-card header small { align-items: center; color: #15804b; display: inline-flex; font-size: .61rem; font-weight: 750; gap: 5px; }
+.alos-division-card header small i { background: currentColor; border-radius: 50%; height: 6px; width: 6px; }
+.alos-division-card header small.attention { color: #c37b0a; }
+.alos-division-card header small.critical { color: #dd332c; }
+.alos-division-card header small.not_connected { color: #89968f; }
+.alos-division-card dl { display: grid; gap: 8px; margin: 17px 0 9px; }
+.alos-division-card dl div { align-items: center; display: flex; gap: 8px; justify-content: space-between; }
+.alos-division-card dt { color: #65776f; font-size: .62rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.alos-division-card dd { color: #203f35; font-size: .67rem; font-weight: 800; margin: 0; }
+.alos-sparkline { display: block; height: 62px; overflow: visible; width: 100%; }
+.alos-sparkline.compact { height: 34px; width: 88px; }
+.alos-divisions-lower-grid { display: grid; gap: 13px; grid-template-columns: minmax(390px, 1.05fr) minmax(405px, 1.1fr) minmax(315px, .95fr); margin-top: 13px; }
+.alos-divisions-lower-grid > article { min-height: 300px; }
+.alos-division-comparison-chart { margin-top: 9px; position: relative; }
+.alos-division-comparison-chart > svg { display: block; min-height: 205px; width: 100%; }
+.alos-division-comparison-chart svg text, .alos-project-progress-chart svg text { fill: #74857d; font-size: 10px; }
+.alos-division-comparison-chart svg text.month, .alos-project-progress-chart svg text.month { font-size: 9px; }
+.alos-division-comparison-chart > .alos-portfolio-empty, .alos-project-progress-chart > .alos-portfolio-empty { inset: 35px 0 24px; min-height: 0; position: absolute; }
+.alos-division-chart-legend { display: flex; flex-wrap: wrap; gap: 7px 13px; justify-content: center; margin-top: 3px; }
+.alos-division-chart-legend span { align-items: center; color: #4b6158; display: inline-flex; font-size: .59rem; gap: 5px; }
+.alos-division-chart-legend i { border-radius: 50%; height: 6px; width: 6px; }
+.alos-portfolio-table-wrap { margin-top: 13px; overflow-x: auto; }
+.alos-portfolio-table-wrap table { border-collapse: collapse; min-width: 610px; width: 100%; }
+.alos-portfolio-table-wrap th { color: #65766f; font-size: .57rem; padding: 7px; text-align: left; white-space: nowrap; }
+.alos-portfolio-table-wrap td { border-top: 1px solid #e8ece8; color: #354d44; font-size: .61rem; line-height: 1.35; padding: 9px 7px; vertical-align: middle; }
+.alos-portfolio-table-wrap td strong, .alos-portfolio-table-wrap td small { display: block; }
+.alos-portfolio-table-wrap td small { color: #89958f; font-size: .54rem; margin-top: 2px; }
+.alos-status-pill { background: #eef2ef; border-radius: 5px; color: #5c6f65; display: inline-flex; font-size: .54rem; font-weight: 800; padding: 4px 6px; text-transform: capitalize; white-space: nowrap; }
+.alos-status-pill.critical, .alos-status-pill.high, .alos-status-pill.open { background: #ffe4e0; color: #c9342d; }
+.alos-status-pill.at_risk, .alos-status-pill.medium, .alos-status-pill.attention, .alos-status-pill.in_progress { background: #fff0d7; color: #bc7207; }
+.alos-status-pill.on_track, .alos-status-pill.healthy, .alos-status-pill.completed, .alos-status-pill.resolved { background: #e1f3e6; color: #087744; }
+.alos-division-attention-list { display: grid; margin-top: 11px; }
+.alos-division-attention-list > div { align-items: center; border-top: 1px solid #e8ece7; display: grid; gap: 8px; grid-template-columns: 26px minmax(0, 1fr) auto 88px; min-height: 58px; padding: 9px 0; }
+.alos-division-attention-list > div:first-child { border-top: 0; }
+.alos-division-attention-list > div > span:first-child { align-items: center; background: #fff0d7; border-radius: 50%; color: #d18108; display: inline-flex; font-size: .75rem; font-weight: 900; height: 25px; justify-content: center; width: 25px; }
+.alos-division-attention-list > div > span:first-child.critical { background: #ffe3df; color: #e22e27; }
+.alos-division-attention-list p { display: grid; gap: 3px; margin: 0; min-width: 0; }
+.alos-division-attention-list p strong { color: #213f35; font-size: .67rem; }
+.alos-division-attention-list p small { color: #718078; font-size: .56rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.alos-project-filters { align-items: stretch; display: grid; gap: 8px; grid-template-columns: repeat(3, minmax(135px, .85fr)) repeat(2, minmax(140px, 1fr)) auto; margin-bottom: 9px; }
+.alos-project-filters select, .alos-project-filters label, .alos-project-filters button { background: rgba(255, 254, 250, .96); border: 1px solid #d9e0da; border-radius: 8px; color: #314d43; font: inherit; font-size: .65rem; min-height: 43px; }
+.alos-project-filters select { padding: 0 10px; }
+.alos-project-filters label { align-items: center; display: flex; gap: 6px; padding: 4px 8px; }
+.alos-project-filters label span { color: #7e8c85; font-size: .54rem; }
+.alos-project-filters input { background: transparent; border: 0; color: #314d43; font: inherit; font-size: .61rem; min-width: 0; padding: 0; width: 100%; }
+.alos-project-filters input:focus { outline: 0; }
+.alos-project-filters button { cursor: pointer; font-weight: 750; padding: 0 12px; }
+.alos-projects-dashboard.loading { opacity: .72; pointer-events: none; }
+.alos-project-metrics { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.alos-project-metrics article { align-items: center; background: linear-gradient(135deg, #fffefa, #f5faf5); border: 1px solid #dfe5df; border-radius: 13px; display: flex; gap: 15px; min-height: 92px; padding: 14px 17px; }
+.alos-project-metrics article > span { align-items: center; background: #e2f1e5; border-radius: 50%; color: #078347; display: inline-flex; flex: 0 0 auto; font-size: 1rem; height: 48px; justify-content: center; width: 48px; }
+.alos-project-metrics article.on-track { background: linear-gradient(135deg, #fffefa, #f2f7ff); }
+.alos-project-metrics article.on-track > span { background: #e4effd; color: #147be1; }
+.alos-project-metrics article.at-risk { background: linear-gradient(135deg, #fffefa, #fff7eb); }
+.alos-project-metrics article.at-risk > span { background: #fff0d6; color: #ed9207; }
+.alos-project-metrics article.critical { background: linear-gradient(135deg, #fffefa, #fff2f0); }
+.alos-project-metrics article.critical > span { background: #ffe1de; color: #e52c25; }
+.alos-project-metrics article div { display: grid; gap: 2px; }
+.alos-project-metrics strong { color: #143d32; font-size: 1.45rem; line-height: 1; }
+.alos-project-metrics p { color: #29483e; font-size: .72rem; font-weight: 750; margin: 0; }
+.alos-project-metrics small { color: #72837a; font-size: .57rem; }
+.alos-project-overview-grid, .alos-project-detail-grid { display: grid; gap: 13px; grid-template-columns: minmax(0, 2fr) minmax(310px, .72fr); margin-top: 13px; }
+.alos-project-progress, .alos-project-milestones { min-height: 250px; }
+.alos-project-progress-body { align-items: center; display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr) 245px; margin-top: 5px; }
+.alos-project-progress-chart { min-width: 0; position: relative; }
+.alos-project-progress-chart > svg { display: block; width: 100%; }
+.alos-project-portfolio-donut-wrap { align-items: center; display: grid; gap: 15px; grid-template-columns: 112px minmax(90px, 1fr); }
+.alos-project-portfolio-donut { align-items: center; border-radius: 50%; display: flex; height: 112px; justify-content: center; width: 112px; }
+.alos-project-portfolio-donut > div { align-items: center; background: #fffefa; border-radius: 50%; display: flex; flex-direction: column; height: 68px; justify-content: center; width: 68px; }
+.alos-project-portfolio-donut strong { color: #173e33; font-size: 1.22rem; }
+.alos-project-portfolio-donut span { color: #687b72; font-size: .57rem; }
+.alos-project-distribution-legend { display: grid; gap: 8px; }
+.alos-project-distribution-legend p { align-items: center; color: #4a6057; display: grid; font-size: .59rem; gap: 6px; grid-template-columns: 7px minmax(48px, 1fr) auto; margin: 0; }
+.alos-project-distribution-legend i { border-radius: 50%; height: 7px; width: 7px; }
+.alos-project-distribution-legend strong { color: #253f36; }
+.alos-milestone-list { display: grid; margin-top: 11px; }
+.alos-milestone-list > div { align-items: center; border-top: 1px solid #e7ebe7; display: grid; gap: 8px; grid-template-columns: 7px 73px minmax(0, 1fr) auto; min-height: 45px; padding: 6px 0; }
+.alos-milestone-list > div:first-child { border-top: 0; }
+.alos-milestone-list > div > i { border-radius: 50%; height: 7px; width: 7px; }
+.alos-milestone-list time { color: #51665d; font-size: .56rem; }
+.alos-milestone-list p { display: grid; gap: 2px; margin: 0; min-width: 0; }
+.alos-milestone-list p strong { color: #27443a; font-size: .6rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.alos-milestone-list p span { color: #718079; font-size: .54rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.alos-project-table-panel { min-height: 310px; }
+.alos-project-table-toolbar { align-items: center; display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr) 180px auto; }
+.alos-project-table-toolbar label { align-items: center; border: 1px solid #d9e0da; border-radius: 7px; display: flex; padding: 0 8px; }
+.alos-project-table-toolbar input { border: 0; font: inherit; font-size: .61rem; min-height: 32px; min-width: 0; width: 100%; }
+.alos-project-table-toolbar input:focus { outline: 0; }
+.alos-project-table-toolbar label span { color: #6f8178; }
+.alos-project-table-toolbar button { background: #fffefa; border: 1px solid #d5ddd6; border-radius: 7px; color: #314d43; font: inherit; font-size: .61rem; font-weight: 750; min-height: 34px; padding: 0 10px; }
+.alos-project-table-toolbar button:disabled { opacity: .5; }
+.alos-project-progress-cell { align-items: center; display: flex; gap: 6px; }
+.alos-project-progress-cell b { font-size: .59rem; min-width: 30px; }
+.alos-project-progress-cell > i { background: #e7ebe7; border-radius: 10px; display: block; height: 5px; overflow: hidden; width: 62px; }
+.alos-project-progress-cell em { background: #0b9550; border-radius: inherit; display: block; height: 100%; }
+.alos-project-pagination { align-items: center; border-top: 1px solid #e7ebe7; display: flex; justify-content: space-between; margin-top: 8px; padding-top: 10px; }
+.alos-project-pagination > span { color: #718079; font-size: .58rem; }
+.alos-project-pagination div { align-items: center; display: flex; gap: 5px; }
+.alos-project-pagination button, .alos-project-pagination strong { align-items: center; background: #fff; border: 1px solid #dce3dd; border-radius: 6px; color: #385349; display: inline-flex; font-size: .61rem; height: 27px; justify-content: center; width: 27px; }
+.alos-project-pagination strong { background: #07503e; border-color: #07503e; color: #fff; }
+.alos-project-pagination button:disabled { opacity: .35; }
+.alos-project-risk { min-height: 310px; }
+.alos-project-risk-list { display: grid; margin-top: 11px; }
+.alos-project-risk-list > div { align-items: center; border-top: 1px solid #e7ebe7; display: flex; gap: 12px; min-height: 76px; padding: 10px 0; }
+.alos-project-risk-list > div:first-child { border-top: 0; }
+.alos-project-risk-list > div > span { align-items: center; background: #e2f0ff; border-radius: 50%; color: #177ddd; display: inline-flex; flex: 0 0 auto; font-size: .78rem; font-weight: 900; height: 42px; justify-content: center; width: 42px; }
+.alos-project-risk-list > div > span.at_risk { background: #fff0d7; color: #eb9006; }
+.alos-project-risk-list > div > span.critical { background: #ffe1de; color: #e52e27; }
+.alos-project-risk-list p { display: grid; gap: 5px; margin: 0; }
+.alos-project-risk-list strong { color: #26443a; font-size: .69rem; }
+.alos-project-risk-list small { color: #667970; font-size: .59rem; line-height: 1.4; }
+
+@media (max-width: 1450px) {
+  .alos-division-card-grid { grid-template-columns: repeat(3, minmax(185px, 1fr)); }
+  .alos-divisions-lower-grid { grid-template-columns: minmax(390px, 1fr) minmax(390px, 1fr); }
+  .alos-division-attention { grid-column: 1 / -1; }
+  .alos-project-filters { grid-template-columns: repeat(3, minmax(140px, 1fr)); }
+}
+@media (max-width: 1100px) {
+  .alos-division-card-grid, .alos-project-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .alos-divisions-lower-grid, .alos-project-overview-grid, .alos-project-detail-grid { grid-template-columns: 1fr; }
+  .alos-division-attention { grid-column: auto; }
+  .alos-project-progress-body { grid-template-columns: minmax(0, 1fr) 230px; }
+}
+@media (max-width: 720px) {
+  .alos-division-card-grid, .alos-project-metrics, .alos-project-filters { grid-template-columns: 1fr; }
+  .alos-divisions-dashboard, .alos-projects-dashboard { padding-inline: 16px; }
+  .alos-project-progress-body { grid-template-columns: 1fr; }
+  .alos-project-portfolio-donut-wrap { justify-content: center; }
+  .alos-project-table-toolbar { align-items: stretch; grid-template-columns: 1fr; }
+  .alos-division-attention-list > div { grid-template-columns: 26px minmax(0, 1fr) auto; }
+  .alos-division-attention-list .alos-sparkline { display: none; }
+}
+
+

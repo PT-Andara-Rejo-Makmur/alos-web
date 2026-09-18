@@ -3,6 +3,10 @@ import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/layout/app-shell";
 
+import "@/features/mvp1/styles/mvp1-base.css";
+import "@/features/mvp1/styles/genesis.css";
+import "@/features/mvp1/styles/governance.css";
+import "@/features/mvp1/styles/portfolio.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

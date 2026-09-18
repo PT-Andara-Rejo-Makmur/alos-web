@@ -2,11 +2,14 @@ FROM node:22-alpine AS dependencies
 WORKDIR /app
 RUN corepack enable
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=alos-web-pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
 
 FROM node:22-alpine AS builder
 WORKDIR /app
 RUN corepack enable
+ARG NEXT_PUBLIC_ALOS_API_BASE_URL
+ENV NEXT_PUBLIC_ALOS_API_BASE_URL=${NEXT_PUBLIC_ALOS_API_BASE_URL}
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 RUN pnpm build

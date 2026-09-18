@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { apiRequest, ApiConfigurationError } from "@/lib/api";
+import { apiRequest, ApiConfigurationError, ApiRequestError } from "@/lib/api";
 import { getLastCorrelationId } from "@/lib/correlation/store";
 
 const originalBaseUrl = process.env.NEXT_PUBLIC_ALOS_API_BASE_URL;
@@ -35,5 +35,34 @@ describe("Backend API client", () => {
       expect.objectContaining({ headers: expect.objectContaining({ Accept: "application/json" }) }),
     );
     expect(getLastCorrelationId()).toBe("corr-123");
+  });
+
+  it("mempertahankan structured error dari Backend", async () => {
+    process.env.NEXT_PUBLIC_ALOS_API_BASE_URL = "https://backend.alos.test";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            code: "GENESIS_UNAVAILABLE",
+            message: "GENESIS transport is unavailable.",
+            correlation_id: "corr-error-001",
+            retryable: true,
+          }),
+          { status: 503, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    const error = await apiRequest("/api/v1/system/integration").catch(
+      (caught: unknown) => caught,
+    );
+    expect(error).toBeInstanceOf(ApiRequestError);
+    expect(error).toMatchObject({
+      code: "GENESIS_UNAVAILABLE",
+      status: 503,
+      correlationId: "corr-error-001",
+      message: "GENESIS transport is unavailable.",
+    });
   });
 });
