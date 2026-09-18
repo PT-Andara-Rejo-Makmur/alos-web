@@ -25,7 +25,7 @@ export default function HomePage() {
             <p className="eyebrow">WORKSPACES</p>
             <h2 id="workspace-title">Pilih pengalaman kerja</h2>
           </div>
-          <span className="quiet-label">5 pengalaman · 1 authority</span>
+          <span className="quiet-label">{experiences.length} area · 1 authority</span>
         </div>
         <div className="experience-grid">
           {experiences.map((experience) => (

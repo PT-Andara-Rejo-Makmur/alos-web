@@ -1,6 +1,19 @@
 /** Public facade for generated alos-contracts TypeScript exports. */
 export const CONTRACT_SOURCE = "alos-contracts/generated/typescript" as const;
 
+export type {
+  AgentDraft,
+  CapabilityCatalogItem,
+  CapabilityDraft,
+  CapabilityType,
+  FactoryAnalyzeRequest,
+  FactoryAnalyzeResponse,
+  FactoryDecision,
+  RegistryDraftReference,
+  RegistryDraftResult,
+  RiskLevel,
+} from "../../../../alos-contracts/generated/typescript/factory";
+
 /**
  * Narrow bootstrap projection of IntegrationDiagnostic. Replace this declaration
  * with the generated export when alos-contracts is published as a package.

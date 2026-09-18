@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 FROM node:22-alpine AS dependencies
 WORKDIR /app
 RUN corepack enable
@@ -18,6 +20,7 @@ ARG NEXT_PUBLIC_ALOS_API_BASE_URL
 ENV NEXT_PUBLIC_ALOS_API_BASE_URL=${NEXT_PUBLIC_ALOS_API_BASE_URL}
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
+COPY --from=contracts generated/typescript /alos-contracts/generated/typescript
 RUN pnpm build
 
 FROM node:22-alpine AS runtime

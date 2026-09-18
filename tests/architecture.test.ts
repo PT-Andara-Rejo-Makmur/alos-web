@@ -27,6 +27,8 @@ describe("frontend architecture boundary", () => {
   it("tidak memuat provider SDK atau direct GENESIS endpoint", () => {
     const forbidden = [
       /https?:\/\/[^"'\s]*genesis/i,
+      /NEXT_PUBLIC_GENESIS/i,
+      /["']\/internal\/v1\//,
       /from\s+["'](?:openai|@google\/generative-ai|@anthropic-ai\/sdk)["']/,
     ];
     const violations = sourceFiles(sourceRoot).flatMap((path) => {
@@ -37,6 +39,12 @@ describe("frontend architecture boundary", () => {
     });
 
     expect(violations).toEqual([]);
+  });
+
+  it("menyediakan route H1 dalam satu Next.js application", () => {
+    for (const route of ["business", "ara", "genesis", "agents", "research", "governance", "director", "giivepro"]) {
+      expect(() => readFileSync(join(sourceRoot, "app", route, "page.tsx"), "utf8")).not.toThrow();
+    }
   });
 
   it("tidak mendeklarasikan public secret environment", () => {

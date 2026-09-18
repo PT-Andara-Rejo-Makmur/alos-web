@@ -1,6 +1,2 @@
-# Ganti placeholder berikut dengan user atau tim GitHub organisasi.
-* @FE_OWNER
-/src/lib/api/ @FE_OWNER @BE_OWNER
-/src/lib/contracts/ @FE_OWNER @BE_OWNER
-/src/experiences/genesis/ @FE_OWNER @AI_OWNER
-/src/features/reviews/ @FE_OWNER @BE_OWNER @AI_OWNER
+# Repository-wide owners. Enforcement requires GitHub branch protection.
+* @karinanoob @reynaldptandararejomakmur

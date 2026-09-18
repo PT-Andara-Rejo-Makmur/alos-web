@@ -1,4 +1,12 @@
-export type ExperienceId = "business" | "ara" | "genesis" | "director" | "giivepro";
+export type ExperienceId =
+  | "business"
+  | "ara"
+  | "genesis"
+  | "agents"
+  | "research"
+  | "governance"
+  | "director"
+  | "giivepro";
 
 export interface ExperienceDefinition {
   readonly id: ExperienceId;
@@ -51,6 +59,45 @@ export const experiences: readonly ExperienceDefinition[] = [
     boundary:
       "IT decision dikirim sebagai command ke Backend dan baru ditampilkan sebagai final setelah response.",
     tone: "cyan",
+  },
+  {
+    id: "agents",
+    href: "/agents",
+    name: "Agents & Capabilities",
+    audience: "IT REGISTRY VIEW",
+    summary: "Purpose, scope, risk, tools, lifecycle, dan readiness dari Backend.",
+    description:
+      "Tinjau projection Agent dan Capability tanpa membuat registry atau lifecycle state lokal.",
+    boundaryTitle: "Registry authoritative berada di Backend",
+    boundary:
+      "Frontend hanya membaca summary bertipe dan tidak dapat mengaktifkan draft atau mengubah permission.",
+    tone: "cyan",
+  },
+  {
+    id: "research",
+    href: "/research",
+    name: "R&D Workspace",
+    audience: "RESEARCH REQUEST",
+    summary: "Satu workspace untuk riset INTERNAL/EXTERNAL dan empat domain R&D.",
+    description:
+      "Pilih mode dan domain riset; policy sumber, permission, egress, dan evidence tetap diputuskan Backend.",
+    boundaryTitle: "Pilihan UI bukan izin akses",
+    boundary:
+      "Mode EXTERNAL hanya sebuah request. Backend tetap menerapkan source policy, egress, audit, dan governance.",
+    tone: "violet",
+  },
+  {
+    id: "governance",
+    href: "/governance",
+    name: "Governance",
+    audience: "REVIEW & ASSURANCE",
+    summary: "Review package, evidence, approval, release, dan readiness projection.",
+    description:
+      "Tinjau state governance yang dikembalikan Backend tanpa optimistic approval atau release lokal.",
+    boundaryTitle: "Decision dan release tetap server-side",
+    boundary:
+      "AI recommendation adalah input review; hanya Backend yang mencatat keputusan dan lifecycle final.",
+    tone: "amber",
   },
   {
     id: "director",
