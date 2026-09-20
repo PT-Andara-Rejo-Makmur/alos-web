@@ -1,7 +1,7 @@
 import { ExperiencePage } from "@/components/layout/experience-page";
 import { FactoryWorkspace } from "@/features/factory";
 import { ItReviewProjection } from "@/features/reviews/it-review-projection";
-import { GenesisMvp1Workspace } from "@/experiences/genesis/mvp1-workspace";
+import { GenesisMvp1Workspace, GenesisRdGovernanceView } from "@/experiences/genesis";
 import { getExperience } from "@/experiences/registry";
 
 export default function GenesisPage() {
@@ -9,6 +9,7 @@ export default function GenesisPage() {
     <ExperiencePage experience={getExperience("genesis")}>
       <FactoryWorkspace />
       <ItReviewProjection />
+      <GenesisRdGovernanceView />
       <GenesisMvp1Workspace />
     </ExperiencePage>
   );

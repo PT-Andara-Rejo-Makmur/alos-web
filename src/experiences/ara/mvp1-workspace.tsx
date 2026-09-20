@@ -7,6 +7,8 @@ import type { SessionActor } from "@/features/mvp1/lib/governance";
 import { Mvp1MigrationBoundary } from "@/features/mvp1/migration-boundary";
 import { apiMessage, apiRequest } from "@/lib/api";
 
+import { AraContextPanel } from "./ara-context-panel";
+
 export function AraMvp1Workspace() {
   return (
     <Mvp1MigrationBoundary
@@ -36,5 +38,10 @@ function ActorBoundAra() {
 
   if (error) return <p className="alos-error" role="alert">{error}</p>;
   if (!actor) return <p className="alos-loading-shell">Memuat workspace ARA dari Backend…</p>;
-  return <GenesisChat actor={actor} />;
+  return (
+    <div className="ara-workspace-layout">
+      <AraContextPanel />
+      <GenesisChat actor={actor} />
+    </div>
+  );
 }

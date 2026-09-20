@@ -15,6 +15,32 @@ export type {
   RiskLevel,
 } from "../../../../alos-contracts/generated/typescript/factory";
 
+export type {
+  ContentTrust,
+  ContextLifecycleState,
+  ContextBundle,
+  ContextItem,
+  ContextProjection,
+  DataClassification,
+  EvidenceBundle,
+  EvidenceRef,
+  EvidenceValidationStatus,
+  FreshnessStatus,
+  ResearchDecision,
+  ResearchDecisionKind,
+  ResearchDomain,
+  ResearchDomainAccessRecord,
+  ResearchDomainAccessResponse,
+  ResearchDomainAccessStatus,
+  ResearchRequest,
+  ResearchRequestReceipt,
+  ResearchRequestState,
+  ResearchSourceMode,
+  SourceReliability,
+  SourceType,
+  SourceType as ContractSourceType,
+} from "../../../../alos-contracts/generated/typescript/context-research";
+
 /**
  * Narrow bootstrap projection of IntegrationDiagnostic. Replace this declaration
  * with the generated export when alos-contracts is published as a package.
