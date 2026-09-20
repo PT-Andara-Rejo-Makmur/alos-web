@@ -1,4 +1,4 @@
-import { apiRequest, ApiRequestError } from "@/lib/api";
+import { authenticatedApiRequest, ApiRequestError } from "@/lib/api";
 import type {
   ContextItem,
   ContextProjection,
@@ -39,7 +39,7 @@ export interface AraContextAdapter {
 export const backendAraContextAdapter: AraContextAdapter = {
   async loadContext(signal?: AbortSignal): Promise<AraActiveContextProjection> {
     try {
-      const contextData = await apiRequest<ContextProjection>(
+      const contextData = await authenticatedApiRequest<ContextProjection>(
         CONTEXT_OPTIONS_PATH,
         { signal, cache: "no-store" },
       );

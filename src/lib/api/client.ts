@@ -14,14 +14,11 @@ interface ContractErrorProjection {
   readonly correlation_id?: unknown;
 }
 
-export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
-  if (!path.startsWith("/")) {
-    throw new TypeError("ALOS Backend request path harus diawali dengan '/'.");
-  }
+async function requestJson<T>(url: string, options: ApiRequestOptions): Promise<T> {
   const body = options.body;
   const isFormData = body instanceof FormData;
   const isSerializedBody = typeof body === "string";
-  const response = await fetch(`${requireBackendBaseUrl()}${path}`, {
+  const response = await fetch(url, {
     ...options,
     body:
       body === undefined
@@ -61,6 +58,33 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
 
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
+}
+
+export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+  if (!path.startsWith("/")) {
+    throw new TypeError("ALOS Backend request path harus diawali dengan '/'.");
+  }
+  return requestJson<T>(`${requireBackendBaseUrl()}${path}`, options);
+}
+
+export async function authenticatedApiRequest<T>(
+  path: string,
+  options: ApiRequestOptions = {},
+): Promise<T> {
+  if (!path.startsWith("/") || path.startsWith("//")) {
+    throw new TypeError("Authenticated Backend path harus berupa absolute path lokal.");
+  }
+  return requestJson<T>(`/api/backend${path}`, options);
+}
+
+export async function sessionApiRequest<T>(
+  path: string,
+  options: ApiRequestOptions = {},
+): Promise<T> {
+  if (!path.startsWith("/") || path.startsWith("//")) {
+    throw new TypeError("Session path harus berupa absolute path lokal.");
+  }
+  return requestJson<T>(`/api/session${path}`, options);
 }
 
 type QueryValue = string | number | boolean | null | undefined;

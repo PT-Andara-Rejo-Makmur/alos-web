@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { GenesisChat } from "@/features/mvp1/components/genesis-chat";
 import type { SessionActor } from "@/features/mvp1/lib/governance";
 import { Mvp1MigrationBoundary } from "@/features/mvp1/migration-boundary";
-import { apiMessage, apiRequest } from "@/lib/api";
+import { apiMessage, authenticatedApiRequest } from "@/lib/api";
 
 import { AraContextPanel } from "./ara-context-panel";
 
@@ -30,7 +30,9 @@ function ActorBoundAra() {
 
   useEffect(() => {
     const controller = new AbortController();
-    void apiRequest<SessionActor>("/api/v1/whoami", { signal: controller.signal })
+    void authenticatedApiRequest<SessionActor>("/api/v1/auth/whoami", {
+      signal: controller.signal,
+    })
       .then(setActor)
       .catch((failure: unknown) => setError(apiMessage(failure)));
     return () => controller.abort();

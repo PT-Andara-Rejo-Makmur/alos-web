@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/api";
+import { authenticatedApiRequest } from "@/lib/api";
 import type { FactoryAnalyzeResponse } from "@/lib/contracts";
 
 import type {
@@ -125,7 +125,7 @@ export function projectFactoryResponse(value: unknown): FactoryAnalysisProjectio
 
 export const backendFactoryAdapter: FactoryBackendAdapter = {
   async analyze(command: FactoryRequirementCommand): Promise<FactoryAnalysisProjection> {
-    const response = await apiRequest<FactoryAnalyzeResponse>(FACTORY_BACKEND_PATH, {
+    const response = await authenticatedApiRequest<FactoryAnalyzeResponse>(FACTORY_BACKEND_PATH, {
       method: "POST",
       body: command,
     });

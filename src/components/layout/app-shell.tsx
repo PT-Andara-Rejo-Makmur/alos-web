@@ -17,6 +17,7 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
         <Navigation />
         <div className="topbar-meta">
           <span className="environment-badge">FOUNDATION</span>
+          <Link className="button button--ghost" href="/login">Masuk</Link>
         </div>
       </header>
       <div className="content-frame">{children}</div>

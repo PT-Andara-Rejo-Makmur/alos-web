@@ -168,7 +168,7 @@ describe("ARA Context UX", () => {
     expect(result.contextId).toBeUndefined();
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(fetch).toHaveBeenCalledWith(
-      "http://backend.test/api/v1/genesis/context-options",
+      "/api/backend/api/v1/genesis/context-options",
       expect.any(Object),
     );
   });
