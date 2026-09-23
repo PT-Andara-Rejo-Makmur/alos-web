@@ -118,8 +118,8 @@ export const dashboardModules = {
   },
   genesis: {
     title: "GENESIS",
-    description: "Your AI Executive Assistant untuk mengubah kebutuhan menjadi DRAFT yang tetap melewati governance manusia.",
-    searchPlaceholder: "Ask GENESIS anything about your business…",
+    description: "AI Control Plane untuk orkestrasi kontrol sistem, agent telemetry, dan governance manusia.",
+    searchPlaceholder: "Perintah sistem kontrol atau query tata kelola AI…",
     metrics: [],
     primaryPanel: "Percakapan dengan GENESIS",
     secondaryPanel: "Agen Aktif",

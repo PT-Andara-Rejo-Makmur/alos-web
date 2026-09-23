@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Bell } from "lucide-react";
 
 import { apiRequest, withQuery } from "@/lib/api";
 import { type Notification } from "@/features/mvp1/lib/operational";
@@ -80,9 +81,7 @@ export function NotificationCenter() {
         title="Notifikasi"
         type="button"
       >
-        <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
-          <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
-        </svg>
+        <Bell size={18} strokeWidth={2} aria-hidden="true" />
         {unread > 0 ? <strong>{unread > 99 ? "99+" : unread}</strong> : null}
       </button>
       {notificationsOpen ? (

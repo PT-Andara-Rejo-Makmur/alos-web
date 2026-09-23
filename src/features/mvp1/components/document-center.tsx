@@ -44,10 +44,13 @@ import {
   type GenesisUploadRecord,
 } from "@/features/mvp1/lib/genesis-uploads";
 import type { SessionActor } from "@/features/mvp1/lib/governance";
+import type { ActiveWorkspaceContext } from "@/features/workspace-routing";
+import type { WorkspaceShellIdentity } from "@/features/workspace-shell";
 
 type DocumentCenterProps = {
   actor: SessionActor;
   mode: "documents" | "genesis";
+  activeWorkspace?: ActiveWorkspaceContext | WorkspaceShellIdentity;
 };
 
 type GenesisHistoryConversation = GenesisDocumentAnalysisResult["conversation"];
@@ -61,7 +64,7 @@ type GenesisHistoryArtifact = {
 
 const emptyWorkspace: DocumentWorkspace[] = [];
 
-export function DocumentCenter({ actor, mode }: DocumentCenterProps) {
+export function DocumentCenter({ actor, mode, activeWorkspace }: DocumentCenterProps) {
   const [workspaces, setWorkspaces] = useState<DocumentWorkspace[]>(emptyWorkspace);
   const [workspaceId, setWorkspaceId] = useState("");
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
@@ -166,16 +169,18 @@ export function DocumentCenter({ actor, mode }: DocumentCenterProps) {
       try {
         const items = await apiRequest<DocumentWorkspace[]>("/api/v1/workspaces");
         setWorkspaces(items);
-        const firstWorkspaceId = items[0]?.workspace_id ?? "";
-        setWorkspaceId(firstWorkspaceId);
-        if (firstWorkspaceId) {
-          const documentItems = await apiRequest<DocumentRecord[]>(`/api/v1/documents?workspace_id=${encodeURIComponent(firstWorkspaceId)}`);
+        const initialWorkspaceId = activeWorkspace?.workspaceId
+          ? items.find((w) => w.workspace_id === activeWorkspace.workspaceId)?.workspace_id ?? activeWorkspace.workspaceId
+          : (items[0]?.workspace_id ?? "");
+        setWorkspaceId(initialWorkspaceId);
+        if (initialWorkspaceId) {
+          const documentItems = await apiRequest<DocumentRecord[]>(`/api/v1/documents?workspace_id=${encodeURIComponent(initialWorkspaceId)}`);
           setDocuments(documentItems);
           if (mode === "genesis") {
             setAnalysisSourceId(documentItems.find(canGenesisReadDocument)?.document_id ?? "");
           }
           if (mode === "genesis" && canUploadToGenesis) {
-            setUploads(await apiRequest<GenesisUploadRecord[]>(`/api/v1/genesis/uploads?workspace_id=${encodeURIComponent(firstWorkspaceId)}`));
+            setUploads(await apiRequest<GenesisUploadRecord[]>(`/api/v1/genesis/uploads?workspace_id=${encodeURIComponent(initialWorkspaceId)}`));
           }
         }
       } catch (failure) {
@@ -185,7 +190,7 @@ export function DocumentCenter({ actor, mode }: DocumentCenterProps) {
       }
     }
     void initialize();
-  }, [canUploadToGenesis, mode]);
+  }, [activeWorkspace?.workspaceId, canUploadToGenesis, mode]);
 
   function selectWorkspace(nextWorkspaceId: string) {
     setWorkspaceId(nextWorkspaceId);

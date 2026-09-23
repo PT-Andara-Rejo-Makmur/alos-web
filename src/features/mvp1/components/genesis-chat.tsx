@@ -104,14 +104,29 @@ const contextTypes: ContextEntityType[] = [
   "REPORT",
 ];
 
+export type ConversationRouteAdapter = {
+  readonly basePath: string;
+  conversationUrl(id: string): string;
+};
+
+const DEFAULT_GENESIS_ROUTE_ADAPTER: ConversationRouteAdapter = {
+  basePath: "/genesis",
+  conversationUrl: (id: string) => "/genesis?conversation=" + encodeURIComponent(id),
+};
+
 export function GenesisChat({
   actor,
   initialQuery = "",
+  routeAdapter = DEFAULT_GENESIS_ROUTE_ADAPTER,
+  activeWorkspaceId,
 }: {
   actor: SessionActor;
   initialQuery?: string;
+  routeAdapter?: ConversationRouteAdapter;
+  activeWorkspaceId?: string;
 }) {
-  const [workspaceId, setWorkspaceId] = useState(actor.workspace_ids[0] ?? "");
+  const initialWorkspace = activeWorkspaceId || actor.workspace_ids[0] || "";
+  const [workspaceId, setWorkspaceId] = useState(initialWorkspace);
   const [conversations, setConversations] = useState<GenesisConversation[]>([]);
   const [conversationId, setConversationId] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -244,10 +259,10 @@ export function GenesisChat({
       setLoading(true);
       setError(null);
       try {
-        const first = actor.workspace_ids[0] ?? "";
-        setWorkspaceId(first);
-        if (first) {
-          const items = await loadWorkspaceData(first);
+        const targetWs = activeWorkspaceId || actor.workspace_ids[0] || "";
+        setWorkspaceId(targetWs);
+        if (targetWs) {
+          const items = await loadWorkspaceData(targetWs);
           const requestedId =
             typeof window === "undefined"
               ? ""
@@ -256,7 +271,7 @@ export function GenesisChat({
             items.find((item) => item.conversation_id === requestedId) ?? items[0];
           if (selected) {
             setConversationId(selected.conversation_id);
-            await loadConversation(selected.conversation_id, items, first);
+            await loadConversation(selected.conversation_id, items, targetWs);
           }
         }
       } catch (failure) {
@@ -266,7 +281,7 @@ export function GenesisChat({
       }
     }
     void initialize();
-  }, [actor.workspace_ids, loadConversation, loadWorkspaceData]);
+  }, [activeWorkspaceId, actor.workspace_ids, loadConversation, loadWorkspaceData]);
 
   useEffect(() => {
     if (!openConversationMenuId) return;
@@ -337,7 +352,7 @@ export function GenesisChat({
     setError(null);
     try {
       await loadConversation(nextConversationId, conversations, workspaceId);
-      window.history.replaceState(null, "", "/genesis?conversation=" + encodeURIComponent(nextConversationId));
+      window.history.replaceState(null, "", routeAdapter.conversationUrl(nextConversationId));
     } catch (failure) {
       setError(normalizeGenesisError(failure));
     }
@@ -364,7 +379,7 @@ export function GenesisChat({
       setContextLabels({});
       setMode("AUTO");
       setNotice("Percakapan baru berhasil dibuat.");
-      window.history.replaceState(null, "", "/genesis?conversation=" + encodeURIComponent(created.conversation_id));
+      window.history.replaceState(null, "", routeAdapter.conversationUrl(created.conversation_id));
     } catch (failure) {
       setError(normalizeGenesisError(failure));
     } finally {
@@ -427,8 +442,7 @@ export function GenesisChat({
     if (!conversationId) return;
     const url =
       window.location.origin +
-      "/genesis?conversation=" +
-      encodeURIComponent(conversationId);
+      routeAdapter.conversationUrl(conversationId);
     try {
       await window.navigator.clipboard.writeText(url);
       setNotice("Tautan percakapan disalin. Akses tetap mengikuti login dan scope penerima.");
@@ -471,11 +485,11 @@ export function GenesisChat({
           window.history.replaceState(
             null,
             "",
-            "/genesis?conversation=" + encodeURIComponent(next.conversation_id),
+            routeAdapter.conversationUrl(next.conversation_id),
           );
           await loadConversation(next.conversation_id, remaining, workspaceId);
         } else {
-          window.history.replaceState(null, "", "/genesis");
+          window.history.replaceState(null, "", routeAdapter.basePath);
         }
       }
       setConfirmation(null);

@@ -1,0 +1,566 @@
+/* ALOS Login Page Scoped Styles */
+
+.loginWrapper {
+  --alos-black: #0B0C0E;
+  --alos-charcoal: #141619;
+  --alos-graphite: #1C1F24;
+  --alos-gold: #D1A357;
+  --alos-gold-light: #F0D083;
+  --alos-gold-dark: #9E6E2E;
+  --alos-white: #F7F5F0;
+  --alos-muted: #A8ADB5;
+  --alos-border-dark: #2A2E35;
+  --alos-gold-gradient: linear-gradient(135deg, #F0D083 0%, #D1A357 50%, #9E6E2E 100%);
+  --alos-gold-gradient-hover: linear-gradient(135deg, #F7DE9B 0%, #DCB065 50%, #AC7C3B 100%);
+
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--alos-white);
+  background-color: var(--alos-black);
+  min-height: 100vh;
+  display: flex;
+  position: relative;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Left Panel — Brand Visual (Desktop)
+   ========================================================================== */
+
+.visualPanel {
+  flex: 0 0 56%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3.5rem 4rem;
+  background-color: var(--alos-charcoal);
+}
+
+.visualImageContainer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.visualImage {
+  object-fit: cover;
+  object-position: center;
+}
+
+.visualOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    to bottom,
+    rgba(11, 12, 14, 0.55) 0%,
+    rgba(11, 12, 14, 0.25) 35%,
+    rgba(11, 12, 14, 0.85) 75%,
+    rgba(11, 12, 14, 0.98) 100%
+  );
+}
+
+.visualHeader {
+  position: relative;
+  z-index: 3;
+}
+
+.brandIdentity {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brandLogoBox {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 22, 25, 0.75);
+  border: 1px solid var(--alos-border-dark);
+  border-radius: 9px;
+  backdrop-filter: blur(8px);
+  flex-shrink: 0;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.brandSubtitle {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--alos-gold-light);
+  line-height: 1.2;
+}
+
+.visualFooter {
+  position: relative;
+  z-index: 3;
+  max-width: 620px;
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--alos-gold);
+  margin: 0 0 0.85rem 0;
+}
+
+.visualHeadline {
+  font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.3rem, 3.4vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.05;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.2rem 0;
+}
+
+.visualBody {
+  font-size: clamp(0.92rem, 1.2vw, 1.05rem);
+  color: var(--alos-muted);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 540px;
+}
+
+.visualDivider {
+  width: 44px;
+  height: 2px;
+  background: var(--alos-gold);
+  margin: 1.5rem 0 1rem 0;
+}
+
+.visualTagline {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--alos-gold-light);
+  margin: 0;
+}
+
+/* ==========================================================================
+   Right Panel — Authentication Form
+   ========================================================================== */
+
+.formPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.5rem 3.5rem;
+  background: var(--alos-black);
+  position: relative;
+}
+
+.formTopBar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--alos-muted);
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+
+.backLink:hover,
+.backLink:focus-visible {
+  color: var(--alos-gold-light);
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.alosLogoBox {
+  margin-bottom: 1.5rem;
+}
+
+.formEyebrow {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--alos-gold);
+  margin: 0 0 0.65rem 0;
+}
+
+.formHeading {
+  font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2rem, 2.5vw, 2.8rem);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.85rem 0;
+}
+
+.formDescription {
+  font-size: 0.92rem;
+  color: var(--alos-muted);
+  line-height: 1.55;
+  margin: 0 0 2rem 0;
+}
+
+/* Form Fields */
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  margin-bottom: 1.5rem;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fieldLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--alos-white);
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputControl {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background-color: var(--alos-charcoal);
+  border: 1px solid var(--alos-border-dark);
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-family: inherit;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.inputControl::placeholder {
+  color: #5d636f;
+}
+
+.inputControl:focus {
+  outline: none;
+  border-color: var(--alos-gold);
+  box-shadow: 0 0 0 3px rgba(209, 163, 87, 0.22);
+}
+
+.inputControl:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.inputWithToggle {
+  padding-right: 5rem;
+}
+
+.togglePasswordButton {
+  position: absolute;
+  right: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  border: none;
+  color: var(--alos-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.18s ease;
+}
+
+.togglePasswordButton:hover,
+.togglePasswordButton:focus-visible {
+  color: var(--alos-gold-light);
+}
+
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  background-color: rgba(185, 45, 45, 0.14);
+  border: 1px solid rgba(220, 60, 60, 0.35);
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.submitButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  height: 48px;
+  padding: 0 1.5rem;
+  background: var(--alos-gold-gradient);
+  color: #0c0e0e;
+  font-size: 0.92rem;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 18px rgba(209, 163, 87, 0.25);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.submitButton:hover:not(:disabled),
+.submitButton:focus-visible:not(:disabled) {
+  background: var(--alos-gold-gradient-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(209, 163, 87, 0.38);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Security Helper Text */
+.securityHelper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.76rem;
+  color: var(--alos-muted);
+  margin: 0 0 1.5rem 0;
+}
+
+.securityDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--alos-gold);
+  box-shadow: 0 0 8px rgba(209, 163, 87, 0.6);
+}
+
+/* Role-based Access Box */
+.roleBox {
+  background-color: var(--alos-charcoal);
+  border: 1px solid var(--alos-border-dark);
+  border-radius: 12px;
+  padding: 1.2rem 1.35rem;
+  margin-bottom: 1.5rem;
+}
+
+.roleBoxTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--alos-white);
+  margin: 0 0 0.45rem 0;
+}
+
+.roleBoxCopy {
+  font-size: 0.8rem;
+  color: var(--alos-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Help Text */
+.helpText {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--alos-muted);
+  margin: 0;
+}
+
+.formFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1.5rem;
+}
+
+.footerMeta {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: rgba(168, 173, 181, 0.5);
+  margin: 0;
+}
+
+.mobileNavLinks {
+  display: none;
+}
+
+.mobileNavLinksDot {
+  color: rgba(168, 173, 181, 0.4);
+  font-size: 0.85rem;
+  user-select: none;
+}
+
+/* Mobile Banner */
+.mobileBanner {
+  display: none;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 960px) {
+  .loginWrapper {
+    flex-direction: column;
+  }
+
+  /* Hide Desktop Visual Panel on Mobile/Tablet */
+  .visualPanel {
+    display: none;
+  }
+
+  /* Show Mobile Banner */
+  .mobileBanner {
+    display: flex;
+    position: relative;
+    height: 250px;
+    width: 100%;
+    overflow: hidden;
+    padding: 1.5rem;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .mobileBannerImage {
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .mobileBannerOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(
+      to bottom,
+      rgba(11, 12, 14, 0.6) 0%,
+      rgba(11, 12, 14, 0.3) 40%,
+      rgba(11, 12, 14, 0.95) 100%
+    );
+  }
+
+  .mobileBannerContent {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  .mobileBannerBottom {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .mobileBannerEyebrow {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    color: var(--alos-gold);
+    margin: 0;
+  }
+
+  .mobileBannerHeadline {
+    font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.15;
+    margin: 0;
+  }
+
+  /* Mobile Form Panel */
+  .formPanel {
+    padding: 2rem 1.5rem 3rem;
+  }
+
+  .formTopBar {
+    display: none;
+  }
+
+  .formContainer {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .helpText {
+    display: none;
+  }
+
+  .mobileNavLinks {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.6rem;
+    font-size: 0.8rem;
+    color: var(--alos-muted);
+  }
+
+  .mobileNavLinks a {
+    color: var(--alos-muted);
+    text-decoration: none;
+    transition: color 0.18s ease;
+  }
+
+  .mobileNavLinks a:hover,
+  .mobileNavLinks a:focus-visible {
+    color: var(--alos-gold-light);
+  }
+
+  .formFooter {
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .submitButton,
+  .inputControl,
+  .backLink,
+  .togglePasswordButton {
+    transition: none !important;
+    transform: none !important;
+  }
+}

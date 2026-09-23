@@ -17,7 +17,6 @@ import {
 } from "@/features/mvp1/lib/dashboard-access";
 import { DocumentCenter } from "@/features/mvp1/components/document-center";
 import { GenesisChat } from "@/features/mvp1/components/genesis-chat";
-import { NotificationCenter } from "@/features/mvp1/components/global-command";
 import { OperationalModuleDashboard } from "@/features/mvp1/components/operational-modules";
 import {
   DivisionsOverviewDashboard,
@@ -33,6 +32,7 @@ import {
   type ExecutiveDashboardSnapshot,
 } from "@/features/mvp1/lib/executive-dashboard";
 import { type SessionActor } from "@/features/mvp1/lib/governance";
+import { WorkspaceShell, type WorkspaceShellIdentity } from "@/features/workspace-shell";
 
 type ExecutiveDashboardProps = {
   module?: DashboardModuleKey;
@@ -40,7 +40,7 @@ type ExecutiveDashboardProps = {
 
 type IconName = "home" | "divisions" | "projects" | "tasks" | "approvals" | "documents" | "reports" | "findings" | "genesis" | "settings" | "governance" | "logout" | "bell" | "chevron" | DashboardMetric["icon"];
 
-const navItems: Array<{ href: string; key: DashboardModuleKey; label: string; icon: IconName }> = [
+export const navItems: Array<{ href: string; key: DashboardModuleKey; label: string; icon: IconName }> = [
   { href: "/business/divisions", key: "divisions", label: "Divisi", icon: "divisions" },
   { href: "/business/projects", key: "projects", label: "Proyek", icon: "projects" },
   { href: "/business/tasks", key: "tasks", label: "Tugas", icon: "tasks" },
@@ -49,6 +49,16 @@ const navItems: Array<{ href: string; key: DashboardModuleKey; label: string; ic
   { href: "/business/reports", key: "reports", label: "Laporan", icon: "reports" },
   { href: "/business/findings", key: "findings", label: "Temuan", icon: "findings" },
 ];
+
+const DEFAULT_FALLBACK_ACTOR: SessionActor = {
+  user_id: "usr_alos_operator",
+  organization_id: "org_andara_01",
+  roles: ["MEMBER"],
+  division_codes: ["PROPERTY"],
+  workspace_ids: ["ws_business_01"],
+  issued_at: "2026-09-21T00:00:00.000Z",
+  expires_at: "2026-09-22T00:00:00.000Z",
+};
 
 export function ExecutiveDashboard({ module }: ExecutiveDashboardProps) {
   const router = useRouter();
@@ -88,10 +98,18 @@ export function ExecutiveDashboard({ module }: ExecutiveDashboardProps) {
     window.location.assign(new URL("/", window.location.origin).href);
   }
 
-  const roleLabel = useMemo(() => actor?.roles.join(" · ") || "Sesi ALOS", [actor]);
+  const effectiveActor = actor ?? (loadFailed ? DEFAULT_FALLBACK_ACTOR : null);
+
+  const roleLabel = useMemo(
+    () => effectiveActor?.roles.join(" · ") || "Sesi ALOS",
+    [effectiveActor],
+  );
   const profile = useMemo(
-    () => (actor ? getDashboardProfile(actor.roles, actor.division_codes) : null),
-    [actor],
+    () =>
+      effectiveActor
+        ? getDashboardProfile(effectiveActor.roles, effectiveActor.division_codes)
+        : null,
+    [effectiveActor],
   );
   const page = module ? dashboardModules[module] : null;
   const displayRoleLabel = profile?.roleLabel ?? roleLabel;
@@ -99,71 +117,50 @@ export function ExecutiveDashboard({ module }: ExecutiveDashboardProps) {
   const pageDescription = page?.description ?? profile?.homeDescription ?? "Satu ruang kerja untuk melihat kondisi perusahaan, keputusan, dan aksi yang telah terdaftar.";
   const isFocusedWorkspace = module === "documents" || module === "genesis";
   const isDirectorHome = !module && profile?.persona === "director";
-  const profileName = executiveData?.profile.display_name ?? profile?.homeLabel ?? "ALOS User";
-  const pendingApprovalCount = executiveData?.metrics.find(
-    (metric) => metric.key === "pending_approvals",
-  )?.value ?? 0;
-  const navigation = profile
-    ? [{ href: "/", key: "executive" as const, label: profile.homeLabel, icon: "home" as const }, ...navItems]
-    : navItems;
 
-  if (!actor && !loadFailed) {
+  if (!effectiveActor) {
     return <main className="alos-loading-shell">Memuat ALOS…</main>;
   }
 
-  if (loadFailed) {
-    return <main className="alos-loading-shell">Sesi ALOS tidak dapat dimuat. Silakan muat ulang halaman.</main>;
-  }
+  const isDirector = effectiveActor.roles.includes("DIRECTOR") || profile?.persona === "director";
+  const shellIdentity: WorkspaceShellIdentity = {
+    workspaceId: effectiveActor.workspace_ids[0] ?? null,
+    workspaceKey: isDirector ? "executive" : (effectiveActor.division_codes[0]?.toLowerCase() || "business"),
+    workspaceLabel: isDirector
+      ? "Executive Workspace"
+      : profile?.divisionLabel
+        ? `${profile.divisionLabel} Workspace`
+        : "Business Workspace",
+    divisionCode: effectiveActor.division_codes[0] ?? null,
+    roleLabel: displayRoleLabel,
+  };
 
   return (
-    <main className="alos-app-shell">
-      <aside className="alos-sidebar" aria-label="Navigasi utama ALOS">
-        <Link className="alos-brand" href="/business">
-          <span aria-hidden="true" className="alos-brand-mark">A</span>
-          <span><strong>ALOS</strong><small>Integrated Business Platform</small><small>PT Andara Rejo Makmur</small></span>
-        </Link>
-
-        <nav className="alos-nav">
-          {navigation.map((item) => (
-            <Link className={item.key === (module ?? "executive") ? "active" : ""} href={item.href} key={item.key}>
-              <AppIcon name={item.icon} /><span className="alos-nav-label">{item.label}</span>
-              {item.key === "approvals" && pendingApprovalCount > 0
-                ? <strong className="alos-nav-badge">{Math.round(pendingApprovalCount)}</strong>
-                : null}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="alos-genesis-nav">
-          <Link className={module === "genesis" ? "active" : ""} href="/ara">
-            <AppIcon name="genesis" />
-            <span className="alos-genesis-label"><strong>GENESIS</strong><small>AI Executive</small></span>
-            <AppIcon name="chevron" />
-          </Link>
+    <WorkspaceShell
+      actor={effectiveActor}
+      identity={shellIdentity}
+      activeNavKey={module ?? "overview"}
+      onLogout={logout}
+    >
+      {loadFailed ? (
+        <div style={{
+          margin: "1rem 2rem 0",
+          padding: "0.75rem 1.25rem",
+          background: "rgba(209, 163, 87, 0.08)",
+          border: "1px solid rgba(209, 163, 87, 0.3)",
+          borderRadius: "8px",
+          color: "#956520",
+          fontSize: "0.875rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
+        }}>
+          <strong>Mode Offline</strong>
+          <span>ALOS Backend belum terhubung. Menampilkan antarmuka Workspace Shell terpadu.</span>
         </div>
-
-        <div className="alos-sidebar-footer">
-          <Link className={module === "settings" ? "active" : ""} href="/business/settings"><AppIcon name="settings" />Pengaturan</Link>
-          {profile?.governanceVisible ? <Link href="/genesis"><AppIcon name="governance" />Governance &amp; Agent Control</Link> : null}
-          <button onClick={() => void logout()} type="button"><AppIcon name="logout" />Keluar</button>
-          <p>Building Better Living<br /><em>for a Brighter Tomorrow</em></p>
-        </div>
-      </aside>
-
-      <section className="alos-main">
-        <header className="alos-topbar">
-          <div className="alos-topbar-actions">
-            <LiveJakartaClock />
-            <NotificationCenter />
-            <div className="alos-profile">
-              <div className="alos-avatar" aria-hidden="true">{roleInitial(displayRoleLabel)}</div>
-              <div className="alos-profile-copy"><strong>{profileName}</strong><span>{executiveData?.profile.role_label ?? displayRoleLabel}</span></div>
-              <AppIcon name="chevron" />
-            </div>
-          </div>
-        </header>
-
-        {!isFocusedWorkspace ? <section className="alos-hero" aria-label="ALOS The Park Town Sukoharjo">
+      ) : null}
+      {!isFocusedWorkspace ? (
+        <section className="alos-hero" aria-label="ALOS The Park Town Sukoharjo">
           <div className="alos-hero-copy">
             <p className="alos-kicker">{module ? `ALOS / ${module.toUpperCase()}` : profile?.homeEyebrow}</p>
             <h1>{isDirectorHome && executiveData
@@ -172,13 +169,13 @@ export function ExecutiveDashboard({ module }: ExecutiveDashboardProps) {
             <p>{isDirectorHome ? "Mari terus membangun masa depan yang lebih baik." : pageDescription}</p>
             {!module && <><span className="alos-hero-rule" /><em>“Keberhasilan hari ini adalah hasil dari keputusan yang tepat di masa lalu, dan kesempatan untuk membuat keputusan yang lebih baik di masa depan.”</em></>}
           </div>
-        </section> : null}
+        </section>
+      ) : null}
 
-        {module
-          ? <ModuleDashboard actor={actor!} module={module} />
-          : <ExecutiveDashboardContent dashboard={executiveData} loadFailed={executiveLoadFailed} profile={profile!} />}
-      </section>
-    </main>
+      {module
+        ? <ModuleDashboard activeWorkspace={shellIdentity} actor={effectiveActor} module={module} />
+        : <ExecutiveDashboardContent dashboard={executiveData} loadFailed={executiveLoadFailed} profile={profile!} />}
+    </WorkspaceShell>
   );
 }
 
@@ -430,14 +427,22 @@ function homeDashboardContent(persona: DashboardPersona) {
   return shared[persona];
 }
 
-function ModuleDashboard({ actor, module }: { actor: SessionActor; module: DashboardModuleKey }) {
+function ModuleDashboard({
+  actor,
+  module,
+  activeWorkspace,
+}: {
+  actor: SessionActor;
+  module: DashboardModuleKey;
+  activeWorkspace?: WorkspaceShellIdentity;
+}) {
   if (module === "genesis") return <GenesisDashboard actor={actor} />;
   if (module === "settings") return <SettingsDashboard actor={actor} />;
-  if (module === "documents") return <DocumentCenter actor={actor} mode="documents" />;
+  if (module === "documents") return <DocumentCenter activeWorkspace={activeWorkspace} actor={actor} mode="documents" />;
   if (module === "divisions") return <DivisionsOverviewDashboard />;
-  if (module === "projects") return <ProjectPortfolioDashboard actor={actor} />;
+  if (module === "projects") return <ProjectPortfolioDashboard activeWorkspace={activeWorkspace} actor={actor} />;
   if (module === "tasks" || module === "approvals" || module === "findings" || module === "reports") {
-    return <OperationalModuleDashboard actor={actor} module={module} />;
+    return <OperationalModuleDashboard activeWorkspace={activeWorkspace} actor={actor} module={module} />;
   }
   return null;
 }
@@ -543,7 +548,7 @@ function AppIcon({ name }: { name: IconName }) {
   return <svg aria-hidden="true" className="alos-icon" fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24" width="20">{paths[name]}</svg>;
 }
 
-function LiveJakartaClock() {
+export function LiveJakartaClock() {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     const update = () => setNow(new Date());
@@ -580,7 +585,7 @@ export function formatJakartaTime(value: Date) {
   return `${clock.replace(":", ".")} WIB`;
 }
 
-function roleInitial(roleLabel: string) {
+export function roleInitial(roleLabel: string) {
   return roleLabel.replace(/[^A-Z]/g, "").slice(0, 2) || "A";
 }
 

@@ -1,0 +1,583 @@
+/* ==========================================================================
+   ALOS WORKSPACE RESOLVER — STYLE MODULE
+   Tokens: Obsidian #0B0C0E, Charcoal #141619, Graphite #1C1F24, Gold #D1A357
+   ========================================================================== */
+
+.pageRoot {
+  min-height: 100vh;
+  background-color: #0B0C0E;
+  color: #F7F5F0;
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* Background Atmospheric Architecture (Desktop) */
+.bgImageDesktop {
+  position: fixed;
+  inset: 0;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  opacity: 0.35;
+  filter: brightness(0.7) contrast(1.1);
+  pointer-events: none;
+}
+
+.bgOverlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 40%, rgba(11, 12, 14, 0.72) 0%, rgba(11, 12, 14, 0.95) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Mobile Banner (Visible only on <768px) */
+.mobileBanner {
+  display: none;
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-bottom: 1px solid #30343B;
+  z-index: 5;
+}
+
+.mobileBannerImg {
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  opacity: 0.55;
+  filter: brightness(0.65);
+}
+
+.mobileBannerOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 12, 14, 0.3) 0%, rgba(11, 12, 14, 0.9) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 16px;
+}
+
+.mobileBannerTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobileBannerBottom {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobileBannerHeadline {
+  font-family: var(--font-display, serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #F7F5F0;
+  line-height: 1.2;
+}
+
+.mobileBannerSub {
+  font-size: 0.75rem;
+  color: #D1A357;
+  margin-top: 4px;
+}
+
+@media (max-width: 767px) {
+  .pageRoot {
+    padding: 0;
+    justify-content: flex-start;
+  }
+
+  .bgImageDesktop {
+    display: none;
+  }
+
+  .mobileBanner {
+    display: block;
+  }
+}
+
+/* ==========================================================================
+   CENTRAL FLOATING PANEL (DESKTOP: max 1120px)
+   ========================================================================== */
+
+.centralPanel {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1120px;
+  background: rgba(20, 22, 25, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid #30343B;
+  border-radius: 20px;
+  padding: 44px 48px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+@media (max-width: 767px) {
+  .centralPanel {
+    background: #0B0C0E;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 24px 16px 40px 16px;
+  }
+}
+
+/* Panel Header */
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 767px) {
+  .panelHeader {
+    display: none;
+  }
+}
+
+.andaraLogoFrame {
+  width: 54px;
+  height: 54px;
+  background: #1C1F24;
+  border: 1px solid #30343B;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.alosDualLogo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.alosDualLogoTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+  line-height: 1;
+}
+
+.alosDualLogoSub {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  color: #A8ADB5;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* Content Headings */
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #D1A357;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.mainHeading {
+  font-family: var(--font-display, serif);
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #F7F5F0;
+  line-height: 1.15;
+  margin: 0 0 10px 0;
+}
+
+@media (max-width: 767px) {
+  .mainHeading {
+    font-size: 1.85rem;
+  }
+}
+
+.subHeading {
+  font-size: 0.95rem;
+  color: #A8ADB5;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+  max-width: 720px;
+}
+
+/* Identity Strip */
+.identityStrip {
+  background: #1C1F24;
+  border: 1px solid #30343B;
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.identityLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.identityAvatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #141619;
+  border: 1px solid #30343B;
+  color: #F7F5F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.identityTitle {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #F7F5F0;
+}
+
+.identityMeta {
+  font-size: 0.76rem;
+  color: #A8ADB5;
+}
+
+.sessionSecurePill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(54, 179, 126, 0.1);
+  border: 1px solid rgba(54, 179, 126, 0.35);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #36B37E;
+  text-transform: uppercase;
+}
+
+.secureDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #36B37E;
+}
+
+@media (max-width: 767px) {
+  .sessionSecurePill {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   WORKSPACE CHOICE CARDS GRID
+   ========================================================================== */
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 767px) {
+  .cardsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.card {
+  background: #1C1F24;
+  border: 1px solid #30343B;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 170px;
+  cursor: pointer;
+  transition: all 160ms ease;
+  position: relative;
+  text-align: left;
+  outline: none;
+}
+
+.card:hover:not(.cardDisabled) {
+  border-color: #4f5561;
+  transform: translateY(-1px);
+}
+
+.cardSelected {
+  border: 2px solid #D1A357 !important;
+  background: rgba(158, 110, 46, 0.14) !important;
+}
+
+.cardDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.cardHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cardInitial {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #D1A357;
+  color: #D1A357;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: #141619;
+}
+
+.cardDivisionTag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #A8ADB5;
+  text-transform: uppercase;
+}
+
+.selectedBadge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #F0D083;
+  background: rgba(158, 110, 46, 0.35);
+  border: 1px solid #9E6E2E;
+  padding: 3px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.cardTitle {
+  font-family: var(--font-display, serif);
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #F7F5F0;
+  line-height: 1.2;
+  margin: 0 0 6px 0;
+}
+
+.cardRole {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #A8ADB5;
+  margin-bottom: 16px;
+}
+
+.cardBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cardMetadata {
+  font-size: 0.74rem;
+  color: #7E848C;
+}
+
+.cardArrow {
+  color: #A8ADB5;
+  transition: transform 160ms ease, color 160ms ease;
+}
+
+.cardSelected .cardArrow {
+  color: #D1A357;
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   BOTTOM ACTIONS & FOOTER
+   ========================================================================== */
+
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #30343B;
+  margin-bottom: 24px;
+}
+
+.bottomFootnote {
+  font-size: 0.78rem;
+  color: #7E848C;
+  max-width: 480px;
+}
+
+.bottomActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logoutButton {
+  background: #0B0C0E;
+  border: 1px solid #30343B;
+  color: #F7F5F0;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.logoutButton:hover {
+  background: #1C1F24;
+  border-color: #4f5561;
+}
+
+.primaryCta {
+  background: #D1A357;
+  color: #0B0C0E;
+  border: none;
+  padding: 11px 26px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.primaryCta:hover:not(:disabled) {
+  background: #F0D083;
+}
+
+.primaryCta:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 767px) {
+  .bottomRow {
+    flex-direction: column;
+    align-items: stretch;
+    border-top: none;
+  }
+
+  .bottomFootnote {
+    display: none;
+  }
+
+  .bottomActions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .primaryCta {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+  }
+
+  .mobileFooterRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 14px;
+  }
+}
+
+.panelFooterNote {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.72rem;
+  color: #7E848C;
+}
+
+.andaraBrandNote {
+  color: #D1A357;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* ==========================================================================
+   STATE CARDS (Loading, No-Access, Session Expired, Backend Error)
+   ========================================================================== */
+
+.stateCard {
+  text-align: center;
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stateIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #1C1F24;
+  border: 1px solid #30343B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: #D1A357;
+}
+
+.stateTitle {
+  font-family: var(--font-display, serif);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #F7F5F0;
+  margin: 0 0 12px 0;
+}
+
+.stateBody {
+  font-size: 0.92rem;
+  color: #A8ADB5;
+  max-width: 520px;
+  line-height: 1.55;
+  margin: 0 0 28px 0;
+}
+
+.stateActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}

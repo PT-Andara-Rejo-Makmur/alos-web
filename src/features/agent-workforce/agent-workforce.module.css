@@ -1,0 +1,582 @@
+/* ALOS Agent Workforce Styles */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  box-sizing: border-box;
+  font-family: var(--font-manrope, "Manrope", sans-serif);
+  color: #141619;
+}
+
+/* Page Header */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.breadcrumb {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8c8273;
+}
+
+.pageTitle {
+  font-family: var(--font-cormorant, "Cormorant Garamond", Georgia, serif);
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #141619;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.pageSubtitle {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #666055;
+  margin: 0;
+}
+
+/* Business-facing Boundary Banner */
+.boundaryBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background-color: #ffffff;
+  border: 1px solid #e8e6df;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.bannerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bannerEyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9c7b45;
+  margin: 0;
+}
+
+.bannerText {
+  font-size: 13px;
+  color: #555046;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.bannerCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #f7f3ed;
+  border: 1px solid #dfc293;
+  border-radius: 8px;
+  color: #6d5528;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.bannerCta:hover {
+  background-color: #ede5d8;
+  color: #4a3817;
+  border-color: #c5a572;
+}
+
+.bannerCta:focus-visible {
+  outline: 2px solid #c5a572;
+  outline-offset: 2px;
+}
+
+/* 4-Card Summary Metrics Row */
+.summaryRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.summaryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: #ffffff;
+  border: 1px solid #e8e6df;
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+
+.summaryLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8c8273;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.summaryValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: #141619;
+  margin: 0;
+}
+
+.summaryDetail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #666055;
+  margin: 0;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotBlue { background-color: #3b82f6; }
+.dotGreen { background-color: #10b981; }
+.dotAmber { background-color: #f59e0b; }
+.dotCoral { background-color: #ef4444; }
+
+/* Desktop 2-Column Main Section */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Left Column: Workforce Available */
+.workforceSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: #ffffff;
+  border: 1px solid #e8e6df;
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.sectionEyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9c7b45;
+  margin: 0;
+}
+
+.sectionTitle {
+  font-family: var(--font-cormorant, "Cormorant Garamond", Georgia, serif);
+  font-size: 26px;
+  font-weight: 700;
+  color: #141619;
+  margin: 0;
+}
+
+.sectionSubtitle {
+  font-size: 12px;
+  color: #8c8273;
+  margin: 0;
+}
+
+/* Agent Card List */
+.agentList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agentCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background-color: #ffffff;
+  border: 1px solid #ebe9e4;
+  border-radius: 12px;
+  padding: 16px 20px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.agentCard:hover {
+  border-color: #dfc293;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.agentCardLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.avatarBadge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #141619;
+  color: #c5a572;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 1px solid #333333;
+}
+
+.agentDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.agentName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #141619;
+  margin: 0;
+}
+
+.agentPurpose {
+  font-size: 12px;
+  color: #666055;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.agentCardRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.capabilityBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #faf7f2;
+  border: 1px solid #e8dfd1;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #7d6537;
+  white-space: nowrap;
+}
+
+.humanReviewNote {
+  font-size: 11px;
+  color: #8c8273;
+  white-space: nowrap;
+}
+
+.useAraButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 18px;
+  background-color: #141619;
+  color: #ffffff;
+  border: 1px solid #141619;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 40px;
+}
+
+.useAraButton:hover {
+  background-color: #26292d;
+  border-color: #26292d;
+}
+
+.useAraButton:focus-visible {
+  outline: 2px solid #c5a572;
+  outline-offset: 2px;
+}
+
+.workforceFootnote {
+  font-size: 11px;
+  color: #999388;
+  margin: 12px 0 0;
+}
+
+/* Empty & Error States */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background-color: #faf9f6;
+  border: 1px dashed #e0ded7;
+  border-radius: 12px;
+  gap: 8px;
+}
+
+.emptyStateTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #141619;
+  margin: 0;
+}
+
+.emptyStateText {
+  font-size: 13px;
+  color: #666055;
+  margin: 0;
+  max-width: 440px;
+}
+
+/* Right Column */
+.sidebarColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Scoped Runs Activity Card */
+.activityCard {
+  background-color: #ffffff;
+  border: 1px solid #e8e6df;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.activityEyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8c8273;
+  margin: 0;
+}
+
+.activityTitle {
+  font-family: var(--font-cormorant, "Cormorant Garamond", Georgia, serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: #141619;
+  margin: 0;
+}
+
+.activityTable {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.activityRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid #f2f0eb;
+  font-size: 13px;
+}
+
+.activityRow:last-child {
+  border-bottom: none;
+}
+
+.activityKey {
+  color: #666055;
+}
+
+.activityVal {
+  font-weight: 600;
+  color: #141619;
+}
+
+.activityValBlocked {
+  font-weight: 600;
+  color: #b45309;
+}
+
+.activityValSucceeded {
+  font-weight: 600;
+  color: #15803d;
+}
+
+.activityValFailed {
+  font-weight: 600;
+  color: #b91c1c;
+}
+
+.activityFootnote {
+  font-size: 11px;
+  color: #8c8273;
+  margin: 0;
+}
+
+/* Dark Obsidian Authority Card */
+.authorityCard {
+  background-color: #141619;
+  border: 1px solid #2e2b26;
+  border-radius: 14px;
+  padding: 24px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.authorityEyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #c5a572;
+  margin: 0;
+}
+
+.authorityTitle {
+  font-family: var(--font-cormorant, "Cormorant Garamond", Georgia, serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.authorityList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.authorityItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.authorityItemLabel {
+  font-weight: 700;
+  color: #dfc293;
+}
+
+.authorityItemDesc {
+  color: #b3aba0;
+}
+
+.genesisLinkButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #1e2024;
+  border: 1px solid #3d3830;
+  border-radius: 8px;
+  color: #c5a572;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  text-align: center;
+}
+
+.genesisLinkButton:hover {
+  background-color: #2b2e34;
+  border-color: #c5a572;
+  color: #e4caa4;
+}
+
+.genesisLinkButton:focus-visible {
+  outline: 2px solid #c5a572;
+  outline-offset: 2px;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .summaryRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .container {
+    padding: 20px 16px 48px;
+    gap: 18px;
+  }
+
+  .boundaryBanner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .bannerCta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .summaryRow {
+    grid-template-columns: 1fr;
+  }
+
+  .agentCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .agentCardRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .useAraButton {
+    min-width: 130px;
+  }
+}

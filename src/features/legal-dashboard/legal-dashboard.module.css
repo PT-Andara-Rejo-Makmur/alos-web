@@ -1,0 +1,674 @@
+/* ==========================================================================
+   ALOS Legal & Compliance Dashboard Styles
+   Fonts: Cormorant Garamond (headings) & Manrope (UI & data)
+   Zero-fabrication status colors: Green, Amber, Red, Neutral Gray, Brand Gold
+   Confidentiality-aware, human-authority-first
+   ========================================================================== */
+
+.dashboardWrapper {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: var(--font-manrope, sans-serif);
+  color: #141619;
+  background-color: #f8f7f4;
+  min-height: 100%;
+}
+
+/* ==========================================================================
+   Header & Context Bar
+   ========================================================================== */
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.contextBar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.breadcrumbs {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a928c;
+}
+
+.pageTitle {
+  font-family: var(--font-cormorant-garamond, serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #141619;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.92rem;
+  color: #5a625d;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Legal Data Readiness Card
+   ========================================================================== */
+
+.readinessCard {
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 12px;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.readinessInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.readinessEyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #99732f;
+  margin: 0;
+}
+
+.readinessDesc {
+  font-size: 0.82rem;
+  color: #5a625d;
+  margin: 0;
+}
+
+.readinessPills {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.readinessPill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pillLabel {
+  font-size: 0.68rem;
+  color: #8a928c;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pillState {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stateLive {
+  color: #0b9952;
+}
+.stateLive .dot {
+  background-color: #0b9952;
+}
+
+.statePartial {
+  color: #f09a0b;
+}
+.statePartial .dot {
+  background-color: #f09a0b;
+}
+
+.stateNotConnected {
+  color: #8a928c;
+}
+.stateNotConnected .dot {
+  background-color: #8a928c;
+}
+
+/* ==========================================================================
+   Top 4 KPI Metrics Grid
+   ========================================================================== */
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.metricCard {
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.metricTitle {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6e7670;
+  margin: 0;
+}
+
+.metricValue {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #141619;
+  line-height: 1.1;
+  margin: 8px 0;
+}
+
+.metricSubtext {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: #6e7670;
+  margin: 0;
+}
+
+.metricDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #8a928c;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Middle 3-Column Grid (Desktop)
+   ========================================================================== */
+
+.middle3Grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.panelCard {
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 12px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.panelHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 18px;
+}
+
+.panelEyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a928c;
+  margin: 0;
+}
+
+.panelTitle {
+  font-family: var(--font-cormorant-garamond, serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #141619;
+  margin: 0;
+}
+
+.panelSubtitle {
+  font-size: 0.76rem;
+  color: #5a625d;
+  margin: 0;
+}
+
+.panelList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panelListItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f3f0;
+}
+
+.panelListItem:last-child {
+  border-bottom: none;
+}
+
+.itemLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #141619;
+}
+
+.itemValue {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #8a928c;
+}
+
+.itemFootnote {
+  font-size: 0.72rem;
+  color: #8a928c;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+/* Skeleton bars for permits & land */
+.skeletonRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.skeletonRow:last-child {
+  margin-bottom: 0;
+}
+
+.skeletonRowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+}
+
+.skeletonBarContainer {
+  width: 100%;
+  height: 8px;
+  background-color: #f0f2f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.skeletonBar {
+  height: 100%;
+  background-color: #d1d8d2;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   Bottom 2-Column Grid (Desktop)
+   ========================================================================== */
+
+.bottom2Grid {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 16px;
+}
+
+/* Control Cadence Table */
+.cadenceTableWrapper {
+  overflow-x: auto;
+  margin-top: 4px;
+}
+
+.cadenceTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.78rem;
+}
+
+.cadenceTable th {
+  padding: 8px 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a928c;
+  border-bottom: 1px solid #e7ebe7;
+}
+
+.cadenceTable td {
+  padding: 10px;
+  border-bottom: 1px solid #f0f3f0;
+  color: #141619;
+  vertical-align: middle;
+}
+
+.cadenceFrequency {
+  font-weight: 600;
+  color: #5a625d;
+  white-space: nowrap;
+}
+
+.cadenceControl {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cadenceControlId {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #99732f;
+}
+
+.cadenceControlName {
+  font-weight: 600;
+}
+
+.cadenceEvidence {
+  font-size: 0.74rem;
+  color: #5a625d;
+}
+
+.badgeUnconnected {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background-color: #f0f2f0;
+  color: #6e7670;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.badgePartial {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background-color: rgba(240, 154, 11, 0.12);
+  color: #b86e00;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Legal Intelligence Obsidian Card (#141619)
+   ========================================================================== */
+
+.obsidianCard {
+  background: #141619;
+  border: 1px solid #c5a572;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  color: #f8f6ef;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.obsidianEyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #d1a357;
+  margin: 0;
+}
+
+.obsidianTitle {
+  font-family: var(--font-cormorant-garamond, serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 2px 0 0;
+}
+
+.obsidianSubtitle {
+  font-size: 0.76rem;
+  color: #a0a6a2;
+  margin: 0 0 16px;
+}
+
+.agentList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.agentItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  gap: 12px;
+}
+
+.agentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.agentHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.agentDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #8a928c;
+  flex-shrink: 0;
+}
+
+.agentId {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #d1a357;
+  letter-spacing: 0.04em;
+}
+
+.agentRole {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.agentDescription {
+  font-size: 0.7rem;
+  color: #a0a6a2;
+  line-height: 1.3;
+}
+
+.agentBadge {
+  display: inline-flex;
+  padding: 2px 7px;
+  background-color: rgba(209, 163, 87, 0.15);
+  border: 1px solid rgba(209, 163, 87, 0.35);
+  border-radius: 4px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #efd083;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.obsidianCtaButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  background-color: #d1a357;
+  color: #141619;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+  margin-top: auto;
+}
+
+.obsidianCtaButton:hover {
+  background-color: #e0b368;
+}
+
+/* ==========================================================================
+   Controlled States (Loading & 403 Forbidden)
+   ========================================================================== */
+
+.stateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 32px;
+  text-align: center;
+  font-family: var(--font-manrope, sans-serif);
+}
+
+.stateCard {
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 12px;
+  padding: 36px 32px;
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.stateTitle {
+  font-family: var(--font-cormorant-garamond, serif);
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #141619;
+  margin: 0;
+}
+
+.stateMessage {
+  font-size: 0.88rem;
+  color: #5a625d;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #141619;
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.actionButton:hover {
+  background-color: #2a2e33;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints (Mobile & Tablet)
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .dashboardWrapper {
+    padding: 16px 16px 80px;
+    gap: 16px;
+  }
+
+  .readinessCard {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .readinessPills {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    width: 100%;
+  }
+
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .middle3Grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .bottom2Grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pageTitle {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .readinessPills {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .metricValue {
+    font-size: 1.85rem;
+  }
+}

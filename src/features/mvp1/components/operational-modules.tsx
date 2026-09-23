@@ -18,14 +18,19 @@ import {
   type TaskStatus,
 } from "@/features/mvp1/lib/operational";
 
+import type { ActiveWorkspaceContext } from "@/features/workspace-routing";
+import type { WorkspaceShellIdentity } from "@/features/workspace-shell";
+
 type OperationalModule = Extract<DashboardModuleKey, "tasks" | "approvals" | "findings" | "reports">;
 
 export function OperationalModuleDashboard({
   actor,
   module,
+  activeWorkspace,
 }: {
   actor: SessionActor;
   module: OperationalModule;
+  activeWorkspace?: ActiveWorkspaceContext | WorkspaceShellIdentity;
 }) {
   const [dashboard, setDashboard] = useState<OperationalDashboard | null>(null);
   const [definitions, setDefinitions] = useState<ReportDefinition[]>([]);
@@ -93,10 +98,10 @@ export function OperationalModuleDashboard({
         <label><span className="sr-only">Filter</span><input onChange={(event) => setFilter(event.target.value)} placeholder={page.searchPlaceholder} type="search" value={filter} /></label>
         <button className="alos-outline-button" disabled={loading} onClick={() => void load()} type="button">{loading ? "Memuat…" : "Muat ulang"}</button>
       </div>
-      {module === "tasks" ? <TasksWorkspace actor={actor} filter={filter} mutate={mutation} tasks={dashboard?.tasks ?? []} /> : null}
+      {module === "tasks" ? <TasksWorkspace activeWorkspace={activeWorkspace} actor={actor} filter={filter} mutate={mutation} tasks={dashboard?.tasks ?? []} /> : null}
       {module === "approvals" ? <ApprovalsWorkspace actions={proposedActions} approvals={dashboard?.approvals ?? []} filter={filter} mutate={mutation} /> : null}
-      {module === "findings" ? <FindingsWorkspace actor={actor} filter={filter} findings={dashboard?.findings ?? []} mutate={mutation} /> : null}
-      {module === "reports" ? <ReportsWorkspace actor={actor} definitions={definitions} filter={filter} mutate={mutation} reports={dashboard?.reports ?? []} /> : null}
+      {module === "findings" ? <FindingsWorkspace activeWorkspace={activeWorkspace} actor={actor} filter={filter} findings={dashboard?.findings ?? []} mutate={mutation} /> : null}
+      {module === "reports" ? <ReportsWorkspace activeWorkspace={activeWorkspace} actor={actor} definitions={definitions} filter={filter} mutate={mutation} reports={dashboard?.reports ?? []} /> : null}
     </section>
   );
 }
@@ -114,10 +119,22 @@ function OperationalMetrics({ dashboard, definitions, module }: { dashboard: Ope
 
 type Mutation = (work: () => Promise<unknown>, success: string) => Promise<void>;
 
-function TasksWorkspace({ actor, filter, mutate, tasks }: { actor: SessionActor; filter: string; mutate: Mutation; tasks: OperationalTask[] }) {
+function TasksWorkspace({
+  actor,
+  filter,
+  mutate,
+  tasks,
+  activeWorkspace,
+}: {
+  actor: SessionActor;
+  filter: string;
+  mutate: Mutation;
+  tasks: OperationalTask[];
+  activeWorkspace?: ActiveWorkspaceContext | WorkspaceShellIdentity;
+}) {
   const [showCreate, setShowCreate] = useState(false);
-  const workspaceId = actor.workspace_ids[0] ?? "";
-  const divisionCode = actor.division_codes[0] ?? "";
+  const workspaceId = activeWorkspace?.workspaceId || actor.workspace_ids[0] || "";
+  const divisionCode = activeWorkspace?.divisionCode || actor.division_codes[0] || "";
   const visible = useMemo(() => matchRows(tasks, filter, (item) => `${item.title} ${item.description} ${item.project_name ?? ""} ${item.status}`), [filter, tasks]);
   const columns: Array<{ label: string; statuses: TaskStatus[] }> = [
     { label: "To do", statuses: ["DRAFT", "TODO"] },
@@ -168,29 +185,74 @@ function ApprovalsWorkspace({ actions, approvals, filter, mutate }: { actions: P
   return <><OperationTable title="Daftar approval"><table><thead><tr><th>Permintaan</th><th>Jenis</th><th>Urgensi</th><th>Status</th><th>Keputusan</th></tr></thead><tbody>{visible.map((item) => <tr key={item.approval_request_id}><td><strong>{item.title}</strong><small>{item.description || item.subject_type}</small></td><td>{humanStatus(item.approval_kind)}</td><td><span className={`alos-live-status ${item.urgency.toLowerCase()}`}>{item.urgency}</span></td><td>{humanStatus(item.status)}</td><td>{item.status === "PENDING" ? <div className="alos-approval-actions"><input aria-label={`Catatan keputusan ${item.title}`} onChange={(event) => setNotes((current) => ({ ...current, [item.approval_request_id]: event.target.value }))} placeholder="Catatan wajib" value={notes[item.approval_request_id] ?? ""} /><button disabled={!notes[item.approval_request_id]?.trim()} onClick={() => decide(item, "APPROVED")} type="button">Setujui</button><button className="danger" disabled={!notes[item.approval_request_id]?.trim()} onClick={() => decide(item, "REJECTED")} type="button">Tolak</button></div> : <small>{item.decision_notes ?? "Keputusan tercatat"}</small>}</td></tr>)}</tbody></table>{visible.length === 0 ? <OperationEmpty text="Tidak ada approval dalam scope atau filter ini." /> : null}</OperationTable><OperationTable title="Eksekusi aksi yang disetujui"><table><thead><tr><th>Aksi</th><th>Risiko</th><th>Status</th><th>Payload digest</th><th>Eksekusi</th></tr></thead><tbody>{actions.map((item) => <tr key={item.proposed_action_id}><td><strong>{humanStatus(item.action_type)}</strong><small>{String(item.payload.title ?? item.proposed_action_id)}</small></td><td>{item.risk_level}</td><td>{humanStatus(item.status)}</td><td><code>{item.payload_digest.slice(0, 16)}…</code></td><td>{item.status === "APPROVED" ? <button onClick={() => { if (window.confirm("Jalankan aksi yang telah disetujui tepat satu kali?")) void mutate(() => apiRequest(`/api/v1/proposed-actions/${item.proposed_action_id}/execute`, { method: "POST", body: JSON.stringify({ payload_digest: item.payload_digest }) }), "Aksi yang disetujui berhasil dijalankan tepat satu kali."); }} type="button">Eksekusi</button> : item.executed_entity_id ? <small>{item.executed_entity_type}: {item.executed_entity_id}</small> : <small>Menunggu approval</small>}</td></tr>)}</tbody></table>{actions.length === 0 ? <OperationEmpty text="Belum ada aksi material yang diajukan." /> : null}</OperationTable></>;
 }
 
-function FindingsWorkspace({ actor, filter, findings, mutate }: { actor: SessionActor; filter: string; findings: Finding[]; mutate: Mutation }) {
+function FindingsWorkspace({
+  actor,
+  filter,
+  findings,
+  mutate,
+  activeWorkspace,
+}: {
+  actor: SessionActor;
+  filter: string;
+  findings: Finding[];
+  mutate: Mutation;
+  activeWorkspace?: ActiveWorkspaceContext | WorkspaceShellIdentity;
+}) {
   const [showCreate, setShowCreate] = useState(false);
+  const workspaceId = activeWorkspace?.workspaceId || actor.workspace_ids[0] || "";
+  const divisionCode = activeWorkspace?.divisionCode || actor.division_codes[0] || "";
   const visible = useMemo(() => matchRows(findings, filter, (item) => `${item.title} ${item.description} ${item.severity} ${item.status}`), [filter, findings]);
   return <>
-    <div className="alos-operation-heading"><div><p className="alos-kicker">MONITORING</p><h3>Temuan dan risiko</h3></div><button className="alos-workspace-primary" disabled={!actor.workspace_ids[0]} onClick={() => setShowCreate((value) => !value)} type="button">{showCreate ? "Tutup" : "+ Catat temuan"}</button></div>
-    {showCreate ? <FindingCreateForm actor={actor} mutate={mutate} onDone={() => setShowCreate(false)} /> : null}
+    <div className="alos-operation-heading"><div><p className="alos-kicker">MONITORING</p><h3>Temuan dan risiko</h3></div><button className="alos-workspace-primary" disabled={!workspaceId} onClick={() => setShowCreate((value) => !value)} type="button">{showCreate ? "Tutup" : "+ Catat temuan"}</button></div>
+    {showCreate ? <FindingCreateForm divisionCode={divisionCode} mutate={mutate} onDone={() => setShowCreate(false)} workspaceId={workspaceId} /> : null}
     <OperationTable title="Daftar temuan"><table><thead><tr><th>Temuan</th><th>Sumber</th><th>Severitas</th><th>Status</th><th>Tindak lanjut</th></tr></thead><tbody>{visible.map((item) => <tr key={item.finding_id}><td><strong>{item.title}</strong><small>{item.description}</small></td><td>{humanStatus(item.source_kind)}</td><td><span className={`alos-live-status ${item.severity.toLowerCase()}`}>{item.severity}</span></td><td>{humanStatus(item.status)}</td><td><div className="alos-approval-actions">{item.status === "OPEN" ? <button onClick={() => void mutate(() => apiRequest(`/api/v1/findings/${item.finding_id}/status`, { method: "PATCH", body: JSON.stringify({ status: "ACKNOWLEDGED" }) }), "Temuan telah diakui dan siap ditindaklanjuti.")} type="button">Akui</button> : item.status !== "RESOLVED" && item.status !== "DISMISSED" ? <button onClick={() => void mutate(() => apiRequest(`/api/v1/findings/${item.finding_id}/status`, { method: "PATCH", body: JSON.stringify({ status: "RESOLVED", resolution: "Resolved through the ALOS findings workspace." }) }), "Temuan ditandai selesai.")} type="button">Selesaikan</button> : <small>{item.resolution ?? "Ditutup"}</small>}<DeleteButton label={`temuan “${item.title}”`} mutate={mutate} path={`/api/v1/findings/${item.finding_id}`} /></div></td></tr>)}</tbody></table>{visible.length === 0 ? <OperationEmpty text="Tidak ada temuan dalam scope atau filter ini." /> : null}</OperationTable>
   </>;
 }
 
-function FindingCreateForm({ actor, mutate, onDone }: { actor: SessionActor; mutate: Mutation; onDone: () => void }) {
+function FindingCreateForm({ divisionCode, mutate, onDone, workspaceId }: { divisionCode: string; mutate: Mutation; onDone: () => void; workspaceId: string }) {
   const [title, setTitle] = useState(""); const [description, setDescription] = useState(""); const [severity, setSeverity] = useState("MEDIUM");
-  async function submit(event: FormEvent) { event.preventDefault(); await mutate(() => apiRequest("/api/v1/findings", { method: "POST", body: JSON.stringify({ workspace_id: actor.workspace_ids[0], division_code: actor.division_codes[0] ?? null, source_kind: "GENESIS", title, description, severity, recommendation: "" }) }), "Temuan berhasil dicatat."); onDone(); }
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    await mutate(() => apiRequest("/api/v1/findings", {
+      method: "POST",
+      body: JSON.stringify({
+        workspace_id: workspaceId,
+        division_code: divisionCode || null,
+        source_kind: "GENESIS",
+        title,
+        description,
+        severity,
+        recommendation: "",
+      }),
+    }), "Temuan berhasil dicatat.");
+    onDone();
+  }
   return <form className="alos-operation-form" onSubmit={(event) => void submit(event)}><label>Judul<input minLength={2} onChange={(event) => setTitle(event.target.value)} required value={title} /></label><label>Severitas<select onChange={(event) => setSeverity(event.target.value)} value={severity}><option>LOW</option><option>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select></label><label className="wide">Deskripsi<textarea minLength={2} onChange={(event) => setDescription(event.target.value)} required value={description} /></label><button className="alos-workspace-primary" type="submit">Simpan temuan</button></form>;
 }
 
-function ReportsWorkspace({ actor, definitions, filter, mutate, reports }: { actor: SessionActor; definitions: ReportDefinition[]; filter: string; mutate: Mutation; reports: Report[] }) {
+function ReportsWorkspace({
+  actor,
+  definitions,
+  filter,
+  mutate,
+  reports,
+  activeWorkspace,
+}: {
+  actor: SessionActor;
+  definitions: ReportDefinition[];
+  filter: string;
+  mutate: Mutation;
+  reports: Report[];
+  activeWorkspace?: ActiveWorkspaceContext | WorkspaceShellIdentity;
+}) {
   const [showCreate, setShowCreate] = useState(false);
+  const workspaceId = activeWorkspace?.workspaceId || actor.workspace_ids[0] || "";
+  const divisionCode = activeWorkspace?.divisionCode || actor.division_codes[0] || "";
   const visibleDefinitions = useMemo(() => matchRows(definitions, filter, (item) => `${item.name} ${item.period} ${item.scope}`), [definitions, filter]);
   const visibleReports = useMemo(() => matchRows(reports, filter, (item) => `${item.report_id} ${item.status}`), [filter, reports]);
   return <>
-    <div className="alos-operation-heading"><div><p className="alos-kicker">DEFINISI TERKENDALI</p><h3>Definisi dan jadwal laporan</h3></div><button className="alos-workspace-primary" disabled={!actor.workspace_ids[0]} onClick={() => setShowCreate((value) => !value)} type="button">{showCreate ? "Tutup" : "+ Definisi laporan"}</button></div>
-    {showCreate ? <ReportCreateForm actor={actor} mutate={mutate} onDone={() => setShowCreate(false)} /> : null}
+    <div className="alos-operation-heading"><div><p className="alos-kicker">DEFINISI TERKENDALI</p><h3>Definisi dan jadwal laporan</h3></div><button className="alos-workspace-primary" disabled={!workspaceId} onClick={() => setShowCreate((value) => !value)} type="button">{showCreate ? "Tutup" : "+ Definisi laporan"}</button></div>
+    {showCreate ? <ReportCreateForm actor={actor} divisionCode={divisionCode} mutate={mutate} onDone={() => setShowCreate(false)} workspaceId={workspaceId} /> : null}
     <div className="alos-report-definitions">{visibleDefinitions.map((definition) => <article className="alos-operation-card" key={definition.report_definition_id}><div><span className="alos-live-status info">{definition.period}</span><small>{definition.schedule_expression ?? "On demand"}</small></div><strong>{definition.name}</strong><p>{humanStatus(definition.scope)} · {definition.review_required ? "Perlu review" : "Tanpa review"}</p><div className="alos-approval-actions"><button onClick={() => void mutate(() => apiRequest(`/api/v1/report-definitions/${definition.report_definition_id}/generate`, { method: "POST", body: JSON.stringify({ idempotency_key: crypto.randomUUID() }) }), "Laporan DRAFT berhasil dihasilkan dengan provenance.")} type="button">Generate sekarang</button><DeleteButton label={`definisi laporan “${definition.name}” beserta laporannya`} mutate={mutate} path={`/api/v1/report-definitions/${definition.report_definition_id}`} /></div><ReportScheduleControl definition={definition} mutate={mutate} /></article>)}{visibleDefinitions.length === 0 ? <OperationEmpty text="Belum ada definisi laporan dalam scope ini." /> : null}</div>
     <OperationTable title="Laporan terbaru"><table><thead><tr><th>ID laporan</th><th>Status</th><th>Dibuat</th><th>Provenance</th><th>Aksi</th></tr></thead><tbody>{visibleReports.map((item) => <tr key={item.report_id}><td><code>{item.report_id}</code></td><td>{humanStatus(item.status)}</td><td>{formatOperationalDate(item.created_at)}</td><td>{item.provenance.length} sumber</td><td><DeleteButton label="laporan ini" mutate={mutate} path={`/api/v1/reports/${item.report_id}`} /></td></tr>)}</tbody></table>{visibleReports.length === 0 ? <OperationEmpty text="Belum ada laporan yang dihasilkan." /> : null}</OperationTable>
   </>;
@@ -209,9 +271,27 @@ function ReportScheduleControl({ definition, mutate }: { definition: ReportDefin
   return <div className="alos-report-schedule"><input aria-label={`Jadwal ${definition.name}`} onChange={(event) => setExpression(event.target.value)} placeholder="DAILY 17:00" value={expression} /><select aria-label={`Zona waktu ${definition.name}`} onChange={(event) => setTimezone(event.target.value)} value={timezone}><option>Asia/Jakarta</option><option>Asia/Makassar</option><option>Asia/Jayapura</option></select><button onClick={() => { if (window.confirm(`Aktifkan ${definition.name} dengan jadwal ${expression} (${timezone})?`)) void mutate(() => apiRequest(`/api/v1/report-definitions/${definition.report_definition_id}/schedule`, { method: "PUT", body: JSON.stringify({ schedule_expression: expression, timezone, confirm: true }) }), "Jadwal durable aktif dan akan diproses scheduler/worker."); }} type="button">Aktifkan jadwal</button></div>;
 }
 
-function ReportCreateForm({ actor, mutate, onDone }: { actor: SessionActor; mutate: Mutation; onDone: () => void }) {
+function ReportCreateForm({ actor, divisionCode, mutate, onDone, workspaceId }: { actor: SessionActor; divisionCode: string; mutate: Mutation; onDone: () => void; workspaceId: string }) {
   const [name, setName] = useState(""); const [period, setPeriod] = useState("WEEKLY"); const [scope, setScope] = useState(actor.roles.includes("DIRECTOR") ? "COMPANY" : "DIVISION");
-  async function submit(event: FormEvent) { event.preventDefault(); await mutate(() => apiRequest("/api/v1/report-definitions", { method: "POST", body: JSON.stringify({ workspace_id: actor.workspace_ids[0], division_code: scope === "COMPANY" ? null : actor.division_codes[0] ?? null, name, template_key: "EXECUTIVE_SUMMARY", scope, period, sections: ["summary", "tasks", "findings"], data_sources: ["tasks", "findings", "approvals"], review_required: true, recipient_user_ids: [] }) }), "Definisi laporan DRAFT berhasil dibuat."); onDone(); }
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    await mutate(() => apiRequest("/api/v1/report-definitions", {
+      method: "POST",
+      body: JSON.stringify({
+        workspace_id: workspaceId,
+        division_code: scope === "COMPANY" ? null : divisionCode || null,
+        name,
+        template_key: "EXECUTIVE_SUMMARY",
+        scope,
+        period,
+        sections: ["summary", "tasks", "findings"],
+        data_sources: ["tasks", "findings", "approvals"],
+        review_required: true,
+        recipient_user_ids: [],
+      }),
+    }), "Definisi laporan DRAFT berhasil dibuat.");
+    onDone();
+  }
   return <form className="alos-operation-form" onSubmit={(event) => void submit(event)}><label>Nama<input minLength={2} onChange={(event) => setName(event.target.value)} required value={name} /></label><label>Periode<select onChange={(event) => setPeriod(event.target.value)} value={period}><option>DAILY</option><option>WEEKLY</option><option>MONTHLY</option><option>ON_DEMAND</option></select></label><label>Scope<select onChange={(event) => setScope(event.target.value)} value={scope}>{actor.roles.includes("DIRECTOR") ? <option>COMPANY</option> : null}<option>DIVISION</option><option>OWN_ASSIGNED</option></select></label><button className="alos-workspace-primary" type="submit">Simpan DRAFT</button></form>;
 }
 

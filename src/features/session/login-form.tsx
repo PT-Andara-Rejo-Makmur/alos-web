@@ -1,9 +1,11 @@
 "use client";
 
+import { ArrowRight, Eye, EyeOff, ShieldAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import { apiMessage, sessionApiRequest } from "@/lib/api";
+import styles from "./login-page.module.css";
 
 interface SessionProjection {
   readonly authenticated: boolean;
@@ -13,24 +15,33 @@ interface SessionProjection {
   } | null;
 }
 
+// Canonical post-login destination: Workspace Resolver
+const POST_LOGIN_PATH = "/workspace";
+
 export function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting) return;
+
     setSubmitting(true);
     setError("");
+
     try {
       const session = await sessionApiRequest<SessionProjection>("/login", {
         method: "POST",
         body: { email, password },
       });
-      if (!session.authenticated) throw new Error("Backend session was not established.");
-      router.push("/research");
+      if (!session.authenticated) {
+        throw new Error("Backend session was not established.");
+      }
+      router.replace(POST_LOGIN_PATH);
       router.refresh();
     } catch (caught) {
       setError(apiMessage(caught));
@@ -40,43 +51,99 @@ export function LoginForm() {
   }
 
   return (
-    <section className="panel feature-workspace" aria-labelledby="login-title">
-      <div className="section-heading section-heading--compact">
-        <div>
-          <p className="eyebrow">BACKEND SESSION</p>
-          <h2 id="login-title">Masuk ke ALOS</h2>
+    <div>
+      <form className={styles.authForm} onSubmit={submit} noValidate={false}>
+        {/* Email Field */}
+        <div className={styles.fieldGroup}>
+          <label className={styles.fieldLabel} htmlFor="session-email">
+            Email
+          </label>
+          <div className={styles.inputWrapper}>
+            <input
+              autoComplete="username"
+              className={styles.inputControl}
+              disabled={submitting}
+              id="session-email"
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="nama@andara.co.id"
+              required
+              type="email"
+              value={email}
+            />
+          </div>
         </div>
-        <span className="status-pill status-pill--muted">Backend authoritative</span>
-      </div>
-      <p>
-        Kredensial diverifikasi oleh ALOS Backend. Token disimpan sebagai cookie HttpOnly
-        dan tidak tersedia untuk JavaScript browser.
-      </p>
-      <form className="factory-form" onSubmit={submit}>
-        <label htmlFor="session-email">Email</label>
-        <input
-          autoComplete="username"
-          id="session-email"
-          onChange={(event) => setEmail(event.target.value)}
-          required
-          type="email"
-          value={email}
-        />
-        <label htmlFor="session-password">Password</label>
-        <input
-          autoComplete="current-password"
-          id="session-password"
-          minLength={12}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-          type="password"
-          value={password}
-        />
-        <button className="button button--primary" disabled={submitting} type="submit">
-          {submitting ? "Memverifikasi…" : "Masuk melalui Backend"}
+
+        {/* Password Field */}
+        <div className={styles.fieldGroup}>
+          <label className={styles.fieldLabel} htmlFor="session-password">
+            Kata sandi
+          </label>
+          <div className={styles.inputWrapper}>
+            <input
+              autoComplete="current-password"
+              className={`${styles.inputControl} ${styles.inputWithToggle}`}
+              disabled={submitting}
+              id="session-password"
+              minLength={12}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Masukkan kata sandi"
+              required
+              type={showPassword ? "text" : "password"}
+              value={password}
+            />
+            <button
+              aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+              className={styles.togglePasswordButton}
+              onClick={() => setShowPassword((prev) => !prev)}
+              type="button"
+            >
+              {showPassword ? (
+                <>
+                  <EyeOff size={16} strokeWidth={1.8} aria-hidden="true" />
+                  <span>SEMBUNYIKAN</span>
+                </>
+              ) : (
+                <>
+                  <Eye size={16} strokeWidth={1.8} aria-hidden="true" />
+                  <span>LIHAT</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Error Alert Message */}
+        {error ? (
+          <div className={styles.errorMessage} role="alert">
+            <ShieldAlert size={18} strokeWidth={1.8} aria-hidden="true" style={{ flexShrink: 0 }} />
+            <span>{error}</span>
+          </div>
+        ) : null}
+
+        {/* Submit Button */}
+        <button className={styles.submitButton} disabled={submitting} type="submit">
+          <span>{submitting ? "Memverifikasi…" : "Masuk ke ALOS"}</span>
+          {!submitting && <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />}
         </button>
       </form>
-      {error ? <p className="alos-error" role="alert">{error}</p> : null}
-    </section>
+
+      {/* Security Helper */}
+      <div className={styles.securityHelper}>
+        <span className={styles.securityDot} aria-hidden="true" />
+        <span>Sesi dikelola ALOS Backend &middot; Cookie HttpOnly</span>
+      </div>
+
+      {/* Role-based Access Box */}
+      <div className={styles.roleBox}>
+        <h3 className={styles.roleBoxTitle}>Akses berbasis peran</h3>
+        <p className={styles.roleBoxCopy}>
+          Setelah masuk, ALOS menampilkan workspace dan data sesuai role, scope divisi, proyek, serta
+          permission yang diberikan kepada akun Anda.
+        </p>
+      </div>
+
+      {/* Help text */}
+      <p className={styles.helpText}>Mengalami kendala akses? Hubungi administrator sistem.</p>
+    </div>
   );
 }

@@ -1,0 +1,676 @@
+/* ==========================================================================
+   ALOS Property & Project Dashboard Styles
+   Fonts: Cormorant Garamond (headings) & Manrope (UI & data)
+   Zero-fabrication status colors: Green, Amber, Red, Neutral Gray, Brand Gold
+   ========================================================================== */
+
+.dashboardWrapper {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: var(--font-manrope, sans-serif);
+  color: #141619;
+  background-color: #f8f7f4;
+  min-height: 100%;
+}
+
+/* ==========================================================================
+   Header & Context Bar
+   ========================================================================== */
+
+.contextBar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.breadcrumbs {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a928c;
+}
+
+.pageTitle {
+  font-family: var(--font-cormorant-garamond, serif);
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #141619;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.92rem;
+  color: #5a625d;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Property Data Readiness Card
+   ========================================================================== */
+
+.readinessCard {
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 12px;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.readinessInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.readinessEyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #99732f;
+  margin: 0;
+}
+
+.readinessDesc {
+  font-size: 0.82rem;
+  color: #5a625d;
+  margin: 0;
+}
+
+.readinessPills {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-shrink: 0;
+}
+
+.readinessPill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pillLabel {
+  font-size: 0.68rem;
+  color: #8a928c;
+  font-weight: 500;
+}
+
+.pillState {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stateLive {
+  color: #0b9952;
+}
+.stateLive .dot {
+  background-color: #0b9952;
+}
+
+.statePartial {
+  color: #f09a0b;
+}
+.statePartial .dot {
+  background-color: #f09a0b;
+}
+
+.stateNotConnected {
+  color: #8a928c;
+}
+.stateNotConnected .dot {
+  background-color: #8a928c;
+}
+
+/* ==========================================================================
+   Top 4 KPI Metrics Grid
+   ========================================================================== */
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.metricCard {
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.metricTitle {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6e7670;
+  margin: 0;
+}
+
+.metricValue {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #141619;
+  line-height: 1.1;
+  margin: 8px 0;
+}
+
+.metricSubtext {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: #6e7670;
+  margin: 0;
+}
+
+.dotBlue {
+  background-color: #1686df;
+}
+.dotGreen {
+  background-color: #0b9952;
+}
+.dotAmber {
+  background-color: #f09a0b;
+}
+.dotRed {
+  background-color: #ea2f29;
+}
+
+/* ==========================================================================
+   Middle 3-Column Grid (Desktop)
+   ========================================================================== */
+
+.middle3Grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 0.9fr;
+  gap: 16px;
+}
+
+.panelCard {
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 12px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.panelHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.panelEyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a928c;
+  margin: 0;
+}
+
+.panelTitle {
+  font-family: var(--font-cormorant-garamond, serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #141619;
+  margin: 0;
+}
+
+.panelSubtitle {
+  font-size: 0.75rem;
+  color: #8a928c;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Progress vs Baseline SVG Chart
+   ========================================================================== */
+
+.chartWrap {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.chartSvg {
+  width: 100%;
+  height: 180px;
+  overflow: visible;
+}
+
+.gridLine {
+  stroke: #e7ebe7;
+  stroke-width: 1;
+}
+
+.chartLine {
+  fill: none;
+  stroke: #07533e;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chartDot {
+  fill: #07533e;
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+
+.chartLabel {
+  font-size: 10px;
+  fill: #8a928c;
+  text-anchor: middle;
+  font-family: var(--font-manrope, sans-serif);
+}
+
+/* ==========================================================================
+   Milestones Panel
+   ========================================================================== */
+
+.milestoneList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.milestoneItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f3f0;
+}
+
+.milestoneItem:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.milestoneDate {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #141619;
+  min-width: 52px;
+  flex-shrink: 0;
+}
+
+.milestoneDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+}
+
+.milestoneProject {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #141619;
+}
+
+.milestoneName {
+  font-size: 0.72rem;
+  color: #6e7670;
+}
+
+/* ==========================================================================
+   Project Risk Panel
+   ========================================================================== */
+
+.riskList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.riskItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.riskItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #2e3430;
+}
+
+.riskCount {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #141619;
+}
+
+.riskFootnote {
+  margin-top: auto;
+  padding-top: 14px;
+  font-size: 0.7rem;
+  color: #8a928c;
+  border-top: 1px solid #f0f3f0;
+}
+
+/* ==========================================================================
+   Bottom 2-Column Grid (Desktop)
+   ========================================================================== */
+
+.bottom2Grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1.1fr;
+  gap: 16px;
+}
+
+/* Construction Control Cadence Table */
+.cadenceTableWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.cadenceTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+}
+
+.cadenceTable th {
+  text-align: left;
+  padding: 8px 12px 10px 0;
+  color: #8a928c;
+  font-weight: 600;
+  border-bottom: 1px solid #e7ebe7;
+  font-size: 0.7rem;
+}
+
+.cadenceTable td {
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid #f2f5f2;
+  color: #2e3430;
+}
+
+.cadenceTable tr:last-child td {
+  border-bottom: none;
+}
+
+.cadenceFreq {
+  font-weight: 700;
+  color: #99732f;
+  width: 90px;
+}
+
+.cadenceName {
+  font-weight: 600;
+  color: #141619;
+}
+
+.cadenceEvidence {
+  color: #6e7670;
+}
+
+.cadenceStatus {
+  text-align: right;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+}
+
+/* ==========================================================================
+   Property Intelligence Obsidian Card (#141619)
+   ========================================================================== */
+
+.intelligenceCard {
+  background: #141619;
+  border: 1px solid rgba(197, 165, 114, 0.25);
+  border-radius: 12px;
+  padding: 22px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.intelligenceEyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c5a572;
+  margin: 0;
+}
+
+.intelligenceTitle {
+  font-family: var(--font-cormorant-garamond, serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 2px 0 0;
+}
+
+.intelligenceSubtitle {
+  font-size: 0.72rem;
+  color: #99a29d;
+  margin: 4px 0 16px;
+}
+
+.agentList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.agentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.agentItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agentDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #8a928c;
+  flex-shrink: 0;
+}
+
+.agentName {
+  font-size: 0.78rem;
+  color: #e2e8e4;
+  font-weight: 500;
+}
+
+.agentStatusBadge {
+  font-size: 0.68rem;
+  color: #99a29d;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.araButton {
+  margin-top: auto;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: rgba(197, 165, 114, 0.1);
+  border: 1px solid #c5a572;
+  color: #e6c88b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.araButton:hover {
+  background: #c5a572;
+  color: #141619;
+}
+
+/* ==========================================================================
+   Mobile Responsive Reordering (< 1024px)
+   ========================================================================== */
+
+.mobileProjectContextCard {
+  display: none;
+}
+
+.mobileCompactCard {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .dashboardWrapper {
+    padding: 16px 16px 80px;
+    gap: 14px;
+  }
+
+  .readinessCard {
+    display: none;
+  }
+
+  .mobileProjectContextCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e7ebe7;
+    border-radius: 12px;
+    padding: 14px 18px;
+  }
+
+  .mobileContextEyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #99732f;
+    margin: 0 0 2px;
+  }
+
+  .mobileContextActive {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #141619;
+    margin: 0;
+  }
+
+  .mobileContextAction {
+    font-size: 0.76rem;
+    color: #99732f;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .metricCard {
+    padding: 14px 16px;
+  }
+
+  .metricValue {
+    font-size: 1.8rem;
+    margin: 4px 0;
+  }
+
+  .middle3Grid,
+  .bottom2Grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Desktop specific middle panels hide on small screens if compact card is active */
+  .desktopOnly {
+    display: none;
+  }
+
+  .mobileCompactCard {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid #e7ebe7;
+    border-radius: 12px;
+    padding: 18px;
+    gap: 12px;
+  }
+
+  .mobileCompactTitle {
+    font-family: var(--font-cormorant-garamond, serif);
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #141619;
+    margin: 0;
+  }
+
+  .mobileCompactRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f4f6f4;
+  }
+
+  .mobileCompactRow:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .mobileCompactLeft {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2e3430;
+  }
+
+  .mobileCompactRight {
+    font-weight: 700;
+    color: #141619;
+  }
+}

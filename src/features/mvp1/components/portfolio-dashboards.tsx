@@ -3,6 +3,8 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { apiMessage, apiRequest } from "@/lib/api";
 import { type SessionActor, type Workspace } from "@/features/mvp1/lib/governance";
+import type { ActiveWorkspaceContext } from "@/features/workspace-routing";
+import type { WorkspaceShellIdentity } from "@/features/workspace-shell";
 
 import {
   buildProjectPortfolioUrl,
@@ -198,7 +200,13 @@ function DivisionAttention({ dashboard }: { dashboard: DivisionsOverviewSnapshot
   );
 }
 
-export function ProjectPortfolioDashboard({ actor }: { actor?: SessionActor }) {
+export function ProjectPortfolioDashboard({
+  actor,
+  activeWorkspace,
+}: {
+  actor?: SessionActor;
+  activeWorkspace?: ActiveWorkspaceContext | WorkspaceShellIdentity;
+}) {
   const [filters, setFilters] = useState<ProjectPortfolioFilters>(EMPTY_FILTERS);
   const [data, setData] = useState<ProjectPortfolioSnapshot | null>(null);
   const [failed, setFailed] = useState(false);
@@ -227,7 +235,7 @@ export function ProjectPortfolioDashboard({ actor }: { actor?: SessionActor }) {
   if (!data) return <PortfolioLoading label="Memuat portofolio proyek…" />;
   return (
     <>
-      {actor ? <ProjectCreatePanel actor={actor} onCreated={() => setReloadKey((value) => value + 1)} /> : null}
+      {actor ? <ProjectCreatePanel activeWorkspace={activeWorkspace} actor={actor} onCreated={() => setReloadKey((value) => value + 1)} /> : null}
       {actor ? <ProjectOperationsPanel onChanged={() => setReloadKey((value) => value + 1)} projects={data.projects} /> : null}
       <ProjectPortfolioContent
       dashboard={data}
@@ -294,10 +302,18 @@ function ProjectOperationsPanel({ onChanged, projects }: { onChanged: () => void
   return <section className="alos-content alos-project-create-shell"><div className="alos-operation-heading"><div><p className="alos-kicker">PROJECT CONTROLS</p><h3>Perbarui proyek, milestone, dan isu</h3></div><select aria-label="Pilih proyek" onChange={(event) => setProjectId(event.target.value)} value={selected?.project_id ?? ""}>{projects.map((project) => <option key={project.project_id} value={project.project_id}>{project.code} · {project.name}</option>)}</select></div>{error ? <div className="alos-operation-banner error">{error}</div> : null}{notice ? <div className="alos-operation-banner success">{notice}</div> : null}<div className="alos-operation-toolbar"><button className={mode === "update" ? "alos-workspace-primary" : "alos-outline-button"} onClick={() => setMode("update")} type="button">Update proyek</button><button className={mode === "milestone" ? "alos-workspace-primary" : "alos-outline-button"} onClick={() => setMode("milestone")} type="button">Tambah milestone</button><button className={mode === "issue" ? "alos-workspace-primary" : "alos-outline-button"} onClick={() => setMode("issue")} type="button">Catat isu</button><button className="danger" disabled={saving} onClick={() => void removeProject()} type="button">Hapus proyek</button></div><form className="alos-operation-form" onSubmit={(event) => void submit(event)}>{mode === "update" ? <><label>Status<select onChange={(event) => setUpdate({ ...update, status: event.target.value })} value={update.status}><option>ON_TRACK</option><option>AT_RISK</option><option>CRITICAL</option><option>COMPLETED</option></select></label><label>Progress (%)<input max="100" min="0" onChange={(event) => setUpdate({ ...update, progress_percent: event.target.value })} required step="0.1" type="number" value={update.progress_percent} /></label><label>Tenggat<input onChange={(event) => setUpdate({ ...update, deadline: event.target.value })} type="date" value={update.deadline} /></label><label>Biaya aktual<input min="0" onChange={(event) => setUpdate({ ...update, budget_spent: event.target.value })} step="1" type="number" value={update.budget_spent} /></label></> : null}{mode === "milestone" ? <><label className="wide">Milestone<input minLength={2} onChange={(event) => setMilestone({ ...milestone, title: event.target.value })} required value={milestone.title} /></label><label>Tenggat<input onChange={(event) => setMilestone({ ...milestone, due_date: event.target.value })} required type="date" value={milestone.due_date} /></label><label>Status<select onChange={(event) => setMilestone({ ...milestone, status: event.target.value })} value={milestone.status}><option>ON_TRACK</option><option>AT_RISK</option><option>CRITICAL</option><option>COMPLETED</option></select></label></> : null}{mode === "issue" ? <><label className="wide">Judul isu<input minLength={2} onChange={(event) => setIssue({ ...issue, title: event.target.value })} required value={issue.title} /></label><label className="wide">Deskripsi<textarea onChange={(event) => setIssue({ ...issue, description: event.target.value })} value={issue.description} /></label><label>Severity<select onChange={(event) => setIssue({ ...issue, severity: event.target.value })} value={issue.severity}><option>LOW</option><option>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select></label><label>Tenggat<input onChange={(event) => setIssue({ ...issue, due_date: event.target.value })} type="date" value={issue.due_date} /></label></> : null}<button className="alos-workspace-primary" disabled={saving} type="submit">{saving ? "Menyimpan…" : "Simpan"}</button></form></section>;
 }
 
-function ProjectCreatePanel({ actor, onCreated }: { actor: SessionActor; onCreated: () => void }) {
+function ProjectCreatePanel({
+  actor,
+  onCreated,
+  activeWorkspace: activeWorkspaceProp,
+}: {
+  actor: SessionActor;
+  onCreated: () => void;
+  activeWorkspace?: ActiveWorkspaceContext | WorkspaceShellIdentity;
+}) {
   const [open, setOpen] = useState(false);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [workspaceId, setWorkspaceId] = useState(actor.workspace_ids[0] ?? "");
+  const [workspaceId, setWorkspaceId] = useState(activeWorkspaceProp?.workspaceId || actor.workspace_ids[0] || "");
   const [form, setForm] = useState({ code: "", name: "", category: "PROPERTY", deadline: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -309,10 +325,16 @@ function ProjectCreatePanel({ actor, onCreated }: { actor: SessionActor; onCreat
       .then((items) => {
         const visible = items.filter((item) => actor.workspace_ids.includes(item.workspace_id));
         setWorkspaces(visible);
-        if (!workspaceId && visible[0]) setWorkspaceId(visible[0].workspace_id);
+        if (!workspaceId) {
+          const matched = activeWorkspaceProp?.workspaceId
+            ? visible.find((w) => w.workspace_id === activeWorkspaceProp.workspaceId)?.workspace_id
+            : undefined;
+          if (matched) setWorkspaceId(matched);
+          else if (visible[0]) setWorkspaceId(visible[0].workspace_id);
+        }
       })
       .catch((failure) => setError(apiMessage(failure)));
-  }, [actor.workspace_ids, open, workspaceId, workspaces.length]);
+  }, [activeWorkspaceProp?.workspaceId, actor.workspace_ids, open, workspaceId, workspaces.length]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();

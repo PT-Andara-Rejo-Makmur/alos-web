@@ -78,13 +78,14 @@ export async function authenticatedApiRequest<T>(
 }
 
 export async function sessionApiRequest<T>(
-  path: string,
+  path: string = "",
   options: ApiRequestOptions = {},
 ): Promise<T> {
-  if (!path.startsWith("/") || path.startsWith("//")) {
+  if (path !== "" && (!path.startsWith("/") || path.startsWith("//"))) {
     throw new TypeError("Session path harus berupa absolute path lokal.");
   }
-  return requestJson<T>(`/api/session${path}`, options);
+  const cleanPath = path === "/" ? "" : path;
+  return requestJson<T>(`/api/session${cleanPath}`, options);
 }
 
 type QueryValue = string | number | boolean | null | undefined;

@@ -1,9 +1,16 @@
-import { LoginForm } from "@/features/session";
+import type { Metadata } from "next";
 
-export default function LoginPage() {
-  return (
-    <main className="experience-main">
-      <LoginForm />
-    </main>
-  );
+import { LoginPage } from "@/features/session";
+
+export const metadata: Metadata = {
+  title: "Masuk ke ALOS",
+  description: "Halaman autentikasi terpadu ALOS untuk PT Andara Rejo Makmur.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
+export default function Page() {
+  return <LoginPage />;
 }

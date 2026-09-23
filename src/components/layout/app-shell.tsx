@@ -1,9 +1,27 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { Navigation } from "./navigation";
 
 export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
+  const pathname = usePathname();
+
+  if (
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname === "/workspace" ||
+    pathname.startsWith("/workspace/") ||
+    pathname === "/business" ||
+    pathname.startsWith("/business/") ||
+    pathname === "/director" ||
+    pathname.startsWith("/director/")
+  ) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="app-frame">
       <header className="topbar">

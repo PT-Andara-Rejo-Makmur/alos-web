@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { ExperiencePage } from "@/components/layout/experience-page";
 import { BusinessMvp1Workspace } from "@/experiences/business/mvp1-workspace";
-import { getExperience } from "@/experiences/registry";
 import {
   dashboardModules,
   isDashboardModuleKey,
@@ -20,9 +18,5 @@ export default async function BusinessModulePage({
   const { module } = await params;
   if (!isDashboardModuleKey(module)) notFound();
 
-  return (
-    <ExperiencePage experience={getExperience("business")}>
-      <BusinessMvp1Workspace module={module} />
-    </ExperiencePage>
-  );
+  return <BusinessMvp1Workspace module={module} />;
 }
