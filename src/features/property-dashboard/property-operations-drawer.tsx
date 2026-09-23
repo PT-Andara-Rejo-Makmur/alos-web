@@ -2,9 +2,9 @@
 
 import { type FormEvent, useEffect, useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
-import { apiMessage, apiRequest } from "@/lib/api";
-import type { SessionActor, Workspace } from "@/features/mvp1/lib/governance";
-import type { ProjectPortfolioSnapshot, ProjectStatus } from "@/features/mvp1/lib/portfolio";
+import { apiMessage, authenticatedApiRequest } from "@/lib/api";
+import type { SessionActor, Workspace } from "@/features/session";
+import type { ProjectPortfolioSnapshot, ProjectStatus } from "@/features/projects/portfolio";
 
 interface PropertyOperationsDrawerProps {
   readonly actor?: SessionActor | null;
@@ -57,7 +57,7 @@ export function PropertyOperationsDrawer({
     deadline: "",
   });
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [createWorkspaceId, setCreateWorkspaceId] = useState(activeWorkspaceId || actor?.workspace_ids[0] || "");
+  const [createWorkspaceId, setCreateWorkspaceId] = useState(activeWorkspaceId);
 
   const selectedProject = projects.find((p) => p.project_id === selectedProjectId) ?? initialProject;
 
@@ -74,7 +74,7 @@ export function PropertyOperationsDrawer({
 
   useEffect(() => {
     if (mode === "create" && actor && !workspaces.length) {
-      apiRequest<Workspace[]>("/api/v1/workspaces")
+      authenticatedApiRequest<Workspace[]>("/api/v1/workspaces")
         .then((items) => {
           const visible = items.filter((item) => actor.workspace_ids.includes(item.workspace_id));
           setWorkspaces(visible);
@@ -93,7 +93,7 @@ export function PropertyOperationsDrawer({
 
     try {
       if (mode === "update" && selectedProject) {
-        await apiRequest(`/api/v1/projects/${selectedProject.project_id}`, {
+        await authenticatedApiRequest(`/api/v1/projects/${selectedProject.project_id}`, {
           method: "PATCH",
           body: JSON.stringify({
             status: updateStatus,
@@ -104,7 +104,7 @@ export function PropertyOperationsDrawer({
         });
         setNotice("Progres dan status proyek berhasil diperbarui.");
       } else if (mode === "milestone" && selectedProject) {
-        await apiRequest(`/api/v1/projects/${selectedProject.project_id}/milestones`, {
+        await authenticatedApiRequest(`/api/v1/projects/${selectedProject.project_id}/milestones`, {
           method: "POST",
           body: JSON.stringify({
             title: milestoneTitle,
@@ -116,7 +116,7 @@ export function PropertyOperationsDrawer({
         setMilestoneDueDate("");
         setNotice("Milestone proyek berhasil ditambahkan.");
       } else if (mode === "issue" && selectedProject) {
-        await apiRequest("/api/v1/project-issues", {
+        await authenticatedApiRequest("/api/v1/project-issues", {
           method: "POST",
           body: JSON.stringify({
             workspace_id: selectedProject.workspace_id,
@@ -133,7 +133,7 @@ export function PropertyOperationsDrawer({
         setNotice("Isu proyek berhasil dicatat.");
       } else if (mode === "create" && actor) {
         const activeWs = workspaces.find((w) => w.workspace_id === createWorkspaceId);
-        await apiRequest("/api/v1/projects", {
+        await authenticatedApiRequest("/api/v1/projects", {
           method: "POST",
           body: JSON.stringify({
             workspace_id: createWorkspaceId,
@@ -167,7 +167,7 @@ export function PropertyOperationsDrawer({
     setError("");
     setNotice("");
     try {
-      await apiRequest(`/api/v1/projects/${selectedProject.project_id}`, { method: "DELETE" });
+      await authenticatedApiRequest(`/api/v1/projects/${selectedProject.project_id}`, { method: "DELETE" });
       setSelectedProjectId("");
       setNotice(`Proyek "${selectedProject.name}" telah dihapus.`);
       onDataChanged();

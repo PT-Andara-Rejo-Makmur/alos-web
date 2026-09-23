@@ -1,6 +1,6 @@
 "use client";
 
-import type { PortfolioTrendPoint } from "@/features/mvp1/lib/portfolio";
+import type { PortfolioTrendPoint } from "@/features/projects/portfolio";
 import styles from "./property-dashboard.module.css";
 
 interface PropertyProgressPanelProps {

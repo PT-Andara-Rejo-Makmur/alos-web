@@ -7,6 +7,28 @@ import type {
   ExecutiveDashboardSnapshot,
 } from "./types";
 
+export function createEmptyExecutiveSnapshot(): ExecutiveDashboardSnapshot {
+  return {
+    generated_at: "",
+    profile: {
+      display_name: "Tidak tersedia",
+      organization_name: "Tidak tersedia",
+      role_label: "Direktur Utama",
+    },
+    metrics: [
+      { key: "active_projects", label: "Proyek Aktif", value: null, unit: "COUNT", tone: "INFO", state: "NOT_CONNECTED", context: "Sumber belum terhubung" },
+      { key: "pending_approvals", label: "Keputusan Tertunda", value: null, unit: "COUNT", tone: "WARNING", state: "NOT_CONNECTED", context: "Sumber belum terhubung" },
+      { key: "average_progress", label: "Kemajuan Rata-Rata", value: null, unit: "PERCENT", tone: "INFO", state: "NOT_CONNECTED", context: "Sumber belum terhubung" },
+      { key: "overdue_tasks", label: "Tugas Terlambat", value: null, unit: "COUNT", tone: "WARNING", state: "NOT_CONNECTED", context: "Sumber belum terhubung" },
+    ],
+    performance: { title: "Kinerja perusahaan", context: "Sumber belum terhubung", points: [] },
+    project_distribution: { available: false, total: 0, context: "Sumber belum terhubung", items: [] },
+    divisions: [],
+    attention_projects: [],
+    pending_approvals: [],
+  };
+}
+
 /**
  * Maps current Backend snapshot into the 07.45 Brief 5-block readiness projection.
  * Strategic targets (cash, agent overnight) are honestly marked as NOT_CONNECTED.

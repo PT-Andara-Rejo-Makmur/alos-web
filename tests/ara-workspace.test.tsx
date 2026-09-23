@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/lib/api";
-import type { Workspace } from "@/features/mvp1/lib/governance";
+import type { Workspace } from "@/features/session";
 import {
   AraWorkspace,
   AraWorkspacePage,
@@ -100,7 +100,7 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
 
   // 1. /workspace/ara requires authenticated active workspace
   it("1. /workspace/ara mengalihkan ke /login jika pengguna tidak terautentikasi (401)", async () => {
-    vi.spyOn(api, "apiRequest").mockRejectedValue(new api.ApiError(401, "Unauthorized", null));
+    vi.spyOn(api, "sessionApiRequest").mockRejectedValue(new api.ApiError(401, "Unauthorized", null));
 
     render(<AraWorkspacePage basePath="/workspace/ara" />);
 
@@ -122,19 +122,15 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
 
   // 3. Missing active workspace -> resolver/NEEDS_INFO
   it("3. workspace aktif yang belum dipilih merender controlled state NEEDS_INFO", async () => {
-    vi.spyOn(api, "apiRequest").mockImplementation(async (path: string) => {
-      if (path === "/api/v1/auth/whoami" || path === "/api/v1/whoami") {
-        return {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
+      authenticated: true,
+      principal: {
           ...sampleActor,
           workspace_id: undefined,
           workspace_ids: ["ws_finance_01", "ws_property_01"],
-        };
-      }
-      if (path === "/api/v1/workspaces") {
-        return sampleWorkspaces;
-      }
-      return {};
+      },
     });
+    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue(sampleWorkspaces as never);
 
     render(<AraWorkspacePage basePath="/workspace/ara" />);
 
@@ -471,15 +467,10 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
 
   // 22. Workspace Shell reused
   it("22. AraWorkspacePage dibungkus dalam WorkspaceShell dengan activeNavKey='ara'", async () => {
-    vi.spyOn(api, "apiRequest").mockImplementation(async (path: string) => {
-      if (path === "/api/v1/auth/whoami" || path === "/api/v1/whoami") {
-        return sampleActor;
-      }
-      if (path === "/api/v1/workspaces") {
-        return [sampleWorkspaces[0]];
-      }
-      return [];
-    });
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue({ authenticated: true, principal: sampleActor });
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) =>
+      path === "/api/v1/workspaces" ? [sampleWorkspaces[0]] as never : [] as never,
+    );
 
     render(<AraWorkspacePage basePath="/workspace/ara" />);
 

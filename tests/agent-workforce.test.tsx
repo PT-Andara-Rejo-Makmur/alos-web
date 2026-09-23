@@ -2,8 +2,9 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/lib/api";
-import type { SessionActor, Workspace, Run } from "@/features/mvp1/lib/governance";
-import type { GenesisActiveAgent } from "@/features/mvp1/lib/genesis-workspace";
+import type { Run } from "@/features/governance/core";
+import type { SessionActor, Workspace } from "@/features/session";
+import type { GenesisActiveAgent } from "@/features/genesis-workspace/types";
 import {
   AgentWorkforce,
   AgentWorkforcePage,

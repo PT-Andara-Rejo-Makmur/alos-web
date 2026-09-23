@@ -17,5 +17,5 @@ export {
 } from "./models";
 export { RdPermissionPanel } from "./rd-permission-panel";
 export { SharedResearchWorkspace } from "./shared-research-workspace";
-export * from "@/features/mvp1/lib/genesis-document-analysis";
-export * from "@/features/mvp1/lib/genesis-follow-up";
+export * from "@/features/genesis-workspace/document-analysis";
+export * from "@/features/genesis-workspace/follow-up";

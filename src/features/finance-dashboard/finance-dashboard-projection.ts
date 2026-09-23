@@ -237,12 +237,17 @@ export const DEFAULT_AGENT_SUPPORT: readonly FinanceAgentSupportItem[] = [
   },
 ];
 
-export const DEFAULT_FINANCE_SNAPSHOT: FinanceDashboardSnapshot = {
-  generated_at: "2026-09-22T08:00:00.000Z",
-  workspace_id: "ws_finance_holding",
-  workspace_name: "Finance Workspace",
-  source_readiness: DEFAULT_SOURCE_READINESS,
-  metrics: DEFAULT_FINANCE_METRICS,
-  control_cadence: DEFAULT_CONTROL_CADENCE,
-  agent_support: DEFAULT_AGENT_SUPPORT,
-};
+export function createEmptyFinanceSnapshot(
+  workspaceId: string,
+  workspaceName: string,
+): FinanceDashboardSnapshot {
+  return {
+    generated_at: "",
+    workspace_id: workspaceId,
+    workspace_name: workspaceName,
+    source_readiness: DEFAULT_SOURCE_READINESS,
+    metrics: DEFAULT_FINANCE_METRICS,
+    control_cadence: DEFAULT_CONTROL_CADENCE,
+    agent_support: DEFAULT_AGENT_SUPPORT,
+  };
+}

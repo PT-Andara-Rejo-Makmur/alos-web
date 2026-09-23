@@ -93,7 +93,7 @@ describe("ALOS HR / People Dashboard", () => {
         email: "director@andara.co.id",
         roles: ["DIRECTOR"],
         division_codes: [],
-        workspace_ids: ["ws_exec_01"],
+        workspace_ids: ["ws_hr_director"],
       },
     });
 

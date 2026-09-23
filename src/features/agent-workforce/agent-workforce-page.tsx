@@ -5,23 +5,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 
-import type { SessionActor, Workspace } from "@/features/mvp1/lib/governance";
+import {
+  loadAccessibleWorkspaces,
+  loadSessionActor,
+  type SessionActor,
+  type Workspace,
+} from "@/features/session";
 import { WorkspaceShell } from "@/features/workspace-shell";
 import type { WorkspaceShellIdentity } from "@/features/workspace-shell/types";
-import { ApiError, apiRequest } from "@/lib/api";
+import { ApiError } from "@/lib/api";
 
 import { verifyActiveWorkspace } from "./agent-workforce-projection";
 import { AgentWorkforce } from "./agent-workforce";
-
-const DEFAULT_FALLBACK_ACTOR: SessionActor = {
-  user_id: "usr_fallback_workforce",
-  organization_id: "org_andara_holding",
-  roles: ["DIRECTOR"],
-  division_codes: ["FINANCE"],
-  workspace_ids: ["ws_finance_holding"],
-  issued_at: new Date().toISOString(),
-  expires_at: new Date(Date.now() + 86400000).toISOString(),
-};
 
 export function AgentWorkforcePage() {
   const router = useRouter();
@@ -39,48 +34,13 @@ export function AgentWorkforcePage() {
     async function initializeSession() {
       setIsLoading(true);
       try {
-        // 1. Fetch current actor via canonical whoami helper
-        let currentActor: SessionActor;
-        try {
-          currentActor = await apiRequest<SessionActor>("/api/v1/auth/whoami");
-        } catch (authErr) {
-          if (
-            (authErr as { status?: number })?.status === 401 ||
-            (authErr instanceof ApiError && authErr.status === 401)
-          ) {
-            router.replace("/login");
-            return;
-          }
-          try {
-            currentActor = await apiRequest<SessionActor>("/api/v1/whoami");
-          } catch (whoamiErr) {
-            if (
-              (whoamiErr as { status?: number })?.status === 401 ||
-              (whoamiErr instanceof ApiError && whoamiErr.status === 401)
-            ) {
-              router.replace("/login");
-              return;
-            }
-            throw whoamiErr;
-          }
-        }
+        const currentActor = await loadSessionActor();
 
         if (!isMounted) return;
         setActor(currentActor);
 
         // 2. Fetch accessible workspaces from backend
-        let workspaces: Workspace[] = [];
-        try {
-          workspaces = await apiRequest<Workspace[]>("/api/v1/workspaces");
-        } catch {
-          workspaces = (currentActor.workspace_ids || []).map((id) => ({
-            workspace_id: id,
-            workspace_key: (currentActor.division_codes?.[0] || "ENTERPRISE").toLowerCase(),
-            name: `${currentActor.division_codes?.[0] || "Enterprise"} Workspace`,
-            division_code: currentActor.division_codes?.[0] || null,
-            access_level: "MEMBER",
-          }));
-        }
+        const workspaces: Workspace[] = await loadAccessibleWorkspaces();
 
         if (!isMounted) return;
 
@@ -109,16 +69,10 @@ export function AgentWorkforcePage() {
           router.replace("/login");
           return;
         }
-        // Fallback for test/offline environments
         if (isMounted) {
-          setActor(DEFAULT_FALLBACK_ACTOR);
-          setActiveWorkspace({
-            workspace_id: "ws_finance_holding",
-            workspace_key: "finance",
-            name: "Finance Workspace",
-            division_code: "FINANCE",
-            access_level: "MEMBER",
-          });
+          setActor(null);
+          setActiveWorkspace(null);
+          setNeedsInfoReason("Sesi atau workspace terverifikasi tidak tersedia.");
         }
       } finally {
         if (isMounted) {
@@ -133,16 +87,14 @@ export function AgentWorkforcePage() {
     };
   }, [router, requestedWorkspaceId]);
 
-  const effectiveActor = actor ?? DEFAULT_FALLBACK_ACTOR;
-
-  const shellIdentity: WorkspaceShellIdentity = {
-    workspaceId: activeWorkspace?.workspace_id || effectiveActor.workspace_ids[0] || "ws_workforce",
-    workspaceKey: activeWorkspace?.workspace_key || "workforce",
-    workspaceLabel: activeWorkspace?.name || "Agent Workforce",
-    divisionCode: activeWorkspace?.division_code ?? null,
-    roleLabel: effectiveActor.roles[0] || "Pengguna ALOS",
-    accessLevel: "MEMBER",
-  };
+  const shellIdentity: WorkspaceShellIdentity | null = actor && activeWorkspace ? {
+    workspaceId: activeWorkspace.workspace_id,
+    workspaceKey: activeWorkspace.workspace_key,
+    workspaceLabel: activeWorkspace.name,
+    divisionCode: activeWorkspace.division_code,
+    roleLabel: actor.roles.join(" · ") || "Pengguna ALOS",
+    accessLevel: activeWorkspace.access_level,
+  } : null;
 
   if (isLoading) {
     return (
@@ -163,13 +115,9 @@ export function AgentWorkforcePage() {
   }
 
   // Controlled NEEDS_INFO / Unresolved Workspace
-  if (!activeWorkspace && needsInfoReason) {
+  if (!activeWorkspace || !actor || !shellIdentity) {
     return (
-      <WorkspaceShell
-        identity={shellIdentity}
-        actor={effectiveActor}
-        activeNavKey="agents"
-      >
+      <main>
         <div
           style={{
             maxWidth: "600px",
@@ -203,7 +151,7 @@ export function AgentWorkforcePage() {
             Workspace Aktif Belum Dipilih
           </h2>
           <p style={{ fontSize: "14px", color: "#666055", lineHeight: 1.6, margin: "0 0 24px" }}>
-            {needsInfoReason}
+            {needsInfoReason ?? "Workspace aktif belum terverifikasi."}
           </p>
           <Link
             href="/workspace"
@@ -224,18 +172,18 @@ export function AgentWorkforcePage() {
             <span>Kembali ke Pemilih Workspace</span>
           </Link>
         </div>
-      </WorkspaceShell>
+      </main>
     );
   }
 
   return (
     <WorkspaceShell
       identity={shellIdentity}
-      actor={effectiveActor}
+      actor={actor}
       activeNavKey="agents"
     >
       <AgentWorkforce
-        actor={effectiveActor}
+        actor={actor}
         activeWorkspace={shellIdentity}
       />
     </WorkspaceShell>

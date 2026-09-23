@@ -1,7 +1,7 @@
 import type {
   ExecutiveDashboardMetric,
   ExecutiveDashboardSnapshot,
-} from "@/features/mvp1/lib/executive-dashboard";
+} from "@/features/executive-dashboard/legacy-projection";
 
 export type {
   ExecutiveDashboardMetric,

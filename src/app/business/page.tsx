@@ -1,5 +1,5 @@
-import { BusinessMvp1Workspace } from "@/experiences/business/mvp1-workspace";
+import { BusinessWorkspace } from "@/experiences/business/workspace";
 
 export default function BusinessPage() {
-  return <BusinessMvp1Workspace />;
+  return <BusinessWorkspace />;
 }

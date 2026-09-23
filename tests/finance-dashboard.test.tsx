@@ -12,11 +12,14 @@ import {
   FinanceMetricGrid,
   FinanceWalletsPanel,
   formatFinanceMetricValue,
-  DEFAULT_FINANCE_SNAPSHOT,
+  createEmptyFinanceSnapshot,
   DEFAULT_CONTROL_CADENCE,
   DEFAULT_SOURCE_READINESS,
 } from "@/features/finance-dashboard";
+
 import { WorkspaceShell, type WorkspaceShellIdentity } from "@/features/workspace-shell";
+
+const DEFAULT_FINANCE_SNAPSHOT = createEmptyFinanceSnapshot("ws_finance_test", "Finance Workspace");
 
 // Mock next/image
 vi.mock("next/image", () => ({

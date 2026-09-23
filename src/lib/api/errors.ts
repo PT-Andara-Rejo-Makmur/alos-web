@@ -29,7 +29,7 @@ export class ApiRequestError extends Error {
   }
 }
 
-/** Compatibility error for migrated MVP-1 projections. */
+/** Compatibility error for migrated frontend projections. */
 export class ApiError extends ApiRequestError {
   constructor(status: number, detail: string, correlationId: string | null, payload: unknown = null) {
     const code =

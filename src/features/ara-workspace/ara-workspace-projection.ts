@@ -1,4 +1,4 @@
-import type { Workspace } from "@/features/mvp1/lib/governance";
+import type { Workspace } from "@/features/session";
 import { authenticatedApiRequest, ApiRequestError } from "@/lib/api";
 import type { ContextProjection } from "@/lib/contracts";
 

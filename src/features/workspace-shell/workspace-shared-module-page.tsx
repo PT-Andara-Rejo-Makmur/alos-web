@@ -5,13 +5,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Building2 } from "lucide-react";
 
-import { ApiError, apiRequest } from "@/lib/api";
-import type { SessionActor, Workspace } from "@/features/mvp1/lib/governance";
+import { ApiError } from "@/lib/api";
+import {
+  loadAccessibleWorkspaces,
+  loadSessionActor,
+  type SessionActor,
+  type Workspace,
+} from "@/features/session";
 import type { SharedModuleKey } from "@/features/workspace-routing";
 import { verifyActiveWorkspace } from "@/features/ara-workspace/ara-workspace-projection";
-import { DocumentCenter } from "@/features/mvp1/components/document-center";
-import { OperationalModuleDashboard } from "@/features/mvp1/components/operational-modules";
-import { ProjectPortfolioDashboard } from "@/features/mvp1/components/portfolio-dashboards";
+import { DocumentCenter } from "@/features/documents/document-center";
+import { OperationalModuleDashboard } from "@/features/operations/operational-module-dashboard";
+import { ProjectPortfolioDashboard } from "@/features/projects/portfolio-dashboards";
 import { WorkspaceShell } from "./workspace-shell";
 import { projectWorkspaceNavigation } from "./workspace-navigation";
 import type { WorkspaceShellIdentity } from "./types";
@@ -19,16 +24,6 @@ import type { WorkspaceShellIdentity } from "./types";
 interface WorkspaceSharedModulePageProps {
   readonly module: SharedModuleKey;
 }
-
-const DEFAULT_FALLBACK_ACTOR: SessionActor = {
-  user_id: "usr_dev_shared",
-  organization_id: "org_andara_holding",
-  roles: ["OPERATOR"],
-  division_codes: ["FINANCE"],
-  workspace_ids: ["ws_finance_holding"],
-  issued_at: new Date().toISOString(),
-  expires_at: new Date(Date.now() + 86400000).toISOString(),
-};
 
 function SharedModuleContent({ module }: WorkspaceSharedModulePageProps) {
   const router = useRouter();
@@ -46,46 +41,12 @@ function SharedModuleContent({ module }: WorkspaceSharedModulePageProps) {
     async function initializeSession() {
       setIsLoading(true);
       try {
-        let currentActor: SessionActor;
-        try {
-          currentActor = await apiRequest<SessionActor>("/api/v1/auth/whoami");
-        } catch (authErr) {
-          if (
-            (authErr as { status?: number })?.status === 401 ||
-            (authErr instanceof ApiError && authErr.status === 401)
-          ) {
-            router.replace("/login");
-            return;
-          }
-          try {
-            currentActor = await apiRequest<SessionActor>("/api/v1/whoami");
-          } catch (whoamiErr) {
-            if (
-              (whoamiErr as { status?: number })?.status === 401 ||
-              (whoamiErr instanceof ApiError && whoamiErr.status === 401)
-            ) {
-              router.replace("/login");
-              return;
-            }
-            throw whoamiErr;
-          }
-        }
+        const currentActor = await loadSessionActor();
 
         if (!isMounted) return;
         setActor(currentActor);
 
-        let workspaces: Workspace[] = [];
-        try {
-          workspaces = await apiRequest<Workspace[]>("/api/v1/workspaces");
-        } catch {
-          workspaces = (currentActor.workspace_ids || []).map((id) => ({
-            workspace_id: id,
-            workspace_key: (currentActor.division_codes?.[0] || "ENTERPRISE").toLowerCase(),
-            name: `${currentActor.division_codes?.[0] || "Enterprise"} Workspace`,
-            division_code: currentActor.division_codes?.[0] || null,
-            access_level: "MEMBER",
-          }));
-        }
+        const workspaces: Workspace[] = await loadAccessibleWorkspaces();
 
         if (!isMounted) return;
 
@@ -114,14 +75,9 @@ function SharedModuleContent({ module }: WorkspaceSharedModulePageProps) {
           return;
         }
         if (isMounted) {
-          setActor(DEFAULT_FALLBACK_ACTOR);
-          setActiveWorkspace({
-            workspace_id: "ws_finance_holding",
-            workspace_key: "finance",
-            name: "Finance & Accounting Workspace",
-            division_code: "FINANCE",
-            access_level: "MEMBER",
-          });
+          setActor(null);
+          setActiveWorkspace(null);
+          setNeedsInfoReason("Sesi atau daftar workspace sedang tidak tersedia. Coba lagi dari Workspace Resolver.");
         }
       } finally {
         if (isMounted) setIsLoading(false);
@@ -135,27 +91,26 @@ function SharedModuleContent({ module }: WorkspaceSharedModulePageProps) {
     };
   }, [requestedWorkspaceId, router]);
 
-  const shellIdentity: WorkspaceShellIdentity = useMemo(() => {
+  const shellIdentity: WorkspaceShellIdentity | null = useMemo(() => {
+    if (!activeWorkspace || !actor) return null;
     const roles = actor?.roles || [];
     const isDirector = roles.includes("DIRECTOR");
     return {
-      workspaceId: activeWorkspace?.workspace_id || "ws_default",
-      workspaceKey:
-        activeWorkspace?.workspace_key ||
-        activeWorkspace?.division_code?.toLowerCase() ||
-        (isDirector ? "executive" : "business"),
-      workspaceLabel: activeWorkspace?.name || "ALOS Workspace",
+      workspaceId: activeWorkspace.workspace_id,
+      workspaceKey: activeWorkspace.workspace_key,
+      workspaceLabel: activeWorkspace.name,
       roleLabel: isDirector
         ? "Direktur"
         : roles.length > 0
           ? roles.join(" · ")
           : "Anggota Tim",
-      divisionCode: activeWorkspace?.division_code || null,
+      divisionCode: activeWorkspace.division_code,
+      accessLevel: activeWorkspace.access_level,
     };
   }, [activeWorkspace, actor]);
 
   const navigation = useMemo(
-    () => projectWorkspaceNavigation(shellIdentity, actor),
+    () => shellIdentity ? projectWorkspaceNavigation(shellIdentity, actor) : [],
     [shellIdentity, actor],
   );
 
@@ -176,7 +131,7 @@ function SharedModuleContent({ module }: WorkspaceSharedModulePageProps) {
     );
   }
 
-  if (!activeWorkspace) {
+  if (!activeWorkspace || !actor || !shellIdentity) {
     return (
       <section
         className="alos-content"
@@ -255,41 +210,40 @@ function SharedModuleContent({ module }: WorkspaceSharedModulePageProps) {
       {module === "projects" && (
         <ProjectPortfolioDashboard
           activeWorkspace={shellIdentity}
-          actor={actor || undefined}
         />
       )}
       {module === "tasks" && (
         <OperationalModuleDashboard
           activeWorkspace={shellIdentity}
-          actor={actor!}
+          actor={actor}
           module="tasks"
         />
       )}
       {module === "approvals" && (
         <OperationalModuleDashboard
           activeWorkspace={shellIdentity}
-          actor={actor!}
+          actor={actor}
           module="approvals"
         />
       )}
       {module === "documents" && (
         <DocumentCenter
           activeWorkspace={shellIdentity}
-          actor={actor!}
+          actor={actor}
           mode="documents"
         />
       )}
       {module === "reports" && (
         <OperationalModuleDashboard
           activeWorkspace={shellIdentity}
-          actor={actor!}
+          actor={actor}
           module="reports"
         />
       )}
       {module === "findings" && (
         <OperationalModuleDashboard
           activeWorkspace={shellIdentity}
-          actor={actor!}
+          actor={actor}
           module="findings"
         />
       )}

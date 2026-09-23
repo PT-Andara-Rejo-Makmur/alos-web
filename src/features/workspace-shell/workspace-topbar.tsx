@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 
-import { NotificationCenter } from "@/features/mvp1/components/global-command";
-import type { SessionActor } from "@/features/mvp1/lib/governance";
+import { NotificationCenter } from "@/features/notifications/notification-center";
+import type { SessionActor } from "@/features/session";
 import { TopbarProjectContext } from "./workspace-context-switcher";
 import { WorkspaceProfileMenu } from "./workspace-profile-menu";
 import type {

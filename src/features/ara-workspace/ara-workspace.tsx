@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { History, Layers, X } from "lucide-react";
 
-import { apiRequest, withQuery } from "@/lib/api";
-import { normalizeGenesisError } from "@/features/mvp1/lib/genesis-workspace";
+import { authenticatedApiRequest, withQuery } from "@/lib/api";
+import { normalizeGenesisError } from "@/features/genesis-workspace/types";
 
 import { AraChatThread } from "./ara-chat-thread";
 import { AraContextInspector } from "./ara-context-inspector";
@@ -90,7 +90,7 @@ export function AraWorkspace({
     let cancelled = false;
     if (!activeWorkspace.workspaceId) return;
 
-    apiRequest<AraConversation[]>(
+    authenticatedApiRequest<AraConversation[]>(
       withQuery("/api/v1/genesis/conversations", {
         workspace_id: activeWorkspace.workspaceId,
       }),
@@ -122,7 +122,7 @@ export function AraWorkspace({
       return;
     }
 
-    apiRequest<Array<Record<string, unknown>>>(
+    authenticatedApiRequest<Array<Record<string, unknown>>>(
       `/api/v1/genesis/conversations/${encodeURIComponent(conversationId)}/messages`,
     )
       .then((rawMessages) => {
@@ -178,7 +178,7 @@ export function AraWorkspace({
     if (!activeWorkspace.workspaceId || isCreatingConv) return;
     setIsCreatingConv(true);
     try {
-      const created = await apiRequest<AraConversation>("/api/v1/genesis/conversations", {
+      const created = await authenticatedApiRequest<AraConversation>("/api/v1/genesis/conversations", {
         method: "POST",
         body: JSON.stringify({
           workspace_id: activeWorkspace.workspaceId,
@@ -207,7 +207,7 @@ export function AraWorkspace({
   // 6. Delete / Archive conversation
   async function handleDeleteConversation(item: AraConversation) {
     try {
-      await apiRequest(
+      await authenticatedApiRequest(
         `/api/v1/genesis/conversations/${encodeURIComponent(item.conversation_id)}`,
         { method: "DELETE" },
       );
@@ -241,7 +241,7 @@ export function AraWorkspace({
       let targetConvId = conversationId;
       // Auto-create conversation if none open
       if (!targetConvId) {
-        const created = await apiRequest<AraConversation>("/api/v1/genesis/conversations", {
+        const created = await authenticatedApiRequest<AraConversation>("/api/v1/genesis/conversations", {
           method: "POST",
           body: JSON.stringify({
             workspace_id: activeWorkspace.workspaceId,
@@ -273,7 +273,7 @@ export function AraWorkspace({
       setPrompt("");
 
       // Post turn to Backend
-      const result = await apiRequest<{
+      const result = await authenticatedApiRequest<{
         human_message?: Record<string, unknown>;
         assistant_message?: Record<string, unknown>;
       }>(
@@ -353,7 +353,7 @@ export function AraWorkspace({
     setIsPickerOpen(true);
     setIsLoadingContextOptions(true);
     try {
-      const options = await apiRequest<AraContextOption[]>(
+      const options = await authenticatedApiRequest<AraContextOption[]>(
         withQuery("/api/v1/genesis/context-options", {
           workspace_id: activeWorkspace.workspaceId,
           limit: 30,
@@ -371,7 +371,7 @@ export function AraWorkspace({
   async function handleSelectContextOption(option: AraContextOption) {
     if (!conversationId) return;
     try {
-      await apiRequest(
+      await authenticatedApiRequest(
         `/api/v1/genesis/conversations/${encodeURIComponent(conversationId)}/context`,
         {
           method: "POST",

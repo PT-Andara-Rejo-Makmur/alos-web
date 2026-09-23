@@ -4,10 +4,10 @@ import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/layout/app-shell";
 
-import "@/features/mvp1/styles/mvp1-base.css";
-import "@/features/mvp1/styles/genesis.css";
-import "@/features/mvp1/styles/governance.css";
-import "@/features/mvp1/styles/portfolio.css";
+import "@/styles/workspace-foundation.css";
+import "@/styles/genesis-workspace.css";
+import "@/styles/governance.css";
+import "@/styles/projects.css";
 import "./globals.css";
 
 const manrope = Manrope({

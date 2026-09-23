@@ -1,4 +1,4 @@
-import type { SessionActor, Workspace } from "@/features/mvp1/lib/governance";
+import type { SessionActor, Workspace } from "@/features/session";
 import type { WorkspaceShellIdentity } from "@/features/workspace-shell/types";
 
 /**

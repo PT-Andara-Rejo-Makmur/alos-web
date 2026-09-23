@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronsUpDown, LogOut, Settings } from "lucide-react";
 
-import type { SessionActor } from "@/features/mvp1/lib/governance";
+import type { SessionActor } from "@/features/session";
 import type { WorkspaceShellIdentity } from "./types";
 import styles from "./workspace-shell.module.css";
 

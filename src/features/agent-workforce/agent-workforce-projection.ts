@@ -1,6 +1,7 @@
-import type { SessionActor, Workspace, Run } from "@/features/mvp1/lib/governance";
-import type { GenesisActiveAgent } from "@/features/mvp1/lib/genesis-workspace";
-import { canOpenGovernance } from "@/features/mvp1/lib/dashboard-access";
+import type { Run } from "@/features/governance/core";
+import type { SessionActor, Workspace } from "@/features/session";
+import type { GenesisActiveAgent } from "@/features/genesis-workspace/types";
+import { canOpenGovernance } from "@/features/access-control/dashboard-access";
 import { apiRequest, withQuery } from "@/lib/api";
 
 import type {
@@ -18,7 +19,7 @@ import type {
  *    - If actor has exactly 1 authorized workspace in workspaces list, resolve to it.
  *    - If actor has >1 authorized workspaces, fail-closed (NEEDS_INFO) to prevent accidental bleed across divisions.
  *    - If actor has 0 authorized workspaces, fail-closed (NEEDS_INFO).
- * 3. Never use actor.workspace_ids[0] as implicit authority for multi-workspace users.
+ * 3. Never infer active authority from array order for multi-workspace users.
  */
 export function verifyActiveWorkspace(
   actor: SessionActor,

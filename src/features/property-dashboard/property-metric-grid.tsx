@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProjectPortfolioSnapshot } from "@/features/mvp1/lib/portfolio";
+import type { ProjectPortfolioSnapshot } from "@/features/projects/portfolio";
 import styles from "./property-dashboard.module.css";
 
 interface PropertyMetricGridProps {

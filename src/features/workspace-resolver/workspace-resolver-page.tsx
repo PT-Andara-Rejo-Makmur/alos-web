@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { authenticatedApiRequest, sessionApiRequest } from "@/lib/api";
-import type { Workspace } from "@/features/mvp1/lib/governance";
+import type { Workspace } from "@/features/session";
 import { projectWorkspaceChoices, type WorkspaceChoice } from "./workspace-choice";
 import { WorkspaceChoiceCard } from "./workspace-choice-card";
 import styles from "./workspace-resolver.module.css";

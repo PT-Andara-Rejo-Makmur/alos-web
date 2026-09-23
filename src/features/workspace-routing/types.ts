@@ -31,7 +31,7 @@ export type SharedModuleKey =
 
 /**
  * Context of the verified active workspace passed down to shared modules.
- * Eliminates implicit actor.workspace_ids[0] and actor.division_codes[0] assumptions.
+ * Eliminates implicit authority inferred from actor array ordering.
  */
 export interface ActiveWorkspaceContext {
   readonly workspaceId: string;

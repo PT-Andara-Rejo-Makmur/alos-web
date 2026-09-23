@@ -76,8 +76,8 @@ import {
   FlaskConical,
 } from "lucide-react";
 
-import type { SessionActor } from "@/features/mvp1/lib/governance";
-import { canOpenGovernance } from "@/features/mvp1/lib/dashboard-access";
+import type { SessionActor } from "@/features/session";
+import { canOpenGovernance } from "@/features/access-control/dashboard-access";
 import { WORKSPACE_ROUTES, getModuleReadiness } from "@/features/workspace-routing";
 import type {
   WorkspaceIconKey,

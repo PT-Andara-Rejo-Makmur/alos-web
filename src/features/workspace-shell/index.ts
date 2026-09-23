@@ -3,6 +3,7 @@ export { WorkspaceSharedModulePage } from "./workspace-shared-module-page";
 export { WorkspaceSidebar } from "./workspace-sidebar";
 export { WorkspaceTopbar } from "./workspace-topbar";
 export { WorkspaceMobileNav } from "./workspace-mobile-nav";
+export { ProtectedDomainWorkspace } from "./protected-domain-workspace";
 export {
   SidebarWorkspaceSwitcher,
   TopbarProjectContext,

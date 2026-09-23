@@ -12,12 +12,28 @@ import {
   ConstructionControlCadence,
   PropertyAgentSupport,
   DEFAULT_PROPERTY_SNAPSHOT,
-  DEFAULT_FALLBACK_PORTFOLIO,
+  EMPTY_PROPERTY_PORTFOLIO,
   DEFAULT_PROPERTY_READINESS,
   DEFAULT_CONSTRUCTION_CADENCE,
   DEFAULT_PROPERTY_AGENTS,
   sortMilestonesDeterministically,
 } from "@/features/property-dashboard";
+
+const CANONICAL_PROPERTY_PORTFOLIO = {
+  ...EMPTY_PROPERTY_PORTFOLIO,
+  metrics: { total: 3, on_track: 2, at_risk: 1, critical: 0, completed: 0 },
+  distribution: [
+    { status: "ON_TRACK" as const, label: "On Track", count: 2 },
+    { status: "AT_RISK" as const, label: "At Risk", count: 1 },
+    { status: "CRITICAL" as const, label: "Critical", count: 0 },
+  ],
+  progress: [{ period: "2026-01", label: "Jan", value: 12 }],
+  milestones: [
+    { milestone_id: "m1", project_id: "p1", project_name: "Project 1", title: "Site preparation", due_date: "2026-09-26", status: "ON_TRACK" as const },
+    { milestone_id: "m2", project_id: "p2", project_name: "Project 2", title: "Foundation review", due_date: "2026-10-04", status: "AT_RISK" as const },
+    { milestone_id: "m3", project_id: "p3", project_name: "Project 3", title: "Design freeze", due_date: "2026-10-12", status: "ON_TRACK" as const },
+  ],
+};
 
 // Mock next/image
 vi.mock("next/image", () => ({
@@ -125,15 +141,18 @@ describe("ALOS Property & Project Dashboard", () => {
       },
     });
 
-    const apiRequestSpy = vi
-      .spyOn(api, "apiRequest")
-      .mockResolvedValueOnce(DEFAULT_FALLBACK_PORTFOLIO);
+    const apiRequestSpy = vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) => {
+      if (path === "/api/v1/workspaces") return [{ workspace_id: "ws_prop_01", workspace_key: "property", name: "Property Workspace", division_code: "PROPERTY", access_level: "MEMBER" }] as never;
+      if (path.startsWith("/api/v1/projects/portfolio")) return EMPTY_PROPERTY_PORTFOLIO as never;
+      return [] as never;
+    });
 
     render(<PropertyDashboardPage />);
 
     await waitFor(() => {
       expect(apiRequestSpy).toHaveBeenCalledWith(
-        "/api/v1/projects/portfolio?division_code=PROPERTY",
+        "/api/v1/projects/portfolio?workspace_id=ws_prop_01&division_code=PROPERTY",
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
       );
     });
   });
@@ -151,22 +170,25 @@ describe("ALOS Property & Project Dashboard", () => {
       },
     });
 
-    const apiRequestSpy = vi
-      .spyOn(api, "apiRequest")
-      .mockResolvedValueOnce(DEFAULT_FALLBACK_PORTFOLIO);
+    const apiRequestSpy = vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) => {
+      if (path === "/api/v1/workspaces") return [{ workspace_id: "ws_prop", workspace_key: "property", name: "Property Workspace", division_code: "PROPERTY", access_level: "MEMBER" }] as never;
+      if (path.startsWith("/api/v1/projects/portfolio")) return EMPTY_PROPERTY_PORTFOLIO as never;
+      return [] as never;
+    });
 
     render(<PropertyDashboardPage />);
 
     await waitFor(() => {
       expect(apiRequestSpy).toHaveBeenCalledWith(
-        "/api/v1/projects/portfolio?division_code=PROPERTY",
+        "/api/v1/projects/portfolio?workspace_id=ws_prop&division_code=PROPERTY",
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
       );
     });
   });
 
   // 6. Project metrics display canonical numbers
   it("6. menampilkan metrik ringkasan portofolio sesuai data canonical", () => {
-    render(<PropertyMetricGrid metrics={DEFAULT_FALLBACK_PORTFOLIO.metrics} />);
+    render(<PropertyMetricGrid metrics={CANONICAL_PROPERTY_PORTFOLIO.metrics} />);
 
     expect(screen.getByText("Total Projects")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
@@ -293,7 +315,7 @@ describe("ALOS Property & Project Dashboard", () => {
 
   // 16. Milestones panel displays upcoming items
   it("16. menampilkan daftar milestone terdekat pada PropertyMilestonePanel", () => {
-    render(<PropertyMilestonePanel milestones={DEFAULT_FALLBACK_PORTFOLIO.milestones} />);
+    render(<PropertyMilestonePanel milestones={CANONICAL_PROPERTY_PORTFOLIO.milestones} />);
 
     expect(screen.getByRole("heading", { name: "Milestone Terdekat" })).toBeInTheDocument();
     expect(screen.getByText("Site preparation")).toBeInTheDocument();
@@ -305,8 +327,8 @@ describe("ALOS Property & Project Dashboard", () => {
   it("17. menampilkan panel ringkasan status risiko proyek (On Track, At Risk, Critical)", () => {
     render(
       <PropertyRiskPanel
-        distribution={DEFAULT_FALLBACK_PORTFOLIO.distribution}
-        metrics={DEFAULT_FALLBACK_PORTFOLIO.metrics}
+        distribution={EMPTY_PROPERTY_PORTFOLIO.distribution}
+        metrics={EMPTY_PROPERTY_PORTFOLIO.metrics}
       />,
     );
 
@@ -316,7 +338,7 @@ describe("ALOS Property & Project Dashboard", () => {
 
   // 18. Progress vs Baseline SVG panel renders
   it("18. menampilkan panel progress portofolio dengan grafik garis SVG", () => {
-    render(<PropertyProgressPanel progress={DEFAULT_FALLBACK_PORTFOLIO.progress} />);
+    render(<PropertyProgressPanel progress={EMPTY_PROPERTY_PORTFOLIO.progress} />);
 
     expect(screen.getByRole("heading", { name: "Progress vs Baseline" })).toBeInTheDocument();
     expect(

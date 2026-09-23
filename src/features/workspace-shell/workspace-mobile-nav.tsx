@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ChevronsUpDown, LogOut, Menu, Sparkles, X } from "lucide-react";
 
-import { NotificationCenter } from "@/features/mvp1/components/global-command";
+import { NotificationCenter } from "@/features/notifications/notification-center";
 import { WORKSPACE_ICONS } from "./workspace-navigation";
 import type {
   WorkspaceNavItem,

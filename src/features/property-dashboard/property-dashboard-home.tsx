@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import type { SessionActor } from "@/features/mvp1/lib/governance";
+import type { SessionActor } from "@/features/session";
 import type { PropertyDashboardSnapshot } from "./types";
 import { PropertyDataReadiness } from "./property-data-readiness";
 import { PropertyMetricGrid } from "./property-metric-grid";

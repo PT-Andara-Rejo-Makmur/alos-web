@@ -2,7 +2,7 @@ import type {
   PortfolioTrendPoint,
   ProjectPortfolioSnapshot,
   ProjectStatus,
-} from "@/features/mvp1/lib/portfolio";
+} from "@/features/projects/portfolio";
 
 export type {
   PortfolioTrendPoint,

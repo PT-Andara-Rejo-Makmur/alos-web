@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProjectPortfolioSnapshot } from "@/features/mvp1/lib/portfolio";
+import type { ProjectPortfolioSnapshot } from "@/features/projects/portfolio";
 import { sortMilestonesDeterministically } from "./property-dashboard-projection";
 import styles from "./property-dashboard.module.css";
 

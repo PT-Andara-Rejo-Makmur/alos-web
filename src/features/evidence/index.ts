@@ -5,5 +5,4 @@ export * from "./components/evidence-item-view";
 export * from "./components/evidence-list-view";
 export * from "./components/safe-error-view";
 
-// Backward compatibility with MVP1 sources
-export * from "@/features/mvp1/lib/sources";
+export * from "@/features/governance/sources";

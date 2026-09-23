@@ -14,9 +14,9 @@ import {
   WorkspaceSharedModulePage,
 } from "@/features/workspace-shell";
 import type { WorkspaceShellIdentity } from "@/features/workspace-shell/types";
-import { dashboardModules } from "@/features/mvp1/lib/dashboard-modules";
-import { NotificationCenter } from "@/features/mvp1/components/global-command";
-import type { SessionActor } from "@/features/mvp1/lib/governance";
+import { dashboardModules } from "@/features/workspace-routing/dashboard-modules";
+import { NotificationCenter } from "@/features/notifications/notification-center";
+import type { SessionActor } from "@/features/session";
 import * as api from "@/lib/api";
 
 // Mock next/navigation
@@ -49,10 +49,10 @@ vi.mock("next/link", () => ({
 }));
 
 describe("ALOS Web Shared Modules & Final Integration", () => {
-  afterEach(() => {
-    cleanup();
-    vi.restoreAllMocks();
-  });
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
 
   const sampleDirectorActor: SessionActor = {
     user_id: "usr_dir_01",
@@ -237,22 +237,21 @@ describe("ALOS Web Shared Modules & Final Integration", () => {
   describe("5. WorkspaceSharedModulePage Controlled Lifecycle", () => {
     it("renders NEEDS_INFO state when workspace resolution is required", async () => {
       // Mock authenticated actor with multiple workspaces and no resolution
-      vi.spyOn(api, "apiRequest").mockImplementation((url: string) => {
-        if (url.includes("/api/v1/auth/whoami")) {
-          return Promise.resolve({
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
+        authenticated: true,
+        principal: {
             user_id: "usr_multi_01",
             roles: ["OPERATOR"],
             division_codes: ["FINANCE", "PROPERTY"],
             workspace_ids: ["ws_1", "ws_2"],
-          });
-        }
-        if (url.includes("/api/v1/workspaces")) {
-          return Promise.resolve([
+        },
+      });
+      vi.spyOn(api, "authenticatedApiRequest").mockImplementation((url: string) => {
+        if (url.includes("/api/v1/workspaces")) return Promise.resolve([
             { workspace_id: "ws_1", name: "Workspace 1", division_code: "FINANCE" },
             { workspace_id: "ws_2", name: "Workspace 2", division_code: "PROPERTY" },
-          ]);
-        }
-        return Promise.resolve([]);
+          ] as never);
+        return Promise.resolve([] as never);
       });
 
       render(createElement(WorkspaceSharedModulePage, { module: "tasks" }));
@@ -263,15 +262,16 @@ describe("ALOS Web Shared Modules & Final Integration", () => {
     });
 
     it("renders WorkspaceShell and module content when workspace is verified", async () => {
-      vi.spyOn(api, "apiRequest").mockImplementation((url: string) => {
-        if (url.includes("/api/v1/auth/whoami")) {
-          return Promise.resolve({
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
+        authenticated: true,
+        principal: {
             user_id: "usr_single_01",
             roles: ["OPERATOR"],
             division_codes: ["FINANCE"],
             workspace_ids: ["ws_single_finance"],
-          });
-        }
+        },
+      });
+      vi.spyOn(api, "authenticatedApiRequest").mockImplementation((url: string) => {
         if (url.includes("/api/v1/workspaces")) {
           return Promise.resolve([
             {

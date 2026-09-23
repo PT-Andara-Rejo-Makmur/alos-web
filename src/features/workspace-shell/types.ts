@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { SessionActor } from "@/features/mvp1/lib/governance";
+import type { SessionActor } from "@/features/session";
 
 export type WorkspaceIconKey =
   | "LayoutDashboard"
@@ -138,7 +138,7 @@ export type WorkspaceNavItem = {
 };
 
 export type WorkspaceShellIdentity = {
-  readonly workspaceId: string | null;
+  readonly workspaceId: string;
   readonly workspaceKey: string;
   readonly workspaceLabel: string;
   readonly divisionCode: string | null;
