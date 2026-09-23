@@ -77,7 +77,7 @@ import {
 } from "lucide-react";
 
 import type { SessionActor } from "@/features/session";
-import { canOpenGovernance } from "@/features/access-control/dashboard-access";
+import { isGovernanceNavigationVisible } from "@/features/access-control/dashboard-access";
 import { WORKSPACE_ROUTES, getModuleReadiness } from "@/features/workspace-routing";
 import type {
   WorkspaceIconKey,
@@ -228,7 +228,7 @@ export function projectWorkspaceNavigation(
 ): readonly WorkspaceNavItem[] {
   const roles = actor?.roles ?? [];
   const division = (identity.divisionCode || "").toUpperCase();
-  const isDirector = roles.includes("DIRECTOR") || identity.workspaceKey === "executive";
+  const isDirector = roles.includes("EXECUTIVE") || identity.workspaceKey === "executive";
 
   const items: RawNavItem[] = [];
 
@@ -314,7 +314,7 @@ export function projectWorkspaceNavigation(
       },
     );
 
-    if (canOpenGovernance(roles)) {
+    if (isGovernanceNavigationVisible(roles)) {
       items.push({
         key: "governance",
         label: "Governance",
@@ -635,7 +635,7 @@ export function projectWorkspaceNavigation(
   }
 
   // Group 5: CONTROL / GOVERNANCE
-  if (canOpenGovernance(roles)) {
+  if (isGovernanceNavigationVisible(roles)) {
     items.push({
       key: "governance",
       label: "Governance & Agent Control",

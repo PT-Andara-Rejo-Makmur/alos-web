@@ -57,7 +57,7 @@ afterEach(() => {
   const sampleDirectorActor: SessionActor = {
     user_id: "usr_dir_01",
     organization_id: "org_andara_holding",
-    roles: ["DIRECTOR"],
+    roles: ["EXECUTIVE"],
     division_codes: ["EXECUTIVE"],
     workspace_ids: ["ws_executive_01", "ws_finance_02"],
     issued_at: new Date().toISOString(),
@@ -120,15 +120,15 @@ afterEach(() => {
   });
 
   describe("2. Module Readiness Matrix & 2-Dimensional Navigation", () => {
-    it("evaluates shared modules as READY", () => {
-      expect(getModuleReadiness("projects").availability).toBe("READY");
-      expect(getModuleReadiness("tasks").availability).toBe("READY");
-      expect(getModuleReadiness("approvals").availability).toBe("READY");
-      expect(getModuleReadiness("documents").availability).toBe("READY");
-      expect(getModuleReadiness("reports").availability).toBe("READY");
-      expect(getModuleReadiness("findings").availability).toBe("READY");
-      expect(getModuleReadiness("ara").availability).toBe("READY");
-      expect(getModuleReadiness("agents").availability).toBe("READY");
+    it("keeps shared modules BLOCKED until backend and E2E are complete", () => {
+      expect(getModuleReadiness("projects").availability).toBe("BLOCKED");
+      expect(getModuleReadiness("tasks").availability).toBe("BLOCKED");
+      expect(getModuleReadiness("approvals").availability).toBe("BLOCKED");
+      expect(getModuleReadiness("documents").availability).toBe("BLOCKED");
+      expect(getModuleReadiness("reports").availability).toBe("BLOCKED");
+      expect(getModuleReadiness("findings").availability).toBe("BLOCKED");
+      expect(getModuleReadiness("ara").availability).toBe("BLOCKED");
+      expect(getModuleReadiness("agents").availability).toBe("BLOCKED");
     });
 
     it("evaluates unintegrated domain sub-modules as BLOCKED with clear blockReason", () => {
@@ -147,17 +147,17 @@ afterEach(() => {
     it("maps navigation items to READY or BLOCKED with href=null when BLOCKED", () => {
       const items = projectWorkspaceNavigation(samplePropertyIdentity, samplePropertyActor);
 
-      // Shared modules should be navigable to canonical routes
+      // Shared modules stay visible but fail closed until every readiness dimension is green.
       const projectsItem = items.find((item) => item.key === "projects");
       expect(projectsItem).toBeDefined();
-      expect(projectsItem?.availability).toBe("READY");
-      expect(projectsItem?.href).toBe(WORKSPACE_ROUTES.projects);
-      expect(projectsItem?.available).toBe(true);
+      expect(projectsItem?.availability).toBe("BLOCKED");
+      expect(projectsItem?.href).toBeNull();
+      expect(projectsItem?.available).toBe(false);
 
       const tasksItem = items.find((item) => item.key === "tasks");
       expect(tasksItem).toBeDefined();
-      expect(tasksItem?.availability).toBe("READY");
-      expect(tasksItem?.href).toBe(WORKSPACE_ROUTES.tasks);
+      expect(tasksItem?.availability).toBe("BLOCKED");
+      expect(tasksItem?.href).toBeNull();
 
       // Blocked domain modules should have null href and BLOCKED availability
       const constructionItem = items.find((item) => item.key === "construction");
@@ -179,8 +179,7 @@ afterEach(() => {
         })
       );
 
-      // Navigable item has active link
-      expect(html).toContain(`href="${WORKSPACE_ROUTES.projects}"`);
+      expect(html).not.toContain(`href="${WORKSPACE_ROUTES.projects}"`);
 
       // Blocked items have aria-disabled="true" and "Belum tersedia" badge
       expect(html).toContain('aria-disabled="true"');
@@ -206,7 +205,7 @@ afterEach(() => {
 
       // Navigation uses canonical routes
       const approvalItem = nav.find((item) => item.key === "approvals");
-      expect(approvalItem?.href).toBe(WORKSPACE_ROUTES.approvals);
+      expect(approvalItem?.href).toBeNull();
     });
   });
 

@@ -94,7 +94,7 @@ function SharedModuleContent({ module }: WorkspaceSharedModulePageProps) {
   const shellIdentity: WorkspaceShellIdentity | null = useMemo(() => {
     if (!activeWorkspace || !actor) return null;
     const roles = actor?.roles || [];
-    const isDirector = roles.includes("DIRECTOR");
+    const isDirector = roles.includes("EXECUTIVE");
     return {
       workspaceId: activeWorkspace.workspace_id,
       workspaceKey: activeWorkspace.workspace_key,

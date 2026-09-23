@@ -25,9 +25,9 @@ describe("Governance Dashboard helpers", () => {
   });
 
   it("allows budget changes only for Director or IT Lead", () => {
-    expect(canChangeBudget(["DIRECTOR"])).toBe(true);
-    expect(canChangeBudget(["IT_LEAD"])).toBe(true);
-    expect(canChangeBudget(["DIVISION_OWNER"])).toBe(false);
+    expect(canChangeBudget(["EXECUTIVE"])).toBe(true);
+    expect(canChangeBudget(["IT_ADMIN"])).toBe(true);
+    expect(canChangeBudget(["WORKSPACE_LEAD"])).toBe(false);
   });
 
   it("never reports a negative daily remainder", () => {

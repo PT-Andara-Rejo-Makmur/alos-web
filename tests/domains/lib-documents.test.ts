@@ -34,9 +34,9 @@ describe("document dashboard permissions", () => {
     const document = detail("DRAFT");
     expect(canCheckDocument(actor(["BUSINESS_REVIEWER"]), document)).toBe(true);
     expect(canCheckDocument(actor(["BUSINESS_REVIEWER"], "maker"), document)).toBe(false);
-    expect(canCheckDocument(actor(["DIRECTOR"], "maker"), document)).toBe(true);
+    expect(canCheckDocument(actor(["EXECUTIVE"], "maker"), document)).toBe(true);
     expect(canCheckDocument(
-      actor(["DIRECTOR"], "maker"),
+      actor(["EXECUTIVE"], "maker"),
       { ...document, document: { ...document.document, classification: "RESTRICTED" } },
     )).toBe(false);
     expect(isChecklistComplete(document)).toBe(false);
@@ -44,15 +44,15 @@ describe("document dashboard permissions", () => {
 
   it("lets the Director approve a checklist-complete normal draft", () => {
     const document = detail("DRAFT");
-    expect(canApproveDocument(actor(["DIRECTOR"], "maker"), document)).toBe(true);
-    expect(canApproveDocument(actor(["DIVISION_OWNER"]), document)).toBe(false);
-    expect(canApproveDocument(actor(["DIRECTOR"]), {
+    expect(canApproveDocument(actor(["EXECUTIVE"], "maker"), document)).toBe(true);
+    expect(canApproveDocument(actor(["WORKSPACE_LEAD"]), document)).toBe(false);
+    expect(canApproveDocument(actor(["EXECUTIVE"]), {
       ...document,
       document: { ...document.document, classification: "RESTRICTED" },
     })).toBe(false);
 
     const inReview = detail("IN_REVIEW");
-    expect(canApproveDocument(actor(["DIRECTOR"]), inReview)).toBe(true);
-    expect(canApproveDocument(actor(["IT_LEAD"]), document)).toBe(false);
+    expect(canApproveDocument(actor(["EXECUTIVE"]), inReview)).toBe(true);
+    expect(canApproveDocument(actor(["IT_ADMIN"]), document)).toBe(false);
   });
 });

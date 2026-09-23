@@ -65,7 +65,7 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
   const sampleDirectorActor: SessionActor = {
     user_id: "usr_director_01",
     organization_id: "org_andara_holding",
-    roles: ["DIRECTOR"],
+    roles: ["EXECUTIVE"],
     division_codes: ["FINANCE", "HR"],
     workspace_ids: ["ws_finance_holding", "ws_hr_holding"],
     issued_at: new Date().toISOString(),
@@ -363,9 +363,9 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
 
   // Test 15: canActorAccessGenesis returns true only for authorized roles
   it("authorizes GENESIS access for Director and IT Lead, but not standard member", () => {
-    expect(canActorAccessGenesis(["DIRECTOR"])).toBe(true);
-    expect(canActorAccessGenesis(["IT_LEAD"])).toBe(true);
-    expect(canActorAccessGenesis(["QA_SECURITY"])).toBe(true);
+    expect(canActorAccessGenesis(["EXECUTIVE"])).toBe(true);
+    expect(canActorAccessGenesis(["IT_ADMIN"])).toBe(true);
+    expect(canActorAccessGenesis(["QA_ASSURANCE"])).toBe(true);
     expect(canActorAccessGenesis(["FINANCE_STAFF"])).toBe(false);
     expect(canActorAccessGenesis(["MEMBER"])).toBe(false);
   });
@@ -378,7 +378,7 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
     unmount();
 
     // Authorized Director
-    render(<AgentWorkforceAuthority actorRoles={["DIRECTOR"]} />);
+    render(<AgentWorkforceAuthority actorRoles={["EXECUTIVE"]} />);
     expect(screen.getByText(/detail teknis → genesis/i)).toBeInTheDocument();
   });
 
@@ -454,7 +454,7 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
     const navItems = projectWorkspaceNavigation(sampleWorkspaceIdentity, sampleActor);
     const agentItem = navItems.find((item) => item.key === "agents");
     expect(agentItem).toBeDefined();
-    expect(agentItem?.href).toBe("/workspace/agents");
+    expect(agentItem?.href).toBeNull();
     expect(agentItem?.group).toBe("AI");
   });
 

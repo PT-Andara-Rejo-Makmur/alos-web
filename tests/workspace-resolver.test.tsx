@@ -41,20 +41,23 @@ describe("WorkspaceResolverPage Lifecycle States", () => {
       principal: {
         actor_id: "user_001",
         email: "director@andara.co.id",
-        roles: ["DIRECTOR"],
+        roles: ["EXECUTIVE"],
         workspace_ids: ["ws_exec_001"],
       },
     });
 
-    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([
-      {
-        workspace_id: "ws_exec_001",
-        workspace_key: "executive",
-        name: "Executive Workspace",
-        division_code: null,
-        access_level: "EXECUTIVE",
-      },
-    ]);
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) => {
+      if (path === "/api/v1/workspaces") return [{
+          workspace_id: "ws_exec_001",
+          workspace_key: "EXECUTIVE",
+          workspace_type: "EXECUTIVE",
+          name: "Executive Workspace",
+          division_code: null,
+          access_level: "EXECUTIVE",
+          role_refs: ["EXECUTIVE"],
+        }] as never;
+      return {} as never;
+    });
 
     render(<WorkspaceResolverPage />);
 
@@ -75,22 +78,27 @@ describe("WorkspaceResolverPage Lifecycle States", () => {
       },
     });
 
-    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([
-      {
-        workspace_id: "ws_fin",
-        workspace_key: "finance",
-        name: "Finance Workspace",
-        division_code: "FINANCE",
-        access_level: "MEMBER",
-      },
-      {
-        workspace_id: "ws_hr",
-        workspace_key: "hr",
-        name: "HR Workspace",
-        division_code: "HR",
-        access_level: "MEMBER",
-      },
-    ]);
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) => {
+      if (path === "/api/v1/workspaces") return [
+        {
+          workspace_id: "ws_fin",
+          workspace_key: "finance",
+          workspace_type: "BUSINESS",
+          name: "Finance Workspace",
+          division_code: "FINANCE",
+          access_level: "MEMBER",
+        },
+        {
+          workspace_id: "ws_hr",
+          workspace_key: "hr",
+          workspace_type: "BUSINESS",
+          name: "HR Workspace",
+          division_code: "HR",
+          access_level: "MEMBER",
+        },
+      ] as never;
+      return {} as never;
+    });
 
     render(<WorkspaceResolverPage />);
 
@@ -112,10 +120,11 @@ describe("WorkspaceResolverPage Lifecycle States", () => {
     fireEvent.click(financeCard);
 
     // Selected state activates CTA
+    const activeSubmitBtn = await screen.findByRole("button", { name: /Masuk ke Finance Workspace/i });
+    expect(activeSubmitBtn).not.toBeDisabled();
+    fireEvent.click(activeSubmitBtn);
+
     await waitFor(() => {
-      const activeSubmitBtn = screen.getByRole("button", { name: /Masuk ke Finance Workspace/i });
-      expect(activeSubmitBtn).not.toBeDisabled();
-      fireEvent.click(activeSubmitBtn);
       expect(mockPush).toHaveBeenCalledWith("/workspace/finance");
     });
   });

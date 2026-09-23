@@ -571,19 +571,19 @@ export function GovernanceDashboard() {
   const actorRoles = data?.actor?.roles ?? [];
 
   const userKnown = data?.actor?.user_id ? KNOWN_SYSTEM_USERS[data.actor.user_id] : null;
-  const currentActiveRoleTitle = data?.actor?.roles?.includes("DIRECTOR")
+  const currentActiveRoleTitle = data?.actor?.roles?.includes("EXECUTIVE")
     ? "Direktur Utama"
-    : data?.actor?.roles?.includes("IT_LEAD")
+    : data?.actor?.roles?.includes("IT_ADMIN")
     ? "IT Lead"
-    : data?.actor?.roles?.includes("QA_SECURITY")
+    : data?.actor?.roles?.includes("QA_ASSURANCE")
     ? "QA & Security"
     : data?.actor?.roles?.includes("BUSINESS_REVIEWER")
     ? "Business Reviewer"
     : data?.actor?.roles?.includes("TECHNICAL_REVIEWER")
     ? "Technical Reviewer"
     : (data?.actor?.roles?.[0] ?? "User");
-  const currentActiveUserName = userKnown?.name ?? (data?.actor?.roles?.includes("DIRECTOR") ? "Direktur Utama" : currentActiveRoleTitle);
-  const currentActiveUserAvatar = userKnown?.avatar ?? (data?.actor?.roles?.includes("DIRECTOR") ? "DU" : data?.actor?.roles?.includes("IT_LEAD") ? "IT" : "AL");
+  const currentActiveUserName = userKnown?.name ?? (data?.actor?.roles?.includes("EXECUTIVE") ? "Direktur Utama" : currentActiveRoleTitle);
+  const currentActiveUserAvatar = userKnown?.avatar ?? (data?.actor?.roles?.includes("EXECUTIVE") ? "DU" : data?.actor?.roles?.includes("IT_ADMIN") ? "IT" : "AL");
 
   const currentWorkspace = data?.workspaces.find((w) => w.workspace_id === workspaceId);
   const currentDivisionScope = currentWorkspace?.division_code ? `Divisi ${currentWorkspace.division_code}` : (currentWorkspace?.name ?? "Workspace");
@@ -1364,7 +1364,7 @@ export function GovernanceDashboard() {
     if (!canRegisterPermission(actorRoles)) {
       setError({
         title: "Akses Ditolak",
-        reason: "Pembuatan permission policy memerlukan peran IT_LEAD, DIRECTOR, atau QA_SECURITY.",
+        reason: "Pembuatan permission policy memerlukan peran IT_ADMIN, EXECUTIVE, atau QA_ASSURANCE.",
         nextAction: "Gunakan akun dengan peran yang berwenang untuk mendaftarkan permission policy.",
         severity: "warning",
         status: null,
@@ -1427,7 +1427,7 @@ export function GovernanceDashboard() {
     if (!canChangeBudget(actorRoles)) {
       setError({
         title: "Akses Ditolak",
-        reason: "Pengubahan budget memerlukan peran IT_LEAD atau DIRECTOR.",
+        reason: "Pengubahan budget memerlukan peran IT_ADMIN atau EXECUTIVE.",
         nextAction: "Minta IT Lead atau Direktur untuk memperbarui alokasi budget workspace.",
         severity: "warning",
         status: null,
@@ -1822,7 +1822,7 @@ export function GovernanceDashboard() {
                             title={
                               canOperateKillSwitch(actorRoles)
                                 ? "Halt Agent"
-                                : "Pengoperasian Kill Switch memerlukan peran IT_LEAD atau DIRECTOR"
+                                : "Pengoperasian Kill Switch memerlukan peran IT_ADMIN atau EXECUTIVE"
                             }
                             style={!canOperateKillSwitch(actorRoles) ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
                             onClick={() => {
@@ -1841,7 +1841,7 @@ export function GovernanceDashboard() {
                             title={
                               canOperateKillSwitch(actorRoles)
                                 ? "Resume Agent"
-                                : "Pengoperasian Kill Switch memerlukan peran IT_LEAD atau DIRECTOR"
+                                : "Pengoperasian Kill Switch memerlukan peran IT_ADMIN atau EXECUTIVE"
                             }
                             style={!canOperateKillSwitch(actorRoles) ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
                             onClick={() => {
@@ -1859,7 +1859,7 @@ export function GovernanceDashboard() {
                           disabled={!canApproveRelease(actorRoles) || (ag.rollbackTargets?.length ?? 0) === 0}
                           title={
                             !canApproveRelease(actorRoles)
-                              ? "Rollback memerlukan peran DIRECTOR"
+                              ? "Rollback memerlukan peran EXECUTIVE"
                               : (ag.rollbackTargets?.length ?? 0) === 0
                               ? "Tidak ada target rollback versi stabil untuk agen ini"
                               : "Rollback ke versi stabil"
@@ -1879,7 +1879,7 @@ export function GovernanceDashboard() {
                         >
                           Rollback
                         </button>
-                        {actorRoles.includes("DIRECTOR") && !ag.isSuspended && ag.changeRequestId && (
+                        {actorRoles.includes("EXECUTIVE") && !ag.isSuspended && ag.changeRequestId && (
                           <button
                             className="gov-btn-halt"
                             style={{ background: "#78350f", borderColor: "#92400e" }}
@@ -3363,7 +3363,7 @@ export function GovernanceDashboard() {
                         <button
                           className="gov-modal-btn-confirm primary"
                           disabled={pipelineWorking || !canMakeRelease(actorRoles)}
-                          title={!canMakeRelease(actorRoles) ? "Pendaftaran test suite memerlukan otorisasi Maker (IT_LEAD)" : undefined}
+                          title={!canMakeRelease(actorRoles) ? "Pendaftaran test suite memerlukan otorisasi Maker (IT_ADMIN)" : undefined}
                           style={!canMakeRelease(actorRoles) ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
                           onClick={() => handleGenerateDefaultTests(inspectReleaseItem.id, inspectReleaseItem.agentKey)}
                           type="button"
@@ -3395,7 +3395,7 @@ export function GovernanceDashboard() {
                         <button
                           className="gov-modal-btn-confirm"
                           disabled={batchRunningTests || pipelineWorking || !canCheckRelease(actorRoles)}
-                          title={!canCheckRelease(actorRoles) ? "Eksekusi test memerlukan otorisasi Checker (QA_SECURITY atau TECHNICAL_REVIEWER)" : undefined}
+                          title={!canCheckRelease(actorRoles) ? "Eksekusi test memerlukan otorisasi Checker (QA_ASSURANCE atau TECHNICAL_REVIEWER)" : undefined}
                           style={!canCheckRelease(actorRoles) ? { opacity: 0.5, cursor: "not-allowed", background: "#0c3b2f", color: "#ffffff" } : { background: "#0c3b2f", color: "#ffffff" }}
                           onClick={() => handleExecuteAllTests(inspectReleaseItem.id)}
                           type="button"
@@ -3408,7 +3408,7 @@ export function GovernanceDashboard() {
                           disabled={pipelineWorking || batchRunningTests || !all5TestsPassed || !canCheckRelease(actorRoles)}
                           title={
                             !canCheckRelease(actorRoles)
-                              ? "Penyerahan hasil review memerlukan otorisasi Checker (QA_SECURITY atau TECHNICAL_REVIEWER)"
+                              ? "Penyerahan hasil review memerlukan otorisasi Checker (QA_ASSURANCE atau TECHNICAL_REVIEWER)"
                               : !all5TestsPassed
                               ? "Semua 5 test cases harus lulus sebelum diserahkan ke Review Gate"
                               : undefined
@@ -3539,7 +3539,7 @@ export function GovernanceDashboard() {
                           disabled={pipelineWorking || !dualGateApproved || !canApproveRelease(actorRoles)}
                           title={
                             !canApproveRelease(actorRoles)
-                              ? "Persetujuan rilis memerlukan peran DIRECTOR"
+                              ? "Persetujuan rilis memerlukan peran EXECUTIVE"
                               : !dualGateApproved
                               ? "Kedua gate (Business & Technical) harus disetujui terlebih dahulu"
                               : undefined
@@ -3556,7 +3556,7 @@ export function GovernanceDashboard() {
                         <button
                           className="gov-modal-btn-confirm primary"
                           disabled={pipelineWorking || !canApproveRelease(actorRoles)}
-                          title={!canApproveRelease(actorRoles) ? "Deployment rilis memerlukan peran DIRECTOR" : undefined}
+                          title={!canApproveRelease(actorRoles) ? "Deployment rilis memerlukan peran EXECUTIVE" : undefined}
                           style={!canApproveRelease(actorRoles) ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
                           onClick={() => handleReleasePipelineAction(inspectReleaseItem.id, "release")}
                           type="button"
@@ -3569,7 +3569,7 @@ export function GovernanceDashboard() {
                         <button
                           className="gov-modal-btn-confirm success"
                           disabled={pipelineWorking || !canApproveRelease(actorRoles)}
-                          title={!canApproveRelease(actorRoles) ? "Aktivasi produksi memerlukan peran DIRECTOR" : undefined}
+                          title={!canApproveRelease(actorRoles) ? "Aktivasi produksi memerlukan peran EXECUTIVE" : undefined}
                           style={!canApproveRelease(actorRoles) ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
                           onClick={() => handleReleasePipelineAction(inspectReleaseItem.id, "activate")}
                           type="button"
@@ -4539,7 +4539,7 @@ export function GovernanceDashboard() {
                       setNewAgentRequirement("");
                       setSafetyModal("REQUEST_NEW_AGENT");
                     }}
-                    title={!canEditAgentRegistry(actorRoles) ? "Hanya peran IT_LEAD (Maker) yang dapat membuat agen." : undefined}
+                    title={!canEditAgentRegistry(actorRoles) ? "Hanya peran IT_ADMIN (Maker) yang dapat membuat agen." : undefined}
                     type="button"
                   >
                     <GovIcon name="plus" />
@@ -4826,7 +4826,7 @@ export function GovernanceDashboard() {
                       </>
                     )}
 
-                  {actorRoles.includes("DIRECTOR") && currentAgent.lifecycleStatus === "ACTIVE" && (
+                  {actorRoles.includes("EXECUTIVE") && currentAgent.lifecycleStatus === "ACTIVE" && (
                     <button
                       className="gov-agent-btn-outline danger"
                       onClick={() => handleSuspendAgent(currentAgent.agentKey)}
@@ -5612,7 +5612,7 @@ export function GovernanceDashboard() {
                     title={
                       canRegisterPermission(actorRoles)
                         ? "Daftarkan permission policy baru"
-                        : "Pendaftaran permission policy memerlukan peran IT_LEAD, DIRECTOR, atau QA_SECURITY"
+                        : "Pendaftaran permission policy memerlukan peran IT_ADMIN, EXECUTIVE, atau QA_ASSURANCE"
                     }
                     style={!canRegisterPermission(actorRoles) ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
                     onClick={() => {
@@ -5679,7 +5679,7 @@ export function GovernanceDashboard() {
                                     onClick={() => void handleApprovePermission(pm.id, pm.permission)}
                                     title={
                                       !canApprovePermission(actorRoles)
-                                        ? "Hanya DIRECTOR atau QA_SECURITY yang berwenang menyetujui permission policy."
+                                        ? "Hanya EXECUTIVE atau QA_ASSURANCE yang berwenang menyetujui permission policy."
                                         : isMaker
                                         ? "Maker tidak dapat menyetujui permission policy yang dibuat sendiri (Maker-Checker policy)."
                                         : undefined
@@ -6043,7 +6043,7 @@ export function GovernanceDashboard() {
                           title={
                             canChangeBudget(actorRoles)
                               ? "Perbarui limit anggaran harian workspace"
-                              : "Pengubahan budget memerlukan peran IT_LEAD atau DIRECTOR"
+                              : "Pengubahan budget memerlukan peran IT_ADMIN atau EXECUTIVE"
                           }
                           style={!canChangeBudget(actorRoles) ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
                           onClick={() => {

@@ -56,16 +56,16 @@ export type AuditEvent = {
 };
 
 export function canChangeBudget(roles: string[]): boolean {
-  return roles.includes("DIRECTOR") || roles.includes("IT_LEAD");
+  return roles.includes("EXECUTIVE") || roles.includes("IT_ADMIN");
 }
 
 export function canApprovePermission(roles: string[]): boolean {
-  return roles.includes("DIRECTOR") || roles.includes("QA_SECURITY");
+  return roles.includes("EXECUTIVE") || roles.includes("QA_ASSURANCE");
 }
 
 export function canRegisterPermission(roles: string[]): boolean {
   return roles.some((role) =>
-    ["DIRECTOR", "IT_LEAD", "QA_SECURITY", "DIVISION_OWNER"].includes(role)
+    ["EXECUTIVE", "IT_ADMIN", "QA_ASSURANCE", "WORKSPACE_LEAD"].includes(role)
   );
 }
 

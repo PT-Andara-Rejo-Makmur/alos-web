@@ -8,6 +8,6 @@ export async function GET(request: NextRequest): Promise<Response> {
   return readBackendSession(request);
 }
 
-export function DELETE(): Response {
-  return deleteBackendSession();
+export function DELETE(request: NextRequest): Promise<Response> {
+  return deleteBackendSession(request);
 }

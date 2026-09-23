@@ -69,7 +69,7 @@ describe("ALOS IT & Technology Dashboard", () => {
       principal: {
         actor_id: "usr_it_01",
         email: "it.lead@andara.co.id",
-        roles: ["IT_LEAD"],
+        roles: ["IT_ADMIN"],
         division_codes: ["IT"],
         workspace_ids: ["ws_it_01"],
       },
@@ -213,7 +213,7 @@ describe("ALOS IT & Technology Dashboard", () => {
       authenticated: true,
       principal: {
         actor_id: "usr_it_01",
-        roles: ["IT_LEAD"],
+        roles: ["IT_ADMIN"],
         division_codes: ["IT"],
         workspace_ids: ["ws_it_01"],
         email: "it@andara.co.id",
@@ -275,7 +275,7 @@ describe("ALOS IT & Technology Dashboard", () => {
       principal: {
         actor_id: "usr_it_01",
         email: "it.lead@andara.co.id",
-        roles: ["IT_LEAD"],
+        roles: ["IT_ADMIN"],
         division_codes: ["IT"],
         workspace_ids: ["ws_it_01"],
       },
@@ -297,7 +297,7 @@ describe("ALOS IT & Technology Dashboard", () => {
       authenticated: true,
       principal: {
         actor_id: "usr_it_01",
-        roles: ["IT_LEAD"],
+        roles: ["IT_ADMIN"],
         division_codes: ["IT"],
         workspace_ids: ["ws_it_01"],
       },
@@ -325,7 +325,7 @@ describe("ALOS IT & Technology Dashboard", () => {
       {
         user_id: "usr_01",
         organization_id: "org_01",
-        roles: ["IT_LEAD"],
+        roles: ["IT_ADMIN"],
         division_codes: ["IT"],
         workspace_ids: ["ws_it_01"],
         issued_at: "",
@@ -343,7 +343,7 @@ describe("ALOS IT & Technology Dashboard", () => {
     expect(groups.has("AI")).toBe(true);
 
     const overviewItem = nav.find((i) => i.key === "overview");
-    expect(overviewItem?.href).toBe("/workspace/it");
+    expect(overviewItem?.href).toBeNull();
   });
 
   // 19. Session/logout boundary preserved

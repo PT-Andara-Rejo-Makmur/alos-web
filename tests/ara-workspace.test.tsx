@@ -55,7 +55,7 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
   const sampleActor = {
     user_id: "usr_director_01",
     organization_id: "org_andara_holding",
-    roles: ["DIRECTOR"],
+    roles: ["EXECUTIVE"],
     division_codes: ["FINANCE"],
     workspace_ids: ["ws_finance_01"],
     issued_at: new Date().toISOString(),

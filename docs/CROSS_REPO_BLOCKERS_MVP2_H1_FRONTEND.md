@@ -1,4 +1,8 @@
-# CROSS_REPO_BLOCKER — MVP2 H1 Frontend
+# HISTORICAL CROSS_REPO BLOCKERS — MVP2 H1 Frontend
+
+> Historical snapshot from the earlier MVP2 H1 gate. The browser authentication and research
+> blockers recorded below have since been resolved. Current identity/workspace behavior and open
+> readiness gaps are documented in `CANONICAL_IDENTITY_ACCESS.md`.
 
 `alos-web` hanya memanggil ALOS Backend. Factory contract sudah diadopsi; dependency
 Registry summary, Research request, dan browser authentication boundary masih terbuka.

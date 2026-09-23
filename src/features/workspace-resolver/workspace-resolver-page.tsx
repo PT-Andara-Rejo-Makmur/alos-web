@@ -12,19 +12,14 @@ import {
 } from "lucide-react";
 
 import { authenticatedApiRequest, sessionApiRequest } from "@/lib/api";
-import type { Workspace } from "@/features/session";
+import {
+  loadAccessibleWorkspaces,
+  type SessionPrincipal,
+  type Workspace,
+} from "@/features/session";
 import { projectWorkspaceChoices, type WorkspaceChoice } from "./workspace-choice";
 import { WorkspaceChoiceCard } from "./workspace-choice-card";
 import styles from "./workspace-resolver.module.css";
-
-interface SessionPrincipal {
-  readonly actor_id?: string;
-  readonly display_name?: string;
-  readonly email?: string;
-  readonly roles?: readonly string[];
-  readonly workspace_id?: string;
-  readonly workspace_ids?: readonly string[];
-}
 
 interface SessionResponse {
   readonly authenticated: boolean;
@@ -86,7 +81,7 @@ export function WorkspaceResolverPage() {
         // 2. Fetch accessible workspaces from backend
         let workspaces: Workspace[] = [];
         try {
-          workspaces = await authenticatedApiRequest<Workspace[]>("/api/v1/workspaces");
+          workspaces = await loadAccessibleWorkspaces();
         } catch (err: unknown) {
           if (cancelled) return;
           const status = (err as { status?: number }).status;
@@ -96,43 +91,23 @@ export function WorkspaceResolverPage() {
             return;
           }
 
-          if (activePrincipal.workspace_id) {
-            workspaces = [
-              {
-                workspace_id: activePrincipal.workspace_id,
-                workspace_key: activePrincipal.workspace_id,
-                name: activePrincipal.roles?.includes("DIRECTOR")
-                  ? "Executive Workspace"
-                  : "Business Workspace",
-                division_code: null,
-                access_level: "MEMBER",
-              },
-            ];
-          } else {
-            setBackendError(true);
-            setLoading(false);
-            return;
-          }
+          setBackendError(true);
+          setLoading(false);
+          return;
         }
 
         if (cancelled) return;
-        let allowedWorkspaces = workspaces;
-        if (activePrincipal.workspace_ids && activePrincipal.workspace_ids.length > 0) {
-          allowedWorkspaces = workspaces.filter((ws) =>
-            activePrincipal.workspace_ids!.includes(ws.workspace_id),
-          );
-        }
-
-        const projected = projectWorkspaceChoices(
-          allowedWorkspaces,
-          activePrincipal.roles ?? [],
-        );
+        const projected = projectWorkspaceChoices(workspaces);
 
         setChoices(projected);
 
         if (projected.length === 0) {
           setNoAccess(true);
         } else if (projected.length === 1 && projected[0].destination) {
+          await authenticatedApiRequest("/api/v1/auth/active-workspace", {
+            method: "PUT",
+            body: { workspace_id: projected[0].id },
+          });
           router.replace(projected[0].destination);
         }
       } catch {
@@ -157,14 +132,20 @@ export function WorkspaceResolverPage() {
     router.replace("/login");
   };
 
-  const handleEnterWorkspace = () => {
+  const handleEnterWorkspace = async () => {
     const chosen = choices.find((c) => c.id === selectedId);
     if (chosen?.destination) {
+      await authenticatedApiRequest("/api/v1/auth/active-workspace", {
+        method: "PUT",
+        body: { workspace_id: chosen.id },
+      });
       router.push(chosen.destination);
     }
   };
 
   const selectedChoice = choices.find((c) => c.id === selectedId);
+  const principalDisplayName = principal?.actor?.display_name
+    ?? (principal && "display_name" in principal ? String(principal.display_name ?? "") : "");
 
   return (
     <div className={styles.pageRoot}>
@@ -339,7 +320,7 @@ export function WorkspaceResolverPage() {
                 </div>
                 <div>
                   <div className={styles.identityTitle}>
-                    {principal?.display_name || "Akun terautentikasi"}
+                    {principalDisplayName || "Akun terautentikasi"}
                   </div>
                   <div className={styles.identityMeta}>
                     {principal?.email ? `${principal.email} · ` : ""}

@@ -118,7 +118,7 @@ export function ProtectedDomainWorkspace({
     workspaceLabel: workspace.name,
     divisionCode: workspace.division_code,
     accessLevel: workspace.access_level,
-    roleLabel: actor.roles.includes("DIRECTOR") ? "Direktur" : roleLabel,
+    roleLabel: actor.roles.includes("EXECUTIVE") ? "Direktur" : roleLabel,
   };
 
   async function logout() {

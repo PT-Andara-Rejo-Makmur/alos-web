@@ -64,5 +64,5 @@ export async function recordReleaseDecision(payload: ReleaseDecisionRequest): Pr
 }
 
 export function canRecordReadinessDecision(roles: string[]): boolean {
-  return roles.includes("DIRECTOR");
+  return roles.includes("EXECUTIVE");
 }

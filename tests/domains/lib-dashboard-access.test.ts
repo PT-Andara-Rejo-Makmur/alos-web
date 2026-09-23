@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { canOpenGovernance, getDashboardProfile } from "@/features/access-control/dashboard-access";
+import { getDashboardProfile, isGovernanceNavigationVisible } from "@/features/access-control/dashboard-access";
 
 describe("dashboard role profiles", () => {
   it("gives director precedence when an account has multiple roles", () => {
-    const profile = getDashboardProfile(["IT_LEAD", "DIRECTOR"], ["IT"]);
+    const profile = getDashboardProfile(["IT_ADMIN", "EXECUTIVE"], ["IT"]);
 
     expect(profile.persona).toBe("director");
     expect(profile.homeLabel).toBe("Executive Dashboard");
@@ -12,7 +12,7 @@ describe("dashboard role profiles", () => {
   });
 
   it("presents the legacy QA role as Wakil IT without changing its permission code", () => {
-    const profile = getDashboardProfile(["QA_SECURITY"], []);
+    const profile = getDashboardProfile(["QA_ASSURANCE"], []);
 
     expect(profile.persona).toBe("deputy_it");
     expect(profile.roleLabel).toBe("Wakil IT");
@@ -25,6 +25,6 @@ describe("dashboard role profiles", () => {
     expect(profile.persona).toBe("member");
     expect(profile.homeLabel).toBe("My Work");
     expect(profile.divisionLabel).toBe("Property");
-    expect(canOpenGovernance([])).toBe(false);
+    expect(isGovernanceNavigationVisible([])).toBe(false);
   });
 });

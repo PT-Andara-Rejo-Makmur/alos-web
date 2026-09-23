@@ -41,6 +41,20 @@ export type {
   SourceType as ContractSourceType,
 } from "../../../../alos-contracts/generated/typescript/context-research";
 
+export type {
+  AccountAccessProjection,
+  AccountStateProjection,
+  ActiveWorkspaceProjection,
+  ActorProjection,
+  AuthenticatedPrincipalProjection,
+  AuthorizationRole,
+  IdentityDataScope,
+  MembershipMutationRequest,
+  WorkspaceAccessProjection,
+  WorkspaceProjection,
+  WorkspaceType,
+} from "../../../../alos-contracts/generated/typescript/identity-access";
+
 /**
  * Narrow bootstrap projection of IntegrationDiagnostic. Replace this declaration
  * with the generated export when alos-contracts is published as a package.

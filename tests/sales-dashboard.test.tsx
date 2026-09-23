@@ -85,13 +85,13 @@ describe("ALOS Sales & Marketing Dashboard", () => {
   });
 
   // 2. Authorized Director scope loads page
-  it("2. mengizinkan Direktur (role DIRECTOR) untuk mengakses Sales Dashboard", async () => {
+  it("2. mengizinkan Direktur (role EXECUTIVE) untuk mengakses Sales Dashboard", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
       principal: {
         actor_id: "usr_dir_01",
         email: "director@andara.co.id",
-        roles: ["DIRECTOR"],
+        roles: ["EXECUTIVE"],
         division_codes: [],
         workspace_ids: ["ws_sales_director"],
       },
@@ -332,7 +332,7 @@ describe("ALOS Sales & Marketing Dashboard", () => {
     expect(groups.has("AI")).toBe(true);
 
     const overviewItem = nav.find((i) => i.key === "overview");
-    expect(overviewItem?.href).toBe("/workspace/sales");
+    expect(overviewItem?.href).toBeNull();
   });
 
   // 18. Multi-role context isolation: Sales workspace does not show Finance items

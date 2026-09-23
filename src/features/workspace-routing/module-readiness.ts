@@ -15,18 +15,18 @@ export interface ModuleReadinessDescriptor {
  */
 export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> = {
   // Shared modules
-  projects: { availability: "READY" },
-  tasks: { availability: "READY" },
-  approvals: { availability: "READY" },
-  documents: { availability: "READY" },
-  reports: { availability: "READY" },
-  findings: { availability: "READY" },
-  ara: { availability: "READY" },
-  agents: { availability: "READY" },
-  overview: { availability: "READY" },
-  brief: { availability: "READY" },
-  divisions: { availability: "READY" },
-  governance: { availability: "READY" },
+  projects: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  tasks: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  approvals: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  documents: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  reports: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  findings: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  ara: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  agents: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  overview: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  brief: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  divisions: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  governance: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
 
   // Property Domain Modules
   milestones: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
@@ -91,7 +91,7 @@ export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> 
   collateral: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
 
   // IT Domain Modules
-  systems: { availability: "READY" },
+  systems: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   integrations: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   database: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   environments: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
@@ -99,7 +99,7 @@ export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> 
   cicd: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   releases: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
   "tech-debt": { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
-  monitoring: { availability: "READY" },
+  monitoring: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   infrastructure: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   security: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   backup: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },

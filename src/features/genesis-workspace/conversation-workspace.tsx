@@ -1494,7 +1494,7 @@ function GenesisWelcome({
   actor: SessionActor;
   onPrompt: (value: string) => void;
 }) {
-  const examples = actor.roles.includes("DIRECTOR")
+  const examples = actor.roles.includes("EXECUTIVE")
     ? [
         "Apa isu perusahaan yang paling mendesak?",
         "Ringkas approval yang masih pending.",

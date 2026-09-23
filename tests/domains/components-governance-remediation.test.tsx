@@ -271,74 +271,74 @@ describe("MVP 0.1 Governance Remediation Test Suite", () => {
   });
 
   describe("5. Role-Based Access Control (RBAC) Authority Matrix", () => {
-    it("verifies canRecordReadinessDecision is strictly DIRECTOR only", () => {
-      expect(canRecordReadinessDecision(["DIRECTOR"])).toBe(true);
-      expect(canRecordReadinessDecision(["DIRECTOR", "IT_LEAD"])).toBe(true);
-      expect(canRecordReadinessDecision(["IT_LEAD"])).toBe(false);
-      expect(canRecordReadinessDecision(["QA_SECURITY"])).toBe(false);
+    it("verifies canRecordReadinessDecision is strictly EXECUTIVE only", () => {
+      expect(canRecordReadinessDecision(["EXECUTIVE"])).toBe(true);
+      expect(canRecordReadinessDecision(["EXECUTIVE", "IT_ADMIN"])).toBe(true);
+      expect(canRecordReadinessDecision(["IT_ADMIN"])).toBe(false);
+      expect(canRecordReadinessDecision(["QA_ASSURANCE"])).toBe(false);
       expect(canRecordReadinessDecision(["BUSINESS_REVIEWER"])).toBe(false);
       expect(canRecordReadinessDecision(["TECHNICAL_REVIEWER"])).toBe(false);
       expect(canRecordReadinessDecision([])).toBe(false);
     });
 
-    it("verifies canRegisterSource permits DIRECTOR, DIVISION_OWNER, and IT_LEAD only", () => {
-      expect(canRegisterSource(["DIRECTOR"])).toBe(true);
-      expect(canRegisterSource(["DIVISION_OWNER"])).toBe(true);
-      expect(canRegisterSource(["IT_LEAD"])).toBe(true);
-      expect(canRegisterSource(["QA_SECURITY"])).toBe(false);
+    it("verifies canRegisterSource permits EXECUTIVE, WORKSPACE_LEAD, and IT_ADMIN only", () => {
+      expect(canRegisterSource(["EXECUTIVE"])).toBe(true);
+      expect(canRegisterSource(["WORKSPACE_LEAD"])).toBe(true);
+      expect(canRegisterSource(["IT_ADMIN"])).toBe(true);
+      expect(canRegisterSource(["QA_ASSURANCE"])).toBe(false);
       expect(canRegisterSource(["SECURITY_ADMIN"])).toBe(false);
       expect(canRegisterSource(["ADMIN"])).toBe(false);
       expect(canRegisterSource(["BUSINESS_REVIEWER"])).toBe(false);
       expect(canRegisterSource([])).toBe(false);
     });
 
-    it("verifies canVerifySource permits DIRECTOR, DIVISION_OWNER, and IT_LEAD", () => {
-      expect(canVerifySource(["DIRECTOR"])).toBe(true);
-      expect(canVerifySource(["DIVISION_OWNER"])).toBe(true);
-      expect(canVerifySource(["IT_LEAD"])).toBe(true);
-      expect(canVerifySource(["QA_SECURITY"])).toBe(false);
+    it("verifies canVerifySource permits EXECUTIVE, WORKSPACE_LEAD, and IT_ADMIN", () => {
+      expect(canVerifySource(["EXECUTIVE"])).toBe(true);
+      expect(canVerifySource(["WORKSPACE_LEAD"])).toBe(true);
+      expect(canVerifySource(["IT_ADMIN"])).toBe(true);
+      expect(canVerifySource(["QA_ASSURANCE"])).toBe(false);
       expect(canVerifySource(["BUSINESS_REVIEWER"])).toBe(false);
     });
 
-    it("verifies canChangeBudget permits DIRECTOR and IT_LEAD only", () => {
-      expect(canChangeBudget(["DIRECTOR"])).toBe(true);
-      expect(canChangeBudget(["IT_LEAD"])).toBe(true);
-      expect(canChangeBudget(["QA_SECURITY"])).toBe(false);
+    it("verifies canChangeBudget permits EXECUTIVE and IT_ADMIN only", () => {
+      expect(canChangeBudget(["EXECUTIVE"])).toBe(true);
+      expect(canChangeBudget(["IT_ADMIN"])).toBe(true);
+      expect(canChangeBudget(["QA_ASSURANCE"])).toBe(false);
       expect(canChangeBudget(["BUSINESS_REVIEWER"])).toBe(false);
     });
 
-    it("verifies canEditAgentRegistry permits IT_LEAD only", () => {
-      expect(canEditAgentRegistry(["IT_LEAD"])).toBe(true);
-      expect(canEditAgentRegistry(["DIRECTOR"])).toBe(false);
-      expect(canEditAgentRegistry(["QA_SECURITY"])).toBe(false);
+    it("verifies canEditAgentRegistry permits IT_ADMIN only", () => {
+      expect(canEditAgentRegistry(["IT_ADMIN"])).toBe(true);
+      expect(canEditAgentRegistry(["EXECUTIVE"])).toBe(false);
+      expect(canEditAgentRegistry(["QA_ASSURANCE"])).toBe(false);
     });
 
-    it("verifies canOperateKillSwitch permits IT_LEAD and DIRECTOR", () => {
-      expect(canOperateKillSwitch(["DIRECTOR"])).toBe(true);
-      expect(canOperateKillSwitch(["IT_LEAD"])).toBe(true);
-      expect(canOperateKillSwitch(["QA_SECURITY"])).toBe(false);
+    it("verifies canOperateKillSwitch permits IT_ADMIN and EXECUTIVE", () => {
+      expect(canOperateKillSwitch(["EXECUTIVE"])).toBe(true);
+      expect(canOperateKillSwitch(["IT_ADMIN"])).toBe(true);
+      expect(canOperateKillSwitch(["QA_ASSURANCE"])).toBe(false);
     });
 
-    it("verifies canApproveRelease permits DIRECTOR only", () => {
-      expect(canApproveRelease(["DIRECTOR"])).toBe(true);
-      expect(canApproveRelease(["IT_LEAD"])).toBe(false);
-      expect(canApproveRelease(["QA_SECURITY"])).toBe(false);
+    it("verifies canApproveRelease permits EXECUTIVE only", () => {
+      expect(canApproveRelease(["EXECUTIVE"])).toBe(true);
+      expect(canApproveRelease(["IT_ADMIN"])).toBe(false);
+      expect(canApproveRelease(["QA_ASSURANCE"])).toBe(false);
     });
 
-    it("verifies canConfigureSourceVault permits IT_LEAD only", () => {
-      expect(canConfigureSourceVault(["IT_LEAD"])).toBe(true);
-      expect(canConfigureSourceVault(["DIRECTOR"])).toBe(false);
-      expect(canConfigureSourceVault(["DIVISION_OWNER"])).toBe(false);
-      expect(canConfigureSourceVault(["QA_SECURITY"])).toBe(false);
+    it("verifies canConfigureSourceVault permits IT_ADMIN only", () => {
+      expect(canConfigureSourceVault(["IT_ADMIN"])).toBe(true);
+      expect(canConfigureSourceVault(["EXECUTIVE"])).toBe(false);
+      expect(canConfigureSourceVault(["WORKSPACE_LEAD"])).toBe(false);
+      expect(canConfigureSourceVault(["QA_ASSURANCE"])).toBe(false);
       expect(canConfigureSourceVault([])).toBe(false);
     });
 
     it("verifies canReviewBusinessGate permits BUSINESS_REVIEWER independently", () => {
       expect(canReviewBusinessGate(["BUSINESS_REVIEWER"])).toBe(true);
-      expect(canReviewBusinessGate(["BUSINESS_REVIEWER", "DIRECTOR"])).toBe(true);
+      expect(canReviewBusinessGate(["BUSINESS_REVIEWER", "EXECUTIVE"])).toBe(true);
       expect(canReviewBusinessGate(["TECHNICAL_REVIEWER"])).toBe(false);
-      expect(canReviewBusinessGate(["DIRECTOR"])).toBe(false);
-      expect(canReviewBusinessGate(["QA_SECURITY"])).toBe(false);
+      expect(canReviewBusinessGate(["EXECUTIVE"])).toBe(false);
+      expect(canReviewBusinessGate(["QA_ASSURANCE"])).toBe(false);
       expect(canReviewBusinessGate([])).toBe(false);
     });
 
@@ -346,8 +346,8 @@ describe("MVP 0.1 Governance Remediation Test Suite", () => {
       expect(canReviewTechnicalGate(["TECHNICAL_REVIEWER"])).toBe(true);
       expect(canReviewTechnicalGate(["TECHNICAL_REVIEWER", "BUSINESS_REVIEWER"])).toBe(true);
       expect(canReviewTechnicalGate(["BUSINESS_REVIEWER"])).toBe(false);
-      expect(canReviewTechnicalGate(["DIRECTOR"])).toBe(false);
-      expect(canReviewTechnicalGate(["QA_SECURITY"])).toBe(false);
+      expect(canReviewTechnicalGate(["EXECUTIVE"])).toBe(false);
+      expect(canReviewTechnicalGate(["QA_ASSURANCE"])).toBe(false);
       expect(canReviewTechnicalGate([])).toBe(false);
     });
   });

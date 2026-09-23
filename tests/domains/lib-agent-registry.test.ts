@@ -39,9 +39,9 @@ const agents: AgentRecord[] = [
 
 describe("Agent Registry Builder helpers", () => {
   it("grants the Registry only to IT Lead", () => {
-    expect(canEditAgentRegistry(["IT_LEAD"])).toBe(true);
-    expect(canEditAgentRegistry(["DIRECTOR"])).toBe(false);
-    expect(canEditAgentRegistry(["DIVISION_OWNER", "QA_SECURITY"])).toBe(false);
+    expect(canEditAgentRegistry(["IT_ADMIN"])).toBe(true);
+    expect(canEditAgentRegistry(["EXECUTIVE"])).toBe(false);
+    expect(canEditAgentRegistry(["WORKSPACE_LEAD", "QA_ASSURANCE"])).toBe(false);
   });
 
   it("renders only safe, actionable registry conflict messages", () => {

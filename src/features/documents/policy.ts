@@ -63,12 +63,12 @@ export type DocumentWorkspace = {
 };
 
 const checkerRoles = new Set([
-  "DIRECTOR",
-  "DIVISION_OWNER",
-  "IT_LEAD",
+  "EXECUTIVE",
+  "WORKSPACE_LEAD",
+  "IT_ADMIN",
   "TECHNICAL_REVIEWER",
   "BUSINESS_REVIEWER",
-  "QA_SECURITY",
+  "QA_ASSURANCE",
 ]);
 
 function usesDirectorStreamlinedFlow(document: DocumentRecord): boolean {
@@ -80,11 +80,11 @@ export function canCheckDocument(actor: SessionActor, detail: DocumentDetail): b
     return false;
   }
   return detail.document.created_by_user_id !== actor.user_id
-    || (actor.roles.includes("DIRECTOR") && usesDirectorStreamlinedFlow(detail.document));
+    || (actor.roles.includes("EXECUTIVE") && usesDirectorStreamlinedFlow(detail.document));
 }
 
 export function canApproveDocument(actor: SessionActor, detail: DocumentDetail): boolean {
-  if (!actor.roles.includes("DIRECTOR")) return false;
+  if (!actor.roles.includes("EXECUTIVE")) return false;
   if (usesDirectorStreamlinedFlow(detail.document)) {
     return detail.document.status === "DRAFT" || detail.document.status === "IN_REVIEW";
   }

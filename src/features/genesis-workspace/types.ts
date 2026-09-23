@@ -87,12 +87,12 @@ export function normalizeGenesisError(error: unknown): GenesisUiError {
   return { title: "Permintaan tidak berhasil", reason: error instanceof Error ? error.message : "Kegagalan tidak dikenali.", nextAction: "Periksa input lalu coba kembali.", correlationId: null };
 }
 
-export function canTestActiveAgent(roles: string[], permissions: string[] = []): boolean {
-  return roles.some((role) => ["IT_LEAD", "IT_ADMIN", "AI_ADMIN"].includes(role)) || permissions.some((permission) => ["IT_ADMIN", "AI_ADMIN"].includes(permission));
+export function canTestActiveAgent(roles: string[]): boolean {
+  return roles.some((role) => ["IT_ADMIN", "AI_ADMIN"].includes(role));
 }
 
 export function canManageDraftAgent(roles: string[]): boolean {
-  return roles.includes("IT_LEAD");
+  return roles.includes("IT_ADMIN");
 }
 
 export function contextHref(type: ContextEntityType): string {

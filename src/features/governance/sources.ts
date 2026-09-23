@@ -165,13 +165,13 @@ export async function searchSourceEvidence(workspaceId: string, query: string = 
 }
 
 export function canVerifySource(roles: string[]): boolean {
-  return roles.some((role) => ["DIRECTOR", "DIVISION_OWNER", "IT_LEAD"].includes(role));
+  return roles.some((role) => ["EXECUTIVE", "WORKSPACE_LEAD", "IT_ADMIN"].includes(role));
 }
 
 export function canRegisterSource(roles: string[]): boolean {
-  return roles.some((role) => ["DIRECTOR", "DIVISION_OWNER", "IT_LEAD"].includes(role));
+  return roles.some((role) => ["EXECUTIVE", "WORKSPACE_LEAD", "IT_ADMIN"].includes(role));
 }
 
 export function canConfigureSourceVault(roles: string[]): boolean {
-  return roles.includes("IT_LEAD");
+  return roles.includes("IT_ADMIN");
 }

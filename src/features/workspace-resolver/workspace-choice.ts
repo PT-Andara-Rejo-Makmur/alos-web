@@ -36,25 +36,26 @@ const DIVISION_ROLE_LABELS: Record<string, string> = {
 
 export function projectWorkspaceChoices(
   workspaces: readonly Workspace[],
-  roles: readonly string[] = [],
 ): readonly WorkspaceChoice[] {
   return workspaces.map((ws) => {
     const div = (ws.division_code || "").toUpperCase();
-    const destination = resolveWorkspaceDestination(ws, roles);
+    const destination = resolveWorkspaceDestination(ws);
     const isAvailable = destination !== null;
 
     let divisionLabel = ws.division_code ? (DIVISION_DISPLAY_NAMES[div] || div) : "ENTERPRISE";
     let roleLabel = ws.division_code ? (DIVISION_ROLE_LABELS[div] || "Manager") : "Pengguna ALOS";
 
-    if (roles.includes("DIRECTOR") || ws.workspace_key?.toLowerCase().includes("director")) {
+    if (ws.workspace_type === "EXECUTIVE") {
       divisionLabel = "EXECUTIVE";
-      roleLabel = "Direktur Utama";
-    } else if (roles.includes("IT_LEAD") || ws.workspace_key?.toLowerCase().includes("it")) {
+      roleLabel = ws.role_refs?.join(" · ") || "Executive";
+    } else if (ws.workspace_type === "IT_OPERATIONS") {
       divisionLabel = "IT OPERATIONS";
-      roleLabel = "IT Lead";
-    } else if (roles.includes("QA_SECURITY") || roles.includes("TECHNICAL_REVIEWER")) {
+      roleLabel = ws.role_refs?.join(" · ") || "IT Operations";
+    } else if (ws.workspace_type === "GOVERNANCE") {
       divisionLabel = "GOVERNANCE";
-      roleLabel = "Wakil IT";
+      roleLabel = ws.role_refs?.join(" · ") || "Governance";
+    } else {
+      roleLabel = ws.role_refs?.join(" · ") || roleLabel;
     }
 
     const initial = ws.division_code

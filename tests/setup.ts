@@ -26,6 +26,9 @@ beforeEach(() => {
         access_level: "MEMBER",
       })) as never;
     }
+    if (path === "/api/v1/auth/active-workspace") {
+      return {} as never;
+    }
     return realAuthenticatedApiRequest(path, options) as never;
   });
 });

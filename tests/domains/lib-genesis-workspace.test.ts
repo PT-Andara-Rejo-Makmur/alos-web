@@ -14,10 +14,10 @@ describe("GENESIS workspace helpers", () => {
   });
 
   it("keeps active testing and draft mutation role-aware", () => {
-    expect(canTestActiveAgent(["IT_LEAD"])).toBe(true);
-    expect(canTestActiveAgent(["DIRECTOR"])).toBe(false);
-    expect(canManageDraftAgent(["IT_LEAD"])).toBe(true);
-    expect(canManageDraftAgent(["DIRECTOR"])).toBe(false);
+    expect(canTestActiveAgent(["IT_ADMIN"])).toBe(true);
+    expect(canTestActiveAgent(["EXECUTIVE"])).toBe(false);
+    expect(canManageDraftAgent(["IT_ADMIN"])).toBe(true);
+    expect(canManageDraftAgent(["EXECUTIVE"])).toBe(false);
   });
 
   it("normalizes inactive Agent and unauthorized context failures", () => {

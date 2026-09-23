@@ -5,6 +5,12 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export const BACKEND_SESSION_COOKIE = "alos_backend_session";
 
+function secureSessionCookie(): boolean {
+  const configured = process.env.ALOS_SESSION_COOKIE_SECURE?.trim().toLowerCase();
+  if (configured === "false") return false;
+  return configured === "true" || process.env.NODE_ENV === "production";
+}
+
 function backendBaseUrl(): string {
   const configured =
     process.env.ALOS_BACKEND_INTERNAL_URL?.trim() ||
@@ -139,7 +145,7 @@ export async function createBackendSession(request: NextRequest): Promise<Respon
     value: token,
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: secureSessionCookie(),
     path: "/",
   });
   return result;
@@ -176,14 +182,18 @@ export async function readBackendSession(request: NextRequest): Promise<Response
   );
 }
 
-export function deleteBackendSession(): NextResponse {
+export async function deleteBackendSession(request: NextRequest): Promise<NextResponse> {
+  const token = (await cookies()).get(BACKEND_SESSION_COOKIE)?.value;
+  if (token) {
+    await forward(request, "/api/v1/auth/logout", `Bearer ${token}`);
+  }
   const response = NextResponse.json({ authenticated: false });
   response.cookies.set({
     name: BACKEND_SESSION_COOKIE,
     value: "",
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: secureSessionCookie(),
     path: "/",
     maxAge: 0,
   });

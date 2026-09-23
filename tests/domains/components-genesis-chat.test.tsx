@@ -6,7 +6,7 @@ import { GenesisChat } from "@/features/genesis-workspace/conversation-workspace
 const actor = {
   user_id: "00000000-0000-0000-0000-000000000001",
   organization_id: "00000000-0000-0000-0000-000000000002",
-  roles: ["DIRECTOR"],
+  roles: ["EXECUTIVE"],
   division_codes: ["PROPERTY"],
   workspace_ids: ["00000000-0000-0000-0000-000000000003"],
   issued_at: "2026-09-09T00:00:00Z",

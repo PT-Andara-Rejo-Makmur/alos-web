@@ -64,7 +64,7 @@ function BusinessDashboardContent({ actor, identity, module }: { actor: SessionA
   const profile = getDashboardProfile(actor.roles, actor.division_codes);
 
   useEffect(() => {
-    if (!actor.roles.includes("DIRECTOR")) return;
+    if (!actor.roles.includes("EXECUTIVE")) return;
     const controller = new AbortController();
     authenticatedApiRequest<ExecutiveDashboardSnapshot>("/api/v1/executive-dashboard", { signal: controller.signal })
       .then(setExecutiveData)
@@ -362,7 +362,7 @@ function SettingsDashboard({ actor }: { actor: SessionActor }) {
 type IntegrationStatus = { integration_key: string; provider: string; status: string; allowed_hosts: string[]; updated_at: string };
 
 function IntegrationStatusPanel({ actor }: { actor: SessionActor }) {
-  const canView = actor.roles.some((role) => ["DIRECTOR", "IT_ADMIN", "AI_ADMIN", "IT_LEAD"].includes(role));
+  const canView = actor.roles.some((role) => ["EXECUTIVE", "IT_ADMIN", "AI_ADMIN"].includes(role));
   const [items, setItems] = useState<IntegrationStatus[]>([]);
   const [error, setError] = useState("");
   useEffect(() => {

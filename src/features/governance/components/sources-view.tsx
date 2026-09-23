@@ -206,7 +206,7 @@ export function SourcesView({ workspaceId, actorRoles, onError, onNotice }: Sour
             className="gov-ag-request-btn"
             disabled={!canRegisterSource(actorRoles)}
             onClick={() => setShowRegisterModal(true)}
-            title={!canRegisterSource(actorRoles) ? "Hanya peran DIRECTOR, DIVISION_OWNER, atau IT_LEAD yang dapat mendaftarkan sumber." : undefined}
+            title={!canRegisterSource(actorRoles) ? "Hanya peran EXECUTIVE, WORKSPACE_LEAD, atau IT_ADMIN yang dapat mendaftarkan sumber." : undefined}
             type="button"
           >
             <span>+ Registrasi Sumber</span>
@@ -256,7 +256,7 @@ export function SourcesView({ workspaceId, actorRoles, onError, onNotice }: Sour
               disabled={!canConfigureSourceVault(actorRoles)}
               onClick={handleOpenVaultModal}
               style={{ fontSize: "0.76rem", padding: "6px 12px" }}
-              title={!canConfigureSourceVault(actorRoles) ? "Hanya peran IT_LEAD yang berwenang mengonfigurasi Source Vault." : undefined}
+              title={!canConfigureSourceVault(actorRoles) ? "Hanya peran IT_ADMIN yang berwenang mengonfigurasi Source Vault." : undefined}
               type="button"
             >
               ⚙ Konfigurasi Vault Boundary
@@ -320,7 +320,7 @@ export function SourcesView({ workspaceId, actorRoles, onError, onNotice }: Sour
                           setVerifyTarget(src);
                           setVerifyReason("");
                         }}
-                        title={!canVerifySource(actorRoles) ? "Hanya DIRECTOR, DIVISION_OWNER, atau IT_LEAD yang berwenang memverifikasi sumber." : undefined}
+                        title={!canVerifySource(actorRoles) ? "Hanya EXECUTIVE, WORKSPACE_LEAD, atau IT_ADMIN yang berwenang memverifikasi sumber." : undefined}
                         type="button"
                       >
                         Verify
@@ -476,7 +476,7 @@ export function SourcesView({ workspaceId, actorRoles, onError, onNotice }: Sour
               Verifikasi Manusia: {verifyTarget.name}
             </h3>
             <p style={{ fontSize: "0.8rem", color: "#546e63", marginBottom: "16px" }}>
-              Sebagai pejabat berwenang (DIRECTOR, DIVISION_OWNER, atau IT_LEAD), berikan alasan verifikasi kelayakan konten sumber ini untuk dijadikan rujukan operasional AI.
+              Sebagai pejabat berwenang (EXECUTIVE, WORKSPACE_LEAD, atau IT_ADMIN), berikan alasan verifikasi kelayakan konten sumber ini untuk dijadikan rujukan operasional AI.
             </p>
             <div className="gov-modal-field">
               <label htmlFor="verify-reason-input">Alasan / Catatan Verifikasi:</label>
@@ -508,7 +508,7 @@ export function SourcesView({ workspaceId, actorRoles, onError, onNotice }: Sour
               Konfigurasi Source Vault Boundary
             </h3>
             <p style={{ fontSize: "0.8rem", color: "#546e63", marginBottom: "16px" }}>
-              Khusus IT_LEAD: Tentukan boundary folder Google Drive yang diizinkan (Allowed Root) dan folder terlarang (Excluded Folder) untuk isolasi data.
+              Khusus IT_ADMIN: Tentukan boundary folder Google Drive yang diizinkan (Allowed Root) dan folder terlarang (Excluded Folder) untuk isolasi data.
             </p>
             <div className="gov-modal-field">
               <label htmlFor="vault-allowed-input">Allowed Root Drive URL:</label>

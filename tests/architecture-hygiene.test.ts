@@ -33,6 +33,12 @@ describe("production architecture hygiene", () => {
     ).toEqual([]);
   });
 
+  it("rejects obsolete authorization role vocabulary", () => {
+    expect(
+      violations(/\b(?:DIRECTOR|DIVISION_OWNER|DIVISION_LEAD|DIVISION_MEMBER|IT_LEAD|QA_SECURITY)\b/),
+    ).toEqual([]);
+  });
+
   it("keeps protected browser authentication behind the session boundary", () => {
     const offenders = productionFiles().filter((path) => {
       const content = readFileSync(path, "utf8");

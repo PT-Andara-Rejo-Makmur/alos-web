@@ -111,7 +111,7 @@ export type DesignerResult = {
 export const releaseTestCategories: TestCategory[] = ["POSITIVE", "NEGATIVE", "REGRESSION", "SECURITY", "RECOVERY"];
 
 export function canMakeRelease(roles: string[]): boolean {
-  return roles.includes("IT_LEAD");
+  return roles.includes("IT_ADMIN");
 }
 
 /**
@@ -119,15 +119,15 @@ export function canMakeRelease(roles: string[]): boolean {
  * contracts; independent reviewers and the Director load release evidence without it.
  */
 export function canReadReleaseRegistry(roles: string[]): boolean {
-  return roles.some((role) => ["DIRECTOR", "DIVISION_OWNER", "IT_LEAD", "QA_SECURITY", "BUSINESS_REVIEWER", "TECHNICAL_REVIEWER"].includes(role));
+  return roles.some((role) => ["EXECUTIVE", "WORKSPACE_LEAD", "IT_ADMIN", "QA_ASSURANCE", "BUSINESS_REVIEWER", "TECHNICAL_REVIEWER"].includes(role));
 }
 
 export function canDesignAgent(roles: string[]): boolean {
-  return roles.includes("IT_LEAD");
+  return roles.includes("IT_ADMIN");
 }
 
 export function canCheckRelease(roles: string[]): boolean {
-  return roles.some((role) => ["QA_SECURITY", "TECHNICAL_REVIEWER"].includes(role));
+  return roles.some((role) => ["QA_ASSURANCE", "TECHNICAL_REVIEWER"].includes(role));
 }
 
 export function canReviewGate(roles: string[]): ReviewGate | null {
@@ -145,11 +145,11 @@ export function canReviewTechnicalGate(roles: string[]): boolean {
 }
 
 export function canApproveRelease(roles: string[]): boolean {
-  return roles.includes("DIRECTOR");
+  return roles.includes("EXECUTIVE");
 }
 
 export function canOperateKillSwitch(roles: string[]): boolean {
-  return roles.some((role) => ["DIRECTOR", "IT_LEAD"].includes(role));
+  return roles.some((role) => ["EXECUTIVE", "IT_ADMIN"].includes(role));
 }
 
 export function draftAgents(agents: AgentRecord[]): AgentRecord[] {

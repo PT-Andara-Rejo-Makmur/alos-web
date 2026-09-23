@@ -24,10 +24,10 @@ const divisionLabels: Record<string, string> = {
 
 const roleLabels: Record<string, string> = {
   BUSINESS_REVIEWER: "Business Reviewer",
-  DIRECTOR: "Direktur Utama",
-  DIVISION_OWNER: "Lead Divisi",
-  IT_LEAD: "IT Lead",
-  QA_SECURITY: "Wakil IT",
+  EXECUTIVE: "Direktur Utama",
+  WORKSPACE_LEAD: "Lead Divisi",
+  IT_ADMIN: "IT Lead",
+  QA_ASSURANCE: "Wakil IT",
   TECHNICAL_REVIEWER: "Wakil IT",
 };
 
@@ -84,13 +84,13 @@ export function getDashboardProfile(roles: readonly string[], divisionCodes: rea
   return {
     ...profileContent[persona],
     divisionLabel: formatDivisionLabel(divisionCodes),
-    governanceVisible: canOpenGovernance(roles),
+    governanceVisible: isGovernanceNavigationVisible(roles),
     roleLabel: formatRoleLabel(roles),
   };
 }
 
-export function canOpenGovernance(roles: readonly string[]): boolean {
-  return roles.some((role) => ["DIRECTOR", "IT_LEAD", "QA_SECURITY", "TECHNICAL_REVIEWER", "BUSINESS_REVIEWER"].includes(role));
+export function isGovernanceNavigationVisible(roles: readonly string[]): boolean {
+  return roles.some((role) => ["EXECUTIVE", "IT_ADMIN", "QA_ASSURANCE", "TECHNICAL_REVIEWER", "BUSINESS_REVIEWER"].includes(role));
 }
 
 export function formatDivisionLabel(divisionCodes: readonly string[]): string | null {
@@ -104,9 +104,9 @@ export function formatRoleLabel(roles: readonly string[]): string {
 }
 
 function selectPersona(roles: readonly string[]): DashboardPersona {
-  if (roles.includes("DIRECTOR")) return "director";
-  if (roles.includes("IT_LEAD")) return "it_lead";
-  if (roles.includes("QA_SECURITY") || roles.includes("TECHNICAL_REVIEWER")) return "deputy_it";
-  if (roles.includes("DIVISION_OWNER")) return "division_lead";
+  if (roles.includes("EXECUTIVE")) return "director";
+  if (roles.includes("IT_ADMIN")) return "it_lead";
+  if (roles.includes("QA_ASSURANCE") || roles.includes("TECHNICAL_REVIEWER")) return "deputy_it";
+  if (roles.includes("WORKSPACE_LEAD")) return "division_lead";
   return "member";
 }

@@ -68,18 +68,18 @@ describe("H4 Release Governance helpers", () => {
   });
 
   it("allows governance actors to read immutable Agent Registry metadata", () => {
-    expect(canReadReleaseRegistry(["QA_SECURITY"])).toBe(true);
+    expect(canReadReleaseRegistry(["QA_ASSURANCE"])).toBe(true);
     expect(canReadReleaseRegistry(["BUSINESS_REVIEWER"])).toBe(true);
     expect(canReadReleaseRegistry(["TECHNICAL_REVIEWER"])).toBe(true);
-    expect(canReadReleaseRegistry(["DIRECTOR"])).toBe(true);
-    expect(canReadReleaseRegistry(["IT_LEAD"])).toBe(true);
-    expect(canReadReleaseRegistry(["DIVISION_MEMBER"])).toBe(false);
+    expect(canReadReleaseRegistry(["EXECUTIVE"])).toBe(true);
+    expect(canReadReleaseRegistry(["IT_ADMIN"])).toBe(true);
+    expect(canReadReleaseRegistry(["WORKSPACE_MEMBER"])).toBe(false);
   });
 
   it("keeps Director as requester/approver and IT Lead as Release Maker", () => {
-    expect(canMakeRelease(["IT_LEAD"])).toBe(true);
-    expect(canMakeRelease(["DIRECTOR"])).toBe(false);
-    expect(canMakeRelease(["DIVISION_OWNER"])).toBe(false);
+    expect(canMakeRelease(["IT_ADMIN"])).toBe(true);
+    expect(canMakeRelease(["EXECUTIVE"])).toBe(false);
+    expect(canMakeRelease(["WORKSPACE_LEAD"])).toBe(false);
   });
 
   it("shows lifecycle progress and the role-aware next action", () => {
@@ -90,8 +90,8 @@ describe("H4 Release Governance helpers", () => {
       test_cases: [], test_runs: [], reviews: [], lifecycle_events: [], kill_switch_active: false, rollback_targets: [],
     };
     expect(releaseProgress("APPROVED")).toEqual({ current: 4, total: 6, percent: 67 });
-    expect(releaseNextAction(detail, ["QA_SECURITY"])).toMatchObject({ title: "Jalankan evidence test", view: "tests" });
-    expect(releaseNextAction(detail, ["DIRECTOR"])).toMatchObject({ title: "Menunggu Checker independen", view: "tests" });
+    expect(releaseNextAction(detail, ["QA_ASSURANCE"])).toMatchObject({ title: "Jalankan evidence test", view: "tests" });
+    expect(releaseNextAction(detail, ["EXECUTIVE"])).toMatchObject({ title: "Menunggu Checker independen", view: "tests" });
   });
 
   it("only lets the recorded maker amend a mutable release draft", () => {

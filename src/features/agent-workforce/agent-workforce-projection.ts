@@ -1,7 +1,7 @@
 import type { Run } from "@/features/governance/core";
 import type { SessionActor, Workspace } from "@/features/session";
 import type { GenesisActiveAgent } from "@/features/genesis-workspace/types";
-import { canOpenGovernance } from "@/features/access-control/dashboard-access";
+import { isGovernanceNavigationVisible } from "@/features/access-control/dashboard-access";
 import { apiRequest, withQuery } from "@/lib/api";
 
 import type {
@@ -166,7 +166,7 @@ export async function loadScopedRunSummary(
  * Checks whether the current actor's roles authorize access to GENESIS technical control plane.
  */
 export function canActorAccessGenesis(roles: readonly string[]): boolean {
-  return canOpenGovernance(roles) || roles.includes("IT_LEAD") || roles.includes("ADMIN");
+  return isGovernanceNavigationVisible(roles) || roles.includes("IT_ADMIN");
 }
 
 /**

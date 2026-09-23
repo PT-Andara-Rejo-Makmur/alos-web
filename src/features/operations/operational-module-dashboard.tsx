@@ -268,7 +268,7 @@ function ReportScheduleControl({ definition, mutate }: { definition: ReportDefin
 }
 
 function ReportCreateForm({ actor, divisionCode, mutate, onDone, workspaceId }: { actor: SessionActor; divisionCode: string; mutate: Mutation; onDone: () => void; workspaceId: string }) {
-  const [name, setName] = useState(""); const [period, setPeriod] = useState("WEEKLY"); const [scope, setScope] = useState(actor.roles.includes("DIRECTOR") ? "COMPANY" : "DIVISION");
+  const [name, setName] = useState(""); const [period, setPeriod] = useState("WEEKLY"); const [scope, setScope] = useState(actor.roles.includes("EXECUTIVE") ? "COMPANY" : "DIVISION");
   async function submit(event: FormEvent) {
     event.preventDefault();
     await mutate(() => authenticatedApiRequest("/api/v1/report-definitions", {
@@ -288,7 +288,7 @@ function ReportCreateForm({ actor, divisionCode, mutate, onDone, workspaceId }: 
     }), "Definisi laporan DRAFT berhasil dibuat.");
     onDone();
   }
-  return <form className="alos-operation-form" onSubmit={(event) => void submit(event)}><label>Nama<input minLength={2} onChange={(event) => setName(event.target.value)} required value={name} /></label><label>Periode<select onChange={(event) => setPeriod(event.target.value)} value={period}><option>DAILY</option><option>WEEKLY</option><option>MONTHLY</option><option>ON_DEMAND</option></select></label><label>Scope<select onChange={(event) => setScope(event.target.value)} value={scope}>{actor.roles.includes("DIRECTOR") ? <option>COMPANY</option> : null}<option>DIVISION</option><option>OWN_ASSIGNED</option></select></label><button className="alos-workspace-primary" type="submit">Simpan DRAFT</button></form>;
+  return <form className="alos-operation-form" onSubmit={(event) => void submit(event)}><label>Nama<input minLength={2} onChange={(event) => setName(event.target.value)} required value={name} /></label><label>Periode<select onChange={(event) => setPeriod(event.target.value)} value={period}><option>DAILY</option><option>WEEKLY</option><option>MONTHLY</option><option>ON_DEMAND</option></select></label><label>Scope<select onChange={(event) => setScope(event.target.value)} value={scope}>{actor.roles.includes("EXECUTIVE") ? <option>COMPANY</option> : null}<option>DIVISION</option><option>OWN_ASSIGNED</option></select></label><button className="alos-workspace-primary" type="submit">Simpan DRAFT</button></form>;
 }
 
 function OperationTable({ children, title }: { children: React.ReactNode; title: string }) {

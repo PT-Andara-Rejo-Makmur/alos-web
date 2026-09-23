@@ -112,7 +112,7 @@ export function DocumentCenter({ actor, mode, activeWorkspace }: DocumentCenterP
     total: documents.length,
   }), [documents]);
   const pendingChecks = selected?.checklist.filter((item) => item.required && item.status !== "PASSED").length ?? 0;
-  const canUploadToGenesis = actor.roles.includes("DIRECTOR");
+  const canUploadToGenesis = actor.roles.includes("EXECUTIVE");
   const analysisSources = useMemo(
     () => documents.filter(canGenesisReadDocument),
     [documents],
@@ -478,7 +478,7 @@ export function DocumentCenter({ actor, mode, activeWorkspace }: DocumentCenterP
           <div className="alos-genesis-chat-stream">
             {analysisResult ? <>
               <div className="alos-genesis-user-message">
-                <span>{actor.roles.includes("DIRECTOR") ? "D" : actor.roles[0]?.slice(0, 1) ?? "A"}</span>
+                <span>{actor.roles.includes("EXECUTIVE") ? "D" : actor.roles[0]?.slice(0, 1) ?? "A"}</span>
                 <div>
                   <div className="alos-genesis-message-meta"><strong>Direktur Utama</strong><small>Baru saja</small></div>
                   <p>{analysisResult.analysis.content.prompt}</p>
@@ -497,7 +497,7 @@ export function DocumentCenter({ actor, mode, activeWorkspace }: DocumentCenterP
                   <div className="alos-genesis-attention"><div><strong>Rekomendasi untuk arahan Direktur</strong><span>Daftar perbaikan di atas bukan tugas yang dapat ditandai selesai. Konfirmasi, tolak, atau beri prioritas melalui percakapan di bawah.</span></div></div>
                 </div>
               </div>
-              {displayedFollowUps.map((message) => <GenesisFollowUpMessage actorInitial={actor.roles.includes("DIRECTOR") ? "D" : actor.roles[0]?.slice(0, 1) ?? "A"} key={message.message_id} message={message} />)}
+              {displayedFollowUps.map((message) => <GenesisFollowUpMessage actorInitial={actor.roles.includes("EXECUTIVE") ? "D" : actor.roles[0]?.slice(0, 1) ?? "A"} key={message.message_id} message={message} />)}
               {sendingDirectorReply ? <GenesisFollowUpFeedback failure={null} sending /> : null}
             </> : <GenesisEmptyWelcome onSelectPrompt={setAnalysisPrompt} />}
           </div>
@@ -832,7 +832,7 @@ function DocumentDetailPanel({ actor, detail, pendingChecks, checkNotes, reviewN
   const isMaker = detail.document.created_by_user_id === actor.user_id;
   const canCheck = canCheckDocument(actor, detail);
   const canApprove = canApproveDocument(actor, detail);
-  const directDirectorFlow = actor.roles.includes("DIRECTOR")
+  const directDirectorFlow = actor.roles.includes("EXECUTIVE")
     && (detail.document.classification === "PUBLIC" || detail.document.classification === "INTERNAL");
   const checklistComplete = isChecklistComplete(detail);
   const canSubmit = detail.document.status === "DRAFT" && isMaker && checklistComplete && !directDirectorFlow;

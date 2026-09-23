@@ -217,7 +217,7 @@ describe("ALOS Legal & Compliance Dashboard", () => {
 
   // 13. Same-human maker/checker is governed: backend remains authority
   it("13. otorisasi Legal bergantung pada sesi terautentikasi dan menolak bypass localStorage", async () => {
-    localStorage.setItem("user_roles", JSON.stringify(["LEGAL", "DIRECTOR"]));
+    localStorage.setItem("user_roles", JSON.stringify(["LEGAL", "EXECUTIVE"]));
 
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
@@ -333,7 +333,7 @@ describe("ALOS Legal & Compliance Dashboard", () => {
     expect(groups.has("AI")).toBe(true);
 
     const overviewItem = nav.find((i) => i.key === "overview");
-    expect(overviewItem?.href).toBe("/workspace/legal");
+    expect(overviewItem?.href).toBeNull();
   });
 
   // 19. Session / logout boundary preserved

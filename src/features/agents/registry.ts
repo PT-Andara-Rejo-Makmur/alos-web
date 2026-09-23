@@ -134,11 +134,11 @@ export const agentBuilderSteps = [
 ] as const;
 
 export function canEditAgentRegistry(roles: string[]): boolean {
-  return roles.includes("IT_LEAD");
+  return roles.includes("IT_ADMIN");
 }
 
 export function canReadAgentRegistry(roles: string[]): boolean {
-  return roles.some((role) => ["DIRECTOR", "DIVISION_OWNER", "IT_LEAD", "QA_SECURITY", "BUSINESS_REVIEWER", "TECHNICAL_REVIEWER"].includes(role));
+  return roles.some((role) => ["EXECUTIVE", "WORKSPACE_LEAD", "IT_ADMIN", "QA_ASSURANCE", "BUSINESS_REVIEWER", "TECHNICAL_REVIEWER"].includes(role));
 }
 
 export function agentCrudPolicy(lifecycleStatus: string) {

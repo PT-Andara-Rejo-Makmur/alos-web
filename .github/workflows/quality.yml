@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: PT-Andara-Rejo-Makmur/alos-contracts
-          ref: main
+          ref: development
           path: workspace/alos-contracts
           token: ${{ secrets.CROSS_REPO_READ_TOKEN || github.token }}
 
