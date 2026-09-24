@@ -6,8 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 
 import {
-  loadAccessibleWorkspaces,
-  loadSessionActor,
+  loadSessionContext,
   type SessionActor,
   type Workspace,
 } from "@/features/session";
@@ -16,7 +15,6 @@ import type { WorkspaceShellIdentity } from "@/features/workspace-shell/types";
 import { ApiError } from "@/lib/api";
 
 import { createAraRouteAdapter } from "./ara-route-adapter";
-import { verifyActiveWorkspace } from "./ara-workspace-projection";
 import { AraWorkspace } from "./ara-workspace";
 
 interface AraWorkspacePageProps {
@@ -25,6 +23,7 @@ interface AraWorkspacePageProps {
 
 export function AraWorkspacePage({ basePath = "/workspace/ara" }: AraWorkspacePageProps) {
   const router = useRouter();
+  const replaceRoute = router.replace;
   const searchParams = useSearchParams();
   const requestedWorkspaceId = searchParams.get("workspace_id");
   const requestedConversationId = searchParams.get("conversation") || undefined;
@@ -46,31 +45,23 @@ export function AraWorkspacePage({ basePath = "/workspace/ara" }: AraWorkspacePa
     async function initializeSession() {
       setIsLoading(true);
       try {
-        const currentActor = await loadSessionActor();
+        const context = await loadSessionContext();
 
         if (!isMounted) return;
-        setActor(currentActor);
+        setActor(context.actor);
 
-        // 2. Fetch accessible workspaces from backend
-        const workspaces: Workspace[] = await loadAccessibleWorkspaces();
-
-        if (!isMounted) return;
-
-        // 3. Authoritative active workspace verification
-        const resolution = verifyActiveWorkspace(
-          currentActor,
-          workspaces,
-          requestedWorkspaceId,
-        );
-
-        if (resolution.workspace) {
-          setActiveWorkspace(resolution.workspace);
+        if (
+          context.activeWorkspace &&
+          (!requestedWorkspaceId || requestedWorkspaceId === context.activeWorkspace.workspace_id)
+        ) {
+          setActiveWorkspace(context.activeWorkspace);
           setNeedsInfoReason(null);
         } else {
           setActiveWorkspace(null);
           setNeedsInfoReason(
-            resolution.needsInfoReason ||
-              "Pilih workspace aktif untuk membuka ARA Workspace.",
+            requestedWorkspaceId && context.activeWorkspace
+              ? "Workspace pada URL tidak sama dengan workspace aktif yang diverifikasi Backend."
+              : "Pilih workspace aktif untuk membuka ARA Workspace.",
           );
         }
       } catch (err) {
@@ -78,7 +69,7 @@ export function AraWorkspacePage({ basePath = "/workspace/ara" }: AraWorkspacePa
           (err as { status?: number })?.status === 401 ||
           (err instanceof ApiError && err.status === 401)
         ) {
-          router.replace("/login");
+          replaceRoute("/login");
           return;
         }
         if (isMounted) {
@@ -97,7 +88,7 @@ export function AraWorkspacePage({ basePath = "/workspace/ara" }: AraWorkspacePa
     return () => {
       isMounted = false;
     };
-  }, [router, requestedWorkspaceId]);
+  }, [replaceRoute, requestedWorkspaceId]);
 
   const shellIdentity: WorkspaceShellIdentity | null = actor && activeWorkspace ? {
     workspaceId: activeWorkspace.workspace_id,

@@ -6,8 +6,7 @@ import { useEffect, useState } from "react";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 
 import {
-  loadAccessibleWorkspaces,
-  loadSessionActor,
+  loadSessionContext,
   type SessionActor,
   type Workspace,
 } from "@/features/session";
@@ -15,11 +14,11 @@ import { WorkspaceShell } from "@/features/workspace-shell";
 import type { WorkspaceShellIdentity } from "@/features/workspace-shell/types";
 import { ApiError } from "@/lib/api";
 
-import { verifyActiveWorkspace } from "./agent-workforce-projection";
 import { AgentWorkforce } from "./agent-workforce";
 
 export function AgentWorkforcePage() {
   const router = useRouter();
+  const replaceRoute = router.replace;
   const searchParams = useSearchParams();
   const requestedWorkspaceId = searchParams.get("workspace_id");
 
@@ -34,31 +33,23 @@ export function AgentWorkforcePage() {
     async function initializeSession() {
       setIsLoading(true);
       try {
-        const currentActor = await loadSessionActor();
+        const context = await loadSessionContext();
 
         if (!isMounted) return;
-        setActor(currentActor);
+        setActor(context.actor);
 
-        // 2. Fetch accessible workspaces from backend
-        const workspaces: Workspace[] = await loadAccessibleWorkspaces();
-
-        if (!isMounted) return;
-
-        // 3. Authoritative active workspace verification
-        const resolution = verifyActiveWorkspace(
-          currentActor,
-          workspaces,
-          requestedWorkspaceId,
-        );
-
-        if (resolution.workspace) {
-          setActiveWorkspace(resolution.workspace);
+        if (
+          context.activeWorkspace &&
+          (!requestedWorkspaceId || requestedWorkspaceId === context.activeWorkspace.workspace_id)
+        ) {
+          setActiveWorkspace(context.activeWorkspace);
           setNeedsInfoReason(null);
         } else {
           setActiveWorkspace(null);
           setNeedsInfoReason(
-            resolution.needsInfoReason ||
-              "Pilih workspace aktif untuk membuka Agent Workforce.",
+            requestedWorkspaceId && context.activeWorkspace
+              ? "Workspace pada URL tidak sama dengan workspace aktif yang diverifikasi Backend."
+              : "Pilih workspace aktif untuk membuka Agent Workforce.",
           );
         }
       } catch (err) {
@@ -66,7 +57,7 @@ export function AgentWorkforcePage() {
           (err as { status?: number })?.status === 401 ||
           (err instanceof ApiError && err.status === 401)
         ) {
-          router.replace("/login");
+          replaceRoute("/login");
           return;
         }
         if (isMounted) {
@@ -85,7 +76,7 @@ export function AgentWorkforcePage() {
     return () => {
       isMounted = false;
     };
-  }, [router, requestedWorkspaceId]);
+  }, [replaceRoute, requestedWorkspaceId]);
 
   const shellIdentity: WorkspaceShellIdentity | null = actor && activeWorkspace ? {
     workspaceId: activeWorkspace.workspace_id,

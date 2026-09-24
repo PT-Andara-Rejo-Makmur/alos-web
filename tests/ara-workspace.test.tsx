@@ -23,6 +23,7 @@ import {
   COMPATIBILITY_ARA_ROUTE_ADAPTER,
 } from "@/features/ara-workspace";
 import type { WorkspaceShellIdentity } from "@/features/workspace-shell/types";
+import { canonicalPrincipal } from "./helpers/canonical-session";
 
 // Mock next/navigation
 const mockPush = vi.fn();
@@ -124,11 +125,7 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
   it("3. workspace aktif yang belum dipilih merender controlled state NEEDS_INFO", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
       authenticated: true,
-      principal: {
-          ...sampleActor,
-          workspace_id: undefined,
-          workspace_ids: ["ws_finance_01", "ws_property_01"],
-      },
+      principal: { ...canonicalPrincipal({ actorId: sampleActor.user_id, divisionCode: "FINANCE", workspaceId: "ws_finance_01", workspaceKey: "finance", workspaceName: "Finance Workspace", roles: ["EXECUTIVE"], allWorkspaceIds: ["ws_finance_01", "ws_property_01"] }), active_workspace: null },
     });
     vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue(sampleWorkspaces as never);
 
@@ -467,7 +464,10 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
 
   // 22. Workspace Shell reused
   it("22. AraWorkspacePage dibungkus dalam WorkspaceShell dengan activeNavKey='ara'", async () => {
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue({ authenticated: true, principal: sampleActor });
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
+      authenticated: true,
+      principal: canonicalPrincipal({ actorId: sampleActor.user_id, divisionCode: "FINANCE", workspaceId: "ws_finance_01", workspaceKey: "finance", workspaceName: "Finance Workspace", roles: ["EXECUTIVE"] }),
+    });
     vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) =>
       path === "/api/v1/workspaces" ? [sampleWorkspaces[0]] as never : [] as never,
     );
