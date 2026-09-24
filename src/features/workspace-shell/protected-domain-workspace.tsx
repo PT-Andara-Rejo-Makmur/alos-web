@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 import {
-  loadAccessibleWorkspaces,
-  loadSessionActor,
+  loadSessionContext,
   type SessionActor,
   type Workspace,
 } from "@/features/session";
@@ -58,24 +57,21 @@ export function ProtectedDomainWorkspace({
     async function load() {
       setState("LOADING");
       try {
-        const [nextActor, workspaces] = await Promise.all([
-          loadSessionActor(controller.signal),
-          loadAccessibleWorkspaces(controller.signal),
-        ]);
-        const allowedIds = new Set(nextActor.workspace_ids);
-        const verified = workspaces.filter((item) => allowedIds.has(item.workspace_id));
-        const match = verified.find((item) =>
-          workspaceKeys.includes(item.workspace_key.toLowerCase()) ||
-          (item.division_code !== null && divisionCodes.includes(item.division_code.toUpperCase())),
+        const context = await loadSessionContext(controller.signal);
+        const activeWorkspace = context.activeWorkspace;
+        const routeMatches = activeWorkspace !== null && (
+          workspaceKeys.includes(activeWorkspace.workspace_key.toLowerCase()) ||
+          (activeWorkspace.division_code !== null &&
+            divisionCodes.includes(activeWorkspace.division_code.toUpperCase()))
         );
-        if (!match) {
-          setActor(nextActor);
+        if (!activeWorkspace || !routeMatches) {
+          setActor(context.actor);
           setWorkspace(null);
           setState("FORBIDDEN");
           return;
         }
-        setActor(nextActor);
-        setWorkspace(match);
+        setActor(context.actor);
+        setWorkspace(activeWorkspace);
         setState("READY");
       } catch (error) {
         if (controller.signal.aborted) return;

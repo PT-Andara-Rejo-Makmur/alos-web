@@ -2,6 +2,7 @@ import { cleanup, render, screen, waitFor, within } from "@testing-library/react
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/lib/api";
+import { canonicalPrincipal } from "./helpers/canonical-session";
 import {
   HrDashboardPage,
   HrDataReadiness,
@@ -65,13 +66,7 @@ describe("ALOS HR / People Dashboard", () => {
   it("1. mengizinkan pengguna dengan division scope HR untuk memuat HR Dashboard", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_hr_01",
-        email: "hr@andara.co.id",
-        roles: ["MEMBER"],
-        division_codes: ["HR"],
-        workspace_ids: ["ws_hr_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_hr_01", divisionCode: "HR", workspaceId: "ws_hr_01", workspaceKey: "hr", workspaceName: "HR Workspace" }),
     });
 
     render(<HrDashboardPage initialSnapshot={defaultSnapshot} />);
@@ -88,13 +83,7 @@ describe("ALOS HR / People Dashboard", () => {
   it("2. mengizinkan Direktur (role EXECUTIVE) untuk mengakses HR Dashboard", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_dir_01",
-        email: "director@andara.co.id",
-        roles: ["EXECUTIVE"],
-        division_codes: [],
-        workspace_ids: ["ws_hr_director"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_dir_01", divisionCode: "HR", workspaceId: "ws_hr_director", workspaceKey: "hr", workspaceName: "HR Workspace", roles: ["EXECUTIVE"] }),
     });
 
     render(<HrDashboardPage initialSnapshot={defaultSnapshot} />);
@@ -346,13 +335,7 @@ describe("ALOS HR / People Dashboard", () => {
   it("20. tidak menyimpan data personalia atau PII pegawai di localStorage", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_hr_01",
-        roles: ["MEMBER"],
-        division_codes: ["HR"],
-        workspace_ids: ["ws_hr_01"],
-        email: "hr@andara.co.id",
-      },
+      principal: canonicalPrincipal({ actorId: "usr_hr_01", divisionCode: "HR", workspaceId: "ws_hr_01", workspaceKey: "hr", workspaceName: "HR Workspace" }),
     });
 
     render(<HrDashboardPage initialSnapshot={defaultSnapshot} />);

@@ -2,6 +2,7 @@ import { cleanup, render, screen, waitFor, within } from "@testing-library/react
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/lib/api";
+import { canonicalPrincipal } from "./helpers/canonical-session";
 import {
   ItDashboardPage,
   ItDataReadiness,
@@ -66,13 +67,7 @@ describe("ALOS IT & Technology Dashboard", () => {
   it("1. mengizinkan pengguna dengan division scope IT untuk memuat IT Dashboard", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_it_01",
-        email: "it.lead@andara.co.id",
-        roles: ["IT_ADMIN"],
-        division_codes: ["IT"],
-        workspace_ids: ["ws_it_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_it_01", divisionCode: "IT", workspaceId: "ws_it_01", workspaceKey: "it", workspaceName: "IT Workspace", roles: ["IT_ADMIN"] }),
     });
 
     render(<ItDashboardPage initialSnapshot={defaultSnapshot} />);
@@ -211,13 +206,7 @@ describe("ALOS IT & Technology Dashboard", () => {
   it("11. tidak menyimpan token atau kredensial GitHub di localStorage", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_it_01",
-        roles: ["IT_ADMIN"],
-        division_codes: ["IT"],
-        workspace_ids: ["ws_it_01"],
-        email: "it@andara.co.id",
-      },
+      principal: canonicalPrincipal({ actorId: "usr_it_01", divisionCode: "IT", workspaceId: "ws_it_01", workspaceKey: "it", workspaceName: "IT Workspace", roles: ["IT_ADMIN"] }),
     });
 
     render(<ItDashboardPage initialSnapshot={defaultSnapshot} />);
@@ -272,13 +261,7 @@ describe("ALOS IT & Technology Dashboard", () => {
   it("16. menggunakan WorkspaceShell dengan identitas IT Workspace", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_it_01",
-        email: "it.lead@andara.co.id",
-        roles: ["IT_ADMIN"],
-        division_codes: ["IT"],
-        workspace_ids: ["ws_it_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_it_01", divisionCode: "IT", workspaceId: "ws_it_01", workspaceKey: "it", workspaceName: "IT Workspace", roles: ["IT_ADMIN"] }),
     });
 
     render(<ItDashboardPage initialSnapshot={defaultSnapshot} />);
@@ -295,12 +278,7 @@ describe("ALOS IT & Technology Dashboard", () => {
   it("17. aksi switch workspace pada sidebar mengarah ke /workspace", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_it_01",
-        roles: ["IT_ADMIN"],
-        division_codes: ["IT"],
-        workspace_ids: ["ws_it_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_it_01", divisionCode: "IT", workspaceId: "ws_it_01", workspaceKey: "it", workspaceName: "IT Workspace", roles: ["IT_ADMIN"] }),
     });
 
     render(<ItDashboardPage initialSnapshot={defaultSnapshot} />);

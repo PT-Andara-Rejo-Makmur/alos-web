@@ -22,6 +22,7 @@ import {
   DEFAULT_SALES_AGENTS,
 } from "@/features/sales-dashboard";
 import { projectWorkspaceNavigation } from "@/features/workspace-shell";
+import { canonicalPrincipal } from "./helpers/canonical-session";
 
 // Mock next/image
 vi.mock("next/image", () => ({
@@ -65,13 +66,7 @@ describe("ALOS Sales & Marketing Dashboard", () => {
   it("1. mengizinkan pengguna dengan division scope SALES untuk memuat Sales Dashboard", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_sales_01",
-        email: "sales@andara.co.id",
-        roles: ["MEMBER"],
-        division_codes: ["SALES"],
-        workspace_ids: ["ws_sales_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_sales_01", divisionCode: "SALES", workspaceId: "ws_sales_01", workspaceKey: "sales", workspaceName: "Sales Workspace" }),
     });
 
     render(<SalesDashboardPage initialSnapshot={defaultSnapshot} />);
@@ -88,13 +83,7 @@ describe("ALOS Sales & Marketing Dashboard", () => {
   it("2. mengizinkan Direktur (role EXECUTIVE) untuk mengakses Sales Dashboard", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_dir_01",
-        email: "director@andara.co.id",
-        roles: ["EXECUTIVE"],
-        division_codes: [],
-        workspace_ids: ["ws_sales_director"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_dir_01", divisionCode: "SALES", workspaceId: "ws_sales_director", workspaceKey: "sales", workspaceName: "Sales Workspace", roles: ["EXECUTIVE"] }),
     });
 
     render(<SalesDashboardPage initialSnapshot={defaultSnapshot} />);
@@ -169,13 +158,7 @@ describe("ALOS Sales & Marketing Dashboard", () => {
   it("8. tidak melakukan hardcoding nama proyek; menampilkan 'Project Context: Belum tersedia'", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_sales_01",
-        roles: ["MEMBER"],
-        division_codes: ["SALES"],
-        workspace_ids: ["ws_sales_01"],
-        email: "sales@andara.co.id",
-      },
+      principal: canonicalPrincipal({ actorId: "usr_sales_01", divisionCode: "SALES", workspaceId: "ws_sales_01", workspaceKey: "sales", workspaceName: "Sales Workspace" }),
     });
 
     render(<SalesDashboardPage initialSnapshot={defaultSnapshot} />);
@@ -376,13 +359,7 @@ describe("ALOS Sales & Marketing Dashboard", () => {
   it("20. tidak menyimpan data pelanggan atau prospek di localStorage", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_sales_01",
-        roles: ["MEMBER"],
-        division_codes: ["SALES"],
-        workspace_ids: ["ws_sales_01"],
-        email: "sales@andara.co.id",
-      },
+      principal: canonicalPrincipal({ actorId: "usr_sales_01", divisionCode: "SALES", workspaceId: "ws_sales_01", workspaceKey: "sales", workspaceName: "Sales Workspace" }),
     });
 
     render(<SalesDashboardPage initialSnapshot={defaultSnapshot} />);

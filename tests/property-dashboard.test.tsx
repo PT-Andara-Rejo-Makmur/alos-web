@@ -2,6 +2,7 @@ import { cleanup, render, screen, waitFor, within } from "@testing-library/react
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/lib/api";
+import { canonicalPrincipal } from "./helpers/canonical-session";
 import {
   PropertyDashboardPage,
   PropertyDataReadiness,
@@ -75,13 +76,7 @@ describe("ALOS Property & Project Dashboard", () => {
   it("1. mengizinkan pengguna dengan division scope PROPERTY untuk memuat Property Dashboard", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_prop_01",
-        email: "property@andara.co.id",
-        roles: ["MEMBER"],
-        division_codes: ["PROPERTY"],
-        workspace_ids: ["ws_prop_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_prop_01", divisionCode: "PROPERTY", workspaceId: "ws_prop_01", workspaceKey: "property", workspaceName: "Property Workspace" }),
     });
 
     render(<PropertyDashboardPage initialSnapshot={DEFAULT_PROPERTY_SNAPSHOT} />);
@@ -132,13 +127,7 @@ describe("ALOS Property & Project Dashboard", () => {
   it("4. memastikan pemanggilan portfolio backend otomatis scoped ke division_code=PROPERTY", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_prop_01",
-        email: "property@andara.co.id",
-        roles: ["MEMBER"],
-        division_codes: ["PROPERTY"],
-        workspace_ids: ["ws_prop_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_prop_01", divisionCode: "PROPERTY", workspaceId: "ws_prop_01", workspaceKey: "property", workspaceName: "Property Workspace" }),
     });
 
     const apiRequestSpy = vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) => {
@@ -161,13 +150,7 @@ describe("ALOS Property & Project Dashboard", () => {
   it("5. multi-role user (Finance + Property) tetap strictly scoped ke PROPERTY saat di /workspace/property", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_multi_01",
-        email: "multi@andara.co.id",
-        roles: ["BUSINESS_REVIEWER"],
-        division_codes: ["FINANCE", "PROPERTY"],
-        workspace_ids: ["ws_fin", "ws_prop"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_multi_01", divisionCode: "PROPERTY", workspaceId: "ws_prop", workspaceKey: "property", workspaceName: "Property Workspace", roles: ["BUSINESS_REVIEWER"], allWorkspaceIds: ["ws_fin", "ws_prop"] }),
     });
 
     const apiRequestSpy = vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) => {
@@ -350,13 +333,7 @@ describe("ALOS Property & Project Dashboard", () => {
   it("19. Workspace Shell mengintegrasikan sidebar dengan grup UTAMA, PROJECT, CONTROL, PEKERJAAN, AI", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_prop_01",
-        email: "property@andara.co.id",
-        roles: ["MEMBER"],
-        division_codes: ["PROPERTY"],
-        workspace_ids: ["ws_prop_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_prop_01", divisionCode: "PROPERTY", workspaceId: "ws_prop_01", workspaceKey: "property", workspaceName: "Property Workspace" }),
     });
 
     render(<PropertyDashboardPage initialSnapshot={DEFAULT_PROPERTY_SNAPSHOT} />);
@@ -383,13 +360,7 @@ describe("ALOS Property & Project Dashboard", () => {
   it("20. mobile bottom navigation menyediakan 5 item navigasi khusus Property (Overview, Projects, Risk, AI, Menu)", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_prop_01",
-        email: "property@andara.co.id",
-        roles: ["MEMBER"],
-        division_codes: ["PROPERTY"],
-        workspace_ids: ["ws_prop_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_prop_01", divisionCode: "PROPERTY", workspaceId: "ws_prop_01", workspaceKey: "property", workspaceName: "Property Workspace" }),
     });
 
     render(<PropertyDashboardPage initialSnapshot={DEFAULT_PROPERTY_SNAPSHOT} />);

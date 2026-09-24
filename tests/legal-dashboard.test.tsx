@@ -2,6 +2,7 @@ import { cleanup, render, screen, waitFor, within } from "@testing-library/react
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/lib/api";
+import { canonicalPrincipal } from "./helpers/canonical-session";
 import {
   LegalDashboardPage,
   LegalDataReadiness,
@@ -65,13 +66,7 @@ describe("ALOS Legal & Compliance Dashboard", () => {
   it("1. mengizinkan pengguna dengan division scope LEGAL untuk memuat Legal Dashboard", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_legal_01",
-        email: "legal@andara.co.id",
-        roles: ["MEMBER"],
-        division_codes: ["LEGAL"],
-        workspace_ids: ["ws_legal_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_legal_01", divisionCode: "LEGAL", workspaceId: "ws_legal_01", workspaceKey: "legal", workspaceName: "Legal Workspace" }),
     });
 
     render(<LegalDashboardPage initialSnapshot={defaultSnapshot} />);
@@ -255,13 +250,7 @@ describe("ALOS Legal & Compliance Dashboard", () => {
   it("15. menggunakan WorkspaceShell dengan identitas Legal Workspace", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_leg_01",
-        email: "legal.lead@andara.co.id",
-        roles: ["MEMBER"],
-        division_codes: ["LEGAL"],
-        workspace_ids: ["ws_legal_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_leg_01", divisionCode: "LEGAL", workspaceId: "ws_legal_01", workspaceKey: "legal", workspaceName: "Legal Workspace" }),
     });
 
     render(<LegalDashboardPage initialSnapshot={defaultSnapshot} />);
@@ -278,12 +267,7 @@ describe("ALOS Legal & Compliance Dashboard", () => {
   it("16. aksi switch workspace pada sidebar mengarah ke /workspace", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_leg_01",
-        roles: ["MEMBER"],
-        division_codes: ["LEGAL"],
-        workspace_ids: ["ws_legal_01"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_leg_01", divisionCode: "LEGAL", workspaceId: "ws_legal_01", workspaceKey: "legal", workspaceName: "Legal Workspace" }),
     });
 
     render(<LegalDashboardPage initialSnapshot={defaultSnapshot} />);

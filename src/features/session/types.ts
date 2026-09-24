@@ -31,7 +31,25 @@ export type Workspace = {
 
 export type SessionPrincipal = AuthenticatedPrincipalProjection;
 
+/** Canonical Web session context. Active authority is the Backend projection only. */
+export interface SessionContext {
+  readonly principal: SessionPrincipal | LegacySessionPrincipal;
+  readonly actor: SessionActor;
+  readonly activeWorkspace: Workspace | null;
+}
+
+export interface LegacySessionPrincipal {
+  readonly actor_id?: string;
+  readonly user_id?: string;
+  readonly organization_id?: string | null;
+  readonly roles?: readonly string[];
+  readonly division_codes?: readonly string[];
+  readonly workspace_ids?: readonly string[];
+  readonly issued_at?: string | null;
+  readonly expires_at?: string | null;
+}
+
 export interface SessionProjection {
   readonly authenticated: boolean;
-  readonly principal?: AuthenticatedPrincipalProjection | null;
+  readonly principal?: AuthenticatedPrincipalProjection | LegacySessionPrincipal | null;
 }

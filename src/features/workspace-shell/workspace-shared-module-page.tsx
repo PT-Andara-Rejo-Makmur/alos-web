@@ -7,13 +7,11 @@ import { Building2 } from "lucide-react";
 
 import { ApiError } from "@/lib/api";
 import {
-  loadAccessibleWorkspaces,
-  loadSessionActor,
+  loadSessionContext,
   type SessionActor,
   type Workspace,
 } from "@/features/session";
 import type { SharedModuleKey } from "@/features/workspace-routing";
-import { verifyActiveWorkspace } from "@/features/ara-workspace/ara-workspace-projection";
 import { DocumentCenter } from "@/features/documents/document-center";
 import { OperationalModuleDashboard } from "@/features/operations/operational-module-dashboard";
 import { ProjectPortfolioDashboard } from "@/features/projects/portfolio-dashboards";
@@ -41,29 +39,23 @@ function SharedModuleContent({ module }: WorkspaceSharedModulePageProps) {
     async function initializeSession() {
       setIsLoading(true);
       try {
-        const currentActor = await loadSessionActor();
+        const context = await loadSessionContext();
 
         if (!isMounted) return;
-        setActor(currentActor);
+        setActor(context.actor);
 
-        const workspaces: Workspace[] = await loadAccessibleWorkspaces();
-
-        if (!isMounted) return;
-
-        const resolution = verifyActiveWorkspace(
-          currentActor,
-          workspaces,
-          requestedWorkspaceId,
-        );
-
-        if (resolution.workspace) {
-          setActiveWorkspace(resolution.workspace);
+        if (
+          context.activeWorkspace &&
+          (!requestedWorkspaceId || requestedWorkspaceId === context.activeWorkspace.workspace_id)
+        ) {
+          setActiveWorkspace(context.activeWorkspace);
           setNeedsInfoReason(null);
         } else {
           setActiveWorkspace(null);
           setNeedsInfoReason(
-            resolution.needsInfoReason ||
-              "Pilih workspace aktif untuk membuka modul ini.",
+            requestedWorkspaceId && context.activeWorkspace
+              ? "Workspace pada URL tidak sama dengan workspace aktif yang diverifikasi Backend."
+              : "Pilih workspace aktif untuk membuka modul ini.",
           );
         }
       } catch (err) {

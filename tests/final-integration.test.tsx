@@ -239,10 +239,18 @@ afterEach(() => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
         authenticated: true,
         principal: {
-            user_id: "usr_multi_01",
-            roles: ["OPERATOR"],
-            division_codes: ["FINANCE", "PROPERTY"],
-            workspace_ids: ["ws_1", "ws_2"],
+          actor: {
+            actor_id: "usr_multi_01",
+            tenant_id: "tenant_1",
+            organization_id: "org_1",
+            display_name: "Multi Workspace User",
+            active: true,
+          },
+          email: "multi@andara.local",
+          workspace_access: [],
+          active_workspace: null,
+          issued_at: new Date().toISOString(),
+          expires_at: new Date(Date.now() + 86400000).toISOString(),
         },
       });
       vi.spyOn(api, "authenticatedApiRequest").mockImplementation((url: string) => {
@@ -264,10 +272,33 @@ afterEach(() => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
         authenticated: true,
         principal: {
-            user_id: "usr_single_01",
-            roles: ["OPERATOR"],
-            division_codes: ["FINANCE"],
-            workspace_ids: ["ws_single_finance"],
+          actor: {
+            actor_id: "usr_single_01",
+            tenant_id: "tenant_1",
+            organization_id: "org_1",
+            display_name: "Finance User",
+            active: true,
+          },
+          email: "finance@andara.local",
+          workspace_access: [],
+          active_workspace: {
+            workspace: {
+              workspace_id: "ws_single_finance",
+              workspace_key: "finance",
+              organization_id: "org_1",
+              workspace_name: "Finance Holding Workspace",
+              workspace_type: "BUSINESS",
+              division_code: "FINANCE",
+              active: true,
+            },
+            role_refs: ["WORKSPACE_MEMBER"],
+            permission_refs: [],
+            scope_refs: [],
+            data_scope: "WORKSPACE",
+            active: true,
+          },
+          issued_at: new Date().toISOString(),
+          expires_at: new Date(Date.now() + 86400000).toISOString(),
         },
       });
       vi.spyOn(api, "authenticatedApiRequest").mockImplementation((url: string) => {

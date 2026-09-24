@@ -18,6 +18,7 @@ import {
 } from "@/features/finance-dashboard";
 
 import { WorkspaceShell, type WorkspaceShellIdentity } from "@/features/workspace-shell";
+import { canonicalPrincipal } from "./helpers/canonical-session";
 
 const DEFAULT_FINANCE_SNAPSHOT = createEmptyFinanceSnapshot("ws_finance_test", "Finance Workspace");
 
@@ -61,13 +62,7 @@ describe("ALOS Finance Dashboard", () => {
   it("1. mengizinkan pengguna dengan division scope FINANCE untuk memuat Finance Dashboard", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: {
-        actor_id: "usr_fin_01",
-        email: "finance@andara.co.id",
-        roles: ["MEMBER"],
-        division_codes: ["FINANCE"],
-        workspace_ids: ["ws_finance_holding"],
-      },
+      principal: canonicalPrincipal({ actorId: "usr_fin_01", divisionCode: "FINANCE", workspaceId: "ws_finance_holding", workspaceKey: "finance", workspaceName: "Finance Workspace" }),
     });
 
     render(<FinanceDashboardPage initialSnapshot={DEFAULT_FINANCE_SNAPSHOT} />);
