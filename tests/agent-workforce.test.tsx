@@ -194,7 +194,7 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
 
   // Test 5: loadBusinessAgentWorkforce calls /api/v1/genesis/active-agents with verified workspace
   it("loads business agent workforce from backend active-agents endpoint", async () => {
-    const spy = vi.spyOn(api, "apiRequest").mockResolvedValueOnce(sampleGenesisAgents);
+    const spy = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce(sampleGenesisAgents);
 
     const items = await loadBusinessAgentWorkforce("ws_finance_holding");
     expect(spy).toHaveBeenCalledWith(
@@ -208,7 +208,7 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
 
   // Test 6: Zero-fabrication - Agent not returned by backend is not rendered
   it("returns empty array when backend active-agents returns empty (zero-fabrication)", async () => {
-    vi.spyOn(api, "apiRequest").mockResolvedValueOnce([]);
+    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([]);
 
     const items = await loadBusinessAgentWorkforce("ws_finance_holding");
     expect(items).toEqual([]);
@@ -216,7 +216,7 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
 
   // Test 7: Strategic catalog is not used as production fallback on backend failure
   it("does not populate fallback catalog when backend call fails", async () => {
-    vi.spyOn(api, "apiRequest").mockRejectedValueOnce(new Error("Network failed"));
+    vi.spyOn(api, "authenticatedApiRequest").mockRejectedValueOnce(new Error("Network failed"));
 
     await expect(loadBusinessAgentWorkforce("ws_finance_holding")).rejects.toThrow("Network failed");
   });
@@ -313,7 +313,7 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
 
   // Test 12: loadScopedRunSummary tallies runs and formats correctly
   it("loads and tallies scoped run summary", async () => {
-    vi.spyOn(api, "apiRequest").mockResolvedValueOnce(sampleRuns);
+    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce(sampleRuns);
 
     const summary = await loadScopedRunSummary("ws_finance_holding");
     expect(summary.totalCount).toBe(2);
@@ -405,7 +405,7 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
 
   // Test 19: Full AgentWorkforce component loads and renders agents and activity
   it("renders full AgentWorkforce component with loaded data", async () => {
-    vi.spyOn(api, "apiRequest").mockImplementation(async (path: string) => {
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) => {
       if (path.includes("/active-agents")) return sampleGenesisAgents;
       if (path.includes("/runs")) return sampleRuns;
       return [];
@@ -432,7 +432,7 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
 
   // Test 20: AgentWorkforcePage shows NEEDS_INFO when multi-workspace is unselected
   it("renders NEEDS_INFO state when workspace resolution is required", async () => {
-    vi.spyOn(api, "apiRequest").mockImplementation(async (path: string) => {
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) => {
       if (path.includes("whoami")) return sampleDirectorActor;
       if (path.includes("workspaces")) return sampleWorkspaces;
       return [];

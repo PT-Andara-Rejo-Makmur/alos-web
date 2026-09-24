@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/api";
+import { authenticatedApiRequest } from "@/lib/api";
 
 export type ReadinessDecisionType = "PENDING" | "GO" | "HOLD" | "NO_GO";
 export type TechnicalReadinessLevel = "PASS" | "HOLD" | "BLOCKED" | "FAIL";
@@ -35,7 +35,7 @@ export type ReleaseDecisionRecord = {
 };
 
 export async function listReleaseDecisions(): Promise<ReleaseDecisionRecord[]> {
-  return await apiRequest<ReleaseDecisionRecord[]>("/api/v1/readiness/decisions");
+  return await authenticatedApiRequest<ReleaseDecisionRecord[]>("/api/v1/readiness/decisions");
 }
 
 export async function recordReleaseDecision(payload: ReleaseDecisionRequest): Promise<ReleaseDecisionRecord> {
@@ -46,7 +46,7 @@ export async function recordReleaseDecision(payload: ReleaseDecisionRequest): Pr
   if (!payload.release_version.trim()) {
     throw new Error("Release version wajib ditentukan.");
   }
-  return await apiRequest<ReleaseDecisionRecord>("/api/v1/readiness/decisions", {
+  return await authenticatedApiRequest<ReleaseDecisionRecord>("/api/v1/readiness/decisions", {
     method: "POST",
     body: JSON.stringify({
       workspace_id: payload.workspace_id ?? null,

@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/api";
+import { authenticatedApiRequest } from "@/lib/api";
 import type { AgentDraftPayload, AgentDraftResult } from "@/features/agents/registry";
 import type { ReleaseRequest, ReviewDecision, ReviewGate } from "./release-governance";
 
@@ -25,7 +25,7 @@ export async function killAgent(changeRequestId: string, reason: string): Promis
   if (!trimmed) {
     throw new Error("Alasan aktivasi Kill Switch wajib diisi.");
   }
-  return await apiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/kill-switch`, {
+  return await authenticatedApiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/kill-switch`, {
     method: "POST",
     body: JSON.stringify({ reason: trimmed }),
   });
@@ -36,7 +36,7 @@ export async function clearKillSwitch(changeRequestId: string, reason: string): 
   if (!trimmed) {
     throw new Error("Alasan pemulihan Kill Switch wajib diisi.");
   }
-  return await apiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/clear-kill-switch`, {
+  return await authenticatedApiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/clear-kill-switch`, {
     method: "POST",
     body: JSON.stringify({ reason: trimmed }),
   });
@@ -47,7 +47,7 @@ export async function suspendAgent(changeRequestId: string, reason: string): Pro
   if (!trimmed) {
     throw new Error("Alasan penangguhan agen wajib diisi.");
   }
-  return await apiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/suspend`, {
+  return await authenticatedApiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/suspend`, {
     method: "POST",
     body: JSON.stringify({ reason: trimmed }),
   });
@@ -66,7 +66,7 @@ export async function rollbackAgent(
   if (!trimmedReason) {
     throw new Error("Alasan rollback wajib diisi.");
   }
-  return await apiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/rollback`, {
+  return await authenticatedApiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/rollback`, {
     method: "POST",
     body: JSON.stringify({
       target_semantic_version: trimmedVersion,
@@ -76,39 +76,39 @@ export async function rollbackAgent(
 }
 
 export async function createAgentDraft(payload: AgentDraftPayload): Promise<AgentDraftResult> {
-  return await apiRequest<AgentDraftResult>("/api/v1/agents/drafts", {
+  return await authenticatedApiRequest<AgentDraftResult>("/api/v1/agents/drafts", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
 export async function updateAgentDraft(agentKey: string, payload: AgentDraftPayload): Promise<AgentDraftResult> {
-  return await apiRequest<AgentDraftResult>(`/api/v1/agents/${agentKey}/draft`, {
+  return await authenticatedApiRequest<AgentDraftResult>(`/api/v1/agents/${agentKey}/draft`, {
     method: "PUT",
     body: JSON.stringify(payload),
   });
 }
 
 export async function deleteAgentDraft(agentKey: string): Promise<void> {
-  return await apiRequest<void>(`/api/v1/agents/${agentKey}/draft`, {
+  return await authenticatedApiRequest<void>(`/api/v1/agents/${agentKey}/draft`, {
     method: "DELETE",
   });
 }
 
 export async function retireAgent(agentKey: string): Promise<AgentDraftResult> {
-  return await apiRequest<AgentDraftResult>(`/api/v1/agents/${agentKey}/retire`, {
+  return await authenticatedApiRequest<AgentDraftResult>(`/api/v1/agents/${agentKey}/retire`, {
     method: "POST",
   });
 }
 
 export async function approvePermission(permissionPolicyId: string): Promise<unknown> {
-  return await apiRequest<unknown>(`/api/v1/permission-policies/${permissionPolicyId}/approve`, {
+  return await authenticatedApiRequest<unknown>(`/api/v1/permission-policies/${permissionPolicyId}/approve`, {
     method: "POST",
   });
 }
 
 export async function submitReleaseForReview(changeRequestId: string): Promise<ReleaseRequest> {
-  return await apiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/submit-review`, {
+  return await authenticatedApiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/submit-review`, {
     method: "POST",
   });
 }
@@ -123,7 +123,7 @@ export async function submitReleaseReview(
   if (!trimmedNotes) {
     throw new Error("Catatan evaluasi review wajib diisi.");
   }
-  return await apiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/reviews`, {
+  return await authenticatedApiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/reviews`, {
     method: "POST",
     body: JSON.stringify({
       gate,
@@ -134,19 +134,19 @@ export async function submitReleaseReview(
 }
 
 export async function approveReleaseRequest(changeRequestId: string): Promise<ReleaseRequest> {
-  return await apiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/approve`, {
+  return await authenticatedApiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/approve`, {
     method: "POST",
   });
 }
 
 export async function publishApprovedRelease(changeRequestId: string): Promise<ReleaseRequest> {
-  return await apiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/release`, {
+  return await authenticatedApiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/release`, {
     method: "POST",
   });
 }
 
 export async function activateApprovedRelease(changeRequestId: string): Promise<ReleaseRequest> {
-  return await apiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/activate`, {
+  return await authenticatedApiRequest<ReleaseRequest>(`/api/v1/release-requests/${changeRequestId}/activate`, {
     method: "POST",
   });
 }

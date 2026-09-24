@@ -2,7 +2,7 @@ import type { Run } from "@/features/governance/core";
 import type { SessionActor, Workspace } from "@/features/session";
 import type { GenesisActiveAgent } from "@/features/genesis-workspace/types";
 import { isGovernanceNavigationVisible } from "@/features/access-control/dashboard-access";
-import { apiRequest, withQuery } from "@/lib/api";
+import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
 import type {
   ActiveWorkspaceResolution,
@@ -78,7 +78,7 @@ export async function loadBusinessAgentWorkforce(
 ): Promise<BusinessAgentWorkforceItem[]> {
   if (!workspaceId) return [];
 
-  const rawActiveAgents = await apiRequest<GenesisActiveAgent[]>(
+  const rawActiveAgents = await authenticatedApiRequest<GenesisActiveAgent[]>(
     withQuery("/api/v1/genesis/active-agents", { workspace_id: workspaceId }),
   );
 
@@ -117,7 +117,7 @@ export async function loadScopedRunSummary(
   }
 
   try {
-    const runs = await apiRequest<Run[]>(
+    const runs = await authenticatedApiRequest<Run[]>(
       `/api/v1/workspaces/${encodeURIComponent(workspaceId)}/runs?limit=50`,
     );
 

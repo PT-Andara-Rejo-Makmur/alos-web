@@ -59,7 +59,7 @@ describe("Governance Actions Service", () => {
       const result = await killAgent("cr-1", "Deteksi anomali keamanan sirkuit");
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe("https://backend.alos.test/api/v1/release-requests/cr-1/kill-switch");
+      expect(url).toBe("/api/backend/api/v1/release-requests/cr-1/kill-switch");
       expect(options.method).toBe("POST");
       expect(JSON.parse(options.body)).toEqual({ reason: "Deteksi anomali keamanan sirkuit" });
       expect(result.state).toBe("SUSPENDED");
@@ -82,7 +82,7 @@ describe("Governance Actions Service", () => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, options] = fetchMock.mock.calls[0];
       expect(url).toBe(
-        "https://backend.alos.test/api/v1/release-requests/cr-1/clear-kill-switch",
+        "/api/backend/api/v1/release-requests/cr-1/clear-kill-switch",
       );
       expect(options.method).toBe("POST");
       expect(JSON.parse(options.body)).toEqual({ reason: "Investigasi selesai, sistem aman" });
@@ -105,7 +105,7 @@ describe("Governance Actions Service", () => {
       const result = await rollbackAgent("cr-1", "1.0.0", "Kembali ke versi stabil sebelumnya");
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe("https://backend.alos.test/api/v1/release-requests/cr-1/rollback");
+      expect(url).toBe("/api/backend/api/v1/release-requests/cr-1/rollback");
       expect(options.method).toBe("POST");
       expect(JSON.parse(options.body)).toEqual({
         target_semantic_version: "1.0.0",
@@ -155,7 +155,7 @@ describe("Governance Actions Service", () => {
       await updateAgentDraft("AGENT_ONE", payload);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe("https://backend.alos.test/api/v1/agents/AGENT_ONE/draft");
+      expect(url).toBe("/api/backend/api/v1/agents/AGENT_ONE/draft");
       expect(options.method).toBe("PUT");
     });
 
@@ -171,7 +171,7 @@ describe("Governance Actions Service", () => {
       await deleteAgentDraft("AGENT_ONE");
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe("https://backend.alos.test/api/v1/agents/AGENT_ONE/draft");
+      expect(url).toBe("/api/backend/api/v1/agents/AGENT_ONE/draft");
       expect(options.method).toBe("DELETE");
     });
 
@@ -190,7 +190,7 @@ describe("Governance Actions Service", () => {
       await retireAgent("AGENT_ONE");
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, options] = fetchMock.mock.calls[0];
-      expect(url).toBe("https://backend.alos.test/api/v1/agents/AGENT_ONE/retire");
+      expect(url).toBe("/api/backend/api/v1/agents/AGENT_ONE/retire");
       expect(options.method).toBe("POST");
     });
   });

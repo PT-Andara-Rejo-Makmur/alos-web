@@ -1,4 +1,4 @@
-import { apiRequest, ApiError } from "@/lib/api";
+import { authenticatedApiRequest, ApiError } from "@/lib/api";
 
 export type SourceType = "DOCX" | "PDF" | "TEXT" | "URL";
 export type SourceClassification = "PUBLIC" | "INTERNAL";
@@ -71,7 +71,7 @@ export type EvidenceCitation = {
 };
 
 export async function listWorkspaceSources(workspaceId: string): Promise<SourceVersionRecord[]> {
-  return await apiRequest<SourceVersionRecord[]>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/sources`);
+  return await authenticatedApiRequest<SourceVersionRecord[]>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/sources`);
 }
 
 export async function registerSource(payload: SourceRegistrationRequest): Promise<SourceVersionRecord> {
@@ -85,7 +85,7 @@ export async function registerSource(payload: SourceRegistrationRequest): Promis
   if (!payload.content.trim()) {
     throw new Error("Konten teks sumber pengetahuan wajib diisi.");
   }
-  return await apiRequest<SourceVersionRecord>("/api/v1/sources", {
+  return await authenticatedApiRequest<SourceVersionRecord>("/api/v1/sources", {
     method: "POST",
     body: JSON.stringify({
       ...payload,
@@ -101,7 +101,7 @@ export async function verifySource(sourceKey: string, payload: SourceVerificatio
   if (!reason) {
     throw new Error("Alasan verifikasi sumber wajib diisi.");
   }
-  return await apiRequest<SourceVersionRecord>(`/api/v1/sources/${encodeURIComponent(sourceKey)}/verify`, {
+  return await authenticatedApiRequest<SourceVersionRecord>(`/api/v1/sources/${encodeURIComponent(sourceKey)}/verify`, {
     method: "POST",
     body: JSON.stringify({
       workspace_id: payload.workspace_id,
@@ -112,7 +112,7 @@ export async function verifySource(sourceKey: string, payload: SourceVerificatio
 
 export async function getSourceVault(workspaceId: string): Promise<SourceVaultPolicyRecord | null> {
   try {
-    return await apiRequest<SourceVaultPolicyRecord>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/source-vault`);
+    return await authenticatedApiRequest<SourceVaultPolicyRecord>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/source-vault`);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
       return null;
@@ -144,7 +144,7 @@ export async function configureSourceVault(
     throw new Error("Alasan konfigurasi boundary Source Vault minimal 10 karakter.");
   }
 
-  return await apiRequest<SourceVaultPolicyRecord>(
+  return await authenticatedApiRequest<SourceVaultPolicyRecord>(
     `/api/v1/workspaces/${encodeURIComponent(workspaceId)}/source-vault`,
     {
       method: "PUT",
@@ -161,7 +161,7 @@ export async function searchSourceEvidence(workspaceId: string, query: string = 
   const params = new URLSearchParams();
   if (query.trim()) params.set("query", query.trim());
   params.set("limit", String(limit));
-  return await apiRequest<EvidenceCitation[]>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/sources/evidence?${params.toString()}`);
+  return await authenticatedApiRequest<EvidenceCitation[]>(`/api/v1/workspaces/${encodeURIComponent(workspaceId)}/sources/evidence?${params.toString()}`);
 }
 
 export function canVerifySource(roles: string[]): boolean {
