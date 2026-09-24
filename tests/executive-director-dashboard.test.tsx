@@ -390,8 +390,8 @@ describe("Executive / Director Dashboard ALOS", () => {
     });
   });
 
-  // 13. Security & RBAC: Controlled 403 Access Denied for non-director role
-  it("menampilkan controlled state 403 jika pengguna bukan Direktur atau Superadmin", async () => {
+  // 13. Security & RBAC: Controlled 403 Access Denied without organizational-title claims
+  it("menampilkan controlled state 403 tanpa mengklaim jabatan organisasi", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
       principal: {
@@ -409,7 +409,7 @@ describe("Executive / Director Dashboard ALOS", () => {
       expect(screen.getByText("Akses Dibatasi")).toBeInTheDocument();
     });
     expect(
-      screen.getByText(/Halaman ini merupakan Command Center Direktur Utama/i),
+      screen.getByText(/Halaman ini merupakan Executive Command Center/i),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Kembali ke Ruang Kerja Saya/i })).toBeInTheDocument();
   });
