@@ -152,7 +152,7 @@ type NavView = "overview" | "agents" | "permissions" | "runtime" | "budget" | "s
 
 const KNOWN_SYSTEM_USERS: Record<string, { name: string; role: string; avatar: string }> = {
   "0565dabd-8063-4626-ae58-a72a013ea0b0": { name: "Direktur Utama", role: "Executive Director", avatar: "DU" },
-  "ca537b1f-e0cd-4718-9270-6769ca26c577": { name: "IT Lead", role: "IT Lead (Andara)", avatar: "IT" },
+  "ca537b1f-e0cd-4718-9270-6769ca26c577": { name: "Administrator IT", role: "Administrator IT", avatar: "IT" },
   "a91527f4-a293-474f-b436-d6d6cb4f3871": { name: "QA & Security", role: "QA Security", avatar: "QA" },
   "14d56b70-9e21-4886-85e6-d98daa97ba9f": { name: "Business Reviewer", role: "Business Reviewer", avatar: "BR" },
   "563b8375-3844-4c98-90ec-121dd00386d7": { name: "Technical Reviewer", role: "Technical Reviewer", avatar: "TR" },
@@ -574,7 +574,7 @@ export function GovernanceDashboard() {
   const currentActiveRoleTitle = data?.actor?.roles?.includes("EXECUTIVE")
     ? "Direktur Utama"
     : data?.actor?.roles?.includes("IT_ADMIN")
-    ? "IT Lead"
+    ? "Administrator IT"
     : data?.actor?.roles?.includes("QA_ASSURANCE")
     ? "QA & Security"
     : data?.actor?.roles?.includes("BUSINESS_REVIEWER")
@@ -1428,7 +1428,7 @@ export function GovernanceDashboard() {
       setError({
         title: "Akses Ditolak",
         reason: "Pengubahan budget memerlukan peran IT_ADMIN atau EXECUTIVE.",
-        nextAction: "Minta IT Lead atau Direktur untuk memperbarui alokasi budget workspace.",
+        nextAction: "Minta Administrator IT atau Executive untuk memperbarui alokasi budget workspace.",
         severity: "warning",
         status: null,
         correlationId: null,
@@ -2176,7 +2176,7 @@ export function GovernanceDashboard() {
                 {data?.auditRestricted ? (
                   <tr>
                     <td colSpan={8} style={{ textAlign: "center", padding: "32px", color: "#b91c1c" }}>
-                      Akses Audit Trail dibatasi. Hanya role Direktur Utama, IT Lead, atau QA &amp; Security yang berwenang membaca log ledger audit.
+                      Akses Audit Trail dibatasi. Hanya role Executive, Administrator IT, atau QA Assurance yang berwenang membaca log ledger audit.
                     </td>
                   </tr>
                 ) : filteredAuditLogs.length === 0 ? (
@@ -3224,11 +3224,11 @@ export function GovernanceDashboard() {
             {/* Stepper Bar */}
             <div style={{ padding: "14px 24px 0 24px", background: "#ffffff" }}>
               <div className="gov-pipe-stepper">
-                {/* Step 1: Maker / IT Lead */}
+                {/* Step 1: Maker / Administrator IT */}
                 <div className={`gov-pipe-step ${stage1Status}`}>
                   <div className="gov-pipe-step-num">1</div>
                   <div className="gov-pipe-step-text">
-                    <span className="gov-pipe-step-title">IT Lead (Maker)</span>
+                    <span className="gov-pipe-step-title">Administrator IT (Maker)</span>
                     <span className="gov-pipe-step-desc">
                       {all5TestsConfigured ? "5 Test Didaftarkan" : "Setup Test Suites"}
                     </span>
@@ -3329,7 +3329,7 @@ export function GovernanceDashboard() {
                       </span>
                     </div>
                     <div>
-                      <span style={{ fontSize: "0.72rem", color: "#6b7280", display: "block" }}>Maker (IT Lead):</span>
+                      <span style={{ fontSize: "0.72rem", color: "#6b7280", display: "block" }}>Maker (Administrator IT):</span>
                       <strong style={{ fontSize: "0.82rem" }}>
                         {detail?.requested_by_user_id ? detail.requested_by_user_id.slice(0, 10) : inspectReleaseItem.requester}
                       </strong>
@@ -3347,10 +3347,10 @@ export function GovernanceDashboard() {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "10px" }}>
                       <div>
                         <strong style={{ fontSize: "0.88rem", color: "#1e3a8a", display: "block" }}>
-                          Tahap 1 — Maker (IT Lead): Pendaftaran &amp; Handover 5 Test Cases
+                          Tahap 1 — Maker (Administrator IT): Pendaftaran &amp; Handover 5 Test Cases
                         </strong>
                         <p style={{ margin: "4px 0 0 0", fontSize: "0.78rem", color: "#3b82f6" }}>
-                          IT Lead mendaftarkan minimal 5 kategori pengujian: POSITIVE, NEGATIVE, REGRESSION, SECURITY, dan RECOVERY.
+                          Administrator IT mendaftarkan minimal 5 kategori pengujian: POSITIVE, NEGATIVE, REGRESSION, SECURITY, dan RECOVERY.
                         </p>
                       </div>
                       <span className={`gov-test-status-badge ${testCases.length >= 5 ? "passed" : "not-run"}`}>

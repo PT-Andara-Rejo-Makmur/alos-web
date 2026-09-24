@@ -115,7 +115,7 @@ export function canMakeRelease(roles: string[]): boolean {
 }
 
 /**
- * Match the backend Agent Registry read authority. Only the IT Lead may load
+ * Match the backend Agent Registry read authority. Only the IT administrator may load
  * contracts; independent reviewers and the Director load release evidence without it.
  */
 export function canReadReleaseRegistry(roles: string[]): boolean {

@@ -259,7 +259,7 @@ describe("ALOS Legal & Compliance Dashboard", () => {
       const workspaceLabels = screen.getAllByText("Legal Workspace");
       expect(workspaceLabels.length).toBeGreaterThanOrEqual(1);
     });
-    const roleLabels = screen.getAllByText("Legal & Compliance Manager");
+    const roleLabels = screen.getAllByText("Anggota Workspace");
     expect(roleLabels.length).toBeGreaterThanOrEqual(1);
   });
 

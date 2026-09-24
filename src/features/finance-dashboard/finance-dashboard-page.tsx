@@ -10,7 +10,7 @@ import type { FinanceDashboardSnapshot } from "./types";
 
 export function FinanceDashboardPage({ initialSnapshot }: { readonly initialSnapshot?: FinanceDashboardSnapshot | null }) {
   return (
-    <ProtectedDomainWorkspace deniedDescription="Halaman ini merupakan operational control room divisi Keuangan dan memerlukan workspace yang diberikan Backend." divisionCodes={["FINANCE"]} loadingLabel="Memuat Finance Command Center…" roleLabel="Finance Manager" workspaceKeys={["finance"]}>
+    <ProtectedDomainWorkspace deniedDescription="Halaman ini merupakan operational control room divisi Keuangan dan memerlukan workspace yang diberikan Backend." divisionCodes={["FINANCE"]} loadingLabel="Memuat Finance Command Center…" workspaceKeys={["finance"]}>
       {({ identity }) => <FinanceContent identity={identity} initialSnapshot={initialSnapshot} />}
     </ProtectedDomainWorkspace>
   );

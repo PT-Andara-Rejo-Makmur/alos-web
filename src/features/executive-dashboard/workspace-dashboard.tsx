@@ -48,7 +48,6 @@ export function ExecutiveDashboard({ module }: ExecutiveDashboardProps) {
     <ProtectedDomainWorkspace
       divisionCodes={["FINANCE", "HR", "IT", "LEGAL", "PROPERTY", "SALES", "SALES_MARKETING"]}
       loadingLabel="Memuat ALOS…"
-      roleLabel="Anggota Tim"
       workspaceKeys={["executive", "finance", "hr", "it", "legal", "property", "sales"]}
     >
       {({ actor, identity }) => (

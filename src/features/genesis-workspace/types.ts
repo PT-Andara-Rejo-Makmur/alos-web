@@ -81,7 +81,7 @@ export function normalizeGenesisError(error: unknown): GenesisUiError {
     if (error.status === 409) return { title: "Data telah berubah", reason: detail, nextAction: "Daftar telah dimuat ulang. Periksa state terbaru lalu ulangi bila masih relevan.", correlationId: error.correlationId };
     if (error.status === 403) return { title: "Aksi tidak diizinkan", reason: detail, nextAction: "Pilih data dalam scope Anda atau gunakan role yang berwenang.", correlationId: error.correlationId };
     if (error.status === 422) return { title: "Input belum valid", reason: detail, nextAction: "Periksa field yang ditandai lalu kirim kembali.", correlationId: error.correlationId };
-    if (error.status >= 500) return { title: "Layanan GENESIS tidak tersedia", reason: "Server tidak dapat menyelesaikan permintaan tanpa mengekspos detail internal.", nextAction: "Coba kembali; jika berulang berikan Reference ID kepada IT Lead.", correlationId: error.correlationId };
+    if (error.status >= 500) return { title: "Layanan GENESIS tidak tersedia", reason: "Server tidak dapat menyelesaikan permintaan tanpa mengekspos detail internal.", nextAction: "Coba kembali; jika berulang berikan Reference ID kepada Administrator IT.", correlationId: error.correlationId };
     return { title: "Permintaan tidak berhasil", reason: detail, nextAction: "Muat ulang data lalu coba kembali.", correlationId: error.correlationId };
   }
   return { title: "Permintaan tidak berhasil", reason: error instanceof Error ? error.message : "Kegagalan tidak dikenali.", nextAction: "Periksa input lalu coba kembali.", correlationId: null };

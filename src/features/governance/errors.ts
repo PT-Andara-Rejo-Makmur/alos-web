@@ -22,7 +22,7 @@ const detailMessages: Record<string, ErrorMessage> = {
   "a successful Agent Run is required before review": message("Agent Run belum memenuhi gate", "Belum ada Agent Run SUCCEEDED untuk versi DRAFT yang sedang direview.", "Jalankan kembali test POSITIVE pada versi ini; periksa Reason bila Actual masih BLOCKED."),
   "business and technical review approvals are required": message("Review manusia belum lengkap", "Business Review dan Technical Review belum keduanya APPROVED.", "Reviewer independen menyelesaikan gate yang masih pending."),
   "business reviewer must be assigned to the Agent workspace division": message("Business Review di luar scope", "Reviewer Business tidak ditugaskan pada divisi workspace Agent ini.", "Gunakan Business Reviewer pada divisi yang sama dengan scope Agent.", "critical"),
-  "an independent IT Lead release maker is required for this Agent request": message("Release Maker belum tersedia", "Requester atau sponsor Agent tidak boleh otomatis menjadi Release Maker.", "Tambahkan IT Lead independen sebagai anggota workspace agar draft dapat masuk ke persiapan release."),
+  "an independent IT Lead release maker is required for this Agent request": message("Release Maker belum tersedia", "Requester atau sponsor Agent tidak boleh otomatis menjadi Release Maker.", "Tambahkan Administrator IT independen sebagai anggota workspace agar draft dapat masuk ke persiapan release."),
   "only the recorded approver can release an approved request": message("Release hanya boleh dilakukan Approver tercatat", "Akun ini bukan Director yang mencatat final approval.", "Gunakan akun Approver yang tercatat pada request."),
   "only the recorded approver can activate a released request": message("Aktivasi hanya boleh dilakukan Approver tercatat", "Akun ini bukan Director yang merilis versi tersebut.", "Gunakan akun Approver yang tercatat pada request."),
   "kill switch is active": message("Aktivasi diblokir Kill Switch", "Kontrol penghentian darurat masih aktif pada Agent ini.", "Verifikasi penyebab lalu clear Kill Switch dengan alasan yang diaudit bila aman.", "critical"),
@@ -32,8 +32,8 @@ const detailMessages: Record<string, ErrorMessage> = {
   "daily output token budget cap reached": message("Runtime diblokir budget", "Batas output token harian telah tercapai.", "Buka Governance → Budget; tunggu periode berikutnya atau minta pemilik budget meninjau limit.", "critical"),
   "daily request budget cap reached": message("Runtime diblokir budget", "Batas request harian telah tercapai.", "Buka Governance → Budget; tunggu periode berikutnya atau minta pemilik budget meninjau limit.", "critical"),
   "daily cost budget cap reached": message("Runtime diblokir budget", "Hard cost cap harian telah tercapai.", "Buka Governance → Budget dan minta pemilik budget meninjau usage serta limit.", "critical"),
-  "an active workspace cost limit was not found": message("Budget workspace belum aktif", "Runtime tidak menemukan cost limit aktif untuk workspace.", "Director atau IT Lead harus mengatur limit di Governance → Budget."),
-  "an active workspace cost limit is required": message("Budget workspace belum aktif", "Runtime tidak menemukan cost limit aktif untuk workspace.", "Director atau IT Lead harus mengatur limit di Governance → Budget."),
+  "an active workspace cost limit was not found": message("Budget workspace belum aktif", "Runtime tidak menemukan cost limit aktif untuk workspace.", "Executive atau Administrator IT harus mengatur limit di Governance → Budget."),
+  "an active workspace cost limit is required": message("Budget workspace belum aktif", "Runtime tidak menemukan cost limit aktif untuk workspace.", "Executive atau Administrator IT harus mengatur limit di Governance → Budget."),
 };
 
 function safeDetail(detail: string): string {
@@ -55,7 +55,7 @@ export function normalizeGovernanceError(error: unknown): GovernanceUiError {
       409: message("Status Agent telah berubah sejak halaman ini dibuka", detail, "Data terbaru dimuat otomatis. Periksa Current State, Current Blocker, dan Next Action."),
       422: { ...message("Form belum dapat diproses", detail, "Perbaiki format atau field wajib yang disebutkan."), field: "form" },
       429: message("Batas penggunaan tercapai", detail, "Buka Governance → Budget atau tunggu periode budget berikutnya.", "critical"),
-      500: message("Layanan Governance mengalami gangguan", "Server tidak dapat menyelesaikan permintaan ini.", "Coba lagi. Jika berulang, berikan Reference ID kepada IT Lead.", "error"),
+      500: message("Layanan Governance mengalami gangguan", "Server tidak dapat menyelesaikan permintaan ini.", "Coba lagi. Jika berulang, berikan Reference ID kepada Administrator IT.", "error"),
     };
     return { ...(byStatus[error.status] ?? message("Permintaan tidak berhasil", detail, "Muat ulang data lalu coba kembali.", "error")), status: error.status, correlationId: error.correlationId };
   }

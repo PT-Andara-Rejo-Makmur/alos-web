@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Building2 } from "lucide-react";
 
 import { ApiError } from "@/lib/api";
+import { formatRoleLabel } from "@/features/access-control/dashboard-access";
 import {
   loadSessionContext,
   type SessionActor,
@@ -85,17 +86,11 @@ function SharedModuleContent({ module }: WorkspaceSharedModulePageProps) {
 
   const shellIdentity: WorkspaceShellIdentity | null = useMemo(() => {
     if (!activeWorkspace || !actor) return null;
-    const roles = actor?.roles || [];
-    const isDirector = roles.includes("EXECUTIVE");
     return {
       workspaceId: activeWorkspace.workspace_id,
       workspaceKey: activeWorkspace.workspace_key,
       workspaceLabel: activeWorkspace.name,
-      roleLabel: isDirector
-        ? "Direktur"
-        : roles.length > 0
-          ? roles.join(" · ")
-          : "Anggota Tim",
+      roleLabel: formatRoleLabel(actor.roles),
       divisionCode: activeWorkspace.division_code,
       accessLevel: activeWorkspace.access_level,
     };

@@ -12,7 +12,7 @@ import type { PropertyDashboardSnapshot } from "./types";
 
 export function PropertyDashboardPage({ initialSnapshot }: { readonly initialSnapshot?: PropertyDashboardSnapshot | null }) {
   return (
-    <ProtectedDomainWorkspace deniedTitle="Bukan Otoritas Property" divisionCodes={["PROPERTY"]} loadingLabel="Memuat Property & Project Command Center…" roleLabel="Property Manager" workspaceKeys={["property", "projects"]}>
+    <ProtectedDomainWorkspace deniedTitle="Bukan Otoritas Property" divisionCodes={["PROPERTY"]} loadingLabel="Memuat Property & Project Command Center…" workspaceKeys={["property", "projects"]}>
       {({ actor, identity }) => <PropertyContent actor={actor} identity={identity} initialSnapshot={initialSnapshot} />}
     </ProtectedDomainWorkspace>
   );

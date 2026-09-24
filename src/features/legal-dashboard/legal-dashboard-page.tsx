@@ -8,7 +8,7 @@ import type { LegalDashboardSnapshot } from "./types";
 export function LegalDashboardPage({ initialSnapshot }: { readonly initialSnapshot?: LegalDashboardSnapshot | null }) {
   const snapshot = initialSnapshot ?? createDefaultLegalSnapshot();
   return (
-    <ProtectedDomainWorkspace deniedTitle="Bukan Otoritas Legal & Compliance" divisionCodes={["LEGAL"]} loadingLabel="Memuat Legal Command Center…" roleLabel="Legal & Compliance Manager" workspaceKeys={["legal"]}>
+    <ProtectedDomainWorkspace deniedTitle="Bukan Otoritas Legal & Compliance" divisionCodes={["LEGAL"]} loadingLabel="Memuat Legal Command Center…" workspaceKeys={["legal"]}>
       {() => <LegalDashboardHome snapshot={snapshot} />}
     </ProtectedDomainWorkspace>
   );

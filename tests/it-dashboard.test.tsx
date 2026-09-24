@@ -270,7 +270,7 @@ describe("ALOS IT & Technology Dashboard", () => {
       const workspaceLabels = screen.getAllByText("IT Workspace");
       expect(workspaceLabels.length).toBeGreaterThanOrEqual(1);
     });
-    const roleLabels = screen.getAllByText("IT Lead");
+    const roleLabels = screen.getAllByText("Administrator IT");
     expect(roleLabels.length).toBeGreaterThanOrEqual(1);
   });
 

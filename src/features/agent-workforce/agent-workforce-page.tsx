@@ -13,6 +13,7 @@ import {
 import { WorkspaceShell } from "@/features/workspace-shell";
 import type { WorkspaceShellIdentity } from "@/features/workspace-shell/types";
 import { ApiError } from "@/lib/api";
+import { formatRoleLabel } from "@/features/access-control/dashboard-access";
 
 import { AgentWorkforce } from "./agent-workforce";
 
@@ -83,7 +84,7 @@ export function AgentWorkforcePage() {
     workspaceKey: activeWorkspace.workspace_key,
     workspaceLabel: activeWorkspace.name,
     divisionCode: activeWorkspace.division_code,
-    roleLabel: actor.roles.join(" · ") || "Pengguna ALOS",
+    roleLabel: formatRoleLabel(actor.roles),
     accessLevel: activeWorkspace.access_level,
   } : null;
 

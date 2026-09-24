@@ -11,11 +11,11 @@ describe("dashboard role profiles", () => {
     expect(profile.divisionLabel).toBe("IT");
   });
 
-  it("presents the legacy QA role as Wakil IT without changing its permission code", () => {
+  it("presents QA authority with its neutral canonical label", () => {
     const profile = getDashboardProfile(["QA_ASSURANCE"], []);
 
     expect(profile.persona).toBe("deputy_it");
-    expect(profile.roleLabel).toBe("Wakil IT");
+    expect(profile.roleLabel).toBe("QA Assurance");
     expect(profile.governanceVisible).toBe(true);
   });
 

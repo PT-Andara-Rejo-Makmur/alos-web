@@ -24,11 +24,13 @@ const divisionLabels: Record<string, string> = {
 
 const roleLabels: Record<string, string> = {
   BUSINESS_REVIEWER: "Business Reviewer",
-  EXECUTIVE: "Direktur Utama",
-  WORKSPACE_LEAD: "Lead Divisi",
-  IT_ADMIN: "IT Lead",
-  QA_ASSURANCE: "Wakil IT",
-  TECHNICAL_REVIEWER: "Wakil IT",
+  EXECUTIVE: "Executive",
+  WORKSPACE_LEAD: "Penanggung Jawab Workspace",
+  WORKSPACE_MEMBER: "Anggota Workspace",
+  IT_ADMIN: "Administrator IT",
+  AI_ADMIN: "Administrator AI",
+  QA_ASSURANCE: "QA Assurance",
+  TECHNICAL_REVIEWER: "Technical Reviewer",
 };
 
 const profileContent: Record<DashboardPersona, Omit<DashboardProfile, "divisionLabel" | "governanceVisible" | "roleLabel">> = {
@@ -47,12 +49,12 @@ const profileContent: Record<DashboardPersona, Omit<DashboardProfile, "divisionL
     homeEyebrow: "ALOS / DIVISION LEAD VIEW",
     homeLabel: "Dashboard Divisi",
     homeTitle: "Dashboard Divisi",
-    scopeDescription: "Lead Divisi memvalidasi konteks bisnis dan mengarahkan pekerjaan tim. Agent hanya memberikan hasil dari sumber yang diizinkan.",
-    scopeTitle: "Ruang kerja Lead Divisi",
+    scopeDescription: "Penanggung Jawab Workspace memvalidasi konteks bisnis dan mengarahkan pekerjaan tim. Agent hanya memberikan hasil dari sumber yang diizinkan.",
+    scopeTitle: "Ruang kerja Penanggung Jawab Workspace",
   },
   member: {
     persona: "member",
-    homeDescription: "Ruang kerja personal untuk tugas, dokumen, approval, dan bantuan GENESIS yang relevan dengan akses Anda.",
+    homeDescription: "Ruang kerja personal untuk tugas, dokumen, approval, dan bantuan ARA yang relevan dengan akses Anda.",
     homeEyebrow: "ALOS / MY WORK",
     homeLabel: "My Work",
     homeTitle: "My Work",
@@ -65,7 +67,7 @@ const profileContent: Record<DashboardPersona, Omit<DashboardProfile, "divisionL
     homeEyebrow: "ALOS / IT OPERATIONS",
     homeLabel: "IT Operations",
     homeTitle: "IT Operations",
-    scopeDescription: "IT Lead menyiapkan konfigurasi dan UAT. Approval terhadap perubahan dibuat oleh Wakil IT atau Director yang berbeda.",
+    scopeDescription: "Administrator IT menyiapkan konfigurasi dan UAT. Approval terhadap perubahan dibuat oleh reviewer independen yang berbeda.",
     scopeTitle: "Ruang operasi IT",
   },
   deputy_it: {
@@ -74,8 +76,8 @@ const profileContent: Record<DashboardPersona, Omit<DashboardProfile, "divisionL
     homeEyebrow: "ALOS / GOVERNANCE REVIEW",
     homeLabel: "Governance Workspace",
     homeTitle: "Governance Workspace",
-    scopeDescription: "Wakil IT adalah pemeriksa independen lintas divisi, bukan divisi operasional. Ia tidak menyetujui perubahan yang dibuatnya sendiri.",
-    scopeTitle: "Ruang pemeriksaan Wakil IT",
+    scopeDescription: "Reviewer independen memeriksa kontrol lintas workspace dan tidak menyetujui perubahan yang dibuatnya sendiri.",
+    scopeTitle: "Ruang pemeriksaan independen",
   },
 };
 

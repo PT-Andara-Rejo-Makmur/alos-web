@@ -1,4 +1,5 @@
 import type { Workspace } from "@/features/session";
+import { formatRoleLabel } from "@/features/access-control/dashboard-access";
 import { resolveWorkspaceDestination } from "./workspace-destination";
 
 export type WorkspaceChoice = {
@@ -24,16 +25,6 @@ const DIVISION_DISPLAY_NAMES: Record<string, string> = {
   IT: "IT & TECHNOLOGY",
 };
 
-const DIVISION_ROLE_LABELS: Record<string, string> = {
-  FINANCE: "Finance Manager",
-  HR: "HR Manager",
-  LEGAL: "Legal Specialist",
-  PROPERTY: "Property Manager",
-  SALES_MARKETING: "Sales Lead",
-  SALES: "Sales Lead",
-  IT: "Technology Lead",
-};
-
 export function projectWorkspaceChoices(
   workspaces: readonly Workspace[],
 ): readonly WorkspaceChoice[] {
@@ -43,19 +34,14 @@ export function projectWorkspaceChoices(
     const isAvailable = destination !== null;
 
     let divisionLabel = ws.division_code ? (DIVISION_DISPLAY_NAMES[div] || div) : "ENTERPRISE";
-    let roleLabel = ws.division_code ? (DIVISION_ROLE_LABELS[div] || "Manager") : "Pengguna ALOS";
+    const roleLabel = formatRoleLabel(ws.role_refs ?? []);
 
     if (ws.workspace_type === "EXECUTIVE") {
       divisionLabel = "EXECUTIVE";
-      roleLabel = ws.role_refs?.join(" · ") || "Executive";
     } else if (ws.workspace_type === "IT_OPERATIONS") {
       divisionLabel = "IT OPERATIONS";
-      roleLabel = ws.role_refs?.join(" · ") || "IT Operations";
     } else if (ws.workspace_type === "GOVERNANCE") {
       divisionLabel = "GOVERNANCE";
-      roleLabel = ws.role_refs?.join(" · ") || "Governance";
-    } else {
-      roleLabel = ws.role_refs?.join(" · ") || roleLabel;
     }
 
     const initial = ws.division_code

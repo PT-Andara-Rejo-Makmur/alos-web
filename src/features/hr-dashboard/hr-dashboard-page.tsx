@@ -8,7 +8,7 @@ import type { HrDashboardSnapshot } from "./types";
 export function HrDashboardPage({ initialSnapshot }: { readonly initialSnapshot?: HrDashboardSnapshot | null }) {
   const snapshot = initialSnapshot ?? createDefaultHrSnapshot();
   return (
-    <ProtectedDomainWorkspace deniedTitle="Bukan Otoritas HR & People" divisionCodes={["HR", "PEOPLE"]} loadingLabel="Memuat HR & People Command Center…" roleLabel="HR Manager" workspaceKeys={["hr", "people"]}>
+    <ProtectedDomainWorkspace deniedTitle="Bukan Otoritas HR & People" divisionCodes={["HR", "PEOPLE"]} loadingLabel="Memuat HR & People Command Center…" workspaceKeys={["hr", "people"]}>
       {() => <HrDashboardHome snapshot={snapshot} />}
     </ProtectedDomainWorkspace>
   );

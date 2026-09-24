@@ -10,6 +10,7 @@ import {
   type Workspace,
 } from "@/features/session";
 import { ApiError, sessionApiRequest } from "@/lib/api";
+import { formatRoleLabel } from "@/features/access-control/dashboard-access";
 
 import { WorkspaceShell } from "./workspace-shell";
 import type { WorkspaceRouteKey } from "@/features/workspace-routing";
@@ -28,7 +29,6 @@ interface ProtectedDomainWorkspaceProps {
   readonly deniedTitle?: string;
   readonly deniedDescription?: string;
   readonly loadingLabel: string;
-  readonly roleLabel: string;
   readonly workspaceKeys: readonly string[];
 }
 
@@ -44,7 +44,6 @@ export function ProtectedDomainWorkspace({
   deniedTitle = "Akses Dibatasi",
   divisionCodes,
   loadingLabel,
-  roleLabel,
   workspaceKeys,
 }: ProtectedDomainWorkspaceProps) {
   const router = useRouter();
@@ -114,7 +113,7 @@ export function ProtectedDomainWorkspace({
     workspaceLabel: workspace.name,
     divisionCode: workspace.division_code,
     accessLevel: workspace.access_level,
-    roleLabel: actor.roles.includes("EXECUTIVE") ? "Direktur" : roleLabel,
+    roleLabel: formatRoleLabel(actor.roles),
   };
 
   async function logout() {
