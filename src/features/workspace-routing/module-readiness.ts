@@ -111,10 +111,10 @@ export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> 
   skills: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
   models: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
   uat: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
-  research: { availability: "READY" },
-  evidence: { availability: "READY" },
-  decisions: { availability: "READY" },
-  "control-plane": { availability: "READY" },
+  research: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  evidence: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  decisions: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  "control-plane": { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
 };
 
 /**

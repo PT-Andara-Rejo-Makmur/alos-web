@@ -129,6 +129,10 @@ afterEach(() => {
       expect(getModuleReadiness("findings").availability).toBe("BLOCKED");
       expect(getModuleReadiness("ara").availability).toBe("BLOCKED");
       expect(getModuleReadiness("agents").availability).toBe("BLOCKED");
+      expect(getModuleReadiness("research").availability).toBe("BLOCKED");
+      expect(getModuleReadiness("evidence").availability).toBe("BLOCKED");
+      expect(getModuleReadiness("decisions").availability).toBe("BLOCKED");
+      expect(getModuleReadiness("control-plane").availability).toBe("BLOCKED");
     });
 
     it("evaluates unintegrated domain sub-modules as BLOCKED with clear blockReason", () => {
