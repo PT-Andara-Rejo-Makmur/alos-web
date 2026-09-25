@@ -64,6 +64,10 @@ describe("WorkspaceResolverPage Lifecycle States", () => {
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith("/director");
     });
+    expect(api.authenticatedApiRequest).toHaveBeenCalledWith(
+      "/api/v1/auth/active-workspace",
+      { method: "PUT", body: { workspace_id: "ws_exec_001" } },
+    );
   });
 
   it("2. Multiple valid workspaces menampilkan chooser tanpa auto-select awal", async () => {
@@ -127,6 +131,10 @@ describe("WorkspaceResolverPage Lifecycle States", () => {
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith("/workspace/finance");
     });
+    expect(api.authenticatedApiRequest).toHaveBeenCalledWith(
+      "/api/v1/auth/active-workspace",
+      { method: "PUT", body: { workspace_id: "ws_fin" } },
+    );
   });
 
   it("3. Safe no-access state saat tidak ada workspace yang dapat diakses", async () => {

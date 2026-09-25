@@ -91,6 +91,7 @@ export type WorkspaceNavGroup =
   | "LEGAL"
   | "COMPLIANCE"
   | "ALOS_PLATFORM"
+  | "IDENTITY_ACCESS"
   | "ENGINEERING"
   | "OPERATIONS"
   | "GENESIS"

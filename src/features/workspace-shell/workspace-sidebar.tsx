@@ -27,6 +27,7 @@ const GROUP_ORDER: readonly WorkspaceNavGroup[] = [
   "LEGAL",
   "COMPLIANCE",
   "ALOS_PLATFORM",
+  "IDENTITY_ACCESS",
   "ENGINEERING",
   "OPERATIONS",
   "GENESIS",
@@ -66,6 +67,8 @@ function getGroupLabel(group: WorkspaceNavGroup, divisionCode: string | null): s
       return "COMPLIANCE";
     case "ALOS_PLATFORM":
       return "ALOS PLATFORM";
+    case "IDENTITY_ACCESS":
+      return "IDENTITY & ACCESS";
     case "ENGINEERING":
       return "ENGINEERING";
     case "OPERATIONS":

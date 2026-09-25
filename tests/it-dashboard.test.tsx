@@ -291,7 +291,7 @@ describe("ALOS IT & Technology Dashboard", () => {
   });
 
   // 18. Mobile nav <= 5 and IT navigation projection
-  it("18. proyeksi navigasi IT memuat grup UTAMA, ALOS_PLATFORM, ENGINEERING, OPERATIONS, GENESIS, GOVERNANCE, AI", () => {
+  it("18. proyeksi navigasi IT memisahkan IDENTITY_ACCESS dari ALOS_PLATFORM", () => {
     const nav = projectWorkspaceNavigation(
       {
         workspaceId: "ws_it_01",
@@ -314,6 +314,7 @@ describe("ALOS IT & Technology Dashboard", () => {
     const groups = new Set(nav.map((item) => item.group));
     expect(groups.has("UTAMA")).toBe(true);
     expect(groups.has("ALOS_PLATFORM")).toBe(true);
+    expect(groups.has("IDENTITY_ACCESS")).toBe(true);
     expect(groups.has("ENGINEERING")).toBe(true);
     expect(groups.has("OPERATIONS")).toBe(true);
     expect(groups.has("GENESIS")).toBe(true);
@@ -322,6 +323,8 @@ describe("ALOS IT & Technology Dashboard", () => {
 
     const overviewItem = nav.find((i) => i.key === "overview");
     expect(overviewItem?.href).toBeNull();
+    expect(nav.find((item) => item.key === "users")?.group).toBe("IDENTITY_ACCESS");
+    expect(nav.find((item) => item.key === "register-user")?.group).toBe("IDENTITY_ACCESS");
   });
 
   // 19. Session/logout boundary preserved

@@ -361,8 +361,8 @@ export function projectWorkspaceNavigation(
   if (isIt) {
     // Group: ALOS_PLATFORM
     if (roles.includes("IT_ADMIN")) items.push(
-      { key: "users", label: "Kelola Akun", href: "/workspace/it/users", icon: "UsersRound", group: "ALOS_PLATFORM", available: true },
-      { key: "register-user", label: "Register Akun", href: "/workspace/it/users/register", icon: "UserPlus", group: "ALOS_PLATFORM", available: true },
+      { key: "users", label: "Kelola Akun", href: "/workspace/it/users", icon: "UsersRound", group: "IDENTITY_ACCESS", available: true },
+      { key: "register-user", label: "Register Akun", href: "/workspace/it/users/register", icon: "UserPlus", group: "IDENTITY_ACCESS", available: true },
     );
     items.push(
       { key: "systems", label: "Systems", href: "/workspace/it/systems", icon: "Server", group: "ALOS_PLATFORM", available: true },
