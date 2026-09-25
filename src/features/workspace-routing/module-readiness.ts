@@ -14,6 +14,11 @@ export interface ModuleReadinessDescriptor {
  * BLOCKED modules remain visible in navigation for roadmap transparency, but are non-navigable and labeled "Belum tersedia".
  */
 export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> = {
+  // Identity administration is implemented end-to-end: the IT administrator
+  // can provision accounts and manage their active membership roles.
+  users: { availability: "READY" },
+  "register-user": { availability: "READY" },
+
   // Shared modules
   projects: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   tasks: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },

@@ -104,9 +104,9 @@ export function WorkspaceResolverPage() {
         if (projected.length === 0) {
           setNoAccess(true);
         } else if (projected.length === 1 && projected[0].destination) {
-          await authenticatedApiRequest("/api/v1/auth/active-workspace", {
-            method: "PUT",
-            body: { workspace_id: projected[0].id },
+          await authenticatedApiRequest("/api/v1/me/context/switch", {
+            method: "POST",
+            body: { membership_id: projected[0].id },
           });
           router.replace(projected[0].destination);
         }
@@ -135,9 +135,9 @@ export function WorkspaceResolverPage() {
   const handleEnterWorkspace = async () => {
     const chosen = choices.find((c) => c.id === selectedId);
     if (chosen?.destination) {
-      await authenticatedApiRequest("/api/v1/auth/active-workspace", {
-        method: "PUT",
-        body: { workspace_id: chosen.id },
+      await authenticatedApiRequest("/api/v1/me/context/switch", {
+        method: "POST",
+        body: { membership_id: chosen.id },
       });
       router.push(chosen.destination);
     }

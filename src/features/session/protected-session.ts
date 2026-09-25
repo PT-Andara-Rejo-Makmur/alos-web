@@ -17,6 +17,7 @@ function projectActor(principal: SessionPrincipal | LegacySessionPrincipal): Ses
     if (!actorId) throw new Error("Session principal tidak memiliki actor_id.");
     return {
       user_id: actorId,
+      tenant_id: principal.tenant_id ?? "",
       organization_id: principal.organization_id ?? "",
       roles: [...(principal.roles ?? [])],
       division_codes: [...(principal.division_codes ?? [])],
@@ -29,6 +30,7 @@ function projectActor(principal: SessionPrincipal | LegacySessionPrincipal): Ses
   const divisionCode = membership?.workspace.division_code;
   return {
     user_id: principal.actor.actor_id,
+    tenant_id: principal.actor.tenant_id,
     organization_id: principal.actor.organization_id,
     roles: [...(membership?.role_refs ?? [])],
     permissions: [...(membership?.permission_refs ?? [])],

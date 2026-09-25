@@ -101,8 +101,21 @@ export function formatDivisionLabel(divisionCodes: readonly string[]): string | 
 }
 
 export function formatRoleLabel(roles: readonly string[]): string {
-  const labels = [...new Set(roles.map((role) => roleLabels[role] ?? role))];
-  return labels.join(" · ") || "Pengguna ALOS";
+  // An account may hold several roles, but a workspace UI needs one concise
+  // active-role label.  The remaining roles are still enforced by Backend;
+  // they must not be rendered as an unreadable, authority-looking string.
+  const precedence = [
+    "EXECUTIVE",
+    "IT_ADMIN",
+    "AI_ADMIN",
+    "QA_ASSURANCE",
+    "TECHNICAL_REVIEWER",
+    "BUSINESS_REVIEWER",
+    "WORKSPACE_LEAD",
+    "WORKSPACE_MEMBER",
+  ];
+  const primary = precedence.find((role) => roles.includes(role)) ?? roles[0];
+  return primary ? (roleLabels[primary] ?? primary) : "Pengguna ALOS";
 }
 
 function selectPersona(roles: readonly string[]): DashboardPersona {

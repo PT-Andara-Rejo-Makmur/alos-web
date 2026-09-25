@@ -6,6 +6,7 @@ import type {
 /** Presentation projection derived from the Backend-authorized active membership. */
 export type SessionActor = {
   user_id: string;
+  tenant_id?: string;
   organization_id: string;
   roles: string[];
   permissions?: string[];
@@ -39,6 +40,7 @@ export interface SessionContext {
 }
 
 export interface LegacySessionPrincipal {
+  readonly tenant_id?: string | null;
   readonly actor_id?: string;
   readonly user_id?: string;
   readonly organization_id?: string | null;

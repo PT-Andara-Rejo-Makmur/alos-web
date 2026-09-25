@@ -14,8 +14,6 @@ export function resolveWorkspaceDestination(
   const div = (workspace.division_code || "").toUpperCase();
 
   if (workspace.workspace_type === "EXECUTIVE") return "/director";
-  if (workspace.workspace_type === "IT_OPERATIONS") return "/genesis";
-  if (workspace.workspace_type === "GOVERNANCE") return "/governance";
 
   // 4. Finance workspace
   if (
@@ -78,6 +76,11 @@ export function resolveWorkspaceDestination(
   ) {
     return "/workspace/it";
   }
+
+  // Generic control-plane workspaces without an IT membership retain the
+  // legacy Genesis destination. An IT membership itself always opens /workspace/it.
+  if (workspace.workspace_type === "IT_OPERATIONS") return "/genesis";
+  if (workspace.workspace_type === "GOVERNANCE") return "/governance";
 
   // 10. Business & Division workspaces
   if (

@@ -14,6 +14,7 @@ import styles from "./workspace-shell.module.css";
 export function WorkspaceShell({
   identity,
   actor = null,
+  availableWorkspaceCount = 1,
   navigation,
   activeNavKey = "overview",
   activeProject = null,
@@ -66,6 +67,7 @@ export function WorkspaceShell({
         <WorkspaceSidebar
           activeNavKey={activeNavKey}
           identity={identity}
+          availableWorkspaceCount={availableWorkspaceCount}
           navigation={effectiveNavigation}
           onLogout={handleLogout}
         />

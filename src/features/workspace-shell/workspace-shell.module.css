@@ -499,6 +499,18 @@
   color: var(--shell-muted);
 }
 
+.workspaceRoleContext {
+  border-bottom: 1px solid var(--shell-border);
+  color: var(--shell-muted);
+  display: grid;
+  gap: 3px;
+  padding: 10px 14px 12px 40px;
+}
+
+.workspaceRoleContext span { font-size: .66rem; font-weight: 700; text-transform: uppercase; }
+.workspaceRoleContext strong { color: var(--shell-ink); font-size: .78rem; }
+.workspaceRoleContext small { font-size: .68rem; line-height: 1.35; }
+
 .profileDropdown {
   position: absolute;
   right: 0;

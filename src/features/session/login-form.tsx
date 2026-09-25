@@ -5,14 +5,13 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import { apiMessage, sessionApiRequest } from "@/lib/api";
+import { resolveWorkspaceDestination } from "@/features/workspace-resolver";
+import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import styles from "./login-page.module.css";
 
 interface SessionProjection {
   readonly authenticated: boolean;
-  readonly principal: {
-    readonly display_name?: string;
-    readonly email?: string;
-  } | null;
+  readonly principal: AuthenticatedPrincipalProjection | null;
 }
 
 // Canonical post-login destination: Workspace Resolver
@@ -41,7 +40,13 @@ export function LoginForm() {
       if (!session.authenticated) {
         throw new Error("Backend session was not established.");
       }
-      router.replace(POST_LOGIN_PATH);
+      const memberships = session.principal?.workspace_access ?? [];
+      const destination = memberships.length === 1
+        ? resolveWorkspaceDestination(memberships[0].workspace)
+        : null;
+      // A single Backend-authorized membership needs no intermediate chooser.
+      // Multiple memberships still use the canonical resolver.
+      router.replace(destination ?? POST_LOGIN_PATH);
       router.refresh();
     } catch (caught) {
       setError(apiMessage(caught));

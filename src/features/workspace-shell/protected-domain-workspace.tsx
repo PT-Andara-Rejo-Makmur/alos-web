@@ -19,7 +19,7 @@ import type { WorkspaceShellIdentity } from "./types";
 type BoundaryState = "LOADING" | "READY" | "FORBIDDEN" | "UNAVAILABLE";
 
 interface ProtectedDomainWorkspaceProps {
-  readonly activeNavKey?: WorkspaceRouteKey | "overview";
+  readonly activeNavKey?: WorkspaceRouteKey | "overview" | string;
   readonly children: (context: {
     actor: SessionActor;
     identity: WorkspaceShellIdentity;
@@ -50,6 +50,11 @@ export function ProtectedDomainWorkspace({
   const [state, setState] = useState<BoundaryState>("LOADING");
   const [actor, setActor] = useState<SessionActor | null>(null);
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
+  const [availableWorkspaceCount, setAvailableWorkspaceCount] = useState(1);
+  // Callers commonly pass literal arrays. Depend on their values instead of
+  // their identity so rendering a protected page cannot restart this request.
+  const divisionCodeKey = divisionCodes.join(",");
+  const workspaceKeyKey = workspaceKeys.join(",");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -58,6 +63,7 @@ export function ProtectedDomainWorkspace({
       try {
         const context = await loadSessionContext(controller.signal);
         const activeWorkspace = context.activeWorkspace;
+        setAvailableWorkspaceCount("actor" in context.principal ? context.principal.workspace_access.length : 1);
         const routeMatches = activeWorkspace !== null && (
           workspaceKeys.includes(activeWorkspace.workspace_key.toLowerCase()) ||
           (activeWorkspace.division_code !== null &&
@@ -85,7 +91,7 @@ export function ProtectedDomainWorkspace({
     }
     void load();
     return () => controller.abort();
-  }, [divisionCodes, router, workspaceKeys]);
+  }, [divisionCodeKey, router, workspaceKeyKey]);
 
   if (state === "LOADING") {
     return <main className="alos-loading-shell">{loadingLabel}</main>;
@@ -128,6 +134,7 @@ export function ProtectedDomainWorkspace({
     <WorkspaceShell
       activeNavKey={activeNavKey}
       actor={actor}
+      availableWorkspaceCount={availableWorkspaceCount}
       identity={identity}
       onLogout={logout}
     >

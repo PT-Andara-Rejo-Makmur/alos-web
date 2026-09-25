@@ -1,0 +1,998 @@
+.page {
+  margin: 0 auto;
+  max-width: 920px;
+  padding: 32px;
+}
+
+.eyebrow {
+  color: #8a9198;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.title {
+  color: #1a2128;
+  font-size: clamp(2rem, 3vw, 2.5rem);
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+
+.intro {
+  color: #5d6871;
+  line-height: 1.6;
+  margin: 12px 0 22px;
+  max-width: 760px;
+}
+
+.pageShell {
+  margin: 0 auto;
+  max-width: 1180px;
+  padding: 24px 20px 64px;
+}
+
+.headerRow {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.primaryButton {
+  background: #0f172a;
+  border-radius: 10px;
+  color: #f8fafc;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.primaryButton:hover {
+  opacity: 0.92;
+}
+
+.alert {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  color: #9a4d00;
+  margin: 0 0 18px;
+  padding: 10px 12px;
+}
+
+.loadingState,
+.emptyState {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  color: #475569;
+  padding: 18px 16px;
+}
+
+.accountList {
+  display: grid;
+  gap: 18px;
+}
+
+.accountCard {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+  padding: 18px;
+}
+
+.accountTopBar {
+  align-items: center;
+  border-bottom: 1px solid #edf2f7;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+}
+
+.accountActions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.editButton,
+.secondaryButton {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #334155;
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 700;
+  min-height: 32px;
+  padding: 0 11px;
+}
+
+.editButton:hover,
+.secondaryButton:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+.accountTopBar h2 {
+  color: #0f172a;
+  font-size: 1.08rem;
+  margin: 0;
+}
+
+.accountTopBar p {
+  color: #64748b;
+  font-size: 0.83rem;
+  margin: 4px 0 0;
+}
+
+.statusButtonActive,
+.statusButtonMuted {
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 700;
+  min-height: 32px;
+  padding: 0 12px;
+}
+
+.statusButtonActive {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.statusButtonMuted {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.membershipList {
+  display: grid;
+  gap: 16px;
+}
+
+.membershipRow {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.membershipMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.workspaceBadge {
+  background: #e2e8f0;
+  border-radius: 999px;
+  color: #0f172a;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 10px;
+}
+
+.roleGroup {
+  border: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.roleSelect {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #334155;
+  font-size: 0.78rem;
+  min-height: 42px;
+  min-width: 240px;
+  padding: 7px 9px;
+}
+
+.addMembership {
+  align-items: center;
+  border-top: 1px solid #edf2f7;
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.addMembership select {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #334155;
+  font-size: 0.78rem;
+  min-height: 36px;
+  min-width: 220px;
+  padding: 0 9px;
+}
+
+.secondaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.roleChip {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  color: #334155;
+  display: inline-flex;
+  gap: 8px;
+  font-size: 0.72rem;
+  padding: 6px 10px;
+}
+
+.roleChip input {
+  accent-color: #0f172a;
+  margin: 0;
+}
+
+.form {
+  background: #fffefa;
+  border: 1px solid #dfe7df;
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(30, 57, 45, 0.07);
+  display: grid;
+  gap: 22px;
+  padding: 26px;
+}
+
+.fields {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field {
+  color: #39574b;
+  display: grid;
+  font-size: 0.78rem;
+  font-weight: 750;
+  gap: 7px;
+}
+
+.field:last-child {
+  grid-column: 1 / -1;
+}
+
+.field input {
+  background: #fff;
+  border: 1px solid #ccd9cf;
+  border-radius: 9px;
+  color: #1b382e;
+  min-height: 42px;
+  padding: 9px 11px;
+}
+
+.roles {
+  border: 1px solid #dce6dd;
+  border-radius: 12px;
+  margin: 0;
+  padding: 16px;
+}
+
+.roles legend {
+  color: #27463b;
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 0 6px;
+}
+
+.roleHint,
+.workspaceHint {
+  color: #6c7f76;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  margin: 0 0 12px;
+}
+
+.roleGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.role {
+  align-items: flex-start;
+  background: #f7faf6;
+  border: 1px solid #e1eae2;
+  border-radius: 10px;
+  color: #345247;
+  cursor: pointer;
+  display: flex;
+  font-size: 0.76rem;
+  gap: 10px;
+  line-height: 1.35;
+  padding: 11px;
+}
+
+.role:has(input:checked) {
+  background: #eaf5ed;
+  border-color: #91c6a0;
+}
+
+.role input {
+  accent-color: #087445;
+  flex: 0 0 auto;
+  height: 16px;
+  margin: 2px 0 0;
+  width: 16px;
+}
+
+.role strong {
+  color: #173d31;
+  display: block;
+  font-size: 0.76rem;
+  margin-bottom: 3px;
+}
+
+.workspace {
+  background: #f5f8f4;
+  border: 1px solid #dfe8e0;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.workspace label {
+  color: #39574b;
+  display: grid;
+  font-size: 0.78rem;
+  font-weight: 750;
+  gap: 7px;
+}
+
+.workspace input {
+  background: #edf2ed;
+  border: 1px solid #d3dfd4;
+  color: #50685d;
+  min-height: 40px;
+}
+
+.actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.submit {
+  background: #087445;
+  color: #fff;
+  min-height: 42px;
+  padding: 10px 17px;
+}
+
+.submit:hover:not(:disabled) {
+  background: #075f39;
+}
+
+.status {
+  color: #087445;
+  font-size: 0.82rem;
+  font-weight: 650;
+  margin: 0;
+}
+
+.successMessage {
+  animation: successReveal 220ms ease-out;
+}
+
+@keyframes successReveal {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.back {
+  color: #087445;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.accountTableWrap {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow-x: auto;
+}
+
+.accountTable {
+  border-collapse: collapse;
+  min-width: 900px;
+  width: 100%;
+}
+
+.accountTable th,
+.accountTable td {
+  border-bottom: 1px solid #edf2f7;
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.accountTable th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.accountTable td {
+  color: #475569;
+  font-size: 0.8rem;
+}
+
+.accountTable tr:last-child td {
+  border-bottom: none;
+}
+
+.tableWorkspace,
+.tableRoles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tableWorkspace span,
+.moreBadge {
+  color: #64748b;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.roleChip {
+  align-items: center;
+  background: #eef2ff;
+  border: 1px solid #e0e7ff;
+  border-radius: 999px;
+  color: #4338ca;
+  display: inline-flex;
+  font-size: 0.68rem;
+  font-weight: 700;
+  gap: 5px;
+  padding: 5px 8px;
+}
+
+.roleChip button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.drawerBackdrop {
+  background: rgba(15, 23, 42, 0.32);
+  inset: 0;
+  position: fixed;
+  z-index: 40;
+}
+
+.editDrawer {
+  background: #fff;
+  box-shadow: -12px 0 36px rgba(15, 23, 42, 0.16);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-left: auto;
+  max-width: 620px;
+  width: min(100%, 620px);
+}
+
+.drawerHeader {
+  align-items: flex-start;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  padding: 24px;
+}
+
+.drawerHeader h2 {
+  color: #0f172a;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.drawerHeader p:last-child {
+  color: #64748b;
+  font-size: 0.8rem;
+  margin: 5px 0 0;
+}
+
+.closeButton {
+  background: #f8fafc;
+  border: 0;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 1.4rem;
+  height: 32px;
+  line-height: 1;
+  width: 32px;
+}
+
+.drawerBody {
+  display: grid;
+  gap: 24px;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.formSection {
+  display: grid;
+  gap: 14px;
+}
+
+.formSection h3 {
+  color: #0f172a;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.formSection p {
+  color: #64748b;
+  font-size: 0.78rem;
+  margin: 4px 0 0;
+}
+
+.accountInfoGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.accountInfoGrid label,
+.membershipCardHeader label {
+  color: #475569;
+  display: grid;
+  font-size: 0.74rem;
+  font-weight: 700;
+  gap: 6px;
+}
+
+.accountInfoGrid input,
+.accountInfoGrid select,
+.membershipCardHeader select,
+.roleMenuPanel input {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #334155;
+  min-height: 38px;
+  padding: 0 10px;
+}
+
+.sectionHeading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.editMembershipList {
+  display: grid;
+  gap: 12px;
+}
+
+.editMembershipCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+}
+
+.membershipCardHeader {
+  align-items: end;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.membershipCardHeader label {
+  flex: 1;
+}
+
+.removeMembership {
+  background: transparent;
+  border: 0;
+  color: #b91c1c;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 8px 0;
+}
+
+.formLabel {
+  color: #64748b;
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+
+.rolePicker {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.roleChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.roleMenu {
+  position: relative;
+}
+
+.roleMenu summary {
+  background: #fff;
+  border: 1px dashed #94a3b8;
+  border-radius: 8px;
+  color: #475569;
+  cursor: pointer;
+  font-size: 0.73rem;
+  font-weight: 700;
+  list-style: none;
+  padding: 7px 10px;
+}
+
+.roleMenu summary::-webkit-details-marker {
+  display: none;
+}
+
+.roleMenuPanel {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  display: grid;
+  gap: 8px;
+  max-height: 250px;
+  min-width: 230px;
+  padding: 10px;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 3;
+}
+
+.roleMenuPanel > input {
+  min-width: 0;
+  width: 100%;
+}
+
+.roleMenuOptions input[type="checkbox"] {
+  height: 14px;
+  min-height: 14px;
+  padding: 0;
+  width: 14px;
+}
+
+.roleMenuOptions {
+  display: grid;
+  gap: 4px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.registrationHeader {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.stepper {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 22px 0;
+  overflow: hidden;
+}
+
+.step,
+.stepActive {
+  align-items: center;
+  color: #94a3b8;
+  display: flex;
+  font-size: 0.75rem;
+  gap: 8px;
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+.step span,
+.stepActive span {
+  align-items: center;
+  border-radius: 50%;
+  display: inline-flex;
+  font-size: 0.7rem;
+  height: 22px;
+  justify-content: center;
+  width: 22px;
+}
+
+.step span {
+  background: #e2e8f0;
+}
+
+.stepActive {
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.stepActive span {
+  background: #4f46e5;
+  color: #fff;
+}
+
+.wizardSection {
+  display: grid;
+  gap: 14px;
+}
+
+.wizardSection h2 {
+  color: #0f172a;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.accessGrid {
+  display: grid;
+  gap: 18px;
+}
+
+.workspacePicker {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  display: grid;
+  gap: 4px;
+  max-height: 190px;
+  overflow-y: auto;
+  padding: 7px;
+}
+
+.workspaceOption {
+  align-items: center;
+  border-radius: 7px;
+  color: #334155;
+  cursor: pointer;
+  display: flex;
+  font-size: 0.8rem;
+  gap: 9px;
+  padding: 9px 10px;
+}
+
+.workspaceOption:hover {
+  background: #f1f5f9;
+}
+
+.workspaceOption input {
+  accent-color: #4f46e5;
+  height: 15px;
+  width: 15px;
+}
+
+.confirmationValues {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.confirmationValues span {
+  background: #eef2ff;
+  border-radius: 999px;
+  color: #3730a3;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 8px;
+}
+
+.accessGrid > .field select,
+.accessGrid select {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #334155;
+  min-height: 42px;
+  padding: 0 10px;
+}
+
+.confirmationList {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin: 0;
+}
+
+.confirmationList div {
+  border-bottom: 1px solid #edf2f7;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 140px 1fr;
+  padding: 12px 14px;
+}
+
+.confirmationList div:last-child {
+  border-bottom: 0;
+}
+
+.confirmationList dt {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.confirmationList dd {
+  color: #0f172a;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.wizardActions {
+  align-items: center;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 18px;
+}
+
+.roleMenuOptions label {
+  align-items: center;
+  border-radius: 6px;
+  color: #334155;
+  display: flex;
+  font-size: 0.75rem;
+  gap: 8px;
+  padding: 7px;
+}
+
+.roleMenuOptions label:hover {
+  background: #f1f5f9;
+}
+
+.drawerFooter {
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 16px 24px;
+}
+
+.cancelButton,
+.saveButton {
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  min-height: 38px;
+  padding: 0 14px;
+}
+
+.cancelButton {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+}
+
+.saveButton {
+  background: #0f172a;
+  border: 1px solid #0f172a;
+  color: #fff;
+}
+
+.cancelButton:disabled,
+.saveButton:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+@media (max-width: 680px) {
+  .pageShell {
+    padding: 20px 16px 80px;
+  }
+
+  .headerRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .accountTopBar,
+  .addMembership {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .roleSelect,
+  .addMembership select,
+  .secondaryButton {
+    width: 100%;
+  }
+
+  .page {
+    padding: 20px 16px 96px;
+  }
+
+  .form {
+    padding: 18px;
+  }
+
+  .fields,
+  .roleGrid,
+  .accountInfoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHeading,
+  .membershipCardHeader,
+  .registrationHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .drawerHeader,
+  .drawerBody {
+    padding: 18px;
+  }
+
+  .drawerFooter {
+    padding: 14px 18px;
+  }
+
+  .stepper {
+    grid-template-columns: 1fr;
+  }
+
+  .step,
+  .stepActive {
+    justify-content: flex-start;
+  }
+
+  .confirmationList div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}

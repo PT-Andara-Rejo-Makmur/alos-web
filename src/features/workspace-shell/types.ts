@@ -169,6 +169,7 @@ export type WorkspaceShellContextValue = {
 export type WorkspaceShellProps = {
   readonly identity: WorkspaceShellIdentity;
   readonly actor?: SessionActor | null;
+  readonly availableWorkspaceCount?: number;
   readonly navigation?: readonly WorkspaceNavItem[];
   readonly activeNavKey?: string;
   readonly breadcrumb?: readonly WorkspaceBreadcrumbItem[];

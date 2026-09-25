@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/layout/app-shell";
@@ -9,20 +8,6 @@ import "@/styles/genesis-workspace.css";
 import "@/styles/governance.css";
 import "@/styles/projects.css";
 import "./globals.css";
-
-const manrope = Manrope({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const cormorantGaramond = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-display",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -35,8 +20,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="id" className={`${manrope.variable} ${cormorantGaramond.variable}`}>
-      <body className={manrope.className}>
+    <html lang="id">
+      <body>
         <AppShell>{children}</AppShell>
       </body>
     </html>

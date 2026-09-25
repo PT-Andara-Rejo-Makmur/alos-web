@@ -12,9 +12,12 @@ function initialLetter(label: string): string {
 
 export function SidebarWorkspaceSwitcher({
   identity,
+  availableWorkspaceCount = 1,
 }: {
   readonly identity: WorkspaceShellIdentity;
+  readonly availableWorkspaceCount?: number;
 }) {
+  void availableWorkspaceCount;
   return (
     <Link
       aria-label={`Ganti workspace dari ${identity.workspaceLabel}`}

@@ -96,11 +96,13 @@ export function WorkspaceSidebar({
   navigation,
   activeNavKey = "overview",
   onLogout,
+  availableWorkspaceCount = 1,
 }: {
   readonly identity: WorkspaceShellIdentity;
   readonly navigation: readonly WorkspaceNavItem[];
   readonly activeNavKey?: string;
   readonly onLogout?: () => Promise<void> | void;
+  readonly availableWorkspaceCount?: number;
 }) {
   // Group navigation items by group key
   const grouped = GROUP_ORDER.map((group) => ({
@@ -151,7 +153,7 @@ export function WorkspaceSidebar({
         </Link>
 
         {/* Active Workspace Card */}
-        <SidebarWorkspaceSwitcher identity={identity} />
+        <SidebarWorkspaceSwitcher identity={identity} availableWorkspaceCount={availableWorkspaceCount} />
 
         {/* Grouped Navigation */}
         <nav aria-label="Navigasi Ruang Kerja" className={styles.navSection}>
@@ -212,14 +214,14 @@ export function WorkspaceSidebar({
 
         {/* Sidebar Footer */}
         <div className={styles.sidebarFooter}>
-          <Link
+          {availableWorkspaceCount > 1 ? <Link
             className={styles.footerButton}
             href="/business/settings"
             title="Pengaturan akun & sistem"
           >
             <Settings size={16} strokeWidth={1.8} aria-hidden="true" />
             <span>Pengaturan</span>
-          </Link>
+          </Link> : null}
 
           <Link
             className={styles.footerButton}

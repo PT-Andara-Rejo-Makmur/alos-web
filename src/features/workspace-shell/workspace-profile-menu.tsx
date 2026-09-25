@@ -80,7 +80,7 @@ export function WorkspaceProfileMenu({
         </div>
         <div className={styles.profileCopy}>
           <span className={styles.profileName}>{displayName}</span>
-          <span className={styles.profileRole}>{identity.roleLabel}</span>
+          <span className={styles.profileRole}>{identity.workspaceLabel}</span>
         </div>
         <ChevronDown
           aria-hidden="true"
@@ -101,7 +101,7 @@ export function WorkspaceProfileMenu({
               {displayName}
             </div>
             <div style={{ fontSize: "0.74rem", color: "#7E848C" }}>
-              {identity.workspaceLabel} · {identity.roleLabel}
+              Workspace aktif: {identity.workspaceLabel}
             </div>
           </div>
 
@@ -114,6 +114,11 @@ export function WorkspaceProfileMenu({
             <ChevronsUpDown size={15} strokeWidth={1.8} aria-hidden="true" />
             <span>Ganti workspace</span>
           </Link>
+          <div className={styles.workspaceRoleContext}>
+            <span>Peran pada workspace ini</span>
+            <strong>{identity.roleLabel}</strong>
+            <small>Pilih workspace lain untuk berpindah ke kelolaan sesuai aksesnya.</small>
+          </div>
 
           <Link
             className={styles.dropdownItem}

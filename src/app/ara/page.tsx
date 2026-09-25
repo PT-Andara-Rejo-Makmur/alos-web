@@ -32,7 +32,7 @@ export default function AraCompatibilityPage() {
         </div>
       }
     >
-      <AraWorkspacePage basePath="/ara" />
+      <AraWorkspacePage basePath="/workspace/ara" />
     </Suspense>
   );
 }
