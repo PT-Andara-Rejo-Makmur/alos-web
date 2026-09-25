@@ -8,6 +8,7 @@ interface AgentWorkforceListProps {
   readonly status: AgentWorkforceStatus;
   readonly errorMessage?: string | null;
   readonly onUseViaAra?: (agent: BusinessAgentWorkforceItem) => void;
+  readonly araHref?: string;
 }
 
 export function AgentWorkforceList({
@@ -16,6 +17,7 @@ export function AgentWorkforceList({
   status,
   errorMessage,
   onUseViaAra,
+  araHref,
 }: AgentWorkforceListProps) {
   return (
     <section className={styles.workforceSection} aria-labelledby="workforce-title">
@@ -64,6 +66,7 @@ export function AgentWorkforceList({
               key={item.agentKey}
               item={item}
               onUseViaAra={onUseViaAra}
+              araHref={araHref}
             />
           ))}
         </div>

@@ -10,6 +10,7 @@ import {
   loadBusinessAgentWorkforce,
   loadScopedRunSummary,
 } from "./agent-workforce-projection";
+import { getWorkspaceAraRoute } from "@/features/workspace-routing";
 import { AgentWorkforceSummary } from "./agent-workforce-summary";
 import type {
   AgentWorkforceProps,
@@ -86,6 +87,10 @@ export function AgentWorkforce({
     "WORKSPACE"
   ).toUpperCase();
 
+  const araHref = activeWorkspace.workspaceKey
+    ? getWorkspaceAraRoute(activeWorkspace.workspaceKey)
+    : "/workspace";
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -100,7 +105,7 @@ export function AgentWorkforce({
       </header>
 
       {/* Business-facing Boundary Banner */}
-      <AgentWorkforceBanner />
+      <AgentWorkforceBanner araHref={araHref} />
 
       {/* 4-Card Status Summary */}
       <AgentWorkforceSummary />
@@ -114,6 +119,7 @@ export function AgentWorkforce({
           status={status}
           errorMessage={errorMessage}
           onUseViaAra={onUseViaAra}
+          araHref={araHref}
         />
 
         {/* Right Column: Scoped Activity & Authority Boundary */}

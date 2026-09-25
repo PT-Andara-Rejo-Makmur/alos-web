@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 
@@ -16,6 +16,7 @@ import {
   type CanonicalWorkspaceKey,
   getModuleReadiness,
   getWorkspaceAraRoute,
+  isKnownWorkspaceModule,
 } from "@/features/workspace-routing";
 
 interface ContextualWorkspaceModulePageProps {
@@ -86,6 +87,11 @@ export function ContextualWorkspaceModulePage({
   module,
 }: ContextualWorkspaceModulePageProps) {
   const router = useRouter();
+
+  if (!isKnownWorkspaceModule(workspaceKey, module)) {
+    notFound();
+  }
+
   const config = WORKSPACE_AUTHORITY_CONFIG[workspaceKey];
 
   useEffect(() => {

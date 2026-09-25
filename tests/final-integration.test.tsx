@@ -17,7 +17,7 @@ import {
 import {
   projectWorkspaceNavigation,
   WorkspaceSidebar,
-  WorkspaceSharedModulePage,
+  ContextualWorkspaceModulePage,
 } from "@/features/workspace-shell";
 import type { WorkspaceShellIdentity } from "@/features/workspace-shell/types";
 import { dashboardModules } from "@/features/workspace-routing/dashboard-modules";
@@ -245,7 +245,7 @@ afterEach(() => {
     });
   });
 
-  describe("5. WorkspaceSharedModulePage Controlled Lifecycle", () => {
+  describe("5. ContextualWorkspaceModulePage Controlled Lifecycle", () => {
     it("renders NEEDS_INFO state when workspace resolution is required", async () => {
       // Mock authenticated actor with multiple workspaces and no resolution
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
@@ -273,11 +273,11 @@ afterEach(() => {
         return Promise.resolve([] as never);
       });
 
-      render(createElement(WorkspaceSharedModulePage, { module: "tasks" }));
+      render(createElement(ContextualWorkspaceModulePage, { workspaceKey: "finance", module: "tasks" }));
 
-      const heading = await screen.findByRole("heading", { name: /Pilih Workspace Aktif/i });
+      const heading = await screen.findByRole("heading", { name: /Bukan Otoritas Finance/i });
       expect(heading).toBeDefined();
-      expect(screen.getByText(/Buka Workspace Resolver/i)).toBeDefined();
+      expect(screen.getByText(/Kembali ke Ruang Kerja Saya/i)).toBeDefined();
     });
 
     it("renders WorkspaceShell and module content when workspace is verified", async () => {
@@ -337,7 +337,7 @@ afterEach(() => {
         return Promise.resolve([]);
       });
 
-      render(createElement(WorkspaceSharedModulePage, { module: "tasks" }));
+      render(createElement(ContextualWorkspaceModulePage, { workspaceKey: "finance", module: "tasks" }));
 
       const taskBoardHeading = await screen.findByText(/Task Board/i);
       expect(taskBoardHeading).toBeDefined();

@@ -7,6 +7,10 @@ import {
   getWorkspaceAgentsRoute,
   getGenesisRoute,
   getGovernanceRoute,
+  getSharedModuleRoute,
+  isKnownWorkspaceModule,
+  isKnownGenesisSubmodule,
+  isKnownGovernanceSubmodule,
   resolveLegacyRoute,
   getModuleReadiness,
   CANONICAL_WORKSPACE_KEYS,
@@ -261,6 +265,102 @@ describe("ALOS Workspace-Centric Routing Architecture", () => {
       expect(getModuleReadiness("month-close").blockReason).toBe("CONTRACT_PENDING");
       expect(getModuleReadiness("models-tools").availability).toBe("BLOCKED");
       expect(getModuleReadiness("models-tools").blockReason).toBe("MODULE_NOT_IMPLEMENTED");
+    });
+  });
+
+  describe("G. getSharedModuleRoute Safety", () => {
+    it("generates contextual shared module route when given valid workspace key", () => {
+      expect(getSharedModuleRoute("finance", "tasks")).toBe("/workspace/finance/tasks");
+      expect(getSharedModuleRoute("hr", "approvals")).toBe("/workspace/hr/approvals");
+      expect(getSharedModuleRoute("property", "documents")).toBe("/workspace/property/documents");
+    });
+
+    it("fails closed to /workspace resolver when workspace key is unknown or invalid", () => {
+      expect(getSharedModuleRoute("unknown", "tasks")).toBe("/workspace");
+      expect(getSharedModuleRoute("", "tasks")).toBe("/workspace");
+    });
+
+    it("never produces an unscoped canonical route like /workspace/tasks", () => {
+      const allKeys = ["finance", "hr", "executive", "property", "sales", "legal", "it", "unknown", ""];
+      allKeys.forEach((k) => {
+        const route = getSharedModuleRoute(k, "tasks");
+        expect(route).not.toBe("/workspace/tasks");
+      });
+    });
+  });
+
+  describe("H. Dynamic Module & Submodule Allowlist Validation", () => {
+    it("validates known workspace modules and rejects unknown arbitrary modules", () => {
+      // Known modules pass
+      expect(isKnownWorkspaceModule("finance", "tasks")).toBe(true);
+      expect(isKnownWorkspaceModule("finance", "month-close")).toBe(true);
+      expect(isKnownWorkspaceModule("finance", "close")).toBe(true);
+      expect(isKnownWorkspaceModule("hr", "employees")).toBe(true);
+      expect(isKnownWorkspaceModule("executive", "divisions")).toBe(true);
+      expect(isKnownWorkspaceModule("property", "payment-certs")).toBe(true);
+      expect(isKnownWorkspaceModule("it", "systems")).toBe(true);
+
+      // Unknown modules are rejected
+      expect(isKnownWorkspaceModule("finance", "not-a-module")).toBe(false);
+      expect(isKnownWorkspaceModule("finance", "random-module")).toBe(false);
+      expect(isKnownWorkspaceModule("hr", "not-a-module")).toBe(false);
+      expect(isKnownWorkspaceModule("executive", "not-a-module")).toBe(false);
+      expect(isKnownWorkspaceModule("property", "random")).toBe(false);
+      expect(isKnownWorkspaceModule("unknown-ws", "tasks")).toBe(false);
+    });
+
+    it("validates known IT GENESIS submodules and rejects arbitrary submodules", () => {
+      expect(isKnownGenesisSubmodule("agents")).toBe(true);
+      expect(isKnownGenesisSubmodule("skills")).toBe(true);
+      expect(isKnownGenesisSubmodule("research")).toBe(true);
+      expect(isKnownGenesisSubmodule("models-tools")).toBe(true);
+
+      expect(isKnownGenesisSubmodule("not-a-module")).toBe(false);
+      expect(isKnownGenesisSubmodule("random")).toBe(false);
+      expect(isKnownGenesisSubmodule("admin")).toBe(false);
+    });
+
+    it("validates known IT Governance submodules and rejects arbitrary submodules", () => {
+      expect(isKnownGovernanceSubmodule("evidence")).toBe(true);
+      expect(isKnownGovernanceSubmodule("uat")).toBe(true);
+      expect(isKnownGovernanceSubmodule("decisions")).toBe(true);
+
+      expect(isKnownGovernanceSubmodule("not-a-module")).toBe(false);
+      expect(isKnownGovernanceSubmodule("random")).toBe(false);
+      expect(isKnownGovernanceSubmodule("approvals")).toBe(false);
+    });
+  });
+
+  describe("I. Workspace Navigation Fail-Closed Context Protection", () => {
+    it("never defaults unknown workspace context to Finance", () => {
+      const unknownIdentity: WorkspaceShellIdentity = {
+        workspaceId: "ws_unknown_99",
+        workspaceKey: "unknown_workspace",
+        workspaceLabel: "Unknown Workspace",
+        roleLabel: "Guest",
+        divisionCode: null,
+      };
+      const actor: SessionActor = {
+        user_id: "usr_guest",
+        organization_id: "org_andara",
+        roles: ["WORKSPACE_MEMBER"],
+        division_codes: [],
+        workspace_ids: ["ws_unknown_99"],
+        issued_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 86400000).toISOString(),
+      };
+
+      const navItems = projectWorkspaceNavigation(unknownIdentity, actor);
+
+      // Must NOT contain Finance-specific items
+      const financeKeys = ["cash", "receivables", "payables", "budget", "reconciliation", "tax", "close"];
+      navItems.forEach((item) => {
+        expect(financeKeys).not.toContain(item.key);
+      });
+
+      // Must fail closed to safe resolver overview
+      const overviewItem = navItems.find((item) => item.key === "overview");
+      expect(overviewItem).toBeDefined();
     });
   });
 });

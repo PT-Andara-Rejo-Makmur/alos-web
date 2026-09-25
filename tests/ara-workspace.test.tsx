@@ -5,7 +5,6 @@ import * as api from "@/lib/api";
 import type { Workspace } from "@/features/session";
 import {
   AraWorkspace,
-  AraWorkspacePage,
   AraConversationList,
   AraChatThread,
   AraContextInspector,
@@ -19,9 +18,9 @@ import {
   normalizeCitations,
   normalizeToolActivity,
   parseActionProposals,
-  DEFAULT_ARA_ROUTE_ADAPTER,
   COMPATIBILITY_ARA_ROUTE_ADAPTER,
 } from "@/features/ara-workspace";
+import { ContextualWorkspaceModulePage } from "@/features/workspace-shell";
 import type { WorkspaceShellIdentity } from "@/features/workspace-shell/types";
 import { canonicalPrincipal } from "./helpers/canonical-session";
 
@@ -99,11 +98,11 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
     cleanup();
   });
 
-  // 1. /workspace/ara requires authenticated active workspace
-  it("1. /workspace/ara mengalihkan ke /login jika pengguna tidak terautentikasi (401)", async () => {
+  // 1. Canonical contextual ARA requires authenticated active workspace
+  it("1. canonical contextual ARA mengalihkan ke /login jika pengguna tidak terautentikasi (401)", async () => {
     vi.spyOn(api, "sessionApiRequest").mockRejectedValue(new api.ApiError(401, "Unauthorized", null));
 
-    render(<AraWorkspacePage basePath="/workspace/ara" />);
+    render(<ContextualWorkspaceModulePage workspaceKey="finance" module="ara" />);
 
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith("/login");
@@ -121,27 +120,27 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
     expect(result.needsInfoReason).toContain("Akun Anda memiliki akses ke beberapa workspace");
   });
 
-  // 3. Missing active workspace -> resolver/NEEDS_INFO
-  it("3. workspace aktif yang belum dipilih merender controlled state NEEDS_INFO", async () => {
+  // 3. Missing active workspace -> resolver/access boundary
+  it("3. workspace aktif yang belum dipilih merender controlled state boundary", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
       authenticated: true,
       principal: { ...canonicalPrincipal({ actorId: sampleActor.user_id, divisionCode: "FINANCE", workspaceId: "ws_finance_01", workspaceKey: "finance", workspaceName: "Finance Workspace", roles: ["EXECUTIVE"], allWorkspaceIds: ["ws_finance_01", "ws_property_01"] }), active_workspace: null },
     });
     vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue(sampleWorkspaces as never);
 
-    render(<AraWorkspacePage basePath="/workspace/ara" />);
+    render(<ContextualWorkspaceModulePage workspaceKey="finance" module="ara" />);
 
     await waitFor(() => {
-      expect(screen.getByText("Workspace Aktif Belum Dipilih")).toBeInTheDocument();
+      expect(screen.getByText("Bukan Otoritas Finance")).toBeInTheDocument();
     });
-    expect(screen.getByText(/Kembali ke Pemilih Workspace/i)).toBeInTheDocument();
+    expect(screen.getByText(/Kembali ke Ruang Kerja Saya/i)).toBeInTheDocument();
   });
 
   // 4. ARA conversation selection does not navigate to /genesis
   it("4. pemilihan percakapan ARA tidak menavigasi ke /genesis", () => {
-    const adapter = createAraRouteAdapter("/workspace/ara");
+    const adapter = createAraRouteAdapter("/workspace/finance/ara");
     const targetUrl = adapter.conversationUrl("conv_789");
-    expect(targetUrl).toBe("/workspace/ara?conversation=conv_789");
+    expect(targetUrl).toBe("/workspace/finance/ara?conversation=conv_789");
     expect(targetUrl).not.toContain("/genesis");
 
     const replaceStateSpy = vi.spyOn(window.history, "replaceState").mockImplementation(() => {});
@@ -395,7 +394,7 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
       <AraWorkspace
         actor={sampleActor}
         activeWorkspace={sampleWorkspaceIdentity}
-        routeAdapter={DEFAULT_ARA_ROUTE_ADAPTER}
+        routeAdapter={createAraRouteAdapter("/workspace/finance/ara")}
       />,
     );
 
@@ -429,7 +428,7 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
       <AraWorkspace
         actor={sampleActor}
         activeWorkspace={sampleWorkspaceIdentity}
-        routeAdapter={DEFAULT_ARA_ROUTE_ADAPTER}
+        routeAdapter={createAraRouteAdapter("/workspace/finance/ara")}
       />,
     );
 
@@ -463,7 +462,7 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
   });
 
   // 22. Workspace Shell reused
-  it("22. AraWorkspacePage dibungkus dalam WorkspaceShell dengan activeNavKey='ara'", async () => {
+  it("22. Contextual ARA dibungkus dalam WorkspaceShell dengan activeNavKey='ara'", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
       authenticated: true,
       principal: canonicalPrincipal({ actorId: sampleActor.user_id, divisionCode: "FINANCE", workspaceId: "ws_finance_01", workspaceKey: "finance", workspaceName: "Finance Workspace", roles: ["EXECUTIVE"] }),
@@ -472,7 +471,7 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
       path === "/api/v1/workspaces" ? [sampleWorkspaces[0]] as never : [] as never,
     );
 
-    render(<AraWorkspacePage basePath="/workspace/ara" />);
+    render(<ContextualWorkspaceModulePage workspaceKey="finance" module="ara" />);
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: "ARA Workspace", level: 1 })).toBeInTheDocument();
@@ -489,7 +488,7 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
       <AraWorkspace
         actor={sampleActor}
         activeWorkspace={sampleWorkspaceIdentity}
-        routeAdapter={DEFAULT_ARA_ROUTE_ADAPTER}
+        routeAdapter={createAraRouteAdapter("/workspace/finance/ara")}
       />,
     );
 
@@ -508,7 +507,9 @@ describe("ARA Workspace (Human + AI ALOS)", () => {
 
   // 24. Lint and build compliant
   it("24. seluruh subkomponen ARA merender struktur informasi yang konsisten", () => {
-    expect(DEFAULT_ARA_ROUTE_ADAPTER.basePath).toBe("/workspace/ara");
+    const canonicalAdapter = createAraRouteAdapter("/workspace/finance/ara");
+    expect(canonicalAdapter.basePath).toBe("/workspace/finance/ara");
+    expect(canonicalAdapter.conversationUrl("c1")).toBe("/workspace/finance/ara?conversation=c1");
     expect(COMPATIBILITY_ARA_ROUTE_ADAPTER.basePath).toBe("/ara");
   });
 });

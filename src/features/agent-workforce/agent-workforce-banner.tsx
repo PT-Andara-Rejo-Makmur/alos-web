@@ -3,7 +3,11 @@ import { ArrowRight } from "lucide-react";
 
 import styles from "./agent-workforce.module.css";
 
-export function AgentWorkforceBanner() {
+interface AgentWorkforceBannerProps {
+  readonly araHref?: string;
+}
+
+export function AgentWorkforceBanner({ araHref = "/workspace" }: AgentWorkforceBannerProps) {
   return (
     <section className={styles.boundaryBanner} aria-label="Informasi Ruang Lingkup Workforce">
       <div className={styles.bannerContent}>
@@ -13,7 +17,7 @@ export function AgentWorkforceBanner() {
         </p>
       </div>
       <Link
-        href="/workspace/ara"
+        href={araHref}
         className={styles.bannerCta}
         aria-label="Buka ARA untuk bekerja dengan agent"
       >

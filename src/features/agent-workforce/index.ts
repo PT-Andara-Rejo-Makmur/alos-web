@@ -7,4 +7,3 @@ export * from "./agent-workforce-list";
 export * from "./agent-workforce-activity";
 export * from "./agent-workforce-authority";
 export * from "./agent-workforce";
-export * from "./agent-workforce-page";

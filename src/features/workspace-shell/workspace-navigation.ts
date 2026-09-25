@@ -87,7 +87,6 @@ import {
   getWorkspaceAgentsRoute,
   getGenesisRoute,
   getGovernanceRoute,
-  type CanonicalWorkspaceKey,
 } from "@/features/workspace-routing";
 import type {
   WorkspaceIconKey,
@@ -585,60 +584,64 @@ export function projectWorkspaceNavigation(
   }
 
   // Finance Workspace specific IA
-  const canonicalKey: CanonicalWorkspaceKey = isFinance ? "finance" : "finance";
+  if (isFinance) {
+    items.push(
+      { key: "cash", label: "Cash & Bank", href: "/workspace/finance/cash", icon: "Landmark", group: "KEUANGAN", available: false },
+      { key: "receivables", label: "Receivables", href: "/workspace/finance/receivables", icon: "CircleDollarSign", group: "KEUANGAN", available: false },
+      { key: "payables", label: "Payables", href: "/workspace/finance/payables", icon: "ReceiptText", group: "KEUANGAN", available: false },
+      { key: "budget", label: "Budget", href: "/workspace/finance/budget", icon: "ChartNoAxesCombined", group: "KEUANGAN", available: false },
+      { key: "reconciliation", label: "Reconciliation", href: "/workspace/finance/reconciliation", icon: "RefreshCcw", group: "KEUANGAN", available: false },
+      { key: "tax", label: "Tax", href: "/workspace/finance/tax", icon: "FileCheck2", group: "COMPLIANCE", available: false },
+      { key: "close", label: "Month Close", href: "/workspace/finance/month-close", icon: "CalendarCheck2", group: "COMPLIANCE", available: false },
+    );
 
-  items.push(
-    { key: "cash", label: "Cash & Bank", href: "/workspace/finance/cash", icon: "Landmark", group: "KEUANGAN", available: false },
-    { key: "receivables", label: "Receivables", href: "/workspace/finance/receivables", icon: "CircleDollarSign", group: "KEUANGAN", available: false },
-    { key: "payables", label: "Payables", href: "/workspace/finance/payables", icon: "ReceiptText", group: "KEUANGAN", available: false },
-    { key: "budget", label: "Budget", href: "/workspace/finance/budget", icon: "ChartNoAxesCombined", group: "KEUANGAN", available: false },
-    { key: "reconciliation", label: "Reconciliation", href: "/workspace/finance/reconciliation", icon: "RefreshCcw", group: "KEUANGAN", available: false },
-    { key: "tax", label: "Tax", href: "/workspace/finance/tax", icon: "FileCheck2", group: "COMPLIANCE", available: false },
-    { key: "close", label: "Month Close", href: "/workspace/finance/month-close", icon: "CalendarCheck2", group: "COMPLIANCE", available: false },
-  );
+    // Group: PEKERJAAN (Cross-functional work modules)
+    items.push(
+      { key: "projects", label: "Proyek", href: getWorkspaceModuleRoute("finance", "projects"), icon: "BriefcaseBusiness", group: "PEKERJAAN", available: true },
+      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("finance", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
+      { key: "approvals", label: "Approval", href: getWorkspaceModuleRoute("finance", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
+      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("finance", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
+      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("finance", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "findings", label: "Temuan", href: getWorkspaceModuleRoute("finance", "findings"), icon: "TriangleAlert", group: "PEKERJAAN", available: true },
+    );
 
-  // Group: PEKERJAAN (Cross-functional work modules)
-  items.push(
-    { key: "projects", label: "Proyek", href: getWorkspaceModuleRoute(canonicalKey, "projects"), icon: "BriefcaseBusiness", group: "PEKERJAAN", available: true },
-    { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute(canonicalKey, "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
-    { key: "approvals", label: "Approval", href: getWorkspaceModuleRoute(canonicalKey, "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-    { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute(canonicalKey, "documents"), icon: "Files", group: "PEKERJAAN", available: true },
-    { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute(canonicalKey, "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
-    { key: "findings", label: "Temuan", href: getWorkspaceModuleRoute(canonicalKey, "findings"), icon: "TriangleAlert", group: "PEKERJAAN", available: true },
-  );
-
-  // Group: AI
-  items.push({
-    key: "ara",
-    label: "ARA",
-    href: getWorkspaceAraRoute(canonicalKey),
-    icon: "Sparkles",
-    group: "AI",
-    available: true,
-  });
-
-  if (canSeeAgents(roles)) {
+    // Group: AI
     items.push({
-      key: "agents",
-      label: "Agent Workforce",
-      href: getWorkspaceAgentsRoute(canonicalKey),
-      icon: "Bot",
+      key: "ara",
+      label: "ARA",
+      href: getWorkspaceAraRoute("finance"),
+      icon: "Sparkles",
       group: "AI",
       available: true,
     });
+
+    if (canSeeAgents(roles)) {
+      items.push({
+        key: "agents",
+        label: "Agent Workforce",
+        href: getWorkspaceAgentsRoute("finance"),
+        icon: "Bot",
+        group: "AI",
+        available: true,
+      });
+    }
+
+    // Group: CONTROL / GOVERNANCE
+    if (isGovernanceNavigationVisible(roles)) {
+      items.push({
+        key: "governance",
+        label: "Governance & Agent Control",
+        href: getGovernanceRoute(),
+        icon: "ShieldCheck",
+        group: "CONTROL",
+        available: true,
+      });
+    }
+
+    return items.map(buildNavItem);
   }
 
-  // Group: CONTROL / GOVERNANCE
-  if (isGovernanceNavigationVisible(roles)) {
-    items.push({
-      key: "governance",
-      label: "Governance & Agent Control",
-      href: getGovernanceRoute(),
-      icon: "ShieldCheck",
-      group: "CONTROL",
-      available: true,
-    });
-  }
-
+  // Unknown/unrecognized workspace context: fail closed to safe resolver navigation.
+  // Never default authority or context to Finance.
   return items.map(buildNavItem);
 }

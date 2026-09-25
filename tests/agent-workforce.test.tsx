@@ -7,7 +7,6 @@ import type { SessionActor, Workspace } from "@/features/session";
 import type { GenesisActiveAgent } from "@/features/genesis-workspace/types";
 import {
   AgentWorkforce,
-  AgentWorkforcePage,
   AgentWorkforceBanner,
   AgentWorkforceSummary,
   AgentWorkforceCard,
@@ -20,9 +19,11 @@ import {
   canActorAccessGenesis,
   formatRunTimestamp,
 } from "@/features/agent-workforce";
+import { ContextualWorkspaceModulePage } from "@/features/workspace-shell";
 import type { BusinessAgentWorkforceItem } from "@/features/agent-workforce";
 import type { WorkspaceShellIdentity } from "@/features/workspace-shell/types";
 import { projectWorkspaceNavigation } from "@/features/workspace-shell/workspace-navigation";
+import { canonicalPrincipal } from "./helpers/canonical-session";
 
 // Mock next/navigation
 const mockPush = vi.fn();
@@ -271,8 +272,8 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
     expect(screen.getByRole("link", { name: /gunakan kapabilitas finance agent via ara/i })).toBeInTheDocument();
   });
 
-  // Test 10: CTA Gunakan via ARA navigates to /workspace/ara
-  it("links Gunakan via ARA to /workspace/ara", () => {
+  // Test 10: CTA Gunakan via ARA navigates to contextual workspace ARA route
+  it("links Gunakan via ARA to contextual /workspace/{workspaceKey}/ara", () => {
     const item: BusinessAgentWorkforceItem = {
       agentKey: "finance-agent",
       name: "Finance Agent",
@@ -285,9 +286,9 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
       humanReviewRequired: true,
     };
 
-    render(<AgentWorkforceCard item={item} />);
+    render(<AgentWorkforceCard item={item} araHref="/workspace/finance/ara" />);
     const araLink = screen.getByRole("link", { name: /gunakan kapabilitas finance agent via ara/i });
-    expect(araLink).toHaveAttribute("href", "/workspace/ara");
+    expect(araLink).toHaveAttribute("href", "/workspace/finance/ara");
   });
 
   // Test 11: Gunakan via ARA triggers custom callback if provided
@@ -396,15 +397,15 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
   });
 
   // Test 18: AgentWorkforceBanner renders with deep link to ARA
-  it("renders AgentWorkforceBanner with link to /workspace/ara", () => {
-    render(<AgentWorkforceBanner />);
+  it("renders AgentWorkforceBanner with contextual link to /workspace/{workspaceKey}/ara", () => {
+    render(<AgentWorkforceBanner araHref="/workspace/finance/ara" />);
     expect(screen.getByText("BUSINESS-FACING WORKFORCE")).toBeInTheDocument();
     const link = screen.getByRole("link", { name: /buka ara untuk bekerja dengan agent/i });
-    expect(link).toHaveAttribute("href", "/workspace/ara");
+    expect(link).toHaveAttribute("href", "/workspace/finance/ara");
   });
 
   // Test 19: Full AgentWorkforce component loads and renders agents and activity
-  it("renders full AgentWorkforce component with loaded data", async () => {
+  it("renders full AgentWorkforce component with loaded data and contextual ARA links", async () => {
     vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) => {
       if (path.includes("/active-agents")) return sampleGenesisAgents;
       if (path.includes("/runs")) return sampleRuns;
@@ -428,21 +429,40 @@ describe("ALOS Agent Workforce (Business-Facing View)", () => {
     });
 
     expect(screen.getByText("AI bekerja, manusia berwenang")).toBeInTheDocument();
+
+    // Verify banner link is contextual
+    const bannerLink = screen.getByRole("link", { name: /buka ara untuk bekerja dengan agent/i });
+    expect(bannerLink).toHaveAttribute("href", "/workspace/finance/ara");
   });
 
-  // Test 20: AgentWorkforcePage shows NEEDS_INFO when multi-workspace is unselected
-  it("renders NEEDS_INFO state when workspace resolution is required", async () => {
+  // Test 20: Contextual Agent Workforce shows controlled access boundary when workspace is unverified
+  it("renders controlled access boundary state when workspace resolution is required", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
+      authenticated: true,
+      principal: {
+        ...canonicalPrincipal({
+          actorId: "usr_dir_01",
+          divisionCode: "EXECUTIVE",
+          workspaceId: "ws_exec",
+          workspaceKey: "executive",
+          workspaceName: "Executive Workspace",
+          roles: ["EXECUTIVE"],
+          allWorkspaceIds: ["ws_exec", "ws_finance_01"],
+        }),
+        active_workspace: null,
+      },
+    });
     vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path: string) => {
       if (path.includes("whoami")) return sampleDirectorActor;
       if (path.includes("workspaces")) return sampleWorkspaces;
       return [];
     });
 
-    render(<AgentWorkforcePage />);
+    render(<ContextualWorkspaceModulePage workspaceKey="finance" module="agents" />);
 
     await waitFor(() => {
-      expect(screen.getByText("Workspace Aktif Belum Dipilih")).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: /kembali ke pemilih workspace/i })).toHaveAttribute(
+      expect(screen.getByText("Bukan Otoritas Finance")).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /kembali ke ruang kerja saya/i })).toHaveAttribute(
         "href",
         "/workspace",
       );

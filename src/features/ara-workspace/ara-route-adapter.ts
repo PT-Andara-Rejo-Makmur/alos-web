@@ -1,6 +1,6 @@
 import type { ConversationRouteAdapter } from "./types";
 
-export function createAraRouteAdapter(basePath: string = "/workspace/ara"): ConversationRouteAdapter {
+export function createAraRouteAdapter(basePath: string): ConversationRouteAdapter {
   const normalizedBase = basePath.endsWith("/") ? basePath.slice(0, -1) : basePath;
   return {
     basePath: normalizedBase,
@@ -10,5 +10,5 @@ export function createAraRouteAdapter(basePath: string = "/workspace/ara"): Conv
   };
 }
 
-export const DEFAULT_ARA_ROUTE_ADAPTER = createAraRouteAdapter("/workspace/ara");
 export const COMPATIBILITY_ARA_ROUTE_ADAPTER = createAraRouteAdapter("/ara");
+export const COMPATIBILITY_WORKSPACE_ARA_ROUTE_ADAPTER = createAraRouteAdapter("/workspace/ara");

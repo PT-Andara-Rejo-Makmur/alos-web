@@ -10,4 +10,3 @@ export * from "./ara-context-inspector";
 export * from "./ara-conversation-list";
 export * from "./ara-chat-thread";
 export * from "./ara-workspace";
-export * from "./ara-workspace-page";

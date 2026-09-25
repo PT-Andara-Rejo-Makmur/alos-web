@@ -6,9 +6,14 @@ import styles from "./agent-workforce.module.css";
 interface AgentWorkforceCardProps {
   readonly item: BusinessAgentWorkforceItem;
   readonly onUseViaAra?: (agent: BusinessAgentWorkforceItem) => void;
+  readonly araHref?: string;
 }
 
-export function AgentWorkforceCard({ item, onUseViaAra }: AgentWorkforceCardProps) {
+export function AgentWorkforceCard({
+  item,
+  onUseViaAra,
+  araHref = "/workspace",
+}: AgentWorkforceCardProps) {
   const headingId = `agent-title-${item.agentKey}`;
 
   // Safe capability display label
@@ -51,7 +56,7 @@ export function AgentWorkforceCard({ item, onUseViaAra }: AgentWorkforceCardProp
           </button>
         ) : (
           <Link
-            href="/workspace/ara"
+            href={araHref}
             className={styles.useAraButton}
             aria-label={`Gunakan kapabilitas ${item.name} via ARA`}
           >

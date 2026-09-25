@@ -1,13 +1,14 @@
 "use client";
 
 import { use } from "react";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
 import { SharedResearchWorkspace } from "@/features/research";
 import { FactoryWorkspace } from "@/features/factory";
 import { ItReviewProjection } from "@/features/reviews/it-review-projection";
-import { getModuleReadiness } from "@/features/workspace-routing";
+import { getModuleReadiness, isKnownGenesisSubmodule } from "@/features/workspace-routing";
 
 export default function WorkspaceItGenesisSubmodulePage({
   params,
@@ -15,6 +16,10 @@ export default function WorkspaceItGenesisSubmodulePage({
   params: Promise<{ submodule: string }>;
 }) {
   const { submodule } = use(params);
+
+  if (!isKnownGenesisSubmodule(submodule)) {
+    notFound();
+  }
 
   return (
     <ProtectedDomainWorkspace

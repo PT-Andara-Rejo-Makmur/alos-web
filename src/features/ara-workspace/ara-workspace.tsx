@@ -10,7 +10,8 @@ import { AraChatThread } from "./ara-chat-thread";
 import { AraContextInspector } from "./ara-context-inspector";
 import { AraContextPicker } from "./ara-context-picker";
 import { AraConversationList } from "./ara-conversation-list";
-import { DEFAULT_ARA_ROUTE_ADAPTER } from "./ara-route-adapter";
+import { createAraRouteAdapter } from "./ara-route-adapter";
+import { getWorkspaceAraRoute } from "@/features/workspace-routing";
 import {
   loadActiveContextProjection,
   normalizeCitations,
@@ -31,10 +32,17 @@ type MobileDrawerType = "NONE" | "HISTORY" | "CONTEXT";
 
 export function AraWorkspace({
   activeWorkspace,
-  routeAdapter = DEFAULT_ARA_ROUTE_ADAPTER,
+  routeAdapter,
   initialConversationId,
   initialQuery = "",
 }: AraWorkspaceProps) {
+  const resolvedAdapter =
+    routeAdapter ??
+    createAraRouteAdapter(
+      activeWorkspace.workspaceKey
+        ? getWorkspaceAraRoute(activeWorkspace.workspaceKey)
+        : "/workspace",
+    );
   const [conversations, setConversations] = useState<readonly AraConversation[]>([]);
   const [conversationId, setConversationId] = useState<string>(initialConversationId || "");
   const [messages, setMessages] = useState<readonly AraMessage[]>([]);
@@ -169,7 +177,7 @@ export function AraWorkspace({
     if (nextId === conversationId) return;
     setConversationId(nextId);
     if (typeof window !== "undefined") {
-      window.history.replaceState(null, "", routeAdapter.conversationUrl(nextId));
+      window.history.replaceState(null, "", resolvedAdapter.conversationUrl(nextId));
     }
   }
 
@@ -193,7 +201,7 @@ export function AraWorkspace({
         window.history.replaceState(
           null,
           "",
-          routeAdapter.conversationUrl(created.conversation_id),
+          resolvedAdapter.conversationUrl(created.conversation_id),
         );
       }
     } catch (err) {
@@ -220,9 +228,9 @@ export function AraWorkspace({
         setConversationId(nextId);
         if (typeof window !== "undefined") {
           if (nextId) {
-            window.history.replaceState(null, "", routeAdapter.conversationUrl(nextId));
+            window.history.replaceState(null, "", resolvedAdapter.conversationUrl(nextId));
           } else {
-            window.history.replaceState(null, "", routeAdapter.basePath);
+            window.history.replaceState(null, "", resolvedAdapter.basePath);
           }
         }
       }
@@ -256,7 +264,7 @@ export function AraWorkspace({
           window.history.replaceState(
             null,
             "",
-            routeAdapter.conversationUrl(created.conversation_id),
+            resolvedAdapter.conversationUrl(created.conversation_id),
           );
         }
       }
@@ -441,7 +449,7 @@ export function AraWorkspace({
           onSelectConversation={handleSelectConversation}
           onNewConversation={handleNewConversation}
           onDeleteConversation={handleDeleteConversation}
-          routeAdapter={routeAdapter}
+          routeAdapter={resolvedAdapter}
           isCreating={isCreatingConv}
         />
 
@@ -492,7 +500,7 @@ export function AraWorkspace({
               onSelectConversation={handleSelectConversation}
               onNewConversation={handleNewConversation}
               onDeleteConversation={handleDeleteConversation}
-              routeAdapter={routeAdapter}
+              routeAdapter={resolvedAdapter}
               isCreating={isCreatingConv}
               isMobileDrawer={true}
               onCloseDrawer={() => setMobileDrawer("NONE")}
