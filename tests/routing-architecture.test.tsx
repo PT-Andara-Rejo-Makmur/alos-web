@@ -46,6 +46,9 @@ describe("ALOS Workspace-Centric Routing Architecture", () => {
   describe("A. Canonical Route Generation", () => {
     it("generates canonical routes for Finance", () => {
       expect(getWorkspaceModuleRoute("finance", "tasks")).toBe("/workspace/finance/tasks");
+      expect(getWorkspaceModuleRoute("finance", "month-close")).toBe("/workspace/finance/month-close");
+      // Key mapping compatibility: internal key "close" maps to canonical slug "month-close"
+      expect(getWorkspaceModuleRoute("finance", "close")).toBe("/workspace/finance/month-close");
       expect(getWorkspaceAraRoute("finance")).toBe("/workspace/finance/ara");
       expect(getWorkspaceAgentsRoute("finance")).toBe("/workspace/finance/agents");
     });
@@ -85,8 +88,34 @@ describe("ALOS Workspace-Centric Routing Architecture", () => {
       expect(getWorkspaceAgentsRoute("sales")).toBe("/workspace/sales/agents");
 
       expect(getWorkspaceModuleRoute("property", "tasks")).toBe("/workspace/property/tasks");
+      expect(getWorkspaceModuleRoute("property", "payment-certificates")).toBe(
+        "/workspace/property/payment-certificates",
+      );
+      // Key mapping compatibility: internal key "payment-certs" maps to canonical slug "payment-certificates"
+      expect(getWorkspaceModuleRoute("property", "payment-certs")).toBe(
+        "/workspace/property/payment-certificates",
+      );
       expect(getWorkspaceAraRoute("property")).toBe("/workspace/property/ara");
       expect(getWorkspaceAgentsRoute("property")).toBe("/workspace/property/agents");
+    });
+
+    it("fails closed and never produces arbitrary canonical routes", () => {
+      // Invalid or non-canonical modules fail closed to /workspace
+      expect(getWorkspaceModuleRoute("finance", "random")).toBe("/workspace");
+      expect(getWorkspaceModuleRoute("finance", "overview")).toBe("/workspace");
+      expect(getWorkspaceModuleRoute("hr", "overview")).toBe("/workspace");
+      expect(getWorkspaceModuleRoute("it", "agents")).toBe("/workspace");
+      expect(getWorkspaceModuleRoute("it", "register-user")).toBe("/workspace");
+      expect(getWorkspaceModuleRoute("executive", "governance")).toBe("/workspace");
+      expect(getWorkspaceModuleRoute("finance", "governance")).toBe("/workspace");
+
+      // Invalid GENESIS subpaths fail closed to canonical GENESIS root
+      expect(getGenesisRoute("random")).toBe("/workspace/it/genesis");
+      expect(getGenesisRoute("models")).toBe("/workspace/it/genesis");
+
+      // Invalid Governance subpaths fail closed to canonical Governance root
+      expect(getGovernanceRoute("random")).toBe("/workspace/it/governance");
+      expect(getGovernanceRoute("audit")).toBe("/workspace/it/governance");
     });
   });
 
@@ -291,14 +320,27 @@ describe("ALOS Workspace-Centric Routing Architecture", () => {
 
   describe("H. Dynamic Module & Submodule Allowlist Validation", () => {
     it("validates known workspace modules and rejects unknown arbitrary modules", () => {
-      // Known modules pass
+      // Known canonical modules pass
       expect(isKnownWorkspaceModule("finance", "tasks")).toBe(true);
       expect(isKnownWorkspaceModule("finance", "month-close")).toBe(true);
-      expect(isKnownWorkspaceModule("finance", "close")).toBe(true);
       expect(isKnownWorkspaceModule("hr", "employees")).toBe(true);
       expect(isKnownWorkspaceModule("executive", "divisions")).toBe(true);
-      expect(isKnownWorkspaceModule("property", "payment-certs")).toBe(true);
+      expect(isKnownWorkspaceModule("property", "payment-certificates")).toBe(true);
       expect(isKnownWorkspaceModule("it", "systems")).toBe(true);
+      expect(isKnownWorkspaceModule("it", "users")).toBe(true);
+
+      // Ghost aliases and legacy keys are rejected from canonical allowlist
+      expect(isKnownWorkspaceModule("finance", "close")).toBe(false);
+      expect(isKnownWorkspaceModule("property", "payment-certs")).toBe(false);
+      expect(isKnownWorkspaceModule("executive", "governance")).toBe(false);
+      expect(isKnownWorkspaceModule("finance", "governance")).toBe(false);
+      expect(isKnownWorkspaceModule("it", "agents")).toBe(false);
+      expect(isKnownWorkspaceModule("it", "register-user")).toBe(false);
+
+      // Root overview is not a dynamic module and must be rejected across all workspaces
+      CANONICAL_WORKSPACE_KEYS.forEach((key) => {
+        expect(isKnownWorkspaceModule(key, "overview")).toBe(false);
+      });
 
       // Unknown modules are rejected
       expect(isKnownWorkspaceModule("finance", "not-a-module")).toBe(false);
@@ -315,6 +357,8 @@ describe("ALOS Workspace-Centric Routing Architecture", () => {
       expect(isKnownGenesisSubmodule("research")).toBe(true);
       expect(isKnownGenesisSubmodule("models-tools")).toBe(true);
 
+      // Legacy/ghost submodule 'models' is rejected
+      expect(isKnownGenesisSubmodule("models")).toBe(false);
       expect(isKnownGenesisSubmodule("not-a-module")).toBe(false);
       expect(isKnownGenesisSubmodule("random")).toBe(false);
       expect(isKnownGenesisSubmodule("admin")).toBe(false);

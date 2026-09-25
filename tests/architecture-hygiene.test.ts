@@ -81,4 +81,22 @@ describe("production architecture hygiene", () => {
 
     expect(offenders).toEqual([]);
   });
+
+  it("rejects ghost canonical route links in internal production code", () => {
+    const ghostRoutePatterns = [
+      /["']\/workspace\/[a-zA-Z0-9_-]+\/overview["']/,
+      /["']\/workspace\/it\/agents["']/,
+      /["']\/workspace\/it\/register-user["']/,
+      /["']\/workspace\/it\/genesis\/models(?![a-zA-Z0-9_-])["']/,
+      /["']\/workspace\/property\/payment-certs(?![a-zA-Z0-9_-])["']/,
+    ];
+
+    const offenders = productionFiles().flatMap((path) => {
+      const relPath = relative(process.cwd(), path).replaceAll("\\", "/");
+      const content = readFileSync(path, "utf8");
+      return ghostRoutePatterns.some((pattern) => pattern.test(content)) ? [relPath] : [];
+    });
+
+    expect(offenders).toEqual([]);
+  });
 });

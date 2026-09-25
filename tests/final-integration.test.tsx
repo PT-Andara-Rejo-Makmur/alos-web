@@ -103,12 +103,18 @@ afterEach(() => {
 
     it("generates canonical contextual routes for shared work, ARA, and agents", () => {
       expect(getWorkspaceModuleRoute("finance", "tasks")).toBe("/workspace/finance/tasks");
-      expect(getWorkspaceModuleRoute("hr", "projects")).toBe("/workspace/hr/projects");
+      expect(getWorkspaceModuleRoute("hr", "tasks")).toBe("/workspace/hr/tasks");
+      expect(getWorkspaceModuleRoute("property", "projects")).toBe("/workspace/property/projects");
+      expect(getWorkspaceModuleRoute("finance", "month-close")).toBe("/workspace/finance/month-close");
+      expect(getWorkspaceModuleRoute("property", "payment-certificates")).toBe(
+        "/workspace/property/payment-certificates",
+      );
       expect(getWorkspaceAraRoute("finance")).toBe("/workspace/finance/ara");
       expect(getWorkspaceAgentsRoute("finance")).toBe("/workspace/finance/agents");
       expect(getWorkspaceAgentsRoute("it")).toBe("/workspace/it/genesis/agents");
       expect(getGenesisRoute()).toBe("/workspace/it/genesis");
       expect(getGenesisRoute("agents")).toBe("/workspace/it/genesis/agents");
+      expect(getGenesisRoute("models-tools")).toBe("/workspace/it/genesis/models-tools");
       expect(getGovernanceRoute()).toBe("/workspace/it/governance");
     });
 

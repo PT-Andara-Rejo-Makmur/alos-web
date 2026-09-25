@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { notFound, useRouter } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 
@@ -86,19 +85,11 @@ export function ContextualWorkspaceModulePage({
   workspaceKey,
   module,
 }: ContextualWorkspaceModulePageProps) {
-  const router = useRouter();
-
   if (!isKnownWorkspaceModule(workspaceKey, module)) {
     notFound();
   }
 
   const config = WORKSPACE_AUTHORITY_CONFIG[workspaceKey];
-
-  useEffect(() => {
-    if (workspaceKey === "finance" && module === "close") {
-      router.replace("/workspace/finance/month-close");
-    }
-  }, [module, router, workspaceKey]);
 
   return (
     <ProtectedDomainWorkspace
@@ -122,63 +113,6 @@ export function ContextualWorkspaceModulePage({
 
         // 2. Business Agent Workforce Contextual
         if (module === "agents") {
-          if (workspaceKey === "it") {
-            return (
-              <section
-                className="panel workspace-panel"
-                role="status"
-                style={{ padding: "2rem", maxWidth: "680px", margin: "2rem auto", textAlign: "center" }}
-              >
-                <h2>GENESIS Technical Agents</h2>
-                <p style={{ color: "#6b7280", margin: "1rem 0" }}>
-                  Manajemen agen teknis dan control plane IT berada pada sub-area GENESIS.
-                </p>
-                <Link
-                  href="/workspace/it/genesis/agents"
-                  style={{
-                    display: "inline-block",
-                    padding: "8px 16px",
-                    background: "#141619",
-                    color: "#ffffff",
-                    borderRadius: "6px",
-                    textDecoration: "none",
-                    fontWeight: 600,
-                  }}
-                >
-                  Buka GENESIS Agents →
-                </Link>
-              </section>
-            );
-          }
-          if (workspaceKey === "executive") {
-            return (
-              <section
-                className="panel workspace-panel"
-                role="status"
-                style={{ padding: "2rem", maxWidth: "680px", margin: "2rem auto", textAlign: "center" }}
-              >
-                <h2>Executive Command Center</h2>
-                <p style={{ color: "#6b7280" }}>
-                  Tingkat Eksekutif berfokus pada supervisi dan keputusan material; Business Agent Workforce beroperasi di tingkat divisi masing-masing.
-                </p>
-                <Link
-                  href="/workspace/executive"
-                  style={{
-                    display: "inline-block",
-                    marginTop: "1rem",
-                    padding: "8px 16px",
-                    background: "#141619",
-                    color: "#ffffff",
-                    borderRadius: "6px",
-                    textDecoration: "none",
-                    fontWeight: 600,
-                  }}
-                >
-                  Kembali ke Executive Overview →
-                </Link>
-              </section>
-            );
-          }
           return (
             <AgentWorkforce
               activeWorkspace={identity}
