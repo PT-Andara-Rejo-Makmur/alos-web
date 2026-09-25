@@ -58,6 +58,8 @@ export function ProtectedDomainWorkspace({
 
   useEffect(() => {
     const controller = new AbortController();
+    const allowedDivisionCodes = divisionCodeKey.split(",");
+    const allowedWorkspaceKeys = workspaceKeyKey.split(",");
     async function load() {
       setState("LOADING");
       try {
@@ -65,9 +67,9 @@ export function ProtectedDomainWorkspace({
         const activeWorkspace = context.activeWorkspace;
         setAvailableWorkspaceCount("actor" in context.principal ? context.principal.workspace_access.length : 1);
         const routeMatches = activeWorkspace !== null && (
-          workspaceKeys.includes(activeWorkspace.workspace_key.toLowerCase()) ||
+          allowedWorkspaceKeys.includes(activeWorkspace.workspace_key.toLowerCase()) ||
           (activeWorkspace.division_code !== null &&
-            divisionCodes.includes(activeWorkspace.division_code.toUpperCase()))
+            allowedDivisionCodes.includes(activeWorkspace.division_code.toUpperCase()))
         );
         if (!activeWorkspace || !routeMatches) {
           setActor(context.actor);
