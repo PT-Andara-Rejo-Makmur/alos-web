@@ -4,3 +4,4 @@ export * from "./compatibility-routes";
 export * from "./module-readiness";
 export * from "./dashboard-modules";
 export { DependencyBoundary } from "./dependency-boundary";
+export { LegacyCompatibilityRedirect } from "./legacy-compatibility-redirect";

@@ -1,5 +1,5 @@
-import { DirectorWorkspace } from "@/experiences/director/workspace";
+import { LegacyCompatibilityRedirect } from "@/features/workspace-routing";
 
 export default function DirectorPage() {
-  return <DirectorWorkspace />;
+  return <LegacyCompatibilityRedirect targetPath="/director" />;
 }

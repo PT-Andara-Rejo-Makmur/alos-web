@@ -7,6 +7,12 @@ import {
   WORKSPACE_ROUTES,
   COMPATIBILITY_ROUTES,
   getModuleReadiness,
+  getWorkspaceRoot,
+  getWorkspaceModuleRoute,
+  getWorkspaceAraRoute,
+  getWorkspaceAgentsRoute,
+  getGenesisRoute,
+  getGovernanceRoute,
 } from "@/features/workspace-routing";
 import {
   projectWorkspaceNavigation,
@@ -83,16 +89,8 @@ afterEach(() => {
   };
 
   describe("1. Centralized Routing & Canonical Routes", () => {
-    it("defines canonical /workspace/* routes for all 6 shared modules", () => {
-      expect(WORKSPACE_ROUTES.projects).toBe("/workspace/projects");
-      expect(WORKSPACE_ROUTES.tasks).toBe("/workspace/tasks");
-      expect(WORKSPACE_ROUTES.approvals).toBe("/workspace/approvals");
-      expect(WORKSPACE_ROUTES.documents).toBe("/workspace/documents");
-      expect(WORKSPACE_ROUTES.reports).toBe("/workspace/reports");
-      expect(WORKSPACE_ROUTES.findings).toBe("/workspace/findings");
-    });
-
-    it("defines canonical routes for workspaces and AI tools", () => {
+    it("defines canonical workspace roots for all 7 workspaces and resolver", () => {
+      expect(WORKSPACE_ROUTES.resolver).toBe("/workspace");
       expect(WORKSPACE_ROUTES.executive).toBe("/workspace/executive");
       expect(WORKSPACE_ROUTES.finance).toBe("/workspace/finance");
       expect(WORKSPACE_ROUTES.property).toBe("/workspace/property");
@@ -100,22 +98,32 @@ afterEach(() => {
       expect(WORKSPACE_ROUTES.hr).toBe("/workspace/hr");
       expect(WORKSPACE_ROUTES.legal).toBe("/workspace/legal");
       expect(WORKSPACE_ROUTES.it).toBe("/workspace/it");
-      expect(WORKSPACE_ROUTES.ara).toBe("/workspace/ara");
-      expect(WORKSPACE_ROUTES.agents).toBe("/workspace/agents");
+      expect(getWorkspaceRoot("finance")).toBe("/workspace/finance");
+    });
+
+    it("generates canonical contextual routes for shared work, ARA, and agents", () => {
+      expect(getWorkspaceModuleRoute("finance", "tasks")).toBe("/workspace/finance/tasks");
+      expect(getWorkspaceModuleRoute("hr", "projects")).toBe("/workspace/hr/projects");
+      expect(getWorkspaceAraRoute("finance")).toBe("/workspace/finance/ara");
+      expect(getWorkspaceAgentsRoute("finance")).toBe("/workspace/finance/agents");
+      expect(getWorkspaceAgentsRoute("it")).toBe("/workspace/it/genesis/agents");
+      expect(getGenesisRoute()).toBe("/workspace/it/genesis");
+      expect(getGenesisRoute("agents")).toBe("/workspace/it/genesis/agents");
+      expect(getGovernanceRoute()).toBe("/workspace/it/governance");
     });
 
     it("preserves compatibility routes mapping", () => {
-      expect(COMPATIBILITY_ROUTES["/business/projects"]).toBe("/workspace/projects");
-      expect(COMPATIBILITY_ROUTES["/business/tasks"]).toBe("/workspace/tasks");
-      expect(COMPATIBILITY_ROUTES["/business/approvals"]).toBe("/workspace/approvals");
-      expect(COMPATIBILITY_ROUTES["/business/documents"]).toBe("/workspace/documents");
-      expect(COMPATIBILITY_ROUTES["/business/reports"]).toBe("/workspace/reports");
-      expect(COMPATIBILITY_ROUTES["/business/findings"]).toBe("/workspace/findings");
-      expect(COMPATIBILITY_ROUTES["/director"]).toBe("/workspace/executive");
-      expect(COMPATIBILITY_ROUTES["/ara"]).toBe("/workspace/ara");
-      expect(COMPATIBILITY_ROUTES["/agents"]).toBe("/workspace/agents");
-      expect(COMPATIBILITY_ROUTES["/genesis"]).toBe("/genesis");
-      expect(COMPATIBILITY_ROUTES["/governance"]).toBe("/governance");
+      expect(COMPATIBILITY_ROUTES.businessProjects).toBe("/business/projects");
+      expect(COMPATIBILITY_ROUTES.businessTasks).toBe("/business/tasks");
+      expect(COMPATIBILITY_ROUTES.businessApprovals).toBe("/business/approvals");
+      expect(COMPATIBILITY_ROUTES.businessDocuments).toBe("/business/documents");
+      expect(COMPATIBILITY_ROUTES.businessReports).toBe("/business/reports");
+      expect(COMPATIBILITY_ROUTES.businessFindings).toBe("/business/findings");
+      expect(COMPATIBILITY_ROUTES.director).toBe("/director");
+      expect(COMPATIBILITY_ROUTES.ara).toBe("/ara");
+      expect(COMPATIBILITY_ROUTES.agents).toBe("/agents");
+      expect(COMPATIBILITY_ROUTES.genesis).toBe("/genesis");
+      expect(COMPATIBILITY_ROUTES.governance).toBe("/governance");
     });
   });
 
@@ -183,7 +191,7 @@ afterEach(() => {
         })
       );
 
-      expect(html).not.toContain(`href="${WORKSPACE_ROUTES.projects}"`);
+      expect(html).not.toContain('href="/workspace/property/projects"');
 
       // Blocked items have aria-disabled="true" and "Belum tersedia" badge
       expect(html).toContain('aria-disabled="true"');

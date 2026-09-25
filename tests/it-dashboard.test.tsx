@@ -151,22 +151,22 @@ describe("ALOS IT & Technology Dashboard", () => {
     expect(within(uatCard).getByText("Release/UAT aggregate belum tersedia")).toBeInTheDocument();
   });
 
-  // 7. GENESIS links to existing /genesis
-  it("7. tombol CTA GENESIS Control Plane mengarah ke rute kanonikal /genesis", () => {
+  // 7. GENESIS links to canonical /workspace/it/genesis
+  it("7. tombol CTA GENESIS Control Plane mengarah ke rute kanonikal /workspace/it/genesis", () => {
     render(<GenesisControlPlanePanel items={DEFAULT_GENESIS_OPERATIONS} />);
 
     const genesisCta = screen.getByRole("link", { name: /Buka GENESIS Control Plane/i });
     expect(genesisCta).toBeInTheDocument();
-    expect(genesisCta).toHaveAttribute("href", "/genesis");
+    expect(genesisCta).toHaveAttribute("href", "/workspace/it/genesis");
   });
 
-  // 8. Governance links to existing /governance
-  it("8. kartu modul Governance & Audit mengarah ke portal /governance", () => {
+  // 8. Governance links to canonical /workspace/it/governance
+  it("8. kartu modul Governance & Audit mengarah ke portal /workspace/it/governance", () => {
     render(<GenesisControlPlanePanel items={DEFAULT_GENESIS_OPERATIONS} />);
 
     const governanceLink = screen.getByRole("link", { name: /Governance & Audit/i });
     expect(governanceLink).toBeInTheDocument();
-    expect(governanceLink).toHaveAttribute("href", "/governance");
+    expect(governanceLink).toHaveAttribute("href", "/workspace/it/governance");
   });
 
   // 9. Existing GENESIS Control Plane is not duplicated

@@ -62,7 +62,7 @@ describe("WorkspaceResolverPage Lifecycle States", () => {
     render(<WorkspaceResolverPage />);
 
     await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith("/director");
+      expect(mockReplace).toHaveBeenCalledWith("/workspace/executive");
     });
     expect(api.authenticatedApiRequest).toHaveBeenCalledWith(
       "/api/v1/auth/active-workspace",

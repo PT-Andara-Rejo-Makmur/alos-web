@@ -57,3 +57,22 @@ export type WorkspaceNavBlockReason =
   | "CAPABILITY_UNAVAILABLE"
   | "ROUTE_PENDING"
   | "DEPENDENCY_PENDING";
+
+export const CANONICAL_WORKSPACE_KEYS = [
+  "executive",
+  "finance",
+  "hr",
+  "legal",
+  "sales",
+  "property",
+  "it",
+] as const;
+
+export type CanonicalWorkspaceKey = (typeof CANONICAL_WORKSPACE_KEYS)[number];
+
+export function isCanonicalWorkspaceKey(value: unknown): value is CanonicalWorkspaceKey {
+  return (
+    typeof value === "string" &&
+    (CANONICAL_WORKSPACE_KEYS as readonly string[]).includes(value.toLowerCase())
+  );
+}

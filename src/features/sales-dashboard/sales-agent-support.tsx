@@ -32,7 +32,7 @@ export function SalesAgentSupport({
         ))}
       </div>
 
-      <Link className={styles.obsidianCtaButton} href="/ara">
+      <Link className={styles.obsidianCtaButton} href="/workspace/sales/ara">
         <Sparkles size={16} strokeWidth={2.2} />
         <span>Tanyakan ARA tentang Sales</span>
       </Link>

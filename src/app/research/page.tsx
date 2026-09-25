@@ -1,11 +1,5 @@
-import { ExperiencePage } from "@/components/layout/experience-page";
-import { SharedResearchWorkspace } from "@/features/research";
-import { getExperience } from "@/experiences/registry";
+import { LegacyCompatibilityRedirect } from "@/features/workspace-routing";
 
 export default function ResearchPage() {
-  return (
-    <ExperiencePage experience={getExperience("research")}>
-      <SharedResearchWorkspace />
-    </ExperiencePage>
-  );
+  return <LegacyCompatibilityRedirect targetPath="/research" />;
 }

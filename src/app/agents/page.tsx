@@ -1,11 +1,5 @@
-import { ExperiencePage } from "@/components/layout/experience-page";
-import { AgentCapabilitySummaryList } from "@/features/agents";
-import { getExperience } from "@/experiences/registry";
+import { LegacyCompatibilityRedirect } from "@/features/workspace-routing";
 
 export default function AgentsPage() {
-  return (
-    <ExperiencePage experience={getExperience("agents")}>
-      <AgentCapabilitySummaryList items={[]} />
-    </ExperiencePage>
-  );
+  return <LegacyCompatibilityRedirect targetPath="/agents" />;
 }

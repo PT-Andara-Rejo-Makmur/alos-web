@@ -55,7 +55,7 @@ export function projectExecutiveBrief(
       state: "LIVE",
       summary: `${pendingCount} pending`,
       hint: `${pendingCount} item menunggu keputusan manusia.`,
-      href: "/business/approvals",
+      href: "/workspace/executive/approvals",
     },
     {
       key: "early_warning",
@@ -118,7 +118,7 @@ export function projectDecisionQueue(
         : approval.urgency === "DUE_SOON"
           ? "Mendekati Tenggat"
           : "Normal",
-    href: "/business/approvals",
+    href: "/workspace/executive/approvals",
   }));
 
   return items.sort((a, b) => {

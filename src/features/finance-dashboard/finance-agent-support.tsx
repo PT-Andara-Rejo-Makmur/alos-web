@@ -26,7 +26,7 @@ export function FinanceAgentSupport({ agents }: FinanceAgentSupportProps) {
         ))}
       </div>
 
-      <Link href="/ara" className={styles.aiAskButton}>
+      <Link href="/workspace/finance/ara" className={styles.aiAskButton}>
         Tanyakan ARA tentang Finance
       </Link>
     </article>

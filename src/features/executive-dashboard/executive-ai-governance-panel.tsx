@@ -28,7 +28,7 @@ export function ExecutiveAIGovernancePanel({ aiContext }: ExecutiveAIGovernanceP
         {aiContext.hint} Seluruh operasi otonom tunduk pada batasan persetujuan manusia.
       </p>
 
-      <Link href="/business/ara" className={styles.aiButton}>
+      <Link href="/workspace/executive/ara" className={styles.aiButton}>
         Buka Tata Kelola ARA &rarr;
       </Link>
     </article>

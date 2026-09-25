@@ -162,12 +162,12 @@ describe("ALOS Finance Dashboard", () => {
     expect(screen.queryByText(/The Park/i)).not.toBeInTheDocument();
   });
 
-  // 9. Canonical ARA links
-  it("9. menyediakan tautan kanonikal ke /ara", () => {
+  // 9. Contextual ARA links
+  it("9. menyediakan tautan kontekstual ke /workspace/finance/ara", () => {
     render(<FinanceDashboardHome snapshot={DEFAULT_FINANCE_SNAPSHOT} />);
     const araLinks = screen.getAllByRole("link", { name: /Tanyakan ARA tentang Finance/i });
     expect(araLinks.length).toBeGreaterThanOrEqual(1);
-    expect(araLinks[0]).toHaveAttribute("href", "/ara");
+    expect(araLinks[0]).toHaveAttribute("href", "/workspace/finance/ara");
   });
 
   // 10. Agent target capability is rendered as 'Target capability', NOT 'Active'
@@ -328,6 +328,6 @@ describe("ALOS Finance Dashboard", () => {
     expect(screen.getByTestId("approval-queue-dash").textContent).toBe("—");
     expect(screen.getByText(/Belum ada finance-specific approval projection/i)).toBeInTheDocument();
     const btn = screen.getByRole("link", { name: /Buka Approval Center/i });
-    expect(btn).toHaveAttribute("href", "/business/approvals");
+    expect(btn).toHaveAttribute("href", "/workspace/finance/approvals");
   });
 });

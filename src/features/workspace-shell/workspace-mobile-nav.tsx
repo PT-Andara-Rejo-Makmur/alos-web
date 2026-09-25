@@ -6,6 +6,12 @@ import { useEffect, useState } from "react";
 import { ChevronsUpDown, LogOut, Menu, Sparkles, X } from "lucide-react";
 
 import { NotificationCenter } from "@/features/notifications/notification-center";
+import {
+  getWorkspaceRoot,
+  getWorkspaceAraRoute,
+  getWorkspaceModuleRoute,
+  getWorkspaceAgentsRoute,
+} from "@/features/workspace-routing";
 import { WORKSPACE_ICONS } from "./workspace-navigation";
 import type {
   WorkspaceNavItem,
@@ -53,23 +59,7 @@ export function WorkspaceMobileNav({
       <header className={styles.mobileHeader}>
         <Link
           className={styles.mobileBrand}
-          href={
-            identity.workspaceKey === "executive"
-              ? "/workspace/executive"
-              : identity.workspaceKey === "finance"
-                ? "/workspace/finance"
-                : identity.workspaceKey === "property"
-                  ? "/workspace/property"
-                  : identity.workspaceKey === "sales"
-                    ? "/workspace/sales"
-                    : identity.workspaceKey === "hr"
-                      ? "/workspace/hr"
-                      : identity.workspaceKey === "legal"
-                        ? "/workspace/legal"
-                        : identity.workspaceKey === "it"
-                          ? "/workspace/it"
-                          : "/business"
-          }
+          href={getWorkspaceRoot(identity.workspaceKey)}
         >
           <Image
             alt="ALOS logo mark"
@@ -90,7 +80,7 @@ export function WorkspaceMobileNav({
           <Link
             aria-label="Buka ARA"
             className={styles.mobileIconButton}
-            href="/ara"
+            href={getWorkspaceAraRoute(identity.workspaceKey)}
           >
             <Sparkles size={20} strokeWidth={2} color="#D1A357" />
           </Link>
@@ -227,11 +217,7 @@ export function WorkspaceMobileNav({
           <>
             <Link
               className={styles.bottomNavItem}
-              href={
-                identity.workspaceKey && identity.workspaceKey !== "workforce"
-                  ? `/workspace/${identity.workspaceKey}`
-                  : "/workspace/executive"
-              }
+              href={getWorkspaceRoot(identity.workspaceKey)}
             >
               <div className={styles.bottomNavIconCircle}>O</div>
               <span>Overview</span>
@@ -239,7 +225,7 @@ export function WorkspaceMobileNav({
 
             <Link
               className={styles.bottomNavItem}
-              href="/business/tasks"
+              href={getWorkspaceModuleRoute(identity.workspaceKey, "tasks")}
             >
               <div className={styles.bottomNavIconCircle}>W</div>
               <span>Work</span>
@@ -247,7 +233,7 @@ export function WorkspaceMobileNav({
 
             <Link
               className={styles.bottomNavItem}
-              href="/workspace/ara"
+              href={getWorkspaceAraRoute(identity.workspaceKey)}
             >
               <div className={styles.bottomNavIconCircle}>AI</div>
               <span>ARA</span>
@@ -256,7 +242,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current="page"
               className={`${styles.bottomNavItem} ${styles.activeBottomItem}`}
-              href="/workspace/agents"
+              href={getWorkspaceAgentsRoute(identity.workspaceKey)}
             >
               <div className={styles.bottomNavIconCircle}>B</div>
               <span>Agents</span>
@@ -286,7 +272,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "approvals" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "approvals" ? styles.activeBottomItem : ""}`}
-              href="/business/approvals"
+              href="/workspace/executive/approvals"
             >
               <div className={styles.bottomNavIconCircle}>D</div>
               <span>Decisions</span>
@@ -295,7 +281,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "divisions" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "divisions" ? styles.activeBottomItem : ""}`}
-              href="/business/divisions"
+              href="/workspace/executive/divisions"
             >
               <div className={styles.bottomNavIconCircle}>V</div>
               <span>Divisions</span>
@@ -304,7 +290,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "ara" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "ara" ? styles.activeBottomItem : ""}`}
-              href="/ara"
+              href="/workspace/executive/ara"
             >
               <div className={styles.bottomNavIconCircle}>AI</div>
               <span>AI</span>
@@ -334,7 +320,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "cash" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "cash" ? styles.activeBottomItem : ""}`}
-              href="/workspace/finance#cash"
+              href="/workspace/finance/cash"
             >
               <div className={styles.bottomNavIconCircle}>C</div>
               <span>Cash</span>
@@ -343,7 +329,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "approvals" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "approvals" ? styles.activeBottomItem : ""}`}
-              href="/business/approvals"
+              href="/workspace/finance/approvals"
             >
               <div className={styles.bottomNavIconCircle}>A</div>
               <span>Approval</span>
@@ -352,7 +338,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "ara" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "ara" ? styles.activeBottomItem : ""}`}
-              href="/ara"
+              href="/workspace/finance/ara"
             >
               <div className={styles.bottomNavIconCircle}>AI</div>
               <span>AI</span>
@@ -382,7 +368,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "projects" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "projects" ? styles.activeBottomItem : ""}`}
-              href="/business/projects"
+              href="/workspace/property/projects"
             >
               <div className={styles.bottomNavIconCircle}>P</div>
               <span>Projects</span>
@@ -400,7 +386,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "ara" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "ara" ? styles.activeBottomItem : ""}`}
-              href="/ara"
+              href="/workspace/property/ara"
             >
               <div className={styles.bottomNavIconCircle}>AI</div>
               <span>AI</span>
@@ -448,7 +434,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "ara" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "ara" ? styles.activeBottomItem : ""}`}
-              href="/ara"
+              href="/workspace/sales/ara"
             >
               <div className={styles.bottomNavIconCircle}>AI</div>
               <span>AI</span>
@@ -496,7 +482,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "ara" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "ara" ? styles.activeBottomItem : ""}`}
-              href="/ara"
+              href="/workspace/hr/ara"
             >
               <div className={styles.bottomNavIconCircle}>AI</div>
               <span>AI</span>
@@ -544,7 +530,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "ara" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "ara" ? styles.activeBottomItem : ""}`}
-              href="/ara"
+              href="/workspace/legal/ara"
             >
               <div className={styles.bottomNavIconCircle}>AI</div>
               <span>AI</span>
@@ -583,7 +569,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "genesis" || activeNavKey === "control-plane" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "genesis" || activeNavKey === "control-plane" ? styles.activeBottomItem : ""}`}
-              href="/genesis"
+              href="/workspace/it/genesis"
             >
               <div className={styles.bottomNavIconCircle}>G</div>
               <span>Genesis</span>
@@ -613,7 +599,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "overview" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "overview" ? styles.activeBottomItem : ""}`}
-              href="/business"
+              href={getWorkspaceRoot(identity.workspaceKey)}
             >
               <div className={styles.bottomNavIconCircle}>O</div>
               <span>Overview</span>
@@ -622,7 +608,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "projects" || activeNavKey === "tasks" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "projects" || activeNavKey === "tasks" ? styles.activeBottomItem : ""}`}
-              href="/business/tasks"
+              href={getWorkspaceModuleRoute(identity.workspaceKey, "tasks")}
             >
               <div className={styles.bottomNavIconCircle}>W</div>
               <span>Work</span>
@@ -631,7 +617,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "approvals" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "approvals" ? styles.activeBottomItem : ""}`}
-              href="/business/approvals"
+              href={getWorkspaceModuleRoute(identity.workspaceKey, "approvals")}
             >
               <div className={styles.bottomNavIconCircle}>A</div>
               <span>Approval</span>
@@ -640,7 +626,7 @@ export function WorkspaceMobileNav({
             <Link
               aria-current={activeNavKey === "ara" ? "page" : undefined}
               className={`${styles.bottomNavItem} ${activeNavKey === "ara" ? styles.activeBottomItem : ""}`}
-              href="/ara"
+              href={getWorkspaceAraRoute(identity.workspaceKey)}
             >
               <div className={styles.bottomNavIconCircle}>AI</div>
               <span>AI</span>

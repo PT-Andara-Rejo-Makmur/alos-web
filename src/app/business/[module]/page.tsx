@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-
 import { BusinessWorkspace } from "@/experiences/business/workspace";
+import { LegacyCompatibilityRedirect } from "@/features/workspace-routing";
 import {
   dashboardModules,
   isDashboardModuleKey,
@@ -18,5 +18,10 @@ export default async function BusinessModulePage({
   const { module } = await params;
   if (!isDashboardModuleKey(module)) notFound();
 
-  return <BusinessWorkspace module={module} />;
+  // Settings is deferred compatibility per architectural requirement
+  if (module === "settings") {
+    return <BusinessWorkspace module={module} />;
+  }
+
+  return <LegacyCompatibilityRedirect targetPath={`/business/${module}`} />;
 }

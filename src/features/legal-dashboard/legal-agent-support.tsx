@@ -34,7 +34,7 @@ export function LegalAgentSupport({ agents }: LegalAgentSupportProps) {
       <Link
         aria-label="Tanyakan ARA tentang Legal"
         className={styles.obsidianCtaButton}
-        href="/ara"
+        href="/workspace/legal/ara"
       >
         <Sparkles aria-hidden="true" size={16} strokeWidth={2} />
         <span>Tanyakan ARA tentang Legal</span>

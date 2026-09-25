@@ -1,6 +1,12 @@
+import {
+  WORKSPACE_ROUTES,
+  getGenesisRoute,
+  getGovernanceRoute,
+} from "@/features/workspace-routing";
+
 /**
  * Resolves destination from Backend-projected workspace metadata only.
- * UX mapping layer before future dedicated /workspace/{division} shells.
+ * Canonical ALOS workspace routing ensures all authenticated targets map to /workspace/...
  */
 export function resolveWorkspaceDestination(
   workspace: {
@@ -13,37 +19,40 @@ export function resolveWorkspaceDestination(
   const key = (workspace.workspace_key || "").toUpperCase();
   const div = (workspace.division_code || "").toUpperCase();
 
-  if (workspace.workspace_type === "EXECUTIVE") return "/director";
+  // 1. Executive workspace
+  if (workspace.workspace_type === "EXECUTIVE" || key === "EXECUTIVE" || div === "EXECUTIVE" || div === "EXEC") {
+    return WORKSPACE_ROUTES.executive;
+  }
 
-  // 4. Finance workspace
+  // 2. Finance workspace
   if (
     key === "FINANCE" ||
     key.includes("FINANCE") ||
     div === "FINANCE"
   ) {
-    return "/workspace/finance";
+    return WORKSPACE_ROUTES.finance;
   }
 
-  // 5. Property workspace
+  // 3. Property workspace
   if (
     key === "PROPERTY" ||
     key.includes("PROPERTY") ||
     div === "PROPERTY"
   ) {
-    return "/workspace/property";
+    return WORKSPACE_ROUTES.property;
   }
 
-  // 6. Sales & Marketing workspace
+  // 4. Sales & Marketing workspace
   if (
     key === "SALES" ||
     key.includes("SALES") ||
     div === "SALES" ||
     div === "SALES_MARKETING"
   ) {
-    return "/workspace/sales";
+    return WORKSPACE_ROUTES.sales;
   }
 
-  // 7. HR / People workspace
+  // 5. HR / People workspace
   if (
     key === "HR" ||
     key.includes("HR") ||
@@ -51,10 +60,10 @@ export function resolveWorkspaceDestination(
     div === "HR" ||
     div === "PEOPLE"
   ) {
-    return "/workspace/hr";
+    return WORKSPACE_ROUTES.hr;
   }
 
-  // 8. Legal & Compliance workspace
+  // 6. Legal & Compliance workspace
   if (
     key === "LEGAL" ||
     key.includes("LEGAL") ||
@@ -63,10 +72,10 @@ export function resolveWorkspaceDestination(
     div === "COMPLIANCE" ||
     div === "LEGAL_COMPLIANCE"
   ) {
-    return "/workspace/legal";
+    return WORKSPACE_ROUTES.legal;
   }
 
-  // 9. IT & Technology workspace
+  // 7. IT & Technology workspace
   if (
     key === "IT" ||
     key.includes("IT") ||
@@ -74,15 +83,14 @@ export function resolveWorkspaceDestination(
     div === "IT" ||
     div === "TECHNOLOGY"
   ) {
-    return "/workspace/it";
+    return WORKSPACE_ROUTES.it;
   }
 
-  // Generic control-plane workspaces without an IT membership retain the
-  // legacy Genesis destination. An IT membership itself always opens /workspace/it.
-  if (workspace.workspace_type === "IT_OPERATIONS") return "/genesis";
-  if (workspace.workspace_type === "GOVERNANCE") return "/governance";
+  // Technical control plane & governance
+  if (workspace.workspace_type === "IT_OPERATIONS") return getGenesisRoute();
+  if (workspace.workspace_type === "GOVERNANCE") return getGovernanceRoute();
 
-  // 10. Business & Division workspaces
+  // Business & Division workspaces fallback to mapped division or resolver
   if (
     key.startsWith("WS_") ||
     key.includes("BUSINESS") ||
@@ -90,7 +98,13 @@ export function resolveWorkspaceDestination(
     workspace.workspace_type === "SHARED" ||
     workspace.division_code !== null
   ) {
-    return "/business";
+    if (workspace.division_code) {
+      const divLower = workspace.division_code.toLowerCase();
+      if (divLower in WORKSPACE_ROUTES) {
+        return WORKSPACE_ROUTES[divLower as keyof typeof WORKSPACE_ROUTES];
+      }
+    }
+    return WORKSPACE_ROUTES.resolver;
   }
 
   // Unsupported workspace destination fails closed

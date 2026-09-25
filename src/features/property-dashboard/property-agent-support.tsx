@@ -17,7 +17,7 @@ export function PropertyAgentSupport({ agents, onOpenAra }: PropertyAgentSupport
     if (onOpenAra) {
       onOpenAra();
     } else {
-      router.push("/ara");
+      router.push("/workspace/property/ara");
     }
   }
 

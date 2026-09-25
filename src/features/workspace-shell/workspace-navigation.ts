@@ -78,7 +78,17 @@ import {
 
 import type { SessionActor } from "@/features/session";
 import { isGovernanceNavigationVisible } from "@/features/access-control/dashboard-access";
-import { WORKSPACE_ROUTES, getModuleReadiness } from "@/features/workspace-routing";
+import {
+  WORKSPACE_ROUTES,
+  getModuleReadiness,
+  getWorkspaceRoot,
+  getWorkspaceModuleRoute,
+  getWorkspaceAraRoute,
+  getWorkspaceAgentsRoute,
+  getGenesisRoute,
+  getGovernanceRoute,
+  type CanonicalWorkspaceKey,
+} from "@/features/workspace-routing";
 import type {
   WorkspaceIconKey,
   WorkspaceNavGroup,
@@ -239,7 +249,7 @@ export function projectWorkspaceNavigation(
       {
         key: "overview",
         label: "Overview",
-        href: WORKSPACE_ROUTES.executive,
+        href: getWorkspaceRoot("executive"),
         icon: "LayoutDashboard",
         group: "COMMAND_CENTER",
         available: true,
@@ -247,7 +257,7 @@ export function projectWorkspaceNavigation(
       {
         key: "brief",
         label: "Executive Brief",
-        href: `${WORKSPACE_ROUTES.executive}#brief`,
+        href: "/workspace/executive/brief",
         icon: "Newspaper",
         group: "COMMAND_CENTER",
         available: true,
@@ -256,7 +266,7 @@ export function projectWorkspaceNavigation(
       {
         key: "divisions",
         label: "Divisi",
-        href: "/business/divisions",
+        href: "/workspace/executive/divisions",
         icon: "Building2",
         group: "ORGANIZATION",
         available: true,
@@ -264,8 +274,16 @@ export function projectWorkspaceNavigation(
       {
         key: "projects",
         label: "Proyek",
-        href: WORKSPACE_ROUTES.projects,
+        href: getWorkspaceModuleRoute("executive", "projects"),
         icon: "BriefcaseBusiness",
+        group: "ORGANIZATION",
+        available: true,
+      },
+      {
+        key: "tasks",
+        label: "Tugas",
+        href: getWorkspaceModuleRoute("executive", "tasks"),
+        icon: "ListChecks",
         group: "ORGANIZATION",
         available: true,
       },
@@ -273,7 +291,7 @@ export function projectWorkspaceNavigation(
       {
         key: "approvals",
         label: "Approval",
-        href: WORKSPACE_ROUTES.approvals,
+        href: getWorkspaceModuleRoute("executive", "approvals"),
         icon: "BadgeCheck",
         group: "DECISIONS",
         available: true,
@@ -281,7 +299,7 @@ export function projectWorkspaceNavigation(
       {
         key: "findings",
         label: "Temuan & Risiko",
-        href: WORKSPACE_ROUTES.findings,
+        href: getWorkspaceModuleRoute("executive", "findings"),
         icon: "TriangleAlert",
         group: "DECISIONS",
         available: true,
@@ -290,7 +308,7 @@ export function projectWorkspaceNavigation(
       {
         key: "documents",
         label: "Dokumen",
-        href: WORKSPACE_ROUTES.documents,
+        href: getWorkspaceModuleRoute("executive", "documents"),
         icon: "Files",
         group: "INFORMATION",
         available: true,
@@ -298,7 +316,7 @@ export function projectWorkspaceNavigation(
       {
         key: "reports",
         label: "Laporan",
-        href: WORKSPACE_ROUTES.reports,
+        href: getWorkspaceModuleRoute("executive", "reports"),
         icon: "ChartColumn",
         group: "INFORMATION",
         available: true,
@@ -307,7 +325,7 @@ export function projectWorkspaceNavigation(
       {
         key: "ara",
         label: "ARA",
-        href: WORKSPACE_ROUTES.ara,
+        href: getWorkspaceAraRoute("executive"),
         icon: "Sparkles",
         group: "AI",
         available: true,
@@ -318,7 +336,7 @@ export function projectWorkspaceNavigation(
       items.push({
         key: "governance",
         label: "Governance",
-        href: "/genesis",
+        href: getGovernanceRoute(),
         icon: "ShieldCheck",
         group: "CONTROL",
         available: true,
@@ -351,7 +369,7 @@ export function projectWorkspaceNavigation(
               ? WORKSPACE_ROUTES.legal
               : isIt
                 ? WORKSPACE_ROUTES.it
-                : "/business",
+                : WORKSPACE_ROUTES.resolver,
     icon: "LayoutDashboard",
     group: "UTAMA",
     available: true,
@@ -387,25 +405,25 @@ export function projectWorkspaceNavigation(
       { key: "backup", label: "Backup & DR", href: "/workspace/it/backup", icon: "DatabaseBackup", group: "OPERATIONS", available: false },
     );
 
-    // Group: GENESIS (reusing existing canonical control plane routes!)
+    // Group: GENESIS (canonical control plane routes under IT namespace)
     items.push(
-      { key: "control-plane", label: "Control Plane", href: "/genesis", icon: "Bot", group: "GENESIS", available: true },
-      { key: "agents", label: "Agents", href: WORKSPACE_ROUTES.agents, icon: "Bot", group: "GENESIS", available: true },
-      { key: "skills", label: "Skills", href: "/workspace/it/skills", icon: "Blocks", group: "GENESIS", available: false },
-      { key: "research", label: "Research", href: "/research", icon: "SearchCheck", group: "GENESIS", available: true },
-      { key: "models", label: "Models & Tools", href: "/workspace/it/models", icon: "BrainCircuit", group: "GENESIS", available: false },
+      { key: "control-plane", label: "Control Plane", href: getGenesisRoute(), icon: "Bot", group: "GENESIS", available: true },
+      { key: "agents", label: "Agents", href: getGenesisRoute("agents"), icon: "Bot", group: "GENESIS", available: true },
+      { key: "skills", label: "Skills", href: getGenesisRoute("skills"), icon: "Blocks", group: "GENESIS", available: false },
+      { key: "research", label: "Research", href: getGenesisRoute("research"), icon: "SearchCheck", group: "GENESIS", available: true },
+      { key: "models", label: "Models & Tools", href: getGenesisRoute("models-tools"), icon: "BrainCircuit", group: "GENESIS", available: false },
     );
 
     // Group: GOVERNANCE
     items.push(
-      { key: "evidence", label: "Evidence", href: "/governance", icon: "Fingerprint", group: "GOVERNANCE", available: true },
-      { key: "uat", label: "UAT & Gates", href: "/workspace/it/uat", icon: "FlaskConical", group: "GOVERNANCE", available: false },
-      { key: "decisions", label: "Decisions", href: WORKSPACE_ROUTES.approvals, icon: "BadgeCheck", group: "GOVERNANCE", available: true },
+      { key: "evidence", label: "Evidence", href: getGovernanceRoute("evidence"), icon: "Fingerprint", group: "GOVERNANCE", available: true },
+      { key: "uat", label: "UAT & Gates", href: getGovernanceRoute("uat"), icon: "FlaskConical", group: "GOVERNANCE", available: false },
+      { key: "decisions", label: "Decisions", href: getGovernanceRoute("decisions"), icon: "BadgeCheck", group: "GOVERNANCE", available: true },
     );
 
     // Group: AI
     items.push(
-      { key: "ara", label: "ARA", href: WORKSPACE_ROUTES.ara, icon: "Sparkles", group: "AI", available: true },
+      { key: "ara", label: "ARA", href: getWorkspaceAraRoute("it"), icon: "Sparkles", group: "AI", available: true },
     );
 
     return items.map(buildNavItem);
@@ -432,16 +450,16 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tasks", href: WORKSPACE_ROUTES.tasks, icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Approvals", href: WORKSPACE_ROUTES.approvals, icon: "Scale", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Documents", href: WORKSPACE_ROUTES.documents, icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Reports", href: WORKSPACE_ROUTES.reports, icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "tasks", label: "Tasks", href: getWorkspaceModuleRoute("legal", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
+      { key: "approvals", label: "Approvals", href: getWorkspaceModuleRoute("legal", "approvals"), icon: "Scale", group: "PEKERJAAN", available: true },
+      { key: "documents", label: "Documents", href: getWorkspaceModuleRoute("legal", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
+      { key: "reports", label: "Reports", href: getWorkspaceModuleRoute("legal", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
     );
 
     // Group: AI
     items.push(
-      { key: "ara", label: "ARA", href: WORKSPACE_ROUTES.ara, icon: "Sparkles", group: "AI", available: true },
-      { key: "agents", label: "Agent workforce", href: WORKSPACE_ROUTES.agents, icon: "Bot", group: "AI", available: true },
+      { key: "ara", label: "ARA", href: getWorkspaceAraRoute("legal"), icon: "Sparkles", group: "AI", available: true },
+      { key: "agents", label: "Agent workforce", href: getWorkspaceAgentsRoute("legal"), icon: "Bot", group: "AI", available: true },
     );
 
     return items.map(buildNavItem);
@@ -474,16 +492,16 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tasks", href: WORKSPACE_ROUTES.tasks, icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Approvals", href: WORKSPACE_ROUTES.approvals, icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Documents", href: WORKSPACE_ROUTES.documents, icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Reports", href: WORKSPACE_ROUTES.reports, icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "tasks", label: "Tasks", href: getWorkspaceModuleRoute("hr", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
+      { key: "approvals", label: "Approvals", href: getWorkspaceModuleRoute("hr", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
+      { key: "documents", label: "Documents", href: getWorkspaceModuleRoute("hr", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
+      { key: "reports", label: "Reports", href: getWorkspaceModuleRoute("hr", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
     );
 
     // Group: AI
     items.push(
-      { key: "ara", label: "ARA", href: WORKSPACE_ROUTES.ara, icon: "Sparkles", group: "AI", available: true },
-      { key: "agents", label: "Agent workforce", href: WORKSPACE_ROUTES.agents, icon: "Bot", group: "AI", available: true },
+      { key: "ara", label: "ARA", href: getWorkspaceAraRoute("hr"), icon: "Sparkles", group: "AI", available: true },
+      { key: "agents", label: "Agent workforce", href: getWorkspaceAgentsRoute("hr"), icon: "Bot", group: "AI", available: true },
     );
 
     return items.map(buildNavItem);
@@ -516,16 +534,16 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tasks", href: WORKSPACE_ROUTES.tasks, icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Approvals", href: WORKSPACE_ROUTES.approvals, icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Documents", href: WORKSPACE_ROUTES.documents, icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Reports", href: WORKSPACE_ROUTES.reports, icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "tasks", label: "Tasks", href: getWorkspaceModuleRoute("sales", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
+      { key: "approvals", label: "Approvals", href: getWorkspaceModuleRoute("sales", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
+      { key: "documents", label: "Documents", href: getWorkspaceModuleRoute("sales", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
+      { key: "reports", label: "Reports", href: getWorkspaceModuleRoute("sales", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
     );
 
     // Group: AI
     items.push(
-      { key: "ara", label: "ARA", href: WORKSPACE_ROUTES.ara, icon: "Sparkles", group: "AI", available: true },
-      { key: "agents", label: "Agent workforce", href: WORKSPACE_ROUTES.agents, icon: "Bot", group: "AI", available: true },
+      { key: "ara", label: "ARA", href: getWorkspaceAraRoute("sales"), icon: "Sparkles", group: "AI", available: true },
+      { key: "agents", label: "Agent workforce", href: getWorkspaceAgentsRoute("sales"), icon: "Bot", group: "AI", available: true },
     );
 
     return items.map(buildNavItem);
@@ -535,7 +553,7 @@ export function projectWorkspaceNavigation(
   if (isProperty) {
     // Group: PROJECT
     items.push(
-      { key: "projects", label: "Projects", href: WORKSPACE_ROUTES.projects, icon: "BriefcaseBusiness", group: "PROJECT", available: true },
+      { key: "projects", label: "Projects", href: getWorkspaceModuleRoute("property", "projects"), icon: "BriefcaseBusiness", group: "PROJECT", available: true },
       { key: "milestones", label: "Milestones", href: "/workspace/property/milestones", icon: "Milestone", group: "PROJECT", available: false },
       { key: "construction", label: "Construction", href: "/workspace/property/construction", icon: "HardHat", group: "PROJECT", available: false },
       { key: "quality", label: "Quality & NCR", href: "/workspace/property/quality", icon: "ClipboardCheck", group: "PROJECT", available: false },
@@ -551,77 +569,49 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tasks", href: WORKSPACE_ROUTES.tasks, icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Approvals", href: WORKSPACE_ROUTES.approvals, icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Documents", href: WORKSPACE_ROUTES.documents, icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Reports", href: WORKSPACE_ROUTES.reports, icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "tasks", label: "Tasks", href: getWorkspaceModuleRoute("property", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
+      { key: "approvals", label: "Approvals", href: getWorkspaceModuleRoute("property", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
+      { key: "documents", label: "Documents", href: getWorkspaceModuleRoute("property", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
+      { key: "reports", label: "Reports", href: getWorkspaceModuleRoute("property", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
     );
 
     // Group: AI
     items.push(
-      { key: "ara", label: "ARA", href: WORKSPACE_ROUTES.ara, icon: "Sparkles", group: "AI", available: true },
-      { key: "agents", label: "Agent workforce", href: WORKSPACE_ROUTES.agents, icon: "Bot", group: "AI", available: true },
+      { key: "ara", label: "ARA", href: getWorkspaceAraRoute("property"), icon: "Sparkles", group: "AI", available: true },
+      { key: "agents", label: "Agent workforce", href: getWorkspaceAgentsRoute("property"), icon: "Bot", group: "AI", available: true },
     );
 
     return items.map(buildNavItem);
   }
 
-  // Group 2: DIVISI / KEUANGAN (Workspace-specific)
-  if (isFinance) {
-    items.push(
-      { key: "cash", label: "Cash & Bank", href: "/workspace/finance/cash", icon: "Landmark", group: "KEUANGAN", available: false },
-      { key: "receivables", label: "Receivables", href: "/workspace/finance/receivables", icon: "CircleDollarSign", group: "KEUANGAN", available: false },
-      { key: "payables", label: "Payables", href: "/workspace/finance/payables", icon: "ReceiptText", group: "KEUANGAN", available: false },
-      { key: "budget", label: "Budget", href: "/workspace/finance/budget", icon: "ChartNoAxesCombined", group: "KEUANGAN", available: false },
-      { key: "reconciliation", label: "Reconciliation", href: "/workspace/finance/reconciliation", icon: "RefreshCcw", group: "KEUANGAN", available: false },
-      { key: "tax", label: "Tax", href: "/workspace/finance/tax", icon: "FileCheck2", group: "COMPLIANCE", available: false },
-      { key: "close", label: "Month Close", href: "/workspace/finance/close", icon: "CalendarCheck2", group: "COMPLIANCE", available: false },
-    );
-  } else if (division === "HR") {
-    items.push(
-      { key: "employees", label: "Karyawan", href: "/workspace/hr/employees", icon: "UserRound", group: "DIVISION", available: false },
-      { key: "attendance", label: "Kehadiran", href: "/workspace/hr/attendance", icon: "ListChecks", group: "DIVISION", available: false },
-      { key: "leave", label: "Cuti", href: "/workspace/hr/leave", icon: "BadgeCheck", group: "DIVISION", available: false },
-      { key: "recruitment", label: "Rekrutmen", href: "/workspace/hr/recruitment", icon: "BriefcaseBusiness", group: "DIVISION", available: false },
-    );
-  } else if (division === "LEGAL") {
-    items.push(
-      { key: "permits", label: "Perizinan", href: "/workspace/legal/permits", icon: "Files", group: "DIVISION", available: false },
-      { key: "contracts", label: "Kontrak", href: "/workspace/legal/contracts", icon: "Files", group: "DIVISION", available: false },
-      { key: "compliance", label: "Kepatuhan", href: "/workspace/legal/compliance", icon: "ShieldCheck", group: "DIVISION", available: false },
-    );
-  } else if (division === "PROPERTY") {
-    items.push(
-      { key: "land-pipeline", label: "Pipeline Lahan", href: "/workspace/property/land", icon: "Building2", group: "DIVISION", available: false },
-      { key: "construction", label: "Konstruksi", href: "/workspace/property/construction", icon: "BriefcaseBusiness", group: "DIVISION", available: false },
-    );
-  } else if (division === "SALES_MARKETING" || division === "SALES") {
-    items.push(
-      { key: "crm", label: "Leads & CRM", href: "/workspace/sales/crm", icon: "CircleDollarSign", group: "DIVISION", available: false },
-      { key: "inventory", label: "Inventory Unit", href: "/workspace/sales/inventory", icon: "Building2", group: "DIVISION", available: false },
-    );
-  } else if (division === "IT") {
-    items.push(
-      { key: "systems", label: "Sistem & Integrasi", href: "/workspace/it/systems", icon: "BriefcaseBusiness", group: "DIVISION", available: false },
-      { key: "monitoring", label: "Rilis & Monitoring", href: "/workspace/it/monitoring", icon: "ChartColumn", group: "DIVISION", available: false },
-    );
-  }
+  // Finance Workspace specific IA
+  const canonicalKey: CanonicalWorkspaceKey = isFinance ? "finance" : "finance";
 
-  // Group 3: PEKERJAAN (Cross-functional work modules)
   items.push(
-    { key: "projects", label: "Proyek", href: WORKSPACE_ROUTES.projects, icon: "BriefcaseBusiness", group: "PEKERJAAN", available: true },
-    { key: "tasks", label: "Tugas", href: WORKSPACE_ROUTES.tasks, icon: "ListChecks", group: "PEKERJAAN", available: true },
-    { key: "approvals", label: "Approval", href: WORKSPACE_ROUTES.approvals, icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-    { key: "documents", label: "Dokumen", href: WORKSPACE_ROUTES.documents, icon: "Files", group: "PEKERJAAN", available: true },
-    { key: "reports", label: "Laporan", href: WORKSPACE_ROUTES.reports, icon: "ChartColumn", group: "PEKERJAAN", available: true },
-    { key: "findings", label: "Temuan", href: WORKSPACE_ROUTES.findings, icon: "TriangleAlert", group: "PEKERJAAN", available: true },
+    { key: "cash", label: "Cash & Bank", href: "/workspace/finance/cash", icon: "Landmark", group: "KEUANGAN", available: false },
+    { key: "receivables", label: "Receivables", href: "/workspace/finance/receivables", icon: "CircleDollarSign", group: "KEUANGAN", available: false },
+    { key: "payables", label: "Payables", href: "/workspace/finance/payables", icon: "ReceiptText", group: "KEUANGAN", available: false },
+    { key: "budget", label: "Budget", href: "/workspace/finance/budget", icon: "ChartNoAxesCombined", group: "KEUANGAN", available: false },
+    { key: "reconciliation", label: "Reconciliation", href: "/workspace/finance/reconciliation", icon: "RefreshCcw", group: "KEUANGAN", available: false },
+    { key: "tax", label: "Tax", href: "/workspace/finance/tax", icon: "FileCheck2", group: "COMPLIANCE", available: false },
+    { key: "close", label: "Month Close", href: "/workspace/finance/month-close", icon: "CalendarCheck2", group: "COMPLIANCE", available: false },
   );
 
-  // Group 4: AI
+  // Group: PEKERJAAN (Cross-functional work modules)
+  items.push(
+    { key: "projects", label: "Proyek", href: getWorkspaceModuleRoute(canonicalKey, "projects"), icon: "BriefcaseBusiness", group: "PEKERJAAN", available: true },
+    { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute(canonicalKey, "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
+    { key: "approvals", label: "Approval", href: getWorkspaceModuleRoute(canonicalKey, "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
+    { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute(canonicalKey, "documents"), icon: "Files", group: "PEKERJAAN", available: true },
+    { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute(canonicalKey, "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
+    { key: "findings", label: "Temuan", href: getWorkspaceModuleRoute(canonicalKey, "findings"), icon: "TriangleAlert", group: "PEKERJAAN", available: true },
+  );
+
+  // Group: AI
   items.push({
     key: "ara",
     label: "ARA",
-    href: WORKSPACE_ROUTES.ara,
+    href: getWorkspaceAraRoute(canonicalKey),
     icon: "Sparkles",
     group: "AI",
     available: true,
@@ -631,19 +621,19 @@ export function projectWorkspaceNavigation(
     items.push({
       key: "agents",
       label: "Agent Workforce",
-      href: WORKSPACE_ROUTES.agents,
+      href: getWorkspaceAgentsRoute(canonicalKey),
       icon: "Bot",
       group: "AI",
       available: true,
     });
   }
 
-  // Group 5: CONTROL / GOVERNANCE
+  // Group: CONTROL / GOVERNANCE
   if (isGovernanceNavigationVisible(roles)) {
     items.push({
       key: "governance",
       label: "Governance & Agent Control",
-      href: "/genesis",
+      href: getGovernanceRoute(),
       icon: "ShieldCheck",
       group: "CONTROL",
       available: true,

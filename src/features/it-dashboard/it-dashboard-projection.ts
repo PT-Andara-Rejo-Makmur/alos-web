@@ -224,25 +224,25 @@ export const DEFAULT_GENESIS_OPERATIONS: readonly GenesisControlPlaneItem[] = [
     id: "agent_registry",
     title: "Agent Registry",
     badge: "Existing module",
-    href: "/agents",
+    href: "/workspace/it/genesis/agents",
   },
   {
     id: "release_requests",
     title: "Release Requests",
     badge: "Existing module",
-    href: "/genesis",
+    href: "/workspace/it/genesis",
   },
   {
     id: "workspace_sources",
     title: "Workspace Sources",
     badge: "Existing module",
-    href: "/genesis",
+    href: "/workspace/it/genesis",
   },
   {
     id: "governance_audit",
     title: "Governance & Audit",
     badge: "Existing portal",
-    href: "/governance",
+    href: "/workspace/it/governance",
   },
 ];
 

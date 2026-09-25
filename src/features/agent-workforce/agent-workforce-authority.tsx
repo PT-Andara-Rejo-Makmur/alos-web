@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Settings2 } from "lucide-react";
 
+import { getGenesisRoute } from "@/features/workspace-routing";
 import { canActorAccessGenesis } from "./agent-workforce-projection";
 import styles from "./agent-workforce.module.css";
 
@@ -45,7 +46,7 @@ export function AgentWorkforceAuthority({ actorRoles }: AgentWorkforceAuthorityP
 
       {isAuthorizedForGenesis ? (
         <Link
-          href="/genesis"
+          href={getGenesisRoute()}
           className={styles.genesisLinkButton}
           aria-label="Buka GENESIS Control Plane untuk reviewer teknis"
         >

@@ -247,13 +247,13 @@ describe("ALOS Sales & Marketing Dashboard", () => {
     expect(screen.queryByText("Active")).not.toBeInTheDocument();
   });
 
-  // 14. ARA link is canonical (/ara)
-  it("14. tombol CTA Sales Intelligence mengarah ke rute kanonikal ARA (/ara)", () => {
+  // 14. ARA link is contextual (/workspace/sales/ara)
+  it("14. tombol CTA Sales Intelligence mengarah ke rute kontekstual ARA (/workspace/sales/ara)", () => {
     render(<SalesAgentSupport agents={DEFAULT_SALES_AGENTS} />);
 
     const araLink = screen.getByRole("link", { name: /Tanyakan ARA tentang Sales/i });
     expect(araLink).toBeInTheDocument();
-    expect(araLink).toHaveAttribute("href", "/ara");
+    expect(araLink).toHaveAttribute("href", "/workspace/sales/ara");
   });
 
   // 15. Data readiness panel displays 5 items all NOT CONNECTED

@@ -13,6 +13,7 @@ import {
   useState,
 } from "react";
 import { ApiError, apiMessage, authenticatedApiRequest } from "@/lib/api";
+import { getGenesisRoute, getWorkspaceAraRoute } from "@/features/workspace-routing";
 
 import {
   canApproveDocument,
@@ -460,7 +461,7 @@ export function DocumentCenter({ actor, mode, activeWorkspace }: DocumentCenterP
 
         <article className="alos-panel alos-document-table-panel"><div className="alos-panel-heading-row"><div><p className="alos-kicker">DAFTAR DOKUMEN</p><h3>Repositori dokumen</h3></div><label className="alos-document-search"><span>⌕</span><input aria-label="Cari dokumen" onChange={(event) => setDocumentQuery(event.target.value)} placeholder="Cari dokumen…" value={documentQuery} /></label></div><DocumentTable documents={filteredDocuments} onSelect={selectDocument} selectedId={selected?.document.document_id ?? null} /></article>
 
-        {selected ? <section className="alos-document-detail-drawer" aria-label={`Rincian ${selected.document.title}`}><DocumentDetailPanel actor={actor} detail={selected} pendingChecks={pendingChecks} checkNotes={checkNotes} reviewNotes={reviewNotes} submitting={submitting} onCheckNotes={setCheckNotes} onReviewNotes={setReviewNotes} onCompleteCheck={completeCheck} onSubmit={submitForReview} onDecide={decide} /></section> : null}
+        {selected ? <section className="alos-document-detail-drawer" aria-label={`Rincian ${selected.document.title}`}><DocumentDetailPanel actor={actor} detail={selected} pendingChecks={pendingChecks} checkNotes={checkNotes} reviewNotes={reviewNotes} submitting={submitting} onCheckNotes={setCheckNotes} onReviewNotes={setReviewNotes} onCompleteCheck={completeCheck} onSubmit={submitForReview} onDecide={decide} araHref={activeWorkspace?.workspaceKey ? getWorkspaceAraRoute(activeWorkspace.workspaceKey) : "/workspace"} /></section> : null}
       </section>
     );
   }
@@ -527,7 +528,7 @@ export function DocumentCenter({ actor, mode, activeWorkspace }: DocumentCenterP
 
         <aside className="alos-genesis-workspace-side">
           <article className="alos-panel alos-genesis-recent"><div className="alos-panel-heading-row"><div><h3><GenesisIcon name="message" />Percakapan Terbaru</h3></div><span>{recentAnalyses.length ? `${recentAnalyses.length} tersimpan` : "Lihat Semua →"}</span></div>{recentAnalyses.length ? <ol className="alos-genesis-recent-list">{recentAnalyses.slice(0, 5).map((document) => <li key={document.document_id}><button className={analysisResult?.draft.document_id === document.document_id ? "selected" : ""} disabled={restoringConversationId === document.genesis_conversation_id} onClick={() => void restoreAnalysis(document)} type="button"><span aria-hidden="true"><GenesisIcon name="sparkles" /></span><div><strong>{document.title.replace(/^Analisis Genesis —\s*/i, "")}</strong><small>Analisis DRAFT · {formatDocumentDate(document.updated_at)}</small></div><em>{restoringConversationId === document.genesis_conversation_id ? "…" : <GenesisIcon name="chevron" />}</em></button></li>)}</ol> : <div className="alos-genesis-sidebar-empty"><span aria-hidden="true"><GenesisIcon name="message" /></span><strong>Belum ada percakapan tersimpan</strong><p>Histori percakapan Anda akan muncul di sini setelah Anda mulai menggunakan GENESIS.</p></div>}</article>
-          <article className="alos-panel alos-genesis-agents"><div className="alos-panel-heading-row"><div><h3><GenesisIcon name="bot" />Agen Aktif</h3></div><Link href="/genesis?view=agents">Kelola Agen →</Link></div><div className="alos-genesis-agent-empty"><span><GenesisIcon name="bot" /></span><div><strong>Belum ada agent ACTIVE</strong><small>Agent hanya muncul setelah melewati release dan approval.</small></div></div></article>
+          <article className="alos-panel alos-genesis-agents"><div className="alos-panel-heading-row"><div><h3><GenesisIcon name="bot" />Agen Aktif</h3></div><Link href={getGenesisRoute("agents")}>Kelola Agen →</Link></div><div className="alos-genesis-agent-empty"><span><GenesisIcon name="bot" /></span><div><strong>Belum ada agent ACTIVE</strong><small>Agent hanya muncul setelah melewati release dan approval.</small></div></div></article>
           <article className="alos-panel alos-genesis-executive-focus"><div className="alos-genesis-focus-heading"><span aria-hidden="true"><GenesisIcon name="bolt" /></span><div><h3>Fokus Eksekutif</h3><p>Prioritas hari ini</p></div></div><div className="alos-genesis-focus-list"><div><span className="document" aria-hidden="true"><GenesisIcon name="document" /></span><strong>{analysisSources.length}</strong><p>Dokumen siap dianalisis</p><b><GenesisIcon name="chevron" /></b></div><div><span className="approval" aria-hidden="true"><GenesisIcon name="check" /></span><strong>{documentStats.review}</strong><p>DRAFT menunggu review</p><b><GenesisIcon name="chevron" /></b></div><div><span className="risk" aria-hidden="true"><GenesisIcon name="alert" /></span><strong>{uploads.filter((upload) => upload.status === "SOURCE_RECEIVED").length}</strong><p>Sumber menunggu tinjauan</p><b><GenesisIcon name="chevron" /></b></div><button onClick={() => setAnalysisPrompt("Buatkan ringkasan eksekutif dari dokumen ini untuk tinjauan minggu ini.")} type="button"><span aria-hidden="true"><GenesisIcon name="chart" /></span><p>Lihat ringkasan minggu ini</p><b><GenesisIcon name="chevron" /></b></button></div></article>
         </aside>
       </div>
@@ -818,16 +819,17 @@ type DocumentDetailPanelProps = {
   onCompleteCheck: (key: string) => void;
   onSubmit: () => void;
   onDecide: (approved: boolean) => void;
+  araHref?: string;
 };
 
-function DocumentDetailPanel({ actor, detail, pendingChecks, checkNotes, reviewNotes, submitting, onCheckNotes, onReviewNotes, onCompleteCheck, onSubmit, onDecide }: DocumentDetailPanelProps) {
+function DocumentDetailPanel({ actor, detail, pendingChecks, checkNotes, reviewNotes, submitting, onCheckNotes, onReviewNotes, onCompleteCheck, onSubmit, onDecide, araHref = "/workspace" }: DocumentDetailPanelProps) {
   if (!detail) return <article className="alos-panel alos-document-detail-panel"><p className="alos-empty-copy">Pilih dokumen untuk melihat versi, isi draft, checklist, dan status review.</p></article>;
   const isGenesisRecommendation = detail.document.origin === "GENESIS"
     && ["GENESIS_ANALYSIS", "GENESIS_RND", "GENESIS_CHECKLIST"].includes(detail.document.category);
   if (isGenesisRecommendation) return <article className="alos-panel alos-document-detail-panel">
     <div className="alos-panel-heading-row"><div><p className="alos-kicker">REKOMENDASI GENESIS · READ-ONLY</p><h3>{detail.document.title}</h3><p className="alos-document-meta">v{detail.document.version_number} · {detail.document.category} · dibuat {formatDocumentDate(detail.document.created_at)}</p></div><em className="alos-document-status draft">REKOMENDASI</em></div>
     <pre className="alos-document-content">{detail.content}</pre>
-    <div className="alos-genesis-recommendation-note"><strong>Bukan checklist persetujuan dokumen</strong><p>Genesis hanya memberikan analisis, R&amp;D, atau daftar rekomendasi. Direktur mengonfirmasi, menolak, atau memberi prioritas melalui percakapan ARA; tidak ada item yang ditandai selesai di sini.</p><Link href="/ara">Lanjutkan percakapan di ARA →</Link></div>
+    <div className="alos-genesis-recommendation-note"><strong>Bukan checklist persetujuan dokumen</strong><p>Genesis hanya memberikan analisis, R&amp;D, atau daftar rekomendasi. Direktur mengonfirmasi, menolak, atau memberi prioritas melalui percakapan ARA; tidak ada item yang ditandai selesai di sini.</p><Link href={araHref}>Lanjutkan percakapan di ARA →</Link></div>
   </article>;
   const isMaker = detail.document.created_by_user_id === actor.user_id;
   const canCheck = canCheckDocument(actor, detail);

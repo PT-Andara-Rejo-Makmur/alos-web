@@ -51,6 +51,7 @@ export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> 
   reconciliation: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   tax: { availability: "BLOCKED", blockReason: "CONTRACT_PENDING" },
   close: { availability: "BLOCKED", blockReason: "CONTRACT_PENDING" },
+  "month-close": { availability: "BLOCKED", blockReason: "CONTRACT_PENDING" },
 
   // HR Domain Modules
   employees: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
@@ -115,6 +116,7 @@ export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> 
   credentials: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   skills: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
   models: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
+  "models-tools": { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
   uat: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
   research: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   evidence: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },

@@ -279,13 +279,13 @@ describe("ALOS Legal & Compliance Dashboard", () => {
     });
   });
 
-  // 17. ARA route is canonical (/ara)
-  it("17. tombol CTA Legal Intelligence mengarah ke rute kanonikal ARA (/ara)", () => {
+  // 17. ARA route is contextual (/workspace/legal/ara)
+  it("17. tombol CTA Legal Intelligence mengarah ke rute kontekstual ARA (/workspace/legal/ara)", () => {
     render(<LegalAgentSupport agents={DEFAULT_LEGAL_AGENTS} />);
 
     const araLink = screen.getByRole("link", { name: /Tanyakan ARA tentang Legal/i });
     expect(araLink).toBeInTheDocument();
-    expect(araLink).toHaveAttribute("href", "/ara");
+    expect(araLink).toHaveAttribute("href", "/workspace/legal/ara");
   });
 
   // 18. Mobile bottom nav has 5 items

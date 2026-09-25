@@ -16,7 +16,7 @@ export function FinanceApprovalPanel() {
       </p>
 
       <div style={{ marginTop: "auto", textAlign: "center" }}>
-        <Link href="/business/approvals" className={styles.approvalCTA}>
+        <Link href="/workspace/finance/approvals" className={styles.approvalCTA}>
           Buka Approval Center &rarr;
         </Link>
       </div>

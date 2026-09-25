@@ -251,13 +251,13 @@ describe("ALOS HR / People Dashboard", () => {
     expect(dashes.length).toBe(4);
   });
 
-  // 16. ARA link is canonical (/ara)
-  it("16. tombol CTA People Intelligence mengarah ke rute kanonikal ARA (/ara)", () => {
+  // 16. ARA link is contextual (/workspace/hr/ara)
+  it("16. tombol CTA People Intelligence mengarah ke rute kontekstual ARA (/workspace/hr/ara)", () => {
     render(<HrAgentSupport agents={DEFAULT_HR_AGENTS} />);
 
     const araLink = screen.getByRole("link", { name: /Tanyakan ARA tentang People/i });
     expect(araLink).toBeInTheDocument();
-    expect(araLink).toHaveAttribute("href", "/ara");
+    expect(araLink).toHaveAttribute("href", "/workspace/hr/ara");
   });
 
   // 17. Workspace Shell IA projection for HR

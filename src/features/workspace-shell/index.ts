@@ -1,5 +1,6 @@
 export { WorkspaceShell } from "./workspace-shell";
 export { WorkspaceSharedModulePage } from "./workspace-shared-module-page";
+export { ContextualWorkspaceModulePage } from "./contextual-workspace-module-page";
 export { WorkspaceSidebar } from "./workspace-sidebar";
 export { WorkspaceTopbar } from "./workspace-topbar";
 export { WorkspaceMobileNav } from "./workspace-mobile-nav";

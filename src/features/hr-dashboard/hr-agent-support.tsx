@@ -32,7 +32,7 @@ export function HrAgentSupport({
         ))}
       </div>
 
-      <Link className={styles.obsidianCtaButton} href="/ara">
+      <Link className={styles.obsidianCtaButton} href="/workspace/hr/ara">
         <Sparkles size={16} strokeWidth={2.2} />
         <span>Tanyakan ARA tentang People</span>
       </Link>

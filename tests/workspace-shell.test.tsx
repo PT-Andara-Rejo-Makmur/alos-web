@@ -119,7 +119,7 @@ describe("WorkspaceShell Reusable Component", () => {
     expect(switchLinks[0]).toHaveAttribute("href", "/workspace");
   });
 
-  it("5. tombol ARA mengarah ke route kanonikal /ara", () => {
+  it("5. tombol ARA mengarah ke route kontekstual /workspace/finance/ara", () => {
     render(
       <WorkspaceShell identity={financeIdentity}>
         <div>Content</div>
@@ -127,7 +127,7 @@ describe("WorkspaceShell Reusable Component", () => {
     );
 
     const araLinks = screen.getAllByRole("link", { name: /ARA/i });
-    expect(araLinks.some((link) => link.getAttribute("href") === "/ara")).toBe(true);
+    expect(araLinks.some((link) => link.getAttribute("href") === "/workspace/finance/ara")).toBe(true);
   });
 
   it("6. logout memanggil sessionApiRequest DELETE dan mengalihkan halaman", async () => {

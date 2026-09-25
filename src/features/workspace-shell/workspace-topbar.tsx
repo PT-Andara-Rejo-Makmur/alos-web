@@ -5,6 +5,7 @@ import { Sparkles } from "lucide-react";
 
 import { NotificationCenter } from "@/features/notifications/notification-center";
 import type { SessionActor } from "@/features/session";
+import { getWorkspaceAraRoute } from "@/features/workspace-routing";
 import { TopbarProjectContext } from "./workspace-context-switcher";
 import { WorkspaceProfileMenu } from "./workspace-profile-menu";
 import type {
@@ -28,6 +29,8 @@ export function WorkspaceTopbar({
   readonly onSelectProject?: (projectId: string) => void;
   readonly onLogout?: () => Promise<void> | void;
 }) {
+  const araHref = getWorkspaceAraRoute(identity.workspaceKey);
+
   return (
     <header className={styles.topbar}>
       {/* Topbar Left (Workspace title & organization) */}
@@ -52,7 +55,7 @@ export function WorkspaceTopbar({
         <Link
           aria-label="Buka asisten kecerdasan ARA"
           className={styles.araButton}
-          href="/ara"
+          href={araHref}
         >
           <Sparkles aria-hidden="true" size={15} strokeWidth={2} />
           <span>ARA</span>

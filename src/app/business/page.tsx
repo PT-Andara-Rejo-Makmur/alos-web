@@ -1,5 +1,5 @@
-import { BusinessWorkspace } from "@/experiences/business/workspace";
+import { LegacyCompatibilityRedirect } from "@/features/workspace-routing";
 
 export default function BusinessPage() {
-  return <BusinessWorkspace />;
+  return <LegacyCompatibilityRedirect targetPath="/business" />;
 }

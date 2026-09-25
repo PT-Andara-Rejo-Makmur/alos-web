@@ -33,7 +33,7 @@ export function GenesisControlPlanePanel({ items }: GenesisControlPlanePanelProp
       <Link
         aria-label="Buka GENESIS Control Plane"
         className={styles.obsidianCtaButton}
-        href="/genesis"
+        href="/workspace/it/genesis"
       >
         <span>Buka GENESIS Control Plane</span>
         <ArrowRight aria-hidden="true" size={16} strokeWidth={2} />

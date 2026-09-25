@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
 
+import { getWorkspaceRoot } from "@/features/workspace-routing";
 import { SidebarWorkspaceSwitcher } from "./workspace-context-switcher";
 import { WORKSPACE_ICONS } from "./workspace-navigation";
 import type {
@@ -121,23 +122,7 @@ export function WorkspaceSidebar({
         <Link
           aria-label="ALOS Beranda"
           className={styles.brandHeader}
-          href={
-            identity.workspaceKey === "executive"
-              ? "/workspace/executive"
-              : identity.workspaceKey === "finance"
-                ? "/workspace/finance"
-                : identity.workspaceKey === "property"
-                  ? "/workspace/property"
-                  : identity.workspaceKey === "sales"
-                    ? "/workspace/sales"
-                    : identity.workspaceKey === "hr"
-                      ? "/workspace/hr"
-                      : identity.workspaceKey === "legal"
-                        ? "/workspace/legal"
-                        : identity.workspaceKey === "it"
-                          ? "/workspace/it"
-                          : "/business"
-          }
+          href={getWorkspaceRoot(identity.workspaceKey)}
         >
           <Image
             alt="Logo Mark ALOS"

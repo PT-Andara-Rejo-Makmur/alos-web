@@ -34,13 +34,13 @@ type ExecutiveDashboardProps = {
 type IconName = "home" | "divisions" | "projects" | "tasks" | "approvals" | "documents" | "reports" | "findings" | "genesis" | "settings" | "governance" | "logout" | "bell" | "chevron" | DashboardMetric["icon"];
 
 export const navItems: Array<{ href: string; key: DashboardModuleKey; label: string; icon: IconName }> = [
-  { href: "/business/divisions", key: "divisions", label: "Divisi", icon: "divisions" },
-  { href: "/business/projects", key: "projects", label: "Proyek", icon: "projects" },
-  { href: "/business/tasks", key: "tasks", label: "Tugas", icon: "tasks" },
-  { href: "/business/approvals", key: "approvals", label: "Approval", icon: "approvals" },
-  { href: "/business/documents", key: "documents", label: "Dokumen", icon: "documents" },
-  { href: "/business/reports", key: "reports", label: "Laporan", icon: "reports" },
-  { href: "/business/findings", key: "findings", label: "Temuan", icon: "findings" },
+  { href: "/workspace/executive/divisions", key: "divisions", label: "Divisi", icon: "divisions" },
+  { href: "/workspace/executive/projects", key: "projects", label: "Proyek", icon: "projects" },
+  { href: "/workspace/executive/tasks", key: "tasks", label: "Tugas", icon: "tasks" },
+  { href: "/workspace/executive/approvals", key: "approvals", label: "Approval", icon: "approvals" },
+  { href: "/workspace/executive/documents", key: "documents", label: "Dokumen", icon: "documents" },
+  { href: "/workspace/executive/reports", key: "reports", label: "Laporan", icon: "reports" },
+  { href: "/workspace/executive/findings", key: "findings", label: "Temuan", icon: "findings" },
 ];
 
 export function ExecutiveDashboard({ module }: ExecutiveDashboardProps) {
@@ -168,7 +168,7 @@ function ExecutiveProjectDistributionPanel({ dashboard }: { dashboard: Executive
   const background = distribution.available && distribution.total
     ? `conic-gradient(${stops.join(", ")})`
     : "conic-gradient(#e5e9e5 0 100%)";
-  return <article className="alos-executive-panel alos-executive-distribution"><div className="alos-executive-panel-heading"><div><h2>Distribusi Proyek</h2><p>Status portofolio saat ini</p></div><Link href="/business/projects">Lihat Detail <span>→</span></Link></div><div className="alos-project-distribution-body"><div className={`alos-project-donut${distribution.available ? "" : " unavailable"}`} style={{ background }}><div><strong>{distribution.available ? distribution.total : "—"}</strong><span>Proyek</span></div></div><div className="alos-project-legend">{distribution.items.map((item) => <div key={item.key}><i style={{ background: colors[item.tone] }} /><span>{item.label}</span><strong>{item.count} {distribution.total ? `(${Math.round(item.count / distribution.total * 100)}%)` : "(0%)"}</strong></div>)}</div></div>{!distribution.available ? <p className="alos-data-notice">{distribution.context}</p> : null}</article>;
+  return <article className="alos-executive-panel alos-executive-distribution"><div className="alos-executive-panel-heading"><div><h2>Distribusi Proyek</h2><p>Status portofolio saat ini</p></div><Link href="/workspace/executive/projects">Lihat Detail <span>→</span></Link></div><div className="alos-project-distribution-body"><div className={`alos-project-donut${distribution.available ? "" : " unavailable"}`} style={{ background }}><div><strong>{distribution.available ? distribution.total : "—"}</strong><span>Proyek</span></div></div><div className="alos-project-legend">{distribution.items.map((item) => <div key={item.key}><i style={{ background: colors[item.tone] }} /><span>{item.label}</span><strong>{item.count} {distribution.total ? `(${Math.round(item.count / distribution.total * 100)}%)` : "(0%)"}</strong></div>)}</div></div>{!distribution.available ? <p className="alos-data-notice">{distribution.context}</p> : null}</article>;
 }
 
 function ExecutiveDivisionPanel({ dashboard }: { dashboard: ExecutiveDashboardSnapshot }) {
@@ -180,7 +180,7 @@ function ExecutiveAttentionPanel({ dashboard }: { dashboard: ExecutiveDashboardS
 }
 
 function ExecutiveApprovalPanel({ dashboard }: { dashboard: ExecutiveDashboardSnapshot }) {
-  return <article className="alos-executive-panel alos-executive-approvals"><div className="alos-executive-panel-heading"><div><h2>Approval Pending</h2><p>Dokumen dan release agent</p></div><Link href="/business/approvals">Lihat Semua <span>→</span></Link></div>{dashboard.pending_approvals.length ? <div className="alos-approval-table-wrap"><table><thead><tr><th>ID</th><th>Jenis</th><th>Permintaan</th><th>Umur</th></tr></thead><tbody>{dashboard.pending_approvals.map((approval) => <tr key={approval.approval_id}><td><code>{approval.approval_id.slice(0, 8).toUpperCase()}</code></td><td>{approvalKindLabel(approval.kind)}</td><td><strong>{approval.title}</strong><small>{approval.requested_by} · {approval.workspace_name}</small></td><td><span className={approval.urgency.toLowerCase()}>{approvalAgeLabel(approval.age_days)}</span></td></tr>)}</tbody></table></div> : <ExecutiveEmpty text="Tidak ada approval yang menunggu keputusan." />}</article>;
+  return <article className="alos-executive-panel alos-executive-approvals"><div className="alos-executive-panel-heading"><div><h2>Approval Pending</h2><p>Dokumen dan release agent</p></div><Link href="/workspace/executive/approvals">Lihat Semua <span>→</span></Link></div>{dashboard.pending_approvals.length ? <div className="alos-approval-table-wrap"><table><thead><tr><th>ID</th><th>Jenis</th><th>Permintaan</th><th>Umur</th></tr></thead><tbody>{dashboard.pending_approvals.map((approval) => <tr key={approval.approval_id}><td><code>{approval.approval_id.slice(0, 8).toUpperCase()}</code></td><td>{approvalKindLabel(approval.kind)}</td><td><strong>{approval.title}</strong><small>{approval.requested_by} · {approval.workspace_name}</small></td><td><span className={approval.urgency.toLowerCase()}>{approvalAgeLabel(approval.age_days)}</span></td></tr>)}</tbody></table></div> : <ExecutiveEmpty text="Tidak ada approval yang menunggu keputusan." />}</article>;
 }
 
 function ExecutiveEmpty({ text }: { text: string }) {
