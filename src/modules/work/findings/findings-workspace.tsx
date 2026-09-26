@@ -206,27 +206,28 @@ export const FindingsWorkspace: React.FC<FindingsWorkspaceProps> = ({
       {error && <WorkNotice variant="error" message={error} />}
       {notice && <WorkNotice variant="success" message={notice} />}
 
-      {/* Metrics */}
-      <div className={styles.metricStrip}>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Total Temuan</span>
-          <span className={styles.metricValue}>{findings.length}</span>
+      {/* Compact Operational Summary Strip */}
+      <div className={styles.summaryStrip}>
+        <span className={styles.summaryStripTitle}>Ringkasan Temuan</span>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Total:</span>
+          <span className={styles.summaryItemValue}>{findings.length}</span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Terbuka</span>
-          <span className={styles.metricValue} style={{ color: "#b45309" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Terbuka:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextPending}`}>
             {findings.filter((f) => f.status === "OPEN").length}
           </span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Kritis</span>
-          <span className={styles.metricValue} style={{ color: "#b91c1c" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Kritis:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextCritical}`}>
             {findings.filter((f) => f.severity === "CRITICAL" && f.status !== "RESOLVED").length}
           </span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Selesai</span>
-          <span className={styles.metricValue} style={{ color: "#15803d" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Selesai:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextOnTrack}`}>
             {findings.filter((f) => f.status === "RESOLVED").length}
           </span>
         </div>
@@ -239,7 +240,7 @@ export const FindingsWorkspace: React.FC<FindingsWorkspaceProps> = ({
           <div className={styles.formGrid}>
             <div className={styles.formGroupFull}>
               <label className={styles.formLabel} htmlFor="fnd-title">
-                Judul Temuan <span style={{ color: "#dc2626" }}>*</span>
+                Judul Temuan <span className={styles.statusTextCritical}>*</span>
               </label>
               <input
                 id="fnd-title"
@@ -254,7 +255,7 @@ export const FindingsWorkspace: React.FC<FindingsWorkspaceProps> = ({
             </div>
             <div className={styles.formGroup}>
               <label className={styles.formLabel} htmlFor="fnd-sev">
-                Severitas
+                Tingkat Keparahan
               </label>
               <select
                 id="fnd-sev"
@@ -262,15 +263,15 @@ export const FindingsWorkspace: React.FC<FindingsWorkspaceProps> = ({
                 value={severity}
                 onChange={(e) => setSeverity(e.target.value)}
               >
-                <option value="LOW">LOW</option>
-                <option value="MEDIUM">MEDIUM</option>
-                <option value="HIGH">HIGH</option>
-                <option value="CRITICAL">CRITICAL</option>
+                <option value="LOW">Rendah (LOW)</option>
+                <option value="MEDIUM">Sedang (MEDIUM)</option>
+                <option value="HIGH">Tinggi (HIGH)</option>
+                <option value="CRITICAL">Kritis (CRITICAL)</option>
               </select>
             </div>
             <div className={styles.formGroupFull}>
               <label className={styles.formLabel} htmlFor="fnd-desc">
-                Deskripsi & Catatan Lapangan <span style={{ color: "#dc2626" }}>*</span>
+                Deskripsi & Catatan Lapangan <span className={styles.statusTextCritical}>*</span>
               </label>
               <textarea
                 id="fnd-desc"

@@ -59,7 +59,7 @@
   flex-wrap: wrap;
 }
 
-/* Metric Strip */
+/* Metric Strip (Legacy) */
 .metricStrip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -89,6 +89,73 @@
   font-weight: 700;
   color: #1c1917;
   font-variant-numeric: tabular-nums;
+}
+
+/* Compact Operational Summary Strip */
+.summaryStrip {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #ffffff;
+  border: 1px solid #e7e5e4;
+  border-radius: 6px;
+  padding: 10px 16px;
+  flex-wrap: wrap;
+}
+
+.summaryStripTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #78716c;
+  padding-right: 16px;
+  border-right: 1px solid #e7e5e4;
+}
+
+.summaryItem {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.summaryItemLabel {
+  font-size: 12px;
+  color: #78716c;
+  font-weight: 500;
+}
+
+.summaryItemValue {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #1c1917;
+}
+
+/* Semantic Status Text Color Classes (centralized, no inline style colors) */
+.statusTextOnTrack {
+  color: #15803d;
+}
+
+.statusTextAtRisk {
+  color: #b45309;
+}
+
+.statusTextCritical {
+  color: #b91c1c;
+}
+
+.statusTextCompleted {
+  color: #1d4ed8;
+}
+
+.statusTextPending {
+  color: #b45309;
+}
+
+.statusTextNeutral {
+  color: #57534e;
 }
 
 /* Toolbar & Filter */

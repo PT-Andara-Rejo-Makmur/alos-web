@@ -170,29 +170,30 @@ export const ApprovalsWorkspace: React.FC<ApprovalsWorkspaceProps> = ({
       {error && <WorkNotice variant="error" message={error} />}
       {notice && <WorkNotice variant="success" message={notice} />}
 
-      {/* Metrics */}
-      <div className={styles.metricStrip}>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Menunggu Persetujuan</span>
-          <span className={styles.metricValue} style={{ color: "#b45309" }}>
+      {/* Compact Operational Summary Strip */}
+      <div className={styles.summaryStrip}>
+        <span className={styles.summaryStripTitle}>Ringkasan Persetujuan</span>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Menunggu:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextPending}`}>
             {approvals.filter((a) => a.status === "PENDING").length}
           </span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Tinggi / Kritis</span>
-          <span className={styles.metricValue} style={{ color: "#b91c1c" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Mendesak:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextCritical}`}>
             {approvals.filter((a) => a.urgency === "URGENT" && a.status === "PENDING").length}
           </span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Disetujui</span>
-          <span className={styles.metricValue} style={{ color: "#15803d" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Disetujui:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextOnTrack}`}>
             {approvals.filter((a) => a.status === "APPROVED").length}
           </span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Aksi Material Tertunda</span>
-          <span className={styles.metricValue}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Aksi Tertunda:</span>
+          <span className={styles.summaryItemValue}>
             {proposedActions.filter((act) => act.status === "APPROVED").length}
           </span>
         </div>

@@ -210,38 +210,39 @@ export const DocumentsWorkspace: React.FC<DocumentsWorkspaceProps> = ({
         </div>
         <div className={styles.titleArea}>
           <h2 className={styles.pageTitle} style={{ fontSize: "22px" }}>
-            Documents
+            Dokumen
           </h2>
         </div>
         <p className={styles.pageSubtitle}>
-          Repositori dokumen resmi ALOS dengan alur kendali kualitas berjenjang: Draft, Checklist, Review, dan Persetujuan Otoritatif.
+          Repositori dokumen resmi ALOS dengan alur kendali kualitas berjenjang: Draf, Checklist, Review, dan Persetujuan Otoritatif.
         </p>
       </header>
 
       {error && <WorkNotice variant="error" message={error} />}
       {notice && <WorkNotice variant="success" message={notice} />}
 
-      {/* Metrics */}
-      <div className={styles.metricStrip}>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Total Dokumen</span>
-          <span className={styles.metricValue}>{documents.length}</span>
+      {/* Compact Operational Summary Strip */}
+      <div className={styles.summaryStrip}>
+        <span className={styles.summaryStripTitle}>Ringkasan Dokumen</span>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Total:</span>
+          <span className={styles.summaryItemValue}>{documents.length}</span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Draft</span>
-          <span className={styles.metricValue} style={{ color: "#78716c" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Draf:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextNeutral}`}>
             {documents.filter((d) => d.status === "DRAFT").length}
           </span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Dalam Telaah</span>
-          <span className={styles.metricValue} style={{ color: "#b45309" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Dalam Telaah:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextPending}`}>
             {documents.filter((d) => ["SUBMITTED", "CHECKED", "REVIEWED"].includes(d.status)).length}
           </span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Disetujui</span>
-          <span className={styles.metricValue} style={{ color: "#15803d" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Disetujui:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextOnTrack}`}>
             {documents.filter((d) => d.status === "APPROVED").length}
           </span>
         </div>
@@ -254,7 +255,7 @@ export const DocumentsWorkspace: React.FC<DocumentsWorkspaceProps> = ({
           <div className={styles.formGrid}>
             <div className={styles.formGroupFull}>
               <label className={styles.formLabel} htmlFor="doc-title">
-                Judul Dokumen <span style={{ color: "#dc2626" }}>*</span>
+                Judul Dokumen <span className={styles.statusTextCritical}>*</span>
               </label>
               <input
                 id="doc-title"
@@ -337,7 +338,7 @@ export const DocumentsWorkspace: React.FC<DocumentsWorkspaceProps> = ({
                 disabled={saving}
                 onClick={() => void handleSubmitDoc(selectedDoc.document.document_id)}
               >
-                <span>Ajukan untuk Review (Submit Review)</span>
+                <span>Ajukan untuk Review</span>
                 <ArrowRight size={11} aria-hidden="true" />
               </button>
             )}
@@ -351,7 +352,7 @@ export const DocumentsWorkspace: React.FC<DocumentsWorkspaceProps> = ({
                   onClick={() => void handleApproveDoc(selectedDoc.document.document_id)}
                 >
                   <CheckCircle2 size={13} aria-hidden="true" />
-                  <span>Setujui Dokumen (Approve)</span>
+                  <span>Setujui Dokumen</span>
                 </button>
                 <button
                   type="button"
@@ -360,7 +361,7 @@ export const DocumentsWorkspace: React.FC<DocumentsWorkspaceProps> = ({
                   onClick={() => void handleRejectDoc(selectedDoc.document.document_id)}
                 >
                   <XCircle size={13} aria-hidden="true" />
-                  <span>Tolak Dokumen (Reject)</span>
+                  <span>Tolak Dokumen</span>
                 </button>
               </>
             )}

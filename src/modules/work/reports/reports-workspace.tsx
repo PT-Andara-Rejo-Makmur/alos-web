@@ -217,21 +217,22 @@ export const ReportsWorkspace: React.FC<ReportsWorkspaceProps> = ({
       {error && <WorkNotice variant="error" message={error} />}
       {notice && <WorkNotice variant="success" message={notice} />}
 
-      {/* Metrics */}
-      <div className={styles.metricStrip}>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Total Definisi</span>
-          <span className={styles.metricValue}>{definitions.length}</span>
+      {/* Compact Operational Summary Strip */}
+      <div className={styles.summaryStrip}>
+        <span className={styles.summaryStripTitle}>Ringkasan Laporan</span>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Total Definisi:</span>
+          <span className={styles.summaryItemValue}>{definitions.length}</span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Terjadwal</span>
-          <span className={styles.metricValue} style={{ color: "#15803d" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Terjadwal:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextOnTrack}`}>
             {definitions.filter((d) => Boolean(d.schedule_expression)).length}
           </span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Arsip Laporan</span>
-          <span className={styles.metricValue}>{reports.length}</span>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Arsip Laporan:</span>
+          <span className={styles.summaryItemValue}>{reports.length}</span>
         </div>
       </div>
 
@@ -242,7 +243,7 @@ export const ReportsWorkspace: React.FC<ReportsWorkspaceProps> = ({
           <div className={styles.formGrid}>
             <div className={styles.formGroupFull}>
               <label className={styles.formLabel} htmlFor="rep-name">
-                Nama Laporan <span style={{ color: "#dc2626" }}>*</span>
+                Nama Laporan <span className={styles.statusTextCritical}>*</span>
               </label>
               <input
                 id="rep-name"

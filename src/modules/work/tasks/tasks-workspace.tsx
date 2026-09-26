@@ -161,9 +161,9 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
   }, [tasks, filter]);
 
   const kanbanColumns: Array<{ label: string; statuses: TaskStatus[] }> = [
-    { label: "To do", statuses: ["DRAFT", "TODO"] },
-    { label: "In progress", statuses: ["IN_PROGRESS"] },
-    { label: "In review", statuses: ["IN_REVIEW"] },
+    { label: "Akan Dikerjakan", statuses: ["DRAFT", "TODO"] },
+    { label: "Sedang Dikerjakan", statuses: ["IN_PROGRESS"] },
+    { label: "Dalam Review", statuses: ["IN_REVIEW"] },
     { label: "Selesai", statuses: ["DONE", "CANCELLED"] },
   ];
 
@@ -176,7 +176,6 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
 
   return (
     <div className={styles.workRoot}>
-      {/* Header with h2 'Tasks' to maintain test contract compatibility while providing rich local context */}
       <header className={styles.pageHeader}>
         <div className={styles.headerTop}>
           <div className={styles.breadcrumb}>
@@ -200,38 +199,39 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
         </div>
         <div className={styles.titleArea}>
           <h2 className={styles.pageTitle} style={{ fontSize: "22px" }}>
-            Tasks
+            Tugas
           </h2>
         </div>
         <p className={styles.pageSubtitle}>
-          Task Board operasional dan daftar aktivitas harian yang dapat dipetakan ke proyek dan sasaran strategis.
+          Papan tugas operasional dan daftar aktivitas harian yang dapat dipetakan ke proyek dan sasaran strategis.
         </p>
       </header>
 
       {error && <WorkNotice variant="error" message={error} />}
       {notice && <WorkNotice variant="success" message={notice} />}
 
-      {/* Metrics */}
-      <div className={styles.metricStrip}>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Total Tugas</span>
-          <span className={styles.metricValue}>{tasks.length}</span>
+      {/* Compact Operational Summary Strip */}
+      <div className={styles.summaryStrip}>
+        <span className={styles.summaryStripTitle}>Ringkasan Tugas</span>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Total:</span>
+          <span className={styles.summaryItemValue}>{tasks.length}</span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Sedang Dikerjakan</span>
-          <span className={styles.metricValue} style={{ color: "#b45309" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Sedang Dikerjakan:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextPending}`}>
             {tasks.filter((t) => t.status === "IN_PROGRESS").length}
           </span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Menunggu Review</span>
-          <span className={styles.metricValue} style={{ color: "#1d4ed8" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Menunggu Review:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextCompleted}`}>
             {tasks.filter((t) => t.status === "IN_REVIEW").length}
           </span>
         </div>
-        <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Selesai</span>
-          <span className={styles.metricValue} style={{ color: "#15803d" }}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryItemLabel}>Selesai:</span>
+          <span className={`${styles.summaryItemValue} ${styles.statusTextOnTrack}`}>
             {tasks.filter((t) => t.status === "DONE").length}
           </span>
         </div>
@@ -244,7 +244,7 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
           <div className={styles.formGrid}>
             <div className={styles.formGroupFull}>
               <label className={styles.formLabel} htmlFor="task-title">
-                Judul Tugas <span style={{ color: "#dc2626" }}>*</span>
+                Judul Tugas <span className={styles.statusTextCritical}>*</span>
               </label>
               <input
                 id="task-title"
@@ -456,7 +456,7 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
                                 <ArrowRight size={10} aria-hidden="true" />
                               </button>
                             ) : (
-                              <span style={{ fontSize: "11px", fontWeight: 600, color: "#15803d" }}>
+                              <span className={styles.statusTextOnTrack} style={{ fontSize: "11px", fontWeight: 600 }}>
                                 {humanStatus(task.status)}
                               </span>
                             )}

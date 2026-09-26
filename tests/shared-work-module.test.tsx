@@ -85,7 +85,7 @@ describe("Shared Work Module - Unified Operational Surface", () => {
 
       for (const ws of workspaces) {
         const { unmount } = render(<TasksWorkspace activeWorkspace={ws} />);
-        expect(screen.getByRole("heading", { name: "Tasks" })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Tugas" })).toBeInTheDocument();
         expect(screen.getByRole("button", { name: /Buat Tugas/i })).toBeInTheDocument();
         unmount();
       }
@@ -110,7 +110,7 @@ describe("Shared Work Module - Unified Operational Surface", () => {
       });
 
       const { unmount } = render(<DocumentsWorkspace activeWorkspace={workspaces[1]} />);
-      expect(screen.getByRole("heading", { name: "Documents" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Dokumen" })).toBeInTheDocument();
       unmount();
     });
 

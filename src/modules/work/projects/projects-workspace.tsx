@@ -189,9 +189,9 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
     <div className={styles.workRoot}>
       <WorkPageHeader
         title="Portofolio Proyek"
-        subtitle="Kelola proyek dalam scope Anda secara terintegrasi dengan tata kelola biaya, jadwal, dan risiko."
+        subtitle="Kelola proyek dalam cakupan workspace aktif, termasuk progres, jadwal, milestone, isu, dan bukti pelaksanaan."
         workspaceLabel={activeWorkspace.workspaceLabel}
-        kicker="PORTFOLIO OPERATIONS"
+        kicker="OPERASI PORTOFOLIO"
         actions={
           <button
             type="button"
@@ -209,34 +209,35 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
       {error && <WorkNotice variant="error" message={error} />}
       {notice && <WorkNotice variant="success" message={notice} />}
 
-      {/* Metric Cards */}
+      {/* Compact Operational Summary Strip */}
       {data?.metrics && (
-        <div className={styles.metricStrip}>
-          <div className={styles.metricCard}>
-            <span className={styles.metricLabel}>Total Proyek</span>
-            <span className={styles.metricValue}>{data.metrics.total}</span>
+        <div className={styles.summaryStrip}>
+          <span className={styles.summaryStripTitle}>Ringkasan Portofolio</span>
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryItemLabel}>Total:</span>
+            <span className={styles.summaryItemValue}>{data.metrics.total}</span>
           </div>
-          <div className={styles.metricCard}>
-            <span className={styles.metricLabel}>Tepat Waktu</span>
-            <span className={styles.metricValue} style={{ color: "#15803d" }}>
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryItemLabel}>Tepat Waktu:</span>
+            <span className={`${styles.summaryItemValue} ${styles.statusTextOnTrack}`}>
               {data.metrics.on_track}
             </span>
           </div>
-          <div className={styles.metricCard}>
-            <span className={styles.metricLabel}>Beresiko</span>
-            <span className={styles.metricValue} style={{ color: "#b45309" }}>
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryItemLabel}>Berisiko:</span>
+            <span className={`${styles.summaryItemValue} ${styles.statusTextAtRisk}`}>
               {data.metrics.at_risk}
             </span>
           </div>
-          <div className={styles.metricCard}>
-            <span className={styles.metricLabel}>Kritis</span>
-            <span className={styles.metricValue} style={{ color: "#b91c1c" }}>
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryItemLabel}>Kritis:</span>
+            <span className={`${styles.summaryItemValue} ${styles.statusTextCritical}`}>
               {data.metrics.critical}
             </span>
           </div>
-          <div className={styles.metricCard}>
-            <span className={styles.metricLabel}>Selesai</span>
-            <span className={styles.metricValue} style={{ color: "#1d4ed8" }}>
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryItemLabel}>Selesai:</span>
+            <span className={`${styles.summaryItemValue} ${styles.statusTextCompleted}`}>
               {data.metrics.completed}
             </span>
           </div>
@@ -262,7 +263,7 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
             </div>
             <div className={styles.formGroup}>
               <label className={styles.formLabel} htmlFor="proj-code">
-                Kode Proyek <span style={{ color: "#dc2626" }}>*</span>
+                Kode Proyek <span className={styles.statusTextCritical}>*</span>
               </label>
               <input
                 id="proj-code"
@@ -345,10 +346,10 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
 
       {/* Project Controls Panel */}
       {projects.length > 0 && selectedProject && (
-        <section className={styles.formShell} aria-label="Project Controls">
+        <section className={styles.formShell} aria-label="Kendali Proyek">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
             <div>
-              <span className={styles.metricLabel}>PROJECT CONTROLS</span>
+              <span className={styles.metricLabel}>KENDALI PROYEK</span>
               <h3 style={{ margin: "2px 0 0", fontSize: "15px", fontWeight: 700 }}>
                 Perbarui Proyek, Milestone, dan Isu
               </h3>
@@ -373,7 +374,7 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
               className={mode === "update" ? styles.buttonPrimary : styles.buttonSecondary}
               onClick={() => setMode("update")}
             >
-              Update Proyek
+              Perbarui Proyek
             </button>
             <button
               type="button"
@@ -577,7 +578,7 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
           >
             <option value="">Semua Status</option>
             <option value="ON_TRACK">Tepat Waktu (ON TRACK)</option>
-            <option value="AT_RISK">Beresiko (AT RISK)</option>
+            <option value="AT_RISK">Berisiko (AT RISK)</option>
             <option value="CRITICAL">Kritis (CRITICAL)</option>
             <option value="COMPLETED">Selesai (COMPLETED)</option>
           </select>
@@ -615,7 +616,7 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
                   <div className={styles.emptyState}>
                     <FolderKanban size={24} className={styles.emptyIcon} aria-hidden="true" />
                     <p className={styles.emptyTitle}>
-                      {loading ? "Memuat portofolio proyek…" : "Tidak ada proyek dalam scope ini"}
+                      {loading ? "Memuat portofolio proyek…" : "Belum ada proyek dalam scope ini"}
                     </p>
                     <p className={styles.emptyHelper}>
                       Proyek yang dibuat dalam workspace ini akan terdaftar secara terpusat.
