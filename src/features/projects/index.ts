@@ -1,2 +1,2 @@
 export * from "./portfolio";
-export * from "./portfolio-dashboards";
+export * from "./divisions-overview";

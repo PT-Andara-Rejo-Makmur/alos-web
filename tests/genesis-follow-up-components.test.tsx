@@ -7,7 +7,7 @@ import {
   GenesisFollowUpFeedback,
   GenesisFollowUpMessage,
   GenesisKnowledgeSource,
-} from "@/features/documents/document-center";
+} from "@/features/genesis-workspace";
 import type { GenesisFollowUpFailure, GenesisHistoryMessage } from "@/features/genesis-workspace/follow-up";
 
 function message(actorKind: "HUMAN" | "SYSTEM", content: string): GenesisHistoryMessage {

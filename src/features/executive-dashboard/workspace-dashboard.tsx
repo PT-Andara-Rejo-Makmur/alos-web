@@ -23,7 +23,7 @@ import {
   StrategyPerformanceSummary,
 } from "@/modules/strategy";
 import { GenesisChat } from "@/features/genesis-workspace/conversation-workspace";
-import { DivisionsOverviewDashboard } from "@/features/projects/portfolio-dashboards";
+import { DivisionsOverviewDashboard } from "@/features/projects/divisions-overview";
 import {
   approvalAgeLabel,
   approvalKindLabel,
