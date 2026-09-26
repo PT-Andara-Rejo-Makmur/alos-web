@@ -32,16 +32,14 @@ describe("IT Identity & Access - Workspace Access & Access Review", () => {
   describe("Navigation projection", () => {
     it("memiliki readiness eksplisit untuk Akses Workspace dan Tinjauan Akses", () => {
       expect(getModuleReadiness("workspace-access")).toEqual({
-        availability: "BLOCKED",
-        blockReason: "BACKEND_NOT_CONNECTED",
+        availability: "READY",
       });
       expect(getModuleReadiness("access-review")).toEqual({
-        availability: "BLOCKED",
-        blockReason: "BACKEND_NOT_CONNECTED",
+        availability: "READY",
       });
     });
 
-    it("projects Workspace Access and Access Review for IT_ADMIN", () => {
+    it("projects Workspace Access and Access Review for IT_ADMIN as READY", () => {
       const nav = projectWorkspaceNavigation(
         {
           workspaceId: "ws_it_01",
@@ -71,16 +69,16 @@ describe("IT Identity & Access - Workspace Access & Access Review", () => {
       expect(accessItem?.navigable).toBe(true);
       expect(accessItem?.group).toBe("IDENTITY_ACCESS");
       expect(accessItem?.label).toBe("Akses Workspace");
-      expect(accessItem?.availability).toBe("BLOCKED");
-      expect(accessItem?.blockReason).toBe("BACKEND_NOT_CONNECTED");
+      expect(accessItem?.availability).toBe("READY");
+      expect(accessItem?.blockReason).toBeUndefined();
 
       expect(reviewItem).toBeDefined();
       expect(reviewItem?.href).toBe("/workspace/it/users/access-review");
       expect(reviewItem?.navigable).toBe(true);
       expect(reviewItem?.group).toBe("IDENTITY_ACCESS");
       expect(reviewItem?.label).toBe("Tinjauan Akses");
-      expect(reviewItem?.availability).toBe("BLOCKED");
-      expect(reviewItem?.blockReason).toBe("BACKEND_NOT_CONNECTED");
+      expect(reviewItem?.availability).toBe("READY");
+      expect(reviewItem?.blockReason).toBeUndefined();
     });
   });
 
@@ -240,8 +238,16 @@ describe("IT Identity & Access - Workspace Access & Access Review", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tinjauan Akses", level: 1 })).toBeInTheDocument();
         expect(screen.getByText("Bob SysAdmin")).toBeInTheDocument();
-        expect(screen.getByText("Sumber riwayat perubahan belum tersedia.")).toBeInTheDocument();
+        expect(screen.getByText("Sumber riwayat perubahan hak akses belum tersedia dari Backend.")).toBeInTheDocument();
+        expect(screen.getByText("Sumber Proyeksi Identitas")).toBeInTheDocument();
+        expect(screen.getByText("AKTIF")).toBeInTheDocument();
       });
+    });
+
+    it("mengunci konsistensi status source dengan module readiness", () => {
+      // Invariant: access-review module readiness must be READY for page to show AKTIF
+      const readiness = getModuleReadiness("access-review");
+      expect(readiness.availability).toBe("READY");
     });
   });
 });

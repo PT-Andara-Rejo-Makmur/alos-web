@@ -175,12 +175,12 @@ function WorkspaceAccessContent() {
     <div className={styles.workspaceWrapper}>
       <ItPageHeader
         breadcrumb="ALOS / IT & TEKNOLOGI / AKSES WORKSPACE"
-        description="Melihat dan mengelola keanggotaan workspace (workspace membership) pengguna sesuai otoritas Backend."
+        description="Melihat dan mengelola keanggotaan workspace pengguna sesuai otoritas Backend."
         title="Akses Workspace"
       />
 
       {error ? (
-        <section aria-label="Error status">
+        <section aria-label="Status kesalahan">
           <ItNotice
             title="Terjadi kesalahan komunikasi dengan server"
             variant="warning"
@@ -203,7 +203,7 @@ function WorkspaceAccessContent() {
               aria-label="Cari akun atau workspace"
               className={styles.searchInput}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari user, workspace, role…"
+              placeholder="Cari pengguna, workspace, atau peran…"
               type="search"
               value={searchQuery}
             />

@@ -82,7 +82,7 @@ function AccessReviewContent() {
     <div className={styles.reviewWrapper}>
       <ItPageHeader
         breadcrumb="ALOS / IT & TEKNOLOGI / TINJAUAN AKSES"
-        description="Tinjauan hak akses efektif (effective-access review) seluruh pengguna berdasarkan proyeksi Backend saat ini."
+        description="Tinjauan hak akses efektif seluruh pengguna berdasarkan proyeksi Backend saat ini."
         title="Tinjauan Akses"
       />
 
@@ -90,7 +90,7 @@ function AccessReviewContent() {
       <section aria-label="Status sumber identitas">
         <ItStatusRow
           detail="LIVE_PROJECTION"
-          helper="Proyeksi hak akses efektif dibaca langsung dari Backend identity service."
+          helper="Proyeksi hak akses efektif dibaca langsung dari layanan identitas Backend."
           icon={ShieldCheck}
           label="Sumber Proyeksi Identitas"
           status="LIVE"
@@ -98,7 +98,7 @@ function AccessReviewContent() {
       </section>
 
       {error ? (
-        <section aria-label="Error status">
+        <section aria-label="Status kesalahan">
           <ItNotice
             title="Terjadi kesalahan komunikasi dengan server"
             variant="warning"
@@ -122,7 +122,7 @@ function AccessReviewContent() {
               aria-label="Filter tinjauan akses"
               className={styles.searchInput}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari user, role, permission…"
+              placeholder="Cari pengguna, peran, atau izin…"
               type="search"
               value={searchQuery}
             />
@@ -228,18 +228,21 @@ function AccessReviewContent() {
 
       {/* Change History Audit Boundary */}
       <section aria-labelledby="change-history-title" className={styles.section}>
-        <ItSectionHeader
-          eyebrow="Jejak Audit"
-          id="change-history-title"
-          subtitle="Catatan riwayat perubahan hak akses dan keanggotaan pengguna"
-          title="Riwayat Perubahan"
-        />
+        <div className={styles.filterBar}>
+          <ItSectionHeader
+            eyebrow="Jejak Audit"
+            id="change-history-title"
+            subtitle="Catatan riwayat perubahan hak akses dan keanggotaan pengguna"
+            title="Riwayat Perubahan"
+          />
+          <ItStatusBadge status="NOT_CONNECTED" />
+        </div>
 
         <ItNotice
-          title="Sumber riwayat perubahan belum tersedia."
+          title="Sumber riwayat perubahan hak akses belum tersedia dari Backend."
           variant="neutral"
         >
-          Backend audit-history projection is not connected. Audit trail for historical access transitions requires dedicated identity log telemetry.
+          Riwayat historis perubahan akses memerlukan sumber audit identitas yang terhubung.
         </ItNotice>
       </section>
     </div>

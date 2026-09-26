@@ -18,8 +18,8 @@ export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> 
   // can provision accounts and manage their active membership roles.
   users: { availability: "READY" },
   "register-user": { availability: "READY" },
-  "workspace-access": { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
-  "access-review": { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  "workspace-access": { availability: "READY" },
+  "access-review": { availability: "READY" },
 
   // Shared modules
   projects: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },

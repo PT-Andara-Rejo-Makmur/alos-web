@@ -405,9 +405,9 @@ export function projectWorkspaceNavigation(
     // every destination still enforces authority independently.
     if (roles.includes("IT_ADMIN") && permissions.includes("identity.accounts.manage")) items.push(
       { key: "users", label: "Kelola Akun", href: "/workspace/it/users", icon: "UsersRound", group: "IDENTITY_ACCESS", available: true, navigable: true },
-      { key: "register-user", label: "Register Akun", href: "/workspace/it/users/register", icon: "UserPlus", group: "IDENTITY_ACCESS", available: true, navigable: true },
-      { key: "workspace-access", label: "Akses Workspace", href: "/workspace/it/users/access", icon: "FolderLock", group: "IDENTITY_ACCESS", available: false, navigable: true },
-      { key: "access-review", label: "Tinjauan Akses", href: "/workspace/it/users/access-review", icon: "UserRoundSearch", group: "IDENTITY_ACCESS", available: false, navigable: true },
+      { key: "register-user", label: "Daftarkan Akun", href: "/workspace/it/users/register", icon: "UserPlus", group: "IDENTITY_ACCESS", available: true, navigable: true },
+      { key: "workspace-access", label: "Akses Workspace", href: "/workspace/it/users/access", icon: "FolderLock", group: "IDENTITY_ACCESS", available: true, navigable: true },
+      { key: "access-review", label: "Tinjauan Akses", href: "/workspace/it/users/access-review", icon: "UserRoundSearch", group: "IDENTITY_ACCESS", available: true, navigable: true },
     );
     items.push(
       { key: "systems", label: "Systems", href: "/workspace/it/systems", icon: "Server", group: "ALOS_PLATFORM", available: false, navigable: true },
