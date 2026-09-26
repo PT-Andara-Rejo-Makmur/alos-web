@@ -161,12 +161,13 @@ describe("IT Structure Normalization and Legacy Purge", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("heading", { name: "IT Governance: EVIDENCE", level: 2 }),
+          screen.getByRole("heading", { name: "Evidence", level: 1 }),
         ).toBeInTheDocument();
       });
 
       expect(screen.queryByText(/Detailed assurance structure/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/REVIEW PACKAGE · IT PROJECTION/i)).not.toBeInTheDocument();
+      expect(screen.getByText("No backend evidence ledger source connected.")).toBeInTheDocument();
     });
 
     it("/workspace/it/governance/decisions does not render old generic OperationalModuleDashboard", async () => {
@@ -192,12 +193,12 @@ describe("IT Structure Normalization and Legacy Purge", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("heading", { name: "IT Governance: DECISIONS", level: 2 }),
+          screen.getByRole("heading", { name: "Decisions", level: 1 }),
         ).toBeInTheDocument();
       });
 
       expect(screen.queryByText(/Daftar Approval/i)).not.toBeInTheDocument();
-      expect(screen.getByText(/Modul tata kelola ini belum tersedia/i)).toBeInTheDocument();
+      expect(screen.getByText("No technology decision register source connected.")).toBeInTheDocument();
     });
   });
 
@@ -225,7 +226,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("heading", { name: "GENESIS: RESEARCH", level: 2 }),
+          screen.getByRole("heading", { name: "Research", level: 1 }),
         ).toBeInTheDocument();
       });
 
@@ -234,9 +235,9 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       expect(screen.queryByText("Kirim Riset")).not.toBeInTheDocument();
       expect(screen.queryByText("R&D Domain Access")).not.toBeInTheDocument();
 
-      // Honest new-generation unavailable state
-      expect(screen.getByText(/Modul teknis ini belum tersedia pada sistem/i)).toBeInTheDocument();
-      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
+      // Honest new-generation research surface with domain access control
+      expect(screen.getByRole("heading", { name: "Domain Access Control", level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Research Request", level: 2 })).toBeInTheDocument();
     });
   });
 
@@ -349,31 +350,37 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       expect(within(telemetryRegion).getByText("NOT CONNECTED")).toBeInTheDocument();
     });
 
-    it("renders ItUnavailableSurface with title Environments and centralized readiness for environments", () => {
+    it("renders dedicated EnvironmentsWorkspace for environments", () => {
       const result = renderItWorkspaceModule("environments");
       expect(result).not.toBeNull();
       render(result);
-      expect(screen.getByRole("heading", { name: "Environments", level: 2 })).toBeInTheDocument();
-      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("ALOS / IT / ENVIRONMENTS")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Environments", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("No backend environment inventory source connected.")).toBeInTheDocument();
     });
 
-    it("renders ItUnavailableSurface with title Security and centralized readiness for security", () => {
+    it("renders dedicated SecurityWorkspace for security", () => {
       const result = renderItWorkspaceModule("security");
       expect(result).not.toBeNull();
       render(result);
-      expect(screen.getByRole("heading", { name: "Security", level: 2 })).toBeInTheDocument();
-      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("ALOS / IT / SECURITY")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Security", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("No security finding source connected.")).toBeInTheDocument();
     });
 
-    it("renders ItUnavailableSurface with title Repositories and centralized readiness for repositories", () => {
+    it("renders dedicated RepositoriesWorkspace for repositories", () => {
       const result = renderItWorkspaceModule("repositories");
       expect(result).not.toBeNull();
       render(result);
-      expect(screen.getByRole("heading", { name: "Repositories", level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Repositories", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("No backend repository inventory source connected.")).toBeInTheDocument();
+    });
+
+    it("renders ItUnavailableSurface for modules without dedicated surface (infrastructure)", () => {
+      const result = renderItWorkspaceModule("infrastructure");
+      expect(result).not.toBeNull();
+      render(result);
+      expect(screen.getByRole("heading", { name: "Infrastructure", level: 2 })).toBeInTheDocument();
       expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("ALOS / IT / REPOSITORIES")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT / INFRASTRUCTURE")).toBeInTheDocument();
     });
 
     it("returns null for unknown modules", () => {
@@ -399,7 +406,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
   });
 
   describe("7. Direct URL Canonical IT Blocked Modules (Section 13, 14, 16)", () => {
-    it("/workspace/it/environments renders ItUnavailableSurface, title Environments, BLOCKED, and no legacy workspace-panel", async () => {
+    it("/workspace/it/environments renders dedicated EnvironmentsWorkspace and no legacy workspace-panel", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
         authenticated: true,
         principal: canonicalPrincipal({
@@ -416,19 +423,14 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const { container } = render(pageResult);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Environments", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Environments", level: 1 })).toBeInTheDocument();
       });
 
-      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("ALOS / IT / ENVIRONMENTS")).toBeInTheDocument();
-      expect(screen.getByText(/Modul ini belum tersedia pada sistem backend/i)).toBeInTheDocument();
-
-      // Must NOT use generic legacy fallback
+      expect(screen.getByText("No backend environment inventory source connected.")).toBeInTheDocument();
       expect(container.querySelector(".workspace-panel")).toBeNull();
-      expect(screen.queryByText(/Kesiapan operasional disajikan secara transparan tanpa data tiruan/i)).toBeInTheDocument();
     });
 
-    it("/workspace/it/security renders ItUnavailableSurface, title Security, BLOCKED, and no legacy workspace-panel", async () => {
+    it("/workspace/it/security renders dedicated SecurityWorkspace and no legacy workspace-panel", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
         authenticated: true,
         principal: canonicalPrincipal({
@@ -445,15 +447,14 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const { container } = render(pageResult);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Security", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Security", level: 1 })).toBeInTheDocument();
       });
 
-      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("ALOS / IT / SECURITY")).toBeInTheDocument();
+      expect(screen.getByText("No security finding source connected.")).toBeInTheDocument();
       expect(container.querySelector(".workspace-panel")).toBeNull();
     });
 
-    it("/workspace/it/repositories renders ItUnavailableSurface, title Repositories, BLOCKED, and no legacy workspace-panel", async () => {
+    it("/workspace/it/repositories renders dedicated RepositoriesWorkspace and no legacy workspace-panel", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
         authenticated: true,
         principal: canonicalPrincipal({
@@ -470,11 +471,10 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const { container } = render(pageResult);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Repositories", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Repositories", level: 1 })).toBeInTheDocument();
       });
 
-      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("ALOS / IT / REPOSITORIES")).toBeInTheDocument();
+      expect(screen.getByText("No backend repository inventory source connected.")).toBeInTheDocument();
       expect(container.querySelector(".workspace-panel")).toBeNull();
     });
   });

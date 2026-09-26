@@ -438,21 +438,24 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(within(systemsLink).getByText("Belum terhubung")).toBeInTheDocument();
     });
 
-    it("D. Module without surface (environments, incidents): BLOCKED, navigable false, sidebar disabled", () => {
+    it("D. Dedicated surfaces with backend blocked (environments, incidents): BLOCKED, navigable true, href canonical", () => {
       const nav = projectWorkspaceNavigation(itIdentity, itActor);
       const envItem = nav.find((i) => i.key === "environments");
 
       expect(envItem).toBeDefined();
       expect(envItem?.availability).toBe("BLOCKED");
-      expect(envItem?.navigable).toBe(false);
-      expect(envItem?.href).toBeNull();
+      expect(envItem?.navigable).toBe(true);
+      expect(envItem?.href).toBe("/workspace/it/environments");
 
       render(<WorkspaceSidebar identity={itIdentity} navigation={nav} activeNavKey="overview" />);
-      expect(screen.queryByRole("link", { name: /^Environments/i })).not.toBeInTheDocument();
+      const envLink = screen.getByRole("link", { name: /^Environments/i });
+      expect(envLink).toBeInTheDocument();
+      expect(envLink).toHaveAttribute("href", "/workspace/it/environments");
 
       const incidentsItem = nav.find((i) => i.key === "incidents");
-      expect(incidentsItem?.navigable).toBe(false);
-      expect(incidentsItem?.href).toBeNull();
+      expect(incidentsItem?.navigable).toBe(true);
+      expect(incidentsItem?.href).toBe("/workspace/it/incidents");
+      expect(incidentsItem?.availability).toBe("BLOCKED");
     });
   });
 });

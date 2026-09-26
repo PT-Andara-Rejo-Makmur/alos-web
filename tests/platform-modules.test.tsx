@@ -120,17 +120,17 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       expect(item?.blockReason).toBe("BACKEND_NOT_CONNECTED");
     });
 
-    it("keeps Environments as non-navigable with null href and availability BLOCKED", () => {
+    it("projects Environments as navigable: true, href /workspace/it/environments, but availability BLOCKED", () => {
       const nav = projectWorkspaceNavigation(itIdentity, itActor);
       const item = nav.find((i) => i.key === "environments");
 
       expect(item).toBeDefined();
-      expect(item?.navigable).toBe(false);
-      expect(item?.href).toBeNull();
+      expect(item?.navigable).toBe(true);
+      expect(item?.href).toBe("/workspace/it/environments");
       expect(item?.availability).toBe("BLOCKED");
     });
 
-    it("renders clickable sidebar links for Systems, Integrations, and Database with 'Belum terhubung'", () => {
+    it("renders clickable sidebar links for Systems, Integrations, Database, and Environments with 'Belum terhubung'", () => {
       const nav = projectWorkspaceNavigation(itIdentity, itActor);
       render(<WorkspaceSidebar activeNavKey="systems" identity={itIdentity} navigation={nav} />);
 
@@ -146,7 +146,9 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       expect(dbLink).toHaveAttribute("href", "/workspace/it/database");
       expect(within(dbLink).getByText("Belum terhubung")).toBeInTheDocument();
 
-      expect(screen.queryByRole("link", { name: /^Environments/i })).not.toBeInTheDocument();
+      const envLink = screen.getByRole("link", { name: /^Environments/i });
+      expect(envLink).toHaveAttribute("href", "/workspace/it/environments");
+      expect(within(envLink).getByText("Belum terhubung")).toBeInTheDocument();
     });
   });
 
@@ -174,12 +176,12 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       expect(screen.getByRole("heading", { name: "Database", level: 1 })).toBeInTheDocument();
     });
 
-    it("renders ItUnavailableSurface for 'environments'", () => {
+    it("renders dedicated EnvironmentsWorkspace for 'environments'", () => {
       const el = renderItWorkspaceModule("environments");
       expect(el).not.toBeNull();
       render(el!);
-      expect(screen.getByRole("heading", { name: "Environments", level: 2 })).toBeInTheDocument();
-      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Environments", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("No backend environment inventory source connected.")).toBeInTheDocument();
     });
   });
 
