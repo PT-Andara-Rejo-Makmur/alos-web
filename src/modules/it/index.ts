@@ -5,4 +5,5 @@ export * from "./identity-access";
 export * from "./ui";
 export * from "./platform";
 export * from "./engineering";
+export * from "./operations";
 export * from "./it-module-renderer";

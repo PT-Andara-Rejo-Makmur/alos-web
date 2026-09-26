@@ -425,9 +425,9 @@ export function projectWorkspaceNavigation(
     // Group: OPERATIONS
     items.push(
       { key: "monitoring", label: "Monitoring", href: "/workspace/it/monitoring", icon: "Activity", group: "OPERATIONS", available: true, navigable: true },
-      { key: "incidents", label: "Incidents", href: "/workspace/it/incidents", icon: "Siren", group: "OPERATIONS", available: false, navigable: false },
-      { key: "security", label: "Security", href: "/workspace/it/security", icon: "ShieldCheck", group: "OPERATIONS", available: false, navigable: false },
-      { key: "backup", label: "Backup & DR", href: "/workspace/it/backup", icon: "DatabaseBackup", group: "OPERATIONS", available: false, navigable: false },
+      { key: "incidents", label: "Incidents", href: "/workspace/it/incidents", icon: "Siren", group: "OPERATIONS", available: false, navigable: true },
+      { key: "security", label: "Security", href: "/workspace/it/security", icon: "ShieldCheck", group: "OPERATIONS", available: false, navigable: true },
+      { key: "backup", label: "Backup & DR", href: "/workspace/it/backup", icon: "DatabaseBackup", group: "OPERATIONS", available: false, navigable: true },
     );
 
     // Group: GENESIS (canonical control plane routes under IT namespace)

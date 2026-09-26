@@ -13,6 +13,11 @@ import {
   RepositoriesWorkspace,
   TechnicalDebtWorkspace,
 } from "./engineering";
+import {
+  BackupDrWorkspace,
+  IncidentsWorkspace,
+  SecurityWorkspace,
+} from "./operations";
 import { ItUnavailableSurface } from "./ui";
 
 export const IT_MODULE_TITLES: Record<string, string> = {
@@ -73,6 +78,18 @@ export function renderItWorkspaceModule(canonicalModule: string): ReactNode | nu
 
   if (canonicalModule === "tech-debt") {
     return <TechnicalDebtWorkspace />;
+  }
+
+  if (canonicalModule === "incidents") {
+    return <IncidentsWorkspace />;
+  }
+
+  if (canonicalModule === "security") {
+    return <SecurityWorkspace />;
+  }
+
+  if (canonicalModule === "backup" || canonicalModule === "backups") {
+    return <BackupDrWorkspace />;
   }
 
   if (canonicalModule in IT_MODULE_TITLES) {
