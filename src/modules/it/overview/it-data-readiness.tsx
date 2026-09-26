@@ -25,16 +25,14 @@ export function ItDataReadiness({ items }: ItDataReadinessProps) {
       <div className={styles.readinessStrip}>
         {items.map((item) => {
           const Icon = READINESS_ICONS[item.key];
-          const state = item.sourceState ?? item.state ?? "NOT_CONNECTED";
-          const context = item.sourceContext ?? item.context ?? "";
           return (
             <div className={styles.readinessItem} key={item.key}>
               <Icon aria-hidden={true} className={styles.readinessIcon} size={18} />
               <div className={styles.readinessText}>
                 <span className={styles.readinessLabel}>{item.label}</span>
-                <span className={styles.readinessHelper}>{context}</span>
+                <span className={styles.readinessHelper}>{item.sourceContext}</span>
               </div>
-              <ItStatusBadge status={state} />
+              <ItStatusBadge status={item.sourceState} />
             </div>
           );
         })}

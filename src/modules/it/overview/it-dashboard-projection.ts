@@ -9,11 +9,11 @@ import type {
 } from "./types";
 
 export const DEFAULT_IT_READINESS: readonly ItSourceReadinessItem[] = [
-  { key: "GENESIS", label: "GENESIS", sourceState: "PARTIAL", sourceContext: "Frontend control surfaces present; backend integration not connected", state: "PARTIAL", context: "Frontend control surfaces present; backend integration not connected" },
-  { key: "GOVERNANCE", label: "Governance", sourceState: "PARTIAL", sourceContext: "Governance routes present; operational sources not connected", state: "PARTIAL", context: "Governance routes present; operational sources not connected" },
-  { key: "MONITORING", label: "Monitoring", sourceState: "NOT_CONNECTED", sourceContext: "Backend telemetry source unavailable", state: "NOT_CONNECTED", context: "Backend telemetry source unavailable" },
-  { key: "BACKUP", label: "Backup", sourceState: "NOT_CONNECTED", sourceContext: "Backup evidence source unavailable", state: "NOT_CONNECTED", context: "Backup evidence source unavailable" },
-  { key: "SECURITY", label: "Security", sourceState: "NOT_CONNECTED", sourceContext: "Security telemetry source unavailable", state: "NOT_CONNECTED", context: "Security telemetry source unavailable" },
+  { key: "GENESIS", label: "GENESIS", sourceState: "PARTIAL", sourceContext: "Frontend control surfaces present; backend integration not connected" },
+  { key: "GOVERNANCE", label: "Governance", sourceState: "PARTIAL", sourceContext: "Governance routes present; operational sources not connected" },
+  { key: "MONITORING", label: "Monitoring", sourceState: "NOT_CONNECTED", sourceContext: "Backend telemetry source unavailable" },
+  { key: "BACKUP", label: "Backup", sourceState: "NOT_CONNECTED", sourceContext: "Backup evidence source unavailable" },
+  { key: "SECURITY", label: "Security", sourceState: "NOT_CONNECTED", sourceContext: "Security telemetry source unavailable" },
 ];
 
 export const DEFAULT_SYSTEMS: readonly SystemDeliveryRow[] = [

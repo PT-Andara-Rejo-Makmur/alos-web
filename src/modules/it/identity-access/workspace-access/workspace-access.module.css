@@ -1,0 +1,330 @@
+.workspaceWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filterBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filterActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchInput {
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #141619;
+  min-width: 240px;
+}
+
+.searchInput:focus {
+  outline: 2px solid #99732f;
+  outline-offset: 1px;
+}
+
+.loadingBox {
+  padding: 32px;
+  text-align: center;
+  background-color: #fafaf8;
+  border: 1px dashed #d1d5db;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #5a625d;
+}
+
+.userCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.userName {
+  font-size: 0.85rem;
+  color: #141619;
+}
+
+.userEmail {
+  font-size: 0.75rem;
+  color: #6e7670;
+}
+
+.workspaceCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.workspaceName {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #141619;
+}
+
+.codeTag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  color: #5a625d;
+  background-color: #f0f2f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.noMembership {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: #8a928c;
+}
+
+.roleTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.roleTag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #2e4a36;
+  background-color: #e8f3ec;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.textMuted {
+  color: #8a928c;
+}
+
+.actionBtn {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #141619;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.actionBtn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.actionBtn:focus-visible {
+  outline: 2px solid #99732f;
+  outline-offset: 1px;
+}
+
+/* Modal styles */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modalCard {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #141619;
+}
+
+.modalSubtitle {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: #6e7670;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #6e7670;
+}
+
+.closeBtn:hover {
+  color: #141619;
+}
+
+.modalBody {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.membershipListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.addBtn {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.addBtn:hover {
+  background-color: #dcfce7;
+}
+
+.membershipItem {
+  padding: 14px;
+  background-color: #fafaf8;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.membershipFormRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 160px;
+}
+
+.fieldGroup label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5a625d;
+}
+
+.fieldGroup select {
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #141619;
+}
+
+.removeBtn {
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  color: #b91c1c;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.removeBtn:hover {
+  background-color: #fee2e2;
+}
+
+.rolePickerBox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rolePickerBox label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5a625d;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid #e5e7eb;
+  background-color: #fafaf8;
+}
+
+.cancelBtn {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.saveBtn {
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: #141619;
+  color: #ffffff;
+  border: 1px solid #141619;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.saveBtn:disabled,
+.cancelBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -404,6 +404,8 @@ export function projectWorkspaceNavigation(
     if (roles.includes("IT_ADMIN")) items.push(
       { key: "users", label: "Kelola Akun", href: "/workspace/it/users", icon: "UsersRound", group: "IDENTITY_ACCESS", available: true, navigable: true },
       { key: "register-user", label: "Register Akun", href: "/workspace/it/users/register", icon: "UserPlus", group: "IDENTITY_ACCESS", available: true, navigable: true },
+      { key: "workspace-access", label: "Workspace Access", href: "/workspace/it/users/access", icon: "FolderLock", group: "IDENTITY_ACCESS", available: true, navigable: true },
+      { key: "access-review", label: "Access Review", href: "/workspace/it/users/access-review", icon: "UserRoundSearch", group: "IDENTITY_ACCESS", available: true, navigable: true },
     );
     items.push(
       { key: "systems", label: "Systems", href: "/workspace/it/systems", icon: "Server", group: "ALOS_PLATFORM", available: false, navigable: true },

@@ -1,0 +1,147 @@
+.reviewWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filterBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filterActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchInput {
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #141619;
+  min-width: 260px;
+}
+
+.searchInput:focus {
+  outline: 2px solid #99732f;
+  outline-offset: 1px;
+}
+
+.loadingBox {
+  padding: 32px;
+  text-align: center;
+  background-color: #fafaf8;
+  border: 1px dashed #d1d5db;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #5a625d;
+}
+
+.userCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.userName {
+  font-size: 0.85rem;
+  color: #141619;
+}
+
+.userEmail {
+  font-size: 0.75rem;
+  color: #6e7670;
+}
+
+.actorIdTag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  color: #8a928c;
+}
+
+.workspaceCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.workspaceName {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #141619;
+}
+
+.codeTag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  color: #5a625d;
+  background-color: #f0f2f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.noMembership {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: #8a928c;
+}
+
+.roleTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.roleTag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #2e4a36;
+  background-color: #e8f3ec;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.refList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.permTag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.7rem;
+  color: #1e3a5f;
+  background-color: #eff6ff;
+  border: 1px solid #dbeafe;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.scopeTag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.7rem;
+  color: #4c1d95;
+  background-color: #f5f3ff;
+  border: 1px solid #ede9fe;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.textMuted {
+  color: #8a928c;
+}

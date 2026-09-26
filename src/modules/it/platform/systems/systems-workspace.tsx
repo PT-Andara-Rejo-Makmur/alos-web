@@ -155,7 +155,7 @@ export function SystemsWorkspace() {
               <strong>Web App</strong>
             </td>
             <td>Presentation Shell</td>
-            <td>Frontend runtime active</td>
+            <td>Presentation surface available</td>
             <td>Browser session</td>
             <td className={styles.tableCode}>alos-web</td>
           </tr>
