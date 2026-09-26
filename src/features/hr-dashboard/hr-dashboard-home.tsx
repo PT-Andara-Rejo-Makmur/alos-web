@@ -6,6 +6,7 @@ import { PerformanceTrainingPanel } from "./performance-training-panel";
 import { GrievancePersonnelPanel } from "./grievance-personnel-panel";
 import { HrControlCadence } from "./hr-control-cadence";
 import { HrAgentSupport } from "./hr-agent-support";
+import { StrategyPerformanceSummary } from "@/modules/strategy";
 import styles from "./hr-dashboard.module.css";
 
 export function HrDashboardHome({
@@ -44,6 +45,9 @@ export function HrDashboardHome({
         <HrControlCadence items={snapshot.cadence} />
         <HrAgentSupport agents={snapshot.agents} />
       </section>
+
+      {/* Strategi & Kinerja */}
+      <StrategyPerformanceSummary workspaceKey="hr" workspaceLabel="HR & People" />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { ContractReviewPanel } from "./contract-review-panel";
 import { ComplianceControlPanel } from "./compliance-control-panel";
 import { LegalControlCadence } from "./legal-control-cadence";
 import { LegalAgentSupport } from "./legal-agent-support";
+import { StrategyPerformanceSummary } from "@/modules/strategy";
 import type { LegalDashboardSnapshot } from "./types";
 import styles from "./legal-dashboard.module.css";
 
@@ -48,6 +49,9 @@ export function LegalDashboardHome({ snapshot }: LegalDashboardHomeProps) {
         <LegalControlCadence cadence={snapshot.cadence} />
         <LegalAgentSupport agents={snapshot.agents} />
       </section>
+
+      {/* Strategi & Kinerja */}
+      <StrategyPerformanceSummary workspaceKey="legal" workspaceLabel="Legal & Kepatuhan" />
     </div>
   );
 }

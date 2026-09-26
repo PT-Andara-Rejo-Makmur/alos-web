@@ -12,6 +12,7 @@ import { PropertyRiskPanel } from "./property-risk-panel";
 import { ConstructionControlCadence } from "./construction-control-cadence";
 import { PropertyAgentSupport } from "./property-agent-support";
 import { PropertyOperationsDrawer } from "./property-operations-drawer";
+import { StrategyPerformanceSummary } from "@/modules/strategy";
 import styles from "./property-dashboard.module.css";
 
 interface PropertyDashboardHomeProps {
@@ -187,6 +188,9 @@ export function PropertyDashboardHome({
         </div>
         <PropertyAgentSupport agents={snapshot.agents} />
       </section>
+
+      {/* Strategi & Kinerja */}
+      <StrategyPerformanceSummary workspaceKey="property" workspaceLabel="Property & Konstruksi" />
 
       {/* Operations Drawer */}
       <PropertyOperationsDrawer

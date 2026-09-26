@@ -7,6 +7,7 @@ import { FinanceAgingPanel } from "./finance-aging-panel";
 import { FinanceApprovalPanel } from "./finance-approval-panel";
 import { FinanceAgentSupport } from "./finance-agent-support";
 import { FinanceWalletsPanel } from "./finance-wallets-panel";
+import { StrategyPerformanceSummary } from "@/modules/strategy";
 import styles from "./finance-dashboard.module.css";
 
 interface FinanceDashboardHomeProps {
@@ -62,6 +63,9 @@ export function FinanceDashboardHome({ snapshot }: FinanceDashboardHomeProps) {
         <div className={styles.orderWallets}>
           <FinanceWalletsPanel />
         </div>
+
+        {/* 6. Strategi & Kinerja */}
+        <StrategyPerformanceSummary workspaceKey="finance" workspaceLabel="Keuangan" />
       </div>
     </div>
   );

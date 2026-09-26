@@ -8,6 +8,7 @@ import { SalesResponseFollowupPanel } from "./sales-response-followup-panel";
 import { SalesChannelAttributionPanel } from "./sales-channel-attribution-panel";
 import { SalesControlCadence } from "./sales-control-cadence";
 import { SalesAgentSupport } from "./sales-agent-support";
+import { StrategyPerformanceSummary } from "@/modules/strategy";
 import styles from "./sales-dashboard.module.css";
 
 export function SalesDashboardHome({
@@ -55,6 +56,9 @@ export function SalesDashboardHome({
         <SalesControlCadence items={snapshot.cadence} />
         <SalesAgentSupport agents={snapshot.agents} />
       </section>
+
+      {/* Strategi & Kinerja */}
+      <StrategyPerformanceSummary workspaceKey="sales" workspaceLabel="Sales & Marketing" />
     </div>
   );
 }

@@ -10,13 +10,20 @@ import {
   type DashboardPersona,
   type DashboardProfile,
 } from "@/features/access-control/dashboard-access";
-import { DocumentCenter } from "@/features/documents/document-center";
-import { GenesisChat } from "@/features/genesis-workspace/conversation-workspace";
-import { OperationalModuleDashboard } from "@/features/operations/operational-module-dashboard";
 import {
-  DivisionsOverviewDashboard,
-  ProjectPortfolioDashboard,
-} from "@/features/projects/portfolio-dashboards";
+  ProjectsWorkspace,
+  TasksWorkspace,
+  ApprovalsWorkspace,
+  DocumentsWorkspace,
+  ReportsWorkspace,
+  FindingsWorkspace,
+} from "@/modules/work";
+import {
+  StrategyOverviewWorkspace,
+  StrategyPerformanceSummary,
+} from "@/modules/strategy";
+import { GenesisChat } from "@/features/genesis-workspace/conversation-workspace";
+import { DivisionsOverviewDashboard } from "@/features/projects/portfolio-dashboards";
 import {
   approvalAgeLabel,
   approvalKindLabel,
@@ -118,6 +125,22 @@ export function ExecutiveHomeDashboard({ dashboard }: { dashboard: ExecutiveDash
       <div className="alos-executive-metrics">
         {dashboard.metrics.map((metric) => <ExecutiveMetricCard key={metric.key} metric={metric} />)}
       </div>
+      <div style={{ marginTop: "14px", marginBottom: "16px" }}>
+        <StrategyPerformanceSummary
+          context={{
+            workspaceKey: "executive",
+            workspaceLabel: "Executive Workspace",
+            divisionCode: "EXECUTIVE",
+            isCompanyWide: true,
+          }}
+          sourceState="NOT_CONNECTED"
+          workProgressPercent={
+            dashboard.metrics.find((m) => m.key === "average_progress")?.value ?? null
+          }
+          kpiAchievementPercent={null}
+          objectiveAchievementPercent={null}
+        />
+      </div>
       <div className="alos-executive-primary-grid">
         <ExecutivePerformancePanel dashboard={dashboard} />
         <ExecutiveProjectDistributionPanel dashboard={dashboard} />
@@ -143,7 +166,8 @@ function ExecutiveMetricCard({ metric }: { metric: ExecutiveDashboardMetric }) {
       : metric.key === "overdue_tasks"
         ? "alert"
         : "file";
-  return <article className={`alos-executive-metric ${metric.tone.toLowerCase()} ${metric.state.toLowerCase()}`}><span className="alos-executive-metric-icon"><AppIcon name={icon} /></span><div><strong>{formatExecutiveMetric(metric)}</strong><p>{metric.label}</p><small><i />{metric.context}</small></div></article>;
+  const displayLabel = metric.key === "average_progress" ? "Kemajuan Pekerjaan" : metric.label;
+  return <article className={`alos-executive-metric ${metric.tone.toLowerCase()} ${metric.state.toLowerCase()}`}><span className="alos-executive-metric-icon"><AppIcon name={icon} /></span><div><strong>{formatExecutiveMetric(metric)}</strong><p>{displayLabel}</p><small><i />{metric.context}</small></div></article>;
 }
 
 function ExecutivePerformancePanel({ dashboard }: { dashboard: ExecutiveDashboardSnapshot }) {
@@ -334,11 +358,24 @@ function ModuleDashboard({
 }) {
   if (module === "genesis") return <GenesisDashboard activeWorkspace={activeWorkspace} actor={actor} />;
   if (module === "settings") return <SettingsDashboard actor={actor} />;
-  if (module === "documents") return <DocumentCenter activeWorkspace={activeWorkspace} actor={actor} mode="documents" />;
+  if (module === "documents") return <DocumentsWorkspace activeWorkspace={activeWorkspace} actor={actor} />;
   if (module === "divisions") return <DivisionsOverviewDashboard />;
-  if (module === "projects") return <ProjectPortfolioDashboard activeWorkspace={activeWorkspace} />;
-  if (module === "tasks" || module === "approvals" || module === "findings" || module === "reports") {
-    return <OperationalModuleDashboard activeWorkspace={activeWorkspace} actor={actor} module={module} />;
+  if (module === "projects") return <ProjectsWorkspace activeWorkspace={activeWorkspace} />;
+  if (module === "tasks") return <TasksWorkspace activeWorkspace={activeWorkspace} actor={actor} />;
+  if (module === "approvals") return <ApprovalsWorkspace activeWorkspace={activeWorkspace} actor={actor} />;
+  if (module === "findings") return <FindingsWorkspace activeWorkspace={activeWorkspace} actor={actor} />;
+  if (module === "reports") return <ReportsWorkspace activeWorkspace={activeWorkspace} actor={actor} />;
+  if (module === "strategy") {
+    return (
+      <StrategyOverviewWorkspace
+        context={{
+          workspaceKey: "executive",
+          workspaceLabel: activeWorkspace.workspaceLabel,
+          divisionCode: activeWorkspace.divisionCode,
+          isCompanyWide: true,
+        }}
+      />
+    );
   }
   return null;
 }

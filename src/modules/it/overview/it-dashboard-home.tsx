@@ -9,6 +9,7 @@ import {
   ItSectionHeader,
   ItStatusBadge,
 } from "@/modules/it/ui";
+import { StrategyPerformanceSummary } from "@/modules/strategy";
 import { ItDataReadiness } from "./it-data-readiness";
 import type { ItDashboardSnapshot } from "./types";
 import styles from "./it-dashboard.module.css";
@@ -151,6 +152,8 @@ export function ItDashboardHome({ snapshot }: ItDashboardHomeProps) {
           })}
         </ItDataTable>
       </section>
+
+      <StrategyPerformanceSummary workspaceKey="it" workspaceLabel="IT & Teknologi" />
     </div>
   );
 }
