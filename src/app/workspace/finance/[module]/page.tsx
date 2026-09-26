@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { isKnownWorkspaceModule } from "@/features/workspace-routing";
+import { isKnownWorkspaceModule, normalizeCanonicalModuleSegment } from "@/features/workspace-routing";
 import { ContextualWorkspaceModulePage } from "@/features/workspace-shell";
 
 export default async function FinanceModuleRoute({
@@ -7,12 +7,20 @@ export default async function FinanceModuleRoute({
 }: {
   params: Promise<{ module: string }>;
 }) {
-  const { module } = await params;
-  if (module.toLowerCase() === "close") {
+  const { module: rawModule } = await params;
+  const canonicalModule = normalizeCanonicalModuleSegment(rawModule);
+
+  if (canonicalModule === "close") {
     redirect("/workspace/finance/month-close");
   }
-  if (!isKnownWorkspaceModule("finance", module)) {
+
+  if (rawModule !== canonicalModule) {
+    redirect(`/workspace/finance/${canonicalModule}`);
+  }
+
+  if (!isKnownWorkspaceModule("finance", canonicalModule)) {
     notFound();
   }
-  return <ContextualWorkspaceModulePage module={module} workspaceKey="finance" />;
+
+  return <ContextualWorkspaceModulePage module={canonicalModule} workspaceKey="finance" />;
 }

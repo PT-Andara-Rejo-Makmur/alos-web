@@ -77,7 +77,6 @@ import {
 } from "lucide-react";
 
 import type { SessionActor } from "@/features/session";
-import { isGovernanceNavigationVisible } from "@/features/access-control/dashboard-access";
 import {
   WORKSPACE_ROUTES,
   getModuleReadiness,
@@ -87,6 +86,7 @@ import {
   getWorkspaceAgentsRoute,
   getGenesisRoute,
   getGovernanceRoute,
+  normalizeWorkspaceKey,
 } from "@/features/workspace-routing";
 import type {
   WorkspaceIconKey,
@@ -237,12 +237,40 @@ export function projectWorkspaceNavigation(
 ): readonly WorkspaceNavItem[] {
   const roles = actor?.roles ?? [];
   const division = (identity.divisionCode || "").toUpperCase();
-  const isDirector = roles.includes("EXECUTIVE") || identity.workspaceKey === "executive";
+
+  // Primary routing context: normalize canonical workspace key from verified identity.
+  // Division code is strictly a fallback only if workspaceKey is not directly canonical.
+  const normalizedKey = normalizeWorkspaceKey(identity.workspaceKey);
+  const effectiveWorkspaceKey =
+    normalizedKey ??
+    (division === "EXECUTIVE" || division === "EXEC"
+      ? "executive"
+      : division === "FINANCE"
+        ? "finance"
+        : division === "PROPERTY"
+          ? "property"
+          : division === "SALES" || division === "SALES_MARKETING"
+            ? "sales"
+            : division === "HR" || division === "PEOPLE"
+              ? "hr"
+              : division === "LEGAL" || division === "COMPLIANCE" || division === "LEGAL_COMPLIANCE"
+                ? "legal"
+                : division === "IT" || division === "TECHNOLOGY"
+                  ? "it"
+                  : null);
+
+  const isExecutive = effectiveWorkspaceKey === "executive";
+  const isFinance = effectiveWorkspaceKey === "finance";
+  const isProperty = effectiveWorkspaceKey === "property";
+  const isSales = effectiveWorkspaceKey === "sales";
+  const isHr = effectiveWorkspaceKey === "hr";
+  const isLegal = effectiveWorkspaceKey === "legal";
+  const isIt = effectiveWorkspaceKey === "it";
 
   const items: RawNavItem[] = [];
 
-  // Director IA is structured into COMMAND CENTER, ORGANIZATION, DECISIONS, INFORMATION, AI & CONTROL
-  if (isDirector) {
+  // Executive IA is structured into COMMAND CENTER, ORGANIZATION, DECISIONS, INFORMATION & AI
+  if (isExecutive) {
     items.push(
       // Group: COMMAND_CENTER
       {
@@ -331,26 +359,8 @@ export function projectWorkspaceNavigation(
       },
     );
 
-    if (isGovernanceNavigationVisible(roles)) {
-      items.push({
-        key: "governance",
-        label: "Governance",
-        href: getGovernanceRoute(),
-        icon: "ShieldCheck",
-        group: "CONTROL",
-        available: true,
-      });
-    }
-
     return items.map(buildNavItem);
   }
-
-  const isFinance = division === "FINANCE" || identity.workspaceKey === "finance";
-  const isProperty = division === "PROPERTY" || identity.workspaceKey === "property";
-  const isSales = division === "SALES" || division === "SALES_MARKETING" || identity.workspaceKey === "sales";
-  const isHr = division === "HR" || division === "PEOPLE" || identity.workspaceKey === "hr";
-  const isLegal = division === "LEGAL" || division === "COMPLIANCE" || division === "LEGAL_COMPLIANCE" || identity.workspaceKey === "legal";
-  const isIt = division === "IT" || division === "TECHNOLOGY" || identity.workspaceKey === "it";
 
   // Group 1: UTAMA
   items.push({
@@ -622,18 +632,6 @@ export function projectWorkspaceNavigation(
         href: getWorkspaceAgentsRoute("finance"),
         icon: "Bot",
         group: "AI",
-        available: true,
-      });
-    }
-
-    // Group: CONTROL / GOVERNANCE
-    if (isGovernanceNavigationVisible(roles)) {
-      items.push({
-        key: "governance",
-        label: "Governance & Agent Control",
-        href: getGovernanceRoute(),
-        icon: "ShieldCheck",
-        group: "CONTROL",
         available: true,
       });
     }

@@ -1,5 +1,5 @@
-import { notFound } from "next/navigation";
-import { isKnownWorkspaceModule } from "@/features/workspace-routing";
+import { notFound, redirect } from "next/navigation";
+import { isKnownWorkspaceModule, normalizeCanonicalModuleSegment } from "@/features/workspace-routing";
 import { ContextualWorkspaceModulePage } from "@/features/workspace-shell";
 
 export default async function LegalModuleRoute({
@@ -7,9 +7,16 @@ export default async function LegalModuleRoute({
 }: {
   params: Promise<{ module: string }>;
 }) {
-  const { module } = await params;
-  if (!isKnownWorkspaceModule("legal", module)) {
+  const { module: rawModule } = await params;
+  const canonicalModule = normalizeCanonicalModuleSegment(rawModule);
+
+  if (rawModule !== canonicalModule) {
+    redirect(`/workspace/legal/${canonicalModule}`);
+  }
+
+  if (!isKnownWorkspaceModule("legal", canonicalModule)) {
     notFound();
   }
-  return <ContextualWorkspaceModulePage module={module} workspaceKey="legal" />;
+
+  return <ContextualWorkspaceModulePage module={canonicalModule} workspaceKey="legal" />;
 }

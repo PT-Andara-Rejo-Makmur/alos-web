@@ -16,6 +16,7 @@ import {
   getModuleReadiness,
   getWorkspaceAraRoute,
   isKnownWorkspaceModule,
+  normalizeCanonicalModuleSegment,
 } from "@/features/workspace-routing";
 
 interface ContextualWorkspaceModulePageProps {
@@ -83,9 +84,10 @@ const WORKSPACE_AUTHORITY_CONFIG: Record<
  */
 export function ContextualWorkspaceModulePage({
   workspaceKey,
-  module,
+  module: rawModule,
 }: ContextualWorkspaceModulePageProps) {
-  if (!isKnownWorkspaceModule(workspaceKey, module)) {
+  const canonicalModule = normalizeCanonicalModuleSegment(rawModule);
+  if (!isKnownWorkspaceModule(workspaceKey, canonicalModule)) {
     notFound();
   }
 
@@ -93,7 +95,7 @@ export function ContextualWorkspaceModulePage({
 
   return (
     <ProtectedDomainWorkspace
-      activeNavKey={module}
+      activeNavKey={canonicalModule}
       deniedTitle={config.deniedTitle}
       divisionCodes={config.divisionCodes}
       loadingLabel={config.loadingLabel}
@@ -101,7 +103,7 @@ export function ContextualWorkspaceModulePage({
     >
       {({ actor, identity }) => {
         // 1. ARA Contextual
-        if (module === "ara") {
+        if (canonicalModule === "ara") {
           return (
             <AraWorkspace
               activeWorkspace={identity}
@@ -112,7 +114,7 @@ export function ContextualWorkspaceModulePage({
         }
 
         // 2. Business Agent Workforce Contextual
-        if (module === "agents") {
+        if (canonicalModule === "agents") {
           return (
             <AgentWorkforce
               activeWorkspace={identity}
@@ -122,12 +124,12 @@ export function ContextualWorkspaceModulePage({
         }
 
         // 3. Shared Work Contextual: Projects
-        if (module === "projects") {
+        if (canonicalModule === "projects") {
           return <ProjectPortfolioDashboard activeWorkspace={identity} />;
         }
 
         // 4. Shared Work Contextual: Documents
-        if (module === "documents") {
+        if (canonicalModule === "documents") {
           return (
             <DocumentCenter
               activeWorkspace={identity}
@@ -139,37 +141,37 @@ export function ContextualWorkspaceModulePage({
 
         // 5. Shared Work Contextual: Tasks, Approvals, Reports, Findings
         if (
-          module === "tasks" ||
-          module === "approvals" ||
-          module === "reports" ||
-          module === "findings"
+          canonicalModule === "tasks" ||
+          canonicalModule === "approvals" ||
+          canonicalModule === "reports" ||
+          canonicalModule === "findings"
         ) {
           return (
             <OperationalModuleDashboard
               activeWorkspace={identity}
               actor={actor}
-              module={module}
+              module={canonicalModule}
             />
           );
         }
 
         // 6. Executive specific: divisions
-        if (workspaceKey === "executive" && module === "divisions") {
+        if (workspaceKey === "executive" && canonicalModule === "divisions") {
           return <ExecutiveDashboard module="divisions" />;
         }
 
         // 7. Executive specific: brief
-        if (workspaceKey === "executive" && module === "brief") {
+        if (workspaceKey === "executive" && canonicalModule === "brief") {
           return <ExecutiveDashboard />;
         }
 
         // 8. Domain-specific or BLOCKED modules
-        const readiness = getModuleReadiness(module);
+        const readiness = getModuleReadiness(canonicalModule);
         return (
           <section
             className="panel workspace-panel"
             role="status"
-            aria-label={`Modul ${module} Belum Tersedia`}
+            aria-label={`Modul ${canonicalModule} Belum Tersedia`}
             style={{
               padding: "2.5rem",
               maxWidth: "680px",
@@ -212,7 +214,7 @@ export function ContextualWorkspaceModulePage({
               Belum Tersedia
             </span>
             <h2 style={{ fontSize: "1.25rem", margin: "0 0 8px 0", color: "#141619" }}>
-              Modul {module.replace(/-/g, " ").toUpperCase()}
+              Modul {canonicalModule.replace(/-/g, " ").toUpperCase()}
             </h2>
             <p style={{ color: "#666055", fontSize: "14px", lineHeight: 1.6, margin: "0 0 20px 0" }}>
               Modul ini belum tersedia pada sistem backend ({readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}).

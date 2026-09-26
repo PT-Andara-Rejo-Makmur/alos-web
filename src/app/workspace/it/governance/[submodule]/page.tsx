@@ -1,20 +1,29 @@
 "use client";
 
 import { use } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
 import { ItReviewProjection } from "@/features/reviews/it-review-projection";
 import { OperationalModuleDashboard } from "@/features/operations/operational-module-dashboard";
-import { getModuleReadiness, isKnownGovernanceSubmodule } from "@/features/workspace-routing";
+import {
+  getModuleReadiness,
+  isKnownGovernanceSubmodule,
+  normalizeCanonicalModuleSegment,
+} from "@/features/workspace-routing";
 
 export default function WorkspaceItGovernanceSubmodulePage({
   params,
 }: {
   params: Promise<{ submodule: string }>;
 }) {
-  const { submodule } = use(params);
+  const { submodule: rawSubmodule } = use(params);
+  const submodule = normalizeCanonicalModuleSegment(rawSubmodule);
+
+  if (rawSubmodule !== submodule) {
+    redirect(`/workspace/it/governance/${submodule}`);
+  }
 
   if (!isKnownGovernanceSubmodule(submodule)) {
     notFound();

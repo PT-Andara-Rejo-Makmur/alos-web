@@ -13,6 +13,7 @@ import {
   isKnownGovernanceSubmodule,
   resolveLegacyRoute,
   getModuleReadiness,
+  normalizeCanonicalModuleSegment,
   CANONICAL_WORKSPACE_KEYS,
   type CanonicalWorkspaceKey,
 } from "@/features/workspace-routing";
@@ -407,4 +408,259 @@ describe("ALOS Workspace-Centric Routing Architecture", () => {
       expect(overviewItem).toBeDefined();
     });
   });
+
+  describe("J. Canonical Lowercase Route Enforcement & Normalization", () => {
+    it("normalizes module segments by trimming whitespace and lowercasing", () => {
+      expect(normalizeCanonicalModuleSegment("TASKS")).toBe("tasks");
+      expect(normalizeCanonicalModuleSegment(" tasks ")).toBe("tasks");
+      expect(normalizeCanonicalModuleSegment("Month-Close")).toBe("month-close");
+      expect(normalizeCanonicalModuleSegment("   ")).toBe("");
+      expect(normalizeCanonicalModuleSegment("")).toBe("");
+    });
+
+    it("generates canonical lowercase routes when given mixed-case or uppercase input", () => {
+      expect(getWorkspaceModuleRoute("finance", "TASKS")).toBe("/workspace/finance/tasks");
+      expect(getWorkspaceModuleRoute("finance", "MONTH-CLOSE")).toBe("/workspace/finance/month-close");
+      expect(getWorkspaceModuleRoute("hr", "TASKS")).toBe("/workspace/hr/tasks");
+      expect(getWorkspaceModuleRoute("sales", "TASKS")).toBe("/workspace/sales/tasks");
+      expect(getWorkspaceModuleRoute("property", "TASKS")).toBe("/workspace/property/tasks");
+      expect(getWorkspaceModuleRoute("property", "PAYMENT-CERTIFICATES")).toBe(
+        "/workspace/property/payment-certificates",
+      );
+      expect(getGenesisRoute("RESEARCH")).toBe("/workspace/it/genesis/research");
+      expect(getGenesisRoute("AGENTS")).toBe("/workspace/it/genesis/agents");
+      expect(getGenesisRoute("MODELS-TOOLS")).toBe("/workspace/it/genesis/models-tools");
+      expect(getGovernanceRoute("EVIDENCE")).toBe("/workspace/it/governance/evidence");
+      expect(getGovernanceRoute("UAT")).toBe("/workspace/it/governance/uat");
+      expect(getGovernanceRoute("DECISIONS")).toBe("/workspace/it/governance/decisions");
+    });
+
+    it("preserves compatibility mappings with mixed-case input", () => {
+      // Finance close compatibility
+      expect(getWorkspaceModuleRoute("finance", "CLOSE")).toBe("/workspace/finance/month-close");
+      expect(resolveLegacyRoute("/workspace/finance/CLOSE")).toBe("/workspace/finance/month-close");
+      expect(resolveLegacyRoute("/WORKSPACE/FINANCE/CLOSE")).toBe("/workspace/finance/month-close");
+
+      // Property payment-certs compatibility
+      expect(getWorkspaceModuleRoute("property", "PAYMENT-CERTS")).toBe(
+        "/workspace/property/payment-certificates",
+      );
+    });
+
+    it("validates known modules case-insensitively via normalization", () => {
+      expect(isKnownWorkspaceModule("finance", "TASKS")).toBe(true);
+      expect(isKnownWorkspaceModule("finance", "MONTH-CLOSE")).toBe(true);
+      expect(isKnownWorkspaceModule("hr", "EMPLOYEES")).toBe(true);
+      expect(isKnownWorkspaceModule("property", "PAYMENT-CERTIFICATES")).toBe(true);
+      expect(isKnownGenesisSubmodule("RESEARCH")).toBe(true);
+      expect(isKnownGenesisSubmodule("AGENTS")).toBe(true);
+      expect(isKnownGovernanceSubmodule("EVIDENCE")).toBe(true);
+      expect(isKnownGovernanceSubmodule("UAT")).toBe(true);
+      expect(isKnownGovernanceSubmodule("DECISIONS")).toBe(true);
+
+      // Invalid still rejected
+      expect(isKnownWorkspaceModule("finance", "UNKNOWN")).toBe(false);
+      expect(isKnownGenesisSubmodule("UNKNOWN")).toBe(false);
+      expect(isKnownGovernanceSubmodule("UNKNOWN")).toBe(false);
+    });
+  });
+
+  describe("K. Active Workspace Navigation Context Integrity & Governance Separation", () => {
+    it("ensures actor with EXECUTIVE role in Finance workspace receives Finance navigation, NOT Executive", () => {
+      const financeIdentity: WorkspaceShellIdentity = {
+        workspaceId: "ws_fin_01",
+        workspaceKey: "finance",
+        workspaceLabel: "Finance Holding",
+        roleLabel: "Direktur Keuangan",
+        divisionCode: "FINANCE",
+      };
+      const executiveActor: SessionActor = {
+        user_id: "usr_exec_01",
+        organization_id: "org_andara",
+        roles: ["EXECUTIVE"],
+        division_codes: ["FINANCE"],
+        workspace_ids: ["ws_fin_01"],
+        issued_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 86400000).toISOString(),
+      };
+
+      const navItems = projectWorkspaceNavigation(financeIdentity, executiveActor);
+      const navKeys = navItems.map((item) => item.key);
+
+      // Must have Finance keys
+      expect(navKeys).toContain("cash");
+      expect(navKeys).toContain("budget");
+      expect(navKeys).toContain("receivables");
+      expect(navKeys).toContain("payables");
+      expect(navKeys).toContain("reconciliation");
+      expect(navKeys).toContain("tax");
+      expect(navKeys).toContain("close");
+
+      // Must NOT have Executive-specific navigation keys
+      expect(navKeys).not.toContain("brief");
+      expect(navKeys).not.toContain("divisions");
+    });
+
+    it("ensures actor with EXECUTIVE role in Executive workspace receives Executive navigation", () => {
+      const executiveIdentity: WorkspaceShellIdentity = {
+        workspaceId: "ws_exec_01",
+        workspaceKey: "executive",
+        workspaceLabel: "Executive Office",
+        roleLabel: "Direktur",
+        divisionCode: "EXECUTIVE",
+      };
+      const executiveActor: SessionActor = {
+        user_id: "usr_exec_01",
+        organization_id: "org_andara",
+        roles: ["EXECUTIVE"],
+        division_codes: ["EXECUTIVE"],
+        workspace_ids: ["ws_exec_01"],
+        issued_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 86400000).toISOString(),
+      };
+
+      const navItems = projectWorkspaceNavigation(executiveIdentity, executiveActor);
+      const navKeys = navItems.map((item) => item.key);
+
+      expect(navKeys).toContain("brief");
+      expect(navKeys).toContain("divisions");
+      expect(navKeys).not.toContain("cash");
+      expect(navKeys).not.toContain("budget");
+    });
+
+    it("ensures actor with EXECUTIVE role in HR workspace receives HR navigation, NOT Executive", () => {
+      const hrIdentity: WorkspaceShellIdentity = {
+        workspaceId: "ws_hr_01",
+        workspaceKey: "hr",
+        workspaceLabel: "HR Division",
+        roleLabel: "Direktur",
+        divisionCode: "HR",
+      };
+      const executiveActor: SessionActor = {
+        user_id: "usr_exec_01",
+        organization_id: "org_andara",
+        roles: ["EXECUTIVE"],
+        division_codes: ["HR"],
+        workspace_ids: ["ws_hr_01"],
+        issued_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 86400000).toISOString(),
+      };
+
+      const navItems = projectWorkspaceNavigation(hrIdentity, executiveActor);
+      const navKeys = navItems.map((item) => item.key);
+
+      expect(navKeys).toContain("employees");
+      expect(navKeys).toContain("attendance");
+      expect(navKeys).toContain("leave");
+      expect(navKeys).not.toContain("brief");
+      expect(navKeys).not.toContain("divisions");
+      expect(navKeys).not.toContain("cash");
+    });
+
+    it("ensures non-IT workspaces have NO direct IT Governance navigation items", () => {
+      const nonItKeys: CanonicalWorkspaceKey[] = [
+        "executive",
+        "finance",
+        "property",
+        "sales",
+        "hr",
+        "legal",
+      ];
+
+      nonItKeys.forEach((key) => {
+        const divisionCode = key.toUpperCase();
+        const identity: WorkspaceShellIdentity = {
+          workspaceId: `ws_${key}_01`,
+          workspaceKey: key,
+          workspaceLabel: `${key} Workspace`,
+          roleLabel: "Lead",
+          divisionCode,
+        };
+        const actor: SessionActor = {
+          user_id: "usr_lead",
+          organization_id: "org_andara",
+          roles: ["EXECUTIVE", "ADMIN", "WORKSPACE_LEAD"],
+          division_codes: [divisionCode],
+          workspace_ids: [`ws_${key}_01`],
+          issued_at: new Date().toISOString(),
+          expires_at: new Date(Date.now() + 86400000).toISOString(),
+        };
+
+        const navItems = projectWorkspaceNavigation(identity, actor);
+
+        navItems.forEach((item) => {
+          if (item.href) {
+            expect(
+              item.href.startsWith("/workspace/it/governance"),
+              `Workspace ${key} leaked direct IT Governance route: ${item.href}`,
+            ).toBe(false);
+          }
+          expect(item.key).not.toBe("governance");
+        });
+      });
+    });
+
+    it("ensures IT workspace retains Governance items", () => {
+      const itIdentity: WorkspaceShellIdentity = {
+        workspaceId: "ws_it_01",
+        workspaceKey: "it",
+        workspaceLabel: "IT Workspace",
+        roleLabel: "IT Admin",
+        divisionCode: "IT",
+      };
+      const itActor: SessionActor = {
+        user_id: "usr_it_admin",
+        organization_id: "org_andara",
+        roles: ["IT_ADMIN"],
+        division_codes: ["IT"],
+        workspace_ids: ["ws_it_01"],
+        issued_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 86400000).toISOString(),
+      };
+
+      const navItems = projectWorkspaceNavigation(itIdentity, itActor);
+      const governanceItems = navItems.filter((item) => item.group === "GOVERNANCE");
+
+      expect(governanceItems.length).toBeGreaterThanOrEqual(3);
+      const govKeys = governanceItems.map((item) => item.key);
+      expect(govKeys).toContain("evidence");
+      expect(govKeys).toContain("uat");
+      expect(govKeys).toContain("decisions");
+
+      const evidenceItem = governanceItems.find((item) => item.key === "evidence");
+      expect(evidenceItem).toBeDefined();
+      expect(evidenceItem?.group).toBe("GOVERNANCE");
+    });
+
+    it("ensures unknown workspace does not become Executive or Finance because of role", () => {
+      const unknownIdentity: WorkspaceShellIdentity = {
+        workspaceId: "ws_unk_01",
+        workspaceKey: "unregistered_key",
+        workspaceLabel: "Unknown Workspace",
+        roleLabel: "Visitor",
+        divisionCode: null,
+      };
+      const executiveActor: SessionActor = {
+        user_id: "usr_exec_01",
+        organization_id: "org_andara",
+        roles: ["EXECUTIVE"],
+        division_codes: [],
+        workspace_ids: ["ws_unk_01"],
+        issued_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 86400000).toISOString(),
+      };
+
+      const navItems = projectWorkspaceNavigation(unknownIdentity, executiveActor);
+      const navKeys = navItems.map((item) => item.key);
+
+      expect(navKeys).not.toContain("brief");
+      expect(navKeys).not.toContain("divisions");
+      expect(navKeys).not.toContain("cash");
+      expect(navKeys).not.toContain("budget");
+
+      // Default safe resolver overview only
+      expect(navKeys).toEqual(["overview"]);
+    });
+  });
 });
+

@@ -205,4 +205,133 @@ describe("WorkspaceShell Reusable Component", () => {
     expect(screen.getByTestId("verified-child-content")).toBeInTheDocument();
     expect(screen.getByText("Konten Dashboard Khusus")).toBeInTheDocument();
   });
+
+  it("11. pengguna dengan role EXECUTIVE dalam workspace Finance mendapatkan menu Finance bukan Executive", () => {
+    const executiveActor = {
+      user_id: "exec_user_01",
+      organization_id: "org_001",
+      roles: ["EXECUTIVE"],
+      division_codes: ["FINANCE"],
+      workspace_ids: ["ws_fin_001"],
+      issued_at: "2026-09-01T00:00:00Z",
+      expires_at: "2026-09-30T00:00:00Z",
+    };
+
+    render(
+      <WorkspaceShell actor={executiveActor} identity={financeIdentity}>
+        <div>Finance Content</div>
+      </WorkspaceShell>,
+    );
+
+    // Must display Finance navigation items
+    expect(screen.getAllByText("Cash & Bank").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Receivables").length).toBeGreaterThanOrEqual(1);
+
+    // Must NOT display Executive-specific main menu items
+    expect(screen.queryByText("Executive Brief")).not.toBeInTheDocument();
+    expect(screen.queryByText("Divisi")).not.toBeInTheDocument();
+  });
+
+  it("12. pengguna dengan role EXECUTIVE dalam workspace Executive mendapatkan menu Executive", () => {
+    const executiveActor = {
+      user_id: "exec_user_01",
+      organization_id: "org_001",
+      roles: ["EXECUTIVE"],
+      division_codes: ["EXEC"],
+      workspace_ids: ["ws_dir_001"],
+      issued_at: "2026-09-01T00:00:00Z",
+      expires_at: "2026-09-30T00:00:00Z",
+    };
+
+    render(
+      <WorkspaceShell actor={executiveActor} identity={directorIdentity}>
+        <div>Executive Content</div>
+      </WorkspaceShell>,
+    );
+
+    expect(screen.getAllByText("Executive Brief").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Divisi").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("13. pengguna dengan role EXECUTIVE dalam workspace HR mendapatkan menu HR", () => {
+    const hrIdentity: WorkspaceShellIdentity = {
+      workspaceId: "ws_hr_001",
+      workspaceKey: "hr",
+      workspaceLabel: "HR Workspace",
+      divisionCode: "HR",
+      roleLabel: "Direktur",
+    };
+
+    const executiveActor = {
+      user_id: "exec_user_01",
+      organization_id: "org_001",
+      roles: ["EXECUTIVE"],
+      division_codes: ["HR"],
+      workspace_ids: ["ws_hr_001"],
+      issued_at: "2026-09-01T00:00:00Z",
+      expires_at: "2026-09-30T00:00:00Z",
+    };
+
+    render(
+      <WorkspaceShell actor={executiveActor} identity={hrIdentity}>
+        <div>HR Content</div>
+      </WorkspaceShell>,
+    );
+
+    expect(screen.getAllByText("Employees").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Attendance").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("Executive Brief")).not.toBeInTheDocument();
+    expect(screen.queryByText("Divisi")).not.toBeInTheDocument();
+  });
+
+  it("14. workspace non-IT tidak memiliki tautan direct ke IT Governance", () => {
+    const executiveActor = {
+      user_id: "exec_user_01",
+      organization_id: "org_001",
+      roles: ["EXECUTIVE", "ADMIN"],
+      division_codes: ["FINANCE"],
+      workspace_ids: ["ws_fin_001"],
+      issued_at: "2026-09-01T00:00:00Z",
+      expires_at: "2026-09-30T00:00:00Z",
+    };
+
+    render(
+      <WorkspaceShell actor={executiveActor} identity={financeIdentity}>
+        <div>Finance Content</div>
+      </WorkspaceShell>,
+    );
+
+    expect(screen.queryByText("Governance & Agent Control")).not.toBeInTheDocument();
+    expect(screen.queryByText("Governance")).not.toBeInTheDocument();
+  });
+
+  it("15. workspace tidak dikenal tidak berubah menjadi Executive karena role", () => {
+    const unknownIdentity: WorkspaceShellIdentity = {
+      workspaceId: "ws_unk_001",
+      workspaceKey: "unknown_workspace",
+      workspaceLabel: "Unknown Workspace",
+      divisionCode: null,
+      roleLabel: "Guest",
+    };
+
+    const executiveActor = {
+      user_id: "exec_user_01",
+      organization_id: "org_001",
+      roles: ["EXECUTIVE"],
+      division_codes: [],
+      workspace_ids: ["ws_unk_001"],
+      issued_at: "2026-09-01T00:00:00Z",
+      expires_at: "2026-09-30T00:00:00Z",
+    };
+
+    render(
+      <WorkspaceShell actor={executiveActor} identity={unknownIdentity}>
+        <div>Unknown Content</div>
+      </WorkspaceShell>,
+    );
+
+    expect(screen.queryByText("Executive Brief")).not.toBeInTheDocument();
+    expect(screen.queryByText("Divisi")).not.toBeInTheDocument();
+    expect(screen.queryByText("Cash & Bank")).not.toBeInTheDocument();
+  });
 });

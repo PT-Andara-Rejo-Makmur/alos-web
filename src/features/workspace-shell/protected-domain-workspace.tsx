@@ -66,6 +66,8 @@ export function ProtectedDomainWorkspace({
         const context = await loadSessionContext(controller.signal);
         const activeWorkspace = context.activeWorkspace;
         setAvailableWorkspaceCount("actor" in context.principal ? context.principal.workspace_access.length : 1);
+        // Primary context is workspace_key. division_code is strictly a fallback
+        // for backend compatibility where legacy sessions project division code instead of canonical key.
         const routeMatches = activeWorkspace !== null && (
           allowedWorkspaceKeys.includes(activeWorkspace.workspace_key.toLowerCase()) ||
           (activeWorkspace.division_code !== null &&

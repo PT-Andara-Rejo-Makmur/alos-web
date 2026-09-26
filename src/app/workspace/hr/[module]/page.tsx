@@ -1,5 +1,5 @@
-import { notFound } from "next/navigation";
-import { isKnownWorkspaceModule } from "@/features/workspace-routing";
+import { notFound, redirect } from "next/navigation";
+import { isKnownWorkspaceModule, normalizeCanonicalModuleSegment } from "@/features/workspace-routing";
 import { ContextualWorkspaceModulePage } from "@/features/workspace-shell";
 
 export default async function HrModuleRoute({
@@ -7,9 +7,16 @@ export default async function HrModuleRoute({
 }: {
   params: Promise<{ module: string }>;
 }) {
-  const { module } = await params;
-  if (!isKnownWorkspaceModule("hr", module)) {
+  const { module: rawModule } = await params;
+  const canonicalModule = normalizeCanonicalModuleSegment(rawModule);
+
+  if (rawModule !== canonicalModule) {
+    redirect(`/workspace/hr/${canonicalModule}`);
+  }
+
+  if (!isKnownWorkspaceModule("hr", canonicalModule)) {
     notFound();
   }
-  return <ContextualWorkspaceModulePage module={module} workspaceKey="hr" />;
+
+  return <ContextualWorkspaceModulePage module={canonicalModule} workspaceKey="hr" />;
 }

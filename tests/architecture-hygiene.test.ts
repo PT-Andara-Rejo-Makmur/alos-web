@@ -99,4 +99,17 @@ describe("production architecture hygiene", () => {
 
     expect(offenders).toEqual([]);
   });
+
+  it("rejects direct IT governance route links in non-IT workspace navigation configuration", () => {
+    const navFilePath = join(sourceRoot, "features/workspace-shell/workspace-navigation.ts");
+    const content = readFileSync(navFilePath, "utf8");
+
+    // Verify Executive and Finance blocks don't contain getGovernanceRoute or direct /workspace/it/governance
+    const executiveMatch = content.match(/if\s*\(\s*isExecutive\s*\)\s*\{([\s\S]*?)(?:return|if)/);
+    const financeMatch = content.match(/if\s*\(\s*isFinance\s*\)\s*\{([\s\S]*?)(?:return|if)/);
+
+    expect(executiveMatch?.[1] || "").not.toMatch(/getGovernanceRoute|\/workspace\/it\/governance/);
+    expect(financeMatch?.[1] || "").not.toMatch(/getGovernanceRoute|\/workspace\/it\/governance/);
+  });
 });
+

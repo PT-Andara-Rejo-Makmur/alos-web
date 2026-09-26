@@ -154,6 +154,14 @@ export const GOVERNANCE_SUBMODULE_ALLOWLIST: readonly string[] = [
 ];
 
 /**
+ * Normalizes an incoming raw URL segment to its canonical lowercase form.
+ * Ensures strict canonical URL lowercase consistency across all workspace routes.
+ */
+export function normalizeCanonicalModuleSegment(rawSegment: string): string {
+  return rawSegment.trim().toLowerCase();
+}
+
+/**
  * Mapping from internal nav/readiness keys to single canonical URL segments.
  */
 export const MODULE_KEY_TO_CANONICAL_SLUG: Record<string, string> = {
@@ -165,8 +173,8 @@ export const MODULE_KEY_TO_CANONICAL_SLUG: Record<string, string> = {
  * Resolves an internal key or legacy alias to its canonical URL segment.
  */
 export function toCanonicalModuleSlug(key: string): string {
-  const lower = key.toLowerCase();
-  return MODULE_KEY_TO_CANONICAL_SLUG[lower] ?? lower;
+  const normalized = normalizeCanonicalModuleSegment(key);
+  return MODULE_KEY_TO_CANONICAL_SLUG[normalized] ?? normalized;
 }
 
 /**
@@ -177,21 +185,21 @@ export function isKnownWorkspaceModule(workspaceKey: string, module: string): bo
   if (!normalized) return false;
   const allowlist = WORKSPACE_MODULE_ALLOWLIST[normalized];
   if (!allowlist) return false;
-  return allowlist.includes(module.toLowerCase());
+  return allowlist.includes(normalizeCanonicalModuleSegment(module));
 }
 
 /**
  * Checks whether a submodule is an officially known IT GENESIS submodule.
  */
 export function isKnownGenesisSubmodule(submodule: string): boolean {
-  return GENESIS_SUBMODULE_ALLOWLIST.includes(submodule.toLowerCase());
+  return GENESIS_SUBMODULE_ALLOWLIST.includes(normalizeCanonicalModuleSegment(submodule));
 }
 
 /**
  * Checks whether a submodule is an officially known IT Governance submodule.
  */
 export function isKnownGovernanceSubmodule(submodule: string): boolean {
-  return GOVERNANCE_SUBMODULE_ALLOWLIST.includes(submodule.toLowerCase());
+  return GOVERNANCE_SUBMODULE_ALLOWLIST.includes(normalizeCanonicalModuleSegment(submodule));
 }
 
 /**
@@ -222,7 +230,7 @@ export function getWorkspaceRoot(workspaceKey: string): string {
 export function getWorkspaceModuleRoute(workspaceKey: string, module: string): string {
   const normalized = normalizeWorkspaceKey(workspaceKey);
   if (!normalized) return WORKSPACE_ROUTES.resolver;
-  const cleanModule = module.replace(/^\/+/, "").toLowerCase();
+  const cleanModule = normalizeCanonicalModuleSegment(module.replace(/^\/+/, ""));
   const canonicalSlug = toCanonicalModuleSlug(cleanModule);
   if (!isKnownWorkspaceModule(normalized, canonicalSlug)) {
     return WORKSPACE_ROUTES.resolver;
@@ -258,7 +266,7 @@ export function getWorkspaceAgentsRoute(workspaceKey: string): string {
  */
 export function getGenesisRoute(subpath?: string): string {
   if (!subpath) return "/workspace/it/genesis";
-  const cleanSubpath = subpath.replace(/^\/+/, "").toLowerCase();
+  const cleanSubpath = normalizeCanonicalModuleSegment(subpath.replace(/^\/+/, ""));
   if (!isKnownGenesisSubmodule(cleanSubpath)) {
     return "/workspace/it/genesis";
   }
@@ -272,7 +280,7 @@ export function getGenesisRoute(subpath?: string): string {
  */
 export function getGovernanceRoute(subpath?: string): string {
   if (!subpath) return "/workspace/it/governance";
-  const cleanSubpath = subpath.replace(/^\/+/, "").toLowerCase();
+  const cleanSubpath = normalizeCanonicalModuleSegment(subpath.replace(/^\/+/, ""));
   if (!isKnownGovernanceSubmodule(cleanSubpath)) {
     return "/workspace/it/governance";
   }

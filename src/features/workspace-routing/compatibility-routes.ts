@@ -54,25 +54,26 @@ export function resolveLegacyRoute(
   actor?: SessionActor | null,
 ): string {
   const cleanPath = pathname.split("?")[0].replace(/\/+$/, "") || "/";
+  const lowerPath = cleanPath.toLowerCase();
 
   // Static redirects independent of active workspace
-  if (cleanPath === "/director") {
+  if (lowerPath === "/director") {
     return "/workspace/executive";
   }
-  if (cleanPath === "/genesis") {
+  if (lowerPath === "/genesis") {
     return getGenesisRoute();
   }
-  if (cleanPath === "/governance") {
+  if (lowerPath === "/governance") {
     return getGovernanceRoute();
   }
-  if (cleanPath === "/research") {
+  if (lowerPath === "/research") {
     return getGenesisRoute("research");
   }
-  if (cleanPath === "/workspace/finance/close") {
+  if (lowerPath === "/workspace/finance/close") {
     return "/workspace/finance/month-close";
   }
-  if (cleanPath === "/business/settings" || cleanPath === "/giivepro") {
-    return cleanPath;
+  if (lowerPath === "/business/settings" || lowerPath === "/giivepro") {
+    return lowerPath;
   }
 
   // Active workspace-dependent resolution
@@ -81,18 +82,18 @@ export function resolveLegacyRoute(
     : null;
 
   // ARA compatibility
-  if (cleanPath === "/ara" || cleanPath === "/workspace/ara") {
+  if (lowerPath === "/ara" || lowerPath === "/workspace/ara") {
     return workspaceKey ? getWorkspaceAraRoute(workspaceKey) : "/workspace";
   }
 
   // Agents compatibility
-  if (cleanPath === "/agents" || cleanPath === "/workspace/agents") {
+  if (lowerPath === "/agents" || lowerPath === "/workspace/agents") {
     if (!workspaceKey) return "/workspace";
     return getWorkspaceAgentsRoute(workspaceKey);
   }
 
   // Executive Divisions compatibility: only with executive authority
-  if (cleanPath === "/business/divisions") {
+  if (lowerPath === "/business/divisions") {
     const isExecutive =
       workspaceKey === "executive" || (actor?.roles ?? []).includes("EXECUTIVE");
     return isExecutive ? "/workspace/executive/divisions" : "/workspace";
@@ -114,12 +115,12 @@ export function resolveLegacyRoute(
     "/workspace/findings": "findings",
   };
 
-  if (cleanPath in sharedModuleMap) {
-    const moduleName = sharedModuleMap[cleanPath];
+  if (lowerPath in sharedModuleMap) {
+    const moduleName = sharedModuleMap[lowerPath];
     return workspaceKey ? getWorkspaceModuleRoute(workspaceKey, moduleName) : "/workspace";
   }
 
-  if (cleanPath === "/business") {
+  if (lowerPath === "/business") {
     return workspaceKey ? getWorkspaceRoot(workspaceKey) : "/workspace";
   }
 
