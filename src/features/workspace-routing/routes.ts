@@ -26,6 +26,7 @@ export const WORKSPACE_MODULE_ALLOWLIST: Record<CanonicalWorkspaceKey, readonly 
   executive: [
     "brief",
     "divisions",
+    "strategy",
     "projects",
     "tasks",
     "approvals",
@@ -42,6 +43,7 @@ export const WORKSPACE_MODULE_ALLOWLIST: Record<CanonicalWorkspaceKey, readonly 
     "reconciliation",
     "tax",
     "month-close",
+    "strategy",
     "projects",
     "tasks",
     "approvals",
@@ -63,6 +65,7 @@ export const WORKSPACE_MODULE_ALLOWLIST: Record<CanonicalWorkspaceKey, readonly 
     "grievances",
     "contracts",
     "personnel-files",
+    "strategy",
     "tasks",
     "approvals",
     "documents",
@@ -80,6 +83,7 @@ export const WORKSPACE_MODULE_ALLOWLIST: Record<CanonicalWorkspaceKey, readonly 
     "claims",
     "privacy",
     "risk",
+    "strategy",
     "tasks",
     "approvals",
     "documents",
@@ -99,6 +103,7 @@ export const WORKSPACE_MODULE_ALLOWLIST: Record<CanonicalWorkspaceKey, readonly 
     "content",
     "follow-up",
     "complaints",
+    "strategy",
     "tasks",
     "approvals",
     "documents",
@@ -115,6 +120,7 @@ export const WORKSPACE_MODULE_ALLOWLIST: Record<CanonicalWorkspaceKey, readonly 
     "change-orders",
     "payment-certificates",
     "handover",
+    "strategy",
     "tasks",
     "approvals",
     "documents",
@@ -136,6 +142,7 @@ export const WORKSPACE_MODULE_ALLOWLIST: Record<CanonicalWorkspaceKey, readonly 
     "security",
     "backup",
     "users",
+    "strategy",
     "projects",
     "tasks",
     "approvals",
@@ -145,6 +152,15 @@ export const WORKSPACE_MODULE_ALLOWLIST: Record<CanonicalWorkspaceKey, readonly 
     "ara",
   ],
 };
+
+export const STRATEGY_SUBMODULE_ALLOWLIST: readonly string[] = [
+  "objectives",
+  "kpis",
+  "initiatives",
+  "reviews",
+  "revisions",
+  "sources",
+];
 
 export const GENESIS_SUBMODULE_ALLOWLIST: readonly string[] = [
   "agents",
@@ -216,6 +232,13 @@ export function isKnownGovernanceSubmodule(submodule: string): boolean {
 }
 
 /**
+ * Checks whether a submodule is an officially known Strategy submodule.
+ */
+export function isKnownStrategySubmodule(submodule: string): boolean {
+  return STRATEGY_SUBMODULE_ALLOWLIST.includes(normalizeCanonicalModuleSegment(submodule));
+}
+
+/**
  * Validates and normalizes workspace key.
  * Returns null if invalid, preventing arbitrary pathname generation.
  */
@@ -256,6 +279,21 @@ export function getWorkspaceModuleRoute(workspaceKey: string, module: string): s
  */
 export function getWorkspaceAraRoute(workspaceKey: string): string {
   return getWorkspaceModuleRoute(workspaceKey, "ara");
+}
+
+/**
+ * Returns canonical contextual Strategy route:
+ * /workspace/{workspaceKey}/strategy or /workspace/{workspaceKey}/strategy/{submodule}
+ */
+export function getStrategyRoute(workspaceKey: string, submodule?: string): string {
+  const normalized = normalizeWorkspaceKey(workspaceKey);
+  if (!normalized) return WORKSPACE_ROUTES.resolver;
+  if (!submodule) return `/workspace/${normalized}/strategy`;
+  const cleanSubpath = normalizeCanonicalModuleSegment(submodule.replace(/^\/+/, ""));
+  if (!isKnownStrategySubmodule(cleanSubpath)) {
+    return `/workspace/${normalized}/strategy`;
+  }
+  return `/workspace/${normalized}/strategy/${cleanSubpath}`;
 }
 
 /**

@@ -74,6 +74,7 @@ import {
   BrainCircuit,
   Play,
   FlaskConical,
+  Target,
 } from "lucide-react";
 
 import type { SessionActor } from "@/features/session";
@@ -177,6 +178,7 @@ export const WORKSPACE_ICONS: Record<
   BrainCircuit,
   Play,
   FlaskConical,
+  Target,
 };
 
 function canSeeAgents(roles: readonly string[] = []): boolean {
@@ -302,6 +304,52 @@ export function projectWorkspaceNavigation(
         icon: "Newspaper",
         group: "COMMAND_CENTER",
         available: true,
+      },
+      // Group: STRATEGI_KINERJA
+      {
+        key: "strategy",
+        label: "Ringkasan Strategi",
+        href: "/workspace/executive/strategy",
+        icon: "Target",
+        group: "STRATEGI_KINERJA",
+        available: false,
+        navigable: true,
+      },
+      {
+        key: "objectives",
+        label: "Sasaran",
+        href: "/workspace/executive/strategy/objectives",
+        icon: "Target",
+        group: "STRATEGI_KINERJA",
+        available: false,
+        navigable: true,
+      },
+      {
+        key: "kpis",
+        label: "KPI",
+        href: "/workspace/executive/strategy/kpis",
+        icon: "Target",
+        group: "STRATEGI_KINERJA",
+        available: false,
+        navigable: true,
+      },
+      {
+        key: "initiatives",
+        label: "Inisiatif",
+        href: "/workspace/executive/strategy/initiatives",
+        icon: "BriefcaseBusiness",
+        group: "STRATEGI_KINERJA",
+        available: false,
+        navigable: true,
+      },
+      {
+        key: "reviews",
+        label: "Review Kinerja",
+        href: "/workspace/executive/strategy/reviews",
+        icon: "BadgeCheck",
+        group: "STRATEGI_KINERJA",
+        available: false,
+        navigable: true,
       },
       // Group: ORGANIZATION
       {
@@ -468,6 +516,17 @@ export function projectWorkspaceNavigation(
 
   // Legal & Compliance Workspace specific IA
   if (isLegal) {
+    // Group: STRATEGI_KINERJA
+    items.push({
+      key: "strategy",
+      label: "Strategi & Kinerja",
+      href: "/workspace/legal/strategy",
+      icon: "Target",
+      group: "STRATEGI_KINERJA",
+      available: false,
+      navigable: true,
+    });
+
     // Group: LEGAL
     items.push(
       { key: "permits", label: "Permits", href: "/workspace/legal/permits", icon: "FileCheck2", group: "LEGAL", available: false },
@@ -487,10 +546,10 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tasks", href: getWorkspaceModuleRoute("legal", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Approvals", href: getWorkspaceModuleRoute("legal", "approvals"), icon: "Scale", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Documents", href: getWorkspaceModuleRoute("legal", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Reports", href: getWorkspaceModuleRoute("legal", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("legal", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
+      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("legal", "approvals"), icon: "Scale", group: "PEKERJAAN", available: true },
+      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("legal", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
+      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("legal", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
     );
 
     // Group: AI
@@ -504,6 +563,17 @@ export function projectWorkspaceNavigation(
 
   // HR & People Workspace specific IA
   if (isHr) {
+    // Group: STRATEGI_KINERJA
+    items.push({
+      key: "strategy",
+      label: "Strategi & Kinerja",
+      href: "/workspace/hr/strategy",
+      icon: "Target",
+      group: "STRATEGI_KINERJA",
+      available: false,
+      navigable: true,
+    });
+
     // Group: PEOPLE
     items.push(
       { key: "employees", label: "Employees", href: "/workspace/hr/employees", icon: "UsersRound", group: "PEOPLE", available: false },
@@ -529,10 +599,10 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tasks", href: getWorkspaceModuleRoute("hr", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Approvals", href: getWorkspaceModuleRoute("hr", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Documents", href: getWorkspaceModuleRoute("hr", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Reports", href: getWorkspaceModuleRoute("hr", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("hr", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
+      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("hr", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
+      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("hr", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
+      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("hr", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
     );
 
     // Group: AI
@@ -546,6 +616,17 @@ export function projectWorkspaceNavigation(
 
   // Sales & Marketing Workspace specific IA
   if (isSales) {
+    // Group: STRATEGI_KINERJA
+    items.push({
+      key: "strategy",
+      label: "Strategi & Kinerja",
+      href: "/workspace/sales/strategy",
+      icon: "Target",
+      group: "STRATEGI_KINERJA",
+      available: false,
+      navigable: true,
+    });
+
     // Group: SALES
     items.push(
       { key: "leads", label: "Leads", href: "/workspace/sales/leads", icon: "UserRoundPlus", group: "SALES", available: false },
@@ -571,10 +652,10 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tasks", href: getWorkspaceModuleRoute("sales", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Approvals", href: getWorkspaceModuleRoute("sales", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Documents", href: getWorkspaceModuleRoute("sales", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Reports", href: getWorkspaceModuleRoute("sales", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("sales", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
+      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("sales", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
+      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("sales", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
+      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("sales", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
     );
 
     // Group: AI
@@ -588,6 +669,17 @@ export function projectWorkspaceNavigation(
 
   // Property Workspace specific IA
   if (isProperty) {
+    // Group: STRATEGI_KINERJA
+    items.push({
+      key: "strategy",
+      label: "Strategi & Kinerja",
+      href: "/workspace/property/strategy",
+      icon: "Target",
+      group: "STRATEGI_KINERJA",
+      available: false,
+      navigable: true,
+    });
+
     // Group: PROJECT
     items.push(
       { key: "projects", label: "Projects", href: getWorkspaceModuleRoute("property", "projects"), icon: "BriefcaseBusiness", group: "PROJECT", available: true },
@@ -606,10 +698,10 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tasks", href: getWorkspaceModuleRoute("property", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Approvals", href: getWorkspaceModuleRoute("property", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Documents", href: getWorkspaceModuleRoute("property", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Reports", href: getWorkspaceModuleRoute("property", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("property", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
+      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("property", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
+      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("property", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
+      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("property", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
     );
 
     // Group: AI
@@ -623,6 +715,17 @@ export function projectWorkspaceNavigation(
 
   // Finance Workspace specific IA
   if (isFinance) {
+    // Group: STRATEGI_KINERJA
+    items.push({
+      key: "strategy",
+      label: "Strategi & Kinerja",
+      href: "/workspace/finance/strategy",
+      icon: "Target",
+      group: "STRATEGI_KINERJA",
+      available: false,
+      navigable: true,
+    });
+
     items.push(
       { key: "cash", label: "Cash & Bank", href: "/workspace/finance/cash", icon: "Landmark", group: "KEUANGAN", available: false },
       { key: "receivables", label: "Receivables", href: "/workspace/finance/receivables", icon: "CircleDollarSign", group: "KEUANGAN", available: false },
@@ -637,7 +740,7 @@ export function projectWorkspaceNavigation(
     items.push(
       { key: "projects", label: "Proyek", href: getWorkspaceModuleRoute("finance", "projects"), icon: "BriefcaseBusiness", group: "PEKERJAAN", available: true },
       { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("finance", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Approval", href: getWorkspaceModuleRoute("finance", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
+      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("finance", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
       { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("finance", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
       { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("finance", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
       { key: "findings", label: "Temuan", href: getWorkspaceModuleRoute("finance", "findings"), icon: "TriangleAlert", group: "PEKERJAAN", available: true },

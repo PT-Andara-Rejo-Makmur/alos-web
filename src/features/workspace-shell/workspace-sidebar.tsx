@@ -17,6 +17,7 @@ import styles from "./workspace-shell.module.css";
 const GROUP_ORDER: readonly WorkspaceNavGroup[] = [
   "COMMAND_CENTER",
   "UTAMA",
+  "STRATEGI_KINERJA",
   "PROJECT",
   "SALES",
   "MARKETING",
@@ -75,6 +76,8 @@ function getGroupLabel(
   switch (group) {
     case "COMMAND_CENTER":
       return "COMMAND CENTER";
+    case "STRATEGI_KINERJA":
+      return "STRATEGI & KINERJA";
     case "PROJECT":
       return "PROJECT";
     case "SALES":

@@ -34,6 +34,13 @@ export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> 
   brief: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   divisions: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   governance: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  strategy: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  objectives: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  kpis: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  initiatives: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  reviews: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  revisions: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  sources: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
 
   // Property Domain Modules
   milestones: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },

@@ -75,11 +75,13 @@ export type WorkspaceIconKey =
   | "Blocks"
   | "BrainCircuit"
   | "Play"
-  | "FlaskConical";
+  | "FlaskConical"
+  | "Target";
 
 export type WorkspaceNavGroup =
   | "UTAMA"
   | "COMMAND_CENTER"
+  | "STRATEGI_KINERJA"
   | "PROJECT"
   | "SALES"
   | "MARKETING"
