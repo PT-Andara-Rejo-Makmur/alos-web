@@ -446,6 +446,16 @@ export function projectWorkspaceNavigation(
       { key: "decisions", label: "Decisions", href: getGovernanceRoute("decisions"), icon: "BadgeCheck", group: "GOVERNANCE", available: false, navigable: true },
     );
 
+    // Group: WORK (Contextual Work Modules)
+    items.push(
+      { key: "projects", label: "Projects", href: getWorkspaceModuleRoute("it", "projects"), icon: "FolderKanban", group: "WORK", available: false, navigable: true },
+      { key: "tasks", label: "Tasks", href: getWorkspaceModuleRoute("it", "tasks"), icon: "ListChecks", group: "WORK", available: false, navigable: true },
+      { key: "approvals", label: "Approvals", href: getWorkspaceModuleRoute("it", "approvals"), icon: "BadgeCheck", group: "WORK", available: false, navigable: true },
+      { key: "documents", label: "Documents", href: getWorkspaceModuleRoute("it", "documents"), icon: "Files", group: "WORK", available: false, navigable: true },
+      { key: "reports", label: "Reports", href: getWorkspaceModuleRoute("it", "reports"), icon: "ChartColumn", group: "WORK", available: false, navigable: true },
+      { key: "findings", label: "Findings", href: getWorkspaceModuleRoute("it", "findings"), icon: "TriangleAlert", group: "WORK", available: false, navigable: true },
+    );
+
     // Group: AI
     items.push(
       { key: "ara", label: "ARA", href: getWorkspaceAraRoute("it"), icon: "Sparkles", group: "AI", available: true, navigable: true },

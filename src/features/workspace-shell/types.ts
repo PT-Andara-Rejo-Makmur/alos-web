@@ -101,6 +101,7 @@ export type WorkspaceNavGroup =
   | "INFORMATION"
   | "DIVISION"
   | "PEKERJAAN"
+  | "WORK"
   | "AI"
   | "CONTROL"
   | "SYSTEM";

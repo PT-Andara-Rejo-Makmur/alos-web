@@ -38,6 +38,7 @@ const GROUP_ORDER: readonly WorkspaceNavGroup[] = [
   "DIVISION",
   "DECISIONS",
   "PEKERJAAN",
+  "WORK",
   "INFORMATION",
   "AI",
 ];
@@ -88,6 +89,8 @@ function getGroupLabel(group: WorkspaceNavGroup, divisionCode: string | null): s
       return divisionCode || "DIVISI";
     case "AI":
       return "AI";
+    case "WORK":
+      return "WORK";
     case "CONTROL":
       return "CONTROL";
     default:

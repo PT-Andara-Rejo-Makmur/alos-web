@@ -136,6 +136,12 @@ export const WORKSPACE_MODULE_ALLOWLIST: Record<CanonicalWorkspaceKey, readonly 
     "security",
     "backup",
     "users",
+    "projects",
+    "tasks",
+    "approvals",
+    "documents",
+    "reports",
+    "findings",
     "ara",
   ],
 };
