@@ -3,6 +3,7 @@ import styles from "./it-ui.module.css";
 
 export type ItStatusType =
   | "LIVE"
+  | "READY"
   | "AVAILABLE"
   | "PARTIAL"
   | "NOT_CONNECTED"
@@ -22,6 +23,10 @@ export function ItStatusBadge({ status, label }: ItStatusBadgeProps) {
     case "LIVE":
       styleClass = styles.statusLive;
       defaultLabel = "LIVE";
+      break;
+    case "READY":
+      styleClass = styles.statusLive;
+      defaultLabel = "READY";
       break;
     case "AVAILABLE":
       styleClass = styles.statusAvailable;

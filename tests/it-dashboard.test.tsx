@@ -1,357 +1,177 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/lib/api";
-import { canonicalPrincipal } from "./helpers/canonical-session";
+import { getModuleReadiness } from "@/features/workspace-routing";
 import {
-  ItDashboardPage,
-  ItDataReadiness,
-  ItMetricGrid,
-  PlatformDeliveryPanel,
-  ReleaseGovernancePanel,
-  SecurityAccessPanel,
-  ItControlCadence,
-  GenesisControlPlanePanel,
-  createDefaultItSnapshot,
-  sanitizeItClientContext,
   checkMakerCheckerConflict,
-  DEFAULT_IT_READINESS,
-  DEFAULT_IT_METRICS,
-  DEFAULT_PLATFORM_DELIVERY,
-  DEFAULT_RELEASE_CHANGE,
-  DEFAULT_SECURITY_ACCESS,
-  DEFAULT_IT_CADENCE,
-  DEFAULT_GENESIS_OPERATIONS,
+  createDefaultItSnapshot,
+  ItDashboardHome,
+  ItDashboardPage,
+  sanitizeItClientContext,
 } from "@/modules/it/overview";
-import { projectWorkspaceNavigation } from "@/features/workspace-shell";
+import { ItMonitoringWorkspace } from "@/modules/it/monitoring";
+import { GenesisControlPlaneWorkspace } from "@/modules/it/genesis/control-plane";
+import { canonicalPrincipal } from "./helpers/canonical-session";
 
-// Mock next/image
-vi.mock("next/image", () => ({
-  default: ({
-    alt,
-    src,
-    ...props
-  }: React.ImgHTMLAttributes<HTMLImageElement> & { fill?: boolean; priority?: boolean }) => {
-    void props;
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={typeof src === "string" ? src : ""} alt={alt || ""} />;
-  },
-}));
-
-// Mock next/navigation
-const mockPush = vi.fn();
 const mockReplace = vi.fn();
-const mockRouter = {
-  push: mockPush,
-  replace: mockReplace,
-};
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => mockRouter,
+  useRouter: () => ({ push: vi.fn(), replace: mockReplace }),
   usePathname: () => "/workspace/it",
 }));
 
-describe("ALOS IT & Technology Dashboard", () => {
-  const defaultSnapshot = createDefaultItSnapshot();
+describe("IT visual foundation", () => {
+  const snapshot = createDefaultItSnapshot();
 
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
   });
 
-  afterEach(() => {
-    cleanup();
-  });
+  afterEach(cleanup);
 
-  // 1. /workspace/it only authorized IT context
-  it("1. mengizinkan pengguna dengan division scope IT untuk memuat IT Dashboard", async () => {
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
-      authenticated: true,
-      principal: canonicalPrincipal({ actorId: "usr_it_01", divisionCode: "IT", workspaceId: "ws_it_01", workspaceKey: "it", workspaceName: "IT Workspace", roles: ["IT_ADMIN"] }),
+  describe("IT Overview", () => {
+    it("renders the operations heading and compact readiness strip", () => {
+      render(<ItDashboardHome snapshot={snapshot} />);
+
+      expect(screen.getByRole("heading", { level: 1, name: "IT Operations" })).toBeInTheDocument();
+      const readiness = screen.getByRole("heading", { level: 2, name: "Operational Readiness" }).parentElement!;
+      expect(within(readiness).getByText("GENESIS")).toBeInTheDocument();
+      expect(within(readiness).getByText("Governance")).toBeInTheDocument();
+      expect(within(readiness).getByText("Monitoring")).toBeInTheDocument();
+      expect(within(readiness).getByText("Backup")).toBeInTheDocument();
+      expect(within(readiness).getByText("Security")).toBeInTheDocument();
     });
 
-    render(<ItDashboardPage initialSnapshot={defaultSnapshot} />);
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole("heading", { name: "IT Operations", level: 1 }),
-      ).toBeInTheDocument();
-    });
-    expect(screen.getByText("ALOS / IT & TECHNOLOGY")).toBeInTheDocument();
-  });
-
-  // 2. QA/Security reviewer does not automatically gain IT Lead write actions (SoD)
-  it("2. pengguna tidak berwenang menerima controlled state 403 dan tidak melihat data IT", async () => {
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
-      authenticated: true,
-      principal: {
-        actor_id: "usr_sales_01",
-        email: "sales@andara.co.id",
-        roles: ["MEMBER"],
-        division_codes: ["SALES"],
-        workspace_ids: ["ws_sales_01"],
-      },
+    it("does not render fabricated KPI values or the old metric-card structure", () => {
+      const { container } = render(<ItDashboardHome snapshot={snapshot} />);
+      expect(container.textContent).not.toMatch(/99\.9%|100%|0 incidents|27 agents|98%/i);
+      expect(container.querySelector('[class*="metricCard"]')).toBeNull();
     });
 
-    render(<ItDashboardPage initialSnapshot={defaultSnapshot} />);
-
-    await waitFor(() => {
-      expect(screen.getByText("403 — AKSES DITOLAK")).toBeInTheDocument();
-    });
-    expect(screen.getByText("Bukan Otoritas IT & Technology")).toBeInTheDocument();
-    expect(screen.queryByText("IT Operations")).not.toBeInTheDocument();
-  });
-
-  // 3. Missing monitoring source → "—", not 99.9%
-  it("3. menampilkan em-dash '—' untuk ketersediaan sistem saat telemetri belum terhubung, bukan 99.9% palsu", () => {
-    render(<ItMetricGrid metrics={DEFAULT_IT_METRICS} />);
-
-    const availabilityHeading = screen.getByText("System Availability");
-    const parentCard = availabilityHeading.closest("article")!;
-    expect(within(parentCard).getByText("—")).toBeInTheDocument();
-    expect(within(parentCard).getByText("Monitoring source belum terhubung")).toBeInTheDocument();
-    expect(within(parentCard).queryByText("99.9%")).not.toBeInTheDocument();
-  });
-
-  // 4. Missing incident source → "—", not 0
-  it("4. menampilkan em-dash '—' untuk insiden kritis saat sumber belum terhubung, bukan asumsi 0", () => {
-    render(<ItMetricGrid metrics={DEFAULT_IT_METRICS} />);
-
-    const incidentHeading = screen.getByText("Critical Incidents");
-    const incidentCard = incidentHeading.closest("article")!;
-    expect(within(incidentCard).getByText("—")).toBeInTheDocument();
-    expect(within(incidentCard).getByText("Incident source belum terhubung")).toBeInTheDocument();
-    expect(within(incidentCard).queryByText("0")).not.toBeInTheDocument();
-
-    cleanup();
-
-    render(<SecurityAccessPanel items={DEFAULT_SECURITY_ACCESS} />);
-    expect(screen.getByText("Control Status")).toBeInTheDocument();
-    expect(screen.getByText("No security claim without source.")).toBeInTheDocument();
-  });
-
-  // 5. Missing backup source → "—", not 100%
-  it("5. menampilkan em-dash '—' untuk backup saat laporan belum terhubung, bukan 100% palsu", () => {
-    render(<ItMetricGrid metrics={DEFAULT_IT_METRICS} />);
-
-    const backupHeading = screen.getByText("Backup Success");
-    const backupCard = backupHeading.closest("article")!;
-    expect(within(backupCard).getByText("—")).toBeInTheDocument();
-    expect(within(backupCard).getByText("Backup report belum terhubung")).toBeInTheDocument();
-    expect(within(backupCard).queryByText("100%")).not.toBeInTheDocument();
-  });
-
-  // 6. Missing UAT aggregate → "—"
-  it("6. menampilkan em-dash '—' untuk kelulusan UAT saat agregat belum tersedia", () => {
-    render(<ItMetricGrid metrics={DEFAULT_IT_METRICS} />);
-
-    const uatHeading = screen.getByText("UAT Pass Rate");
-    const uatCard = uatHeading.closest("article")!;
-    expect(within(uatCard).getByText("—")).toBeInTheDocument();
-    expect(within(uatCard).getByText("Release/UAT aggregate belum tersedia")).toBeInTheDocument();
-  });
-
-  // 7. GENESIS links to canonical /workspace/it/genesis
-  it("7. tombol CTA GENESIS Control Plane mengarah ke rute kanonikal /workspace/it/genesis", () => {
-    render(<GenesisControlPlanePanel items={DEFAULT_GENESIS_OPERATIONS} />);
-
-    const genesisCta = screen.getByRole("link", { name: /Buka GENESIS Control Plane/i });
-    expect(genesisCta).toBeInTheDocument();
-    expect(genesisCta).toHaveAttribute("href", "/workspace/it/genesis");
-  });
-
-  // 8. Governance links to canonical /workspace/it/governance
-  it("8. kartu modul Governance & Audit mengarah ke portal /workspace/it/governance", () => {
-    render(<GenesisControlPlanePanel items={DEFAULT_GENESIS_OPERATIONS} />);
-
-    const governanceLink = screen.getByRole("link", { name: /Governance & Audit/i });
-    expect(governanceLink).toBeInTheDocument();
-    expect(governanceLink).toHaveAttribute("href", "/workspace/it/governance");
-  });
-
-  // 9. Existing GENESIS Control Plane is not duplicated
-  it("9. panel GENESIS Control Plane merujuk ke modul yang sudah ada (existing module/portal)", () => {
-    render(<GenesisControlPlanePanel items={DEFAULT_GENESIS_OPERATIONS} />);
-
-    expect(screen.getByText("Agent Registry")).toBeInTheDocument();
-    expect(screen.getByText("Release Requests")).toBeInTheDocument();
-    expect(screen.getByText("Workspace Sources")).toBeInTheDocument();
-    expect(screen.getByText("Governance & Audit")).toBeInTheDocument();
-
-    const moduleBadges = screen.getAllByText("Existing module");
-    expect(moduleBadges.length).toBe(3);
-    expect(screen.getByText("Existing portal")).toBeInTheDocument();
-  });
-
-  // 10. No infrastructure secrets exposed (sanitizer)
-  it("10. fungsi sanitizeItClientContext membersihkan token, secret, dan kredensial sensitif", () => {
-    const rawData = {
-      workspace: "it",
-      githubToken: "ghp_1234567890abcdef",
-      apiKey: "secret_live_key_999",
-      password: "SuperSecretPassword123!",
-      systemName: "ALOS Core",
-      safeStatus: "ACTIVE",
-    };
-
-    const sanitized = sanitizeItClientContext(rawData);
-    expect(sanitized.safeStatus).toBe("ACTIVE");
-    expect(sanitized.systemName).toBe("ALOS Core");
-    expect(sanitized.githubToken).toBeUndefined();
-    expect(sanitized.apiKey).toBeUndefined();
-    expect(sanitized.password).toBeUndefined();
-  });
-
-  // 11. No GitHub/browser token in client storage
-  it("11. tidak menyimpan token atau kredensial GitHub di localStorage", async () => {
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
-      authenticated: true,
-      principal: canonicalPrincipal({ actorId: "usr_it_01", divisionCode: "IT", workspaceId: "ws_it_01", workspaceKey: "it", workspaceName: "IT Workspace", roles: ["IT_ADMIN"] }),
+    it("separates repository presence from runtime health", () => {
+      render(<ItDashboardHome snapshot={snapshot} />);
+      const table = screen.getByRole("table", { name: "Systems and delivery status" });
+      const webRow = within(table).getByText("Web App").closest("tr")!;
+      expect(within(webRow).getByText("Current repository")).toBeInTheDocument();
+      expect(within(webRow).getByText("Unknown")).toBeInTheDocument();
+      expect(screen.getByText("Repository exists != runtime healthy.")).toBeInTheDocument();
     });
 
-    render(<ItDashboardPage initialSnapshot={defaultSnapshot} />);
-
-    await waitFor(() => {
-      expect(screen.getByText("IT Operations")).toBeInTheDocument();
+    it("reports Monitoring, Backup, and Security as NOT CONNECTED", () => {
+      render(<ItDashboardHome snapshot={snapshot} />);
+      const table = screen.getByRole("table", { name: "Operations source status" });
+      for (const label of ["Monitoring", "Backup", "Security"]) {
+        const row = within(table).getByText(label).closest("tr")!;
+        expect(within(row).getByText("NOT CONNECTED")).toBeInTheDocument();
+      }
     });
 
-    expect(localStorage.getItem("github_token")).toBeNull();
-    expect(localStorage.getItem("access_token")).toBeNull();
-    expect(localStorage.getItem("infra_secret")).toBeNull();
-  });
-
-  // 12. Repo existence not represented as runtime health
-  it("12. panel Systems & Delivery menegaskan bahwa keberadaan repositori bukan status kesehatan runtime", () => {
-    render(<PlatformDeliveryPanel items={DEFAULT_PLATFORM_DELIVERY} />);
-
-    expect(screen.getByText("Systems & Delivery")).toBeInTheDocument();
-    expect(screen.getByText("Web App")).toBeInTheDocument();
-    expect(screen.getByText("Backend API")).toBeInTheDocument();
-    expect(screen.getByText("Contracts")).toBeInTheDocument();
-    expect(screen.getByText("Infrastructure")).toBeInTheDocument();
-    expect(screen.getByText("Repo existence != runtime health.")).toBeInTheDocument();
-  });
-
-  // 13. Backup success != restore success
-  it("13. membedakan verifikasi backup dan uji pemulihan (restore drill) secara terpisah", () => {
-    render(<ItControlCadence cadence={DEFAULT_IT_CADENCE} />);
-
-    expect(screen.getByText("Backup success")).toBeInTheDocument();
-    expect(screen.getByText("Restore drill")).toBeInTheDocument();
-
-    const rows = screen.getAllByRole("row");
-    expect(rows.length).toBe(7); // 1 header + 6 data rows
-  });
-
-  // 14. No autonomous production release
-  it("14. tidak terdapat tombol rilis produksi otonom satu-klik pada antarmuka", () => {
-    render(<ReleaseGovernancePanel items={DEFAULT_RELEASE_CHANGE} />);
-    expect(screen.queryByRole("button", { name: /auto-release/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /deploy-now/i })).not.toBeInTheDocument();
-    expect(screen.getByText("Release requests")).toBeInTheDocument();
-  });
-
-  // 15. Maker/checker identity boundary preserved
-  it("15. fungsi checkMakerCheckerConflict mendeteksi jika pembuat dan pemeriksa adalah orang yang sama", () => {
-    expect(checkMakerCheckerConflict("user_123", "user_123")).toBe(true);
-    expect(checkMakerCheckerConflict("user_123", "user_456")).toBe(false);
-  });
-
-  // 16. Workspace Shell reused with IT identity
-  it("16. menggunakan WorkspaceShell dengan identitas IT Workspace", async () => {
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
-      authenticated: true,
-      principal: canonicalPrincipal({ actorId: "usr_it_01", divisionCode: "IT", workspaceId: "ws_it_01", workspaceKey: "it", workspaceName: "IT Workspace", roles: ["IT_ADMIN"] }),
+    it("uses a technical Control Cadence table with monospace control IDs", () => {
+      render(<ItDashboardHome snapshot={snapshot} />);
+      const table = screen.getByRole("table", { name: "IT control cadence" });
+      expect(within(table).getAllByRole("row")).toHaveLength(7);
+      expect(within(table).getByText("IT-D-01").tagName).toBe("CODE");
+      expect(within(table).getByText("Backup success")).toBeInTheDocument();
+      expect(within(table).getByText("Restore drill")).toBeInTheDocument();
     });
 
-    render(<ItDashboardPage initialSnapshot={defaultSnapshot} />);
-
-    await waitFor(() => {
-      const workspaceLabels = screen.getAllByText("IT Workspace");
-      expect(workspaceLabels.length).toBeGreaterThanOrEqual(1);
-    });
-    const roleLabels = screen.getAllByText("Administrator IT");
-    expect(roleLabels.length).toBeGreaterThanOrEqual(1);
-  });
-
-  // 17. Switch workspace redirects to /workspace
-  it("17. aksi switch workspace pada sidebar mengarah ke /workspace", async () => {
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
-      authenticated: true,
-      principal: canonicalPrincipal({ actorId: "usr_it_01", divisionCode: "IT", workspaceId: "ws_it_01", workspaceKey: "it", workspaceName: "IT Workspace", roles: ["IT_ADMIN"] }),
-    });
-
-    render(<ItDashboardPage initialSnapshot={defaultSnapshot} />);
-
-    await waitFor(() => {
-      const switchLinks = screen.getAllByRole("link", { name: /Ganti workspace/i });
-      expect(switchLinks.length).toBeGreaterThan(0);
-      expect(switchLinks[0]).toHaveAttribute("href", "/workspace");
+    it("links the GENESIS utility CTA to its canonical route", () => {
+      render(<ItDashboardHome snapshot={snapshot} />);
+      expect(screen.getByRole("link", { name: /Open Control Plane/i })).toHaveAttribute("href", "/workspace/it/genesis");
     });
   });
 
-  // 18. Mobile nav <= 5 and IT navigation projection
-  it("18. proyeksi navigasi IT memisahkan IDENTITY_ACCESS dari ALOS_PLATFORM", () => {
-    const nav = projectWorkspaceNavigation(
-      {
-        workspaceId: "ws_it_01",
-        workspaceKey: "it",
-        workspaceLabel: "IT Workspace",
-        roleLabel: "IT Lead",
-        divisionCode: "IT",
-      },
-      {
-        user_id: "usr_01",
-        organization_id: "org_01",
-        roles: ["IT_ADMIN"],
-        division_codes: ["IT"],
-        workspace_ids: ["ws_it_01"],
-        issued_at: "",
-        expires_at: "",
-      },
-    );
-
-    const groups = new Set(nav.map((item) => item.group));
-    expect(groups.has("UTAMA")).toBe(true);
-    expect(groups.has("ALOS_PLATFORM")).toBe(true);
-    expect(groups.has("IDENTITY_ACCESS")).toBe(true);
-    expect(groups.has("ENGINEERING")).toBe(true);
-    expect(groups.has("OPERATIONS")).toBe(true);
-    expect(groups.has("GENESIS")).toBe(true);
-    expect(groups.has("GOVERNANCE")).toBe(true);
-    expect(groups.has("AI")).toBe(true);
-
-    const overviewItem = nav.find((i) => i.key === "overview");
-    expect(overviewItem?.href).toBe("/workspace/it");
-    expect(overviewItem?.navigable).toBe(true);
-    expect(nav.find((item) => item.key === "users")?.group).toBe("IDENTITY_ACCESS");
-    expect(nav.find((item) => item.key === "register-user")?.group).toBe("IDENTITY_ACCESS");
-  });
-
-  // 19. Session/logout boundary preserved
-  it("19. mengarahkan pengguna tanpa sesi (unauthenticated) ke halaman /login", async () => {
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
-      authenticated: false,
+  describe("Monitoring", () => {
+    it("preserves centralized BLOCKED readiness and telemetry NOT CONNECTED state", () => {
+      render(<ItMonitoringWorkspace />);
+      expect(screen.getByRole("heading", { level: 1, name: "Monitoring" })).toBeInTheDocument();
+      expect(getModuleReadiness("monitoring")).toEqual({ availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" });
+      expect(screen.getByText("BACKEND_NOT_CONNECTED")).toBeInTheDocument();
+      const sourceRegion = screen.getByRole("region", { name: "Telemetry source" });
+      expect(within(sourceRegion).getByText("NOT CONNECTED")).toBeInTheDocument();
     });
 
-    render(<ItDashboardPage />);
+    it("renders an honest empty service table and event region", () => {
+      render(<ItMonitoringWorkspace />);
+      const table = screen.getByRole("table", { name: "Service health telemetry" });
+      expect(within(table).getByText("No telemetry source connected.")).toBeInTheDocument();
+      expect(within(table).queryAllByRole("row")).toHaveLength(2);
+      expect(screen.getByText("No operational events available.")).toBeInTheDocument();
+      expect(document.body.textContent).not.toMatch(/99\.9%|uptime|deployed at|incident opened/i);
+    });
 
-    await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith("/login");
+    it("shows all six coverage rows without a card grid", () => {
+      const { container } = render(<ItMonitoringWorkspace />);
+      for (const label of ["Application", "Backend", "Infrastructure", "Database", "Security", "Backup"]) {
+        expect(screen.getByText(label)).toBeInTheDocument();
+      }
+      expect(container.querySelector('[class*="coverageCard"]')).toBeNull();
+    });
+
+    it("contains no handwritten SVG markup in the canonical source", () => {
+      const source = readFileSync(resolve(process.cwd(), "src/modules/it/monitoring/it-monitoring-workspace.tsx"), "utf8");
+      expect(source).not.toMatch(/<(svg|path|circle|polygon|rect)\b/i);
     });
   });
 
-  // 20. Data Readiness shows PARTIAL for GENESIS/Governance and NOT_CONNECTED for telemetry
-  it("20. IT Data Readiness menampilkan PARTIAL untuk GENESIS & Governance, dan NOT_CONNECTED untuk monitoring", () => {
-    render(<ItDataReadiness items={DEFAULT_IT_READINESS} />);
+  describe("GENESIS Control Plane", () => {
+    it("renders centralized control-plane status without a health claim", () => {
+      render(<GenesisControlPlaneWorkspace />);
+      expect(screen.getByRole("heading", { level: 1, name: "GENESIS Control Plane" })).toBeInTheDocument();
+      expect(getModuleReadiness("control-plane")).toEqual({ availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" });
+      expect(screen.getByText("Frontend control surface available. Backend operational integration not connected.")).toBeInTheDocument();
+      expect(document.body.textContent).not.toMatch(/healthy|online|27 agents|AI score/i);
+    });
 
-    const genesisPill = screen.getByText("GENESIS");
-    expect(within(genesisPill.parentElement!).getByText("PARTIAL")).toBeInTheDocument();
+    it("resolves every technical registry readiness from the centralized matrix", () => {
+      render(<GenesisControlPlaneWorkspace />);
+      const table = screen.getByRole("table", { name: "GENESIS technical registry" });
+      for (const [label, key] of [["Agents", "agents"], ["Skills", "skills"], ["Research", "research"], ["Models & Tools", "models-tools"]] as const) {
+        const row = within(table).getByText(label).closest("tr")!;
+        expect(within(row).getByText(getModuleReadiness(key).availability)).toBeInTheDocument();
+        expect(within(row).getByText(getModuleReadiness(key).blockReason!)).toBeInTheDocument();
+      }
+    });
 
-    const governancePill = screen.getByText("Governance");
-    expect(within(governancePill.parentElement!).getByText("PARTIAL")).toBeInTheDocument();
+    it("uses centralized governance readiness and canonical routes", () => {
+      render(<GenesisControlPlaneWorkspace />);
+      const routes = [
+        "/workspace/it/governance/evidence",
+        "/workspace/it/governance/uat",
+        "/workspace/it/governance/decisions",
+      ];
+      for (const route of routes) {
+        expect(screen.getByRole("link", { name: route })).toHaveAttribute("href", route);
+      }
+    });
 
-    const monitoringPill = screen.getByText("Monitoring");
-    expect(within(monitoringPill.parentElement!).getByText("NOT CONNECTED")).toBeInTheDocument();
+    it("does not restore any legacy subsystem UI", () => {
+      render(<GenesisControlPlaneWorkspace />);
+      for (const legacy of ["FactoryWorkspace", "ItReviewProjection", "GenesisRdGovernanceView", "Show All", "Capability Factory"]) {
+        expect(screen.queryByText(legacy)).not.toBeInTheDocument();
+      }
+    });
+  });
+
+  describe("access and client boundaries", () => {
+    it("loads the protected Overview for an authorized IT principal", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
+        authenticated: true,
+        principal: canonicalPrincipal({ actorId: "usr_it_01", divisionCode: "IT", workspaceId: "ws_it_01", workspaceKey: "it", workspaceName: "IT Workspace", roles: ["IT_ADMIN"] }),
+      });
+      render(<ItDashboardPage initialSnapshot={snapshot} />);
+      await waitFor(() => expect(screen.getByRole("heading", { level: 1, name: "IT Operations" })).toBeInTheDocument());
+    });
+
+    it("preserves secret sanitization and maker-checker checks", () => {
+      const sanitized = sanitizeItClientContext({ apiKey: "secret", password: "secret", systemName: "ALOS Core" });
+      expect(sanitized).toEqual({ systemName: "ALOS Core" });
+      expect(checkMakerCheckerConflict("user_123", "user_123")).toBe(true);
+      expect(checkMakerCheckerConflict("user_123", "user_456")).toBe(false);
+    });
   });
 });

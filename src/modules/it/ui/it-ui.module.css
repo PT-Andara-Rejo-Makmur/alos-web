@@ -314,6 +314,71 @@
   background-color: #fafaf8;
 }
 
+.techTable a {
+  color: #3f3523;
+  text-underline-offset: 3px;
+}
+
+.techTable a:hover {
+  color: #735723;
+}
+
+.techTable a:focus-visible,
+.unavailableAction:focus-visible {
+  outline: 2px solid #99732f;
+  outline-offset: 2px;
+}
+
+/* Compact status row shared by source and control-plane surfaces */
+.statusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-left: 3px solid #8a928c;
+  border-radius: 7px;
+}
+
+.statusRowIdentity,
+.statusRowState {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.statusRowIcon {
+  color: #5a625d;
+  flex: 0 0 auto;
+}
+
+.statusRowLabel,
+.statusRowHelper {
+  margin: 0;
+}
+
+.statusRowLabel {
+  color: #141619;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.statusRowHelper {
+  margin-top: 2px;
+  color: #6e7670;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.statusRowDetail {
+  color: #5a625d;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
 /* Compact Technical Container */
 .consoleSection {
   background: #ffffff;
@@ -401,5 +466,14 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+
+  .statusRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .statusRowState {
+    padding-left: 31px;
   }
 }

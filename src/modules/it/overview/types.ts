@@ -2,11 +2,8 @@ export type ItSourceReadinessKey =
   | "GENESIS"
   | "GOVERNANCE"
   | "MONITORING"
-  | "INCIDENTS"
   | "BACKUP"
-  | "SECURITY"
-  | "ACCESS_REVIEW"
-  | "RECOVERY";
+  | "SECURITY";
 
 export type ItSourceState = "LIVE" | "PARTIAL" | "NOT_CONNECTED";
 
@@ -14,61 +11,56 @@ export interface ItSourceReadinessItem {
   readonly key: ItSourceReadinessKey;
   readonly label: string;
   readonly state: ItSourceState;
-  readonly updatedAt?: string | null;
-  readonly context?: string;
+  readonly context: string;
 }
 
-export interface ItMetricItem {
+export interface SystemDeliveryRow {
   readonly id: string;
-  readonly label: string;
-  readonly value: string;
-  readonly helper: string;
-  readonly state: ItSourceState;
+  readonly system: string;
+  readonly source: string;
+  readonly runtime: string;
+  readonly telemetry: string;
+  readonly context: string;
 }
 
-export interface PlatformDeliveryRow {
+export interface OperationStatusRow {
   readonly id: string;
-  readonly name: string;
-  readonly repoStatus: string;
-  readonly healthBadge: string;
-  readonly healthState: "AVAILABLE" | "NEEDS_TELEMETRY" | "PARTIAL" | "NOT_CONNECTED";
+  readonly operation: string;
+  readonly state: "NOT_CONNECTED";
+  readonly source: string;
+  readonly description: string;
 }
 
-export interface ReleaseChangeRow {
+export interface ReleaseControlRow {
   readonly id: string;
-  readonly label: string;
-  readonly status: string;
-  readonly state: "AVAILABLE" | "PARTIAL" | "NOT_CONNECTED";
-}
-
-export interface SecurityAccessRow {
-  readonly id: string;
-  readonly label: string;
-  readonly value: string;
+  readonly control: string;
+  readonly state: "PARTIAL" | "NOT_CONNECTED";
+  readonly evidence: string;
+  readonly source: string;
 }
 
 export interface ItCadenceItem {
-  readonly frequency: "Harian" | "Mingguan" | "Bulanan";
+  readonly frequency: "Daily" | "Weekly" | "Monthly";
   readonly controlId: string;
   readonly controlName: string;
   readonly workEvidence: string;
-  readonly readinessStatus: ItSourceState;
+  readonly readinessStatus: "PARTIAL" | "NOT_CONNECTED";
   readonly targetCapability: string;
 }
 
-export interface GenesisControlPlaneItem {
+export interface GenesisSummaryItem {
   readonly id: string;
   readonly title: string;
-  readonly badge: string;
+  readonly description: string;
+  readonly moduleKey: string;
   readonly href: string;
 }
 
 export interface ItDashboardSnapshot {
   readonly readiness: readonly ItSourceReadinessItem[];
-  readonly metrics: readonly ItMetricItem[];
-  readonly platformDelivery: readonly PlatformDeliveryRow[];
-  readonly releaseChange: readonly ReleaseChangeRow[];
-  readonly securityAccess: readonly SecurityAccessRow[];
+  readonly systems: readonly SystemDeliveryRow[];
+  readonly operations: readonly OperationStatusRow[];
+  readonly releaseControls: readonly ReleaseControlRow[];
   readonly cadence: readonly ItCadenceItem[];
-  readonly genesisOperations: readonly GenesisControlPlaneItem[];
+  readonly genesisSummary: readonly GenesisSummaryItem[];
 }

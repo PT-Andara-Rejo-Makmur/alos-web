@@ -1,630 +1,179 @@
-/* ==========================================================================
-   ALOS IT Operations Console - IT Dashboard Styles
-   Font: Manrope (UI & technical data) & monospace for IDs/codes
-   Palette: Obsidian (#141619), clean surfaces (#ffffff), subtle borders (#e7ebe7)
-   Restrained accent: Gold (#99732f) for context/focus only
-   No neon, no glassmorphism, no fake charts, no decorative cards
-   ========================================================================== */
-
 .dashboardWrapper {
   width: 100%;
   max-width: 1440px;
+  min-height: 100%;
   margin: 0 auto;
   padding: 24px 32px 64px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  font-family: var(--font-manrope, sans-serif);
+  background: #f8f7f4;
   color: #141619;
-  background-color: #f8f7f4;
-  min-height: 100%;
-}
-
-/* ==========================================================================
-   A. Header & Context Bar
-   ========================================================================== */
-
-.headerRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid #e7ebe7;
-}
-
-.contextBar {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.breadcrumbs {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8a928c;
-}
-
-.pageTitle {
   font-family: var(--font-manrope, sans-serif);
-  font-size: 1.65rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #141619;
-  line-height: 1.2;
-  margin: 0;
 }
 
-.subtitle {
-  font-size: 0.88rem;
-  color: #5a625d;
-  margin: 0;
-  max-width: 720px;
-  line-height: 1.45;
+.section {
+  padding-top: 2px;
 }
 
-.headerMeta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.sourceBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #5a625d;
-}
-
-.sourceDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #f09a0b;
-  flex-shrink: 0;
-}
-
-/* ==========================================================================
-   B. Operational Readiness Strip
-   ========================================================================== */
-
-.readinessStrip {
+.readinessSection {
   background: #ffffff;
   border: 1px solid #e7ebe7;
   border-radius: 8px;
-  padding: 12px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
 }
 
-.readinessHeader {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.readinessEyebrow {
-  font-size: 0.68rem;
+.readinessTitle {
+  margin: 0;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e7ebe7;
+  color: #6e7670;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #8a928c;
 }
 
-.readinessItems {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
+.readinessStrip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .readinessItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.78rem;
+  min-width: 0;
+  padding: 13px 14px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px 10px;
+  border-right: 1px solid #e7ebe7;
+}
+
+.readinessItem:last-child {
+  border-right: 0;
 }
 
 .readinessIcon {
-  color: #6e7670;
+  margin-top: 1px;
+  color: #5a625d;
+}
+
+.readinessText {
+  min-width: 0;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.readinessLabel,
+.primaryCell {
+  color: #141619;
+  font-weight: 700;
 }
 
 .readinessLabel {
-  font-weight: 600;
-  color: #141619;
+  font-size: 0.8rem;
 }
 
-.readinessState {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.stateLive {
-  background-color: rgba(11, 153, 82, 0.08);
-  color: #0b9952;
-}
-.stateLive .dot {
-  background-color: #0b9952;
-}
-
-.statePartial {
-  background-color: rgba(240, 154, 11, 0.08);
-  color: #b86e00;
-}
-.statePartial .dot {
-  background-color: #f09a0b;
-}
-
-.stateNotConnected {
-  background-color: #f0f2f0;
+.readinessHelper,
+.contextCell {
   color: #6e7670;
-}
-.stateNotConnected .dot {
-  background-color: #8a928c;
+  line-height: 1.4;
 }
 
-/* ==========================================================================
-   C & D. Operations Status (Structured Rows / Metric Grid)
-   ========================================================================== */
-
-.metricsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+.readinessHelper {
+  min-height: 2.1em;
+  font-size: 0.7rem;
 }
 
-.metricCard {
-  background: #ffffff;
-  border: 1px solid #e7ebe7;
-  border-radius: 8px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.readinessItem > :last-child {
+  grid-column: 2;
+  justify-self: start;
 }
 
-.metricTitle {
-  font-size: 0.74rem;
-  font-weight: 600;
+.tableNote {
+  margin: 8px 2px 0;
   color: #6e7670;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
 }
 
-.metricValue {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #141619;
-  line-height: 1.1;
-  margin: 4px 0 2px;
+.controlId,
+.readinessCell code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.metricSubtext {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   font-size: 0.72rem;
-  color: #6e7670;
-  margin: 0;
 }
 
-.metricDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #8a928c;
-  flex-shrink: 0;
-}
-
-/* ==========================================================================
-   E. Operations Middle Section (Split: Delivery & Releases & Security)
-   ========================================================================== */
-
-.middle3Grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
-  gap: 16px;
-}
-
-.panelCard {
-  background: #ffffff;
-  border: 1px solid #e7ebe7;
-  border-radius: 8px;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-}
-
-.panelHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f0f3f0;
-}
-
-.panelEyebrow {
-  font-size: 0.66rem;
+.controlId {
+  color: #735723;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8a928c;
+  white-space: nowrap;
 }
 
-.panelTitle {
-  font-family: var(--font-manrope, sans-serif);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #141619;
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-.panelList {
+.readinessCell {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 8px;
 }
 
-.panelListItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #f8f9f8;
-  font-size: 0.8rem;
-}
-
-.panelListItem:last-child {
-  border-bottom: none;
-}
-
-.itemLabel {
-  font-weight: 600;
-  color: #141619;
-}
-
-.itemDetail {
-  font-size: 0.72rem;
+.readinessCell code {
   color: #6e7670;
-  font-family: ui-monospace, SFMono-Regular, monospace;
-}
-
-.itemValue {
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: #6e7670;
-  font-family: ui-monospace, SFMono-Regular, monospace;
-}
-
-.itemFootnote {
-  font-size: 0.7rem;
-  color: #8a928c;
-  font-style: italic;
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px dashed #f0f3f0;
-}
-
-/* Badges */
-.badgeAvailable {
-  display: inline-flex;
-  padding: 2px 7px;
-  background-color: rgba(11, 153, 82, 0.08);
-  border: 1px solid rgba(11, 153, 82, 0.2);
-  color: #0b9952;
-  border-radius: 4px;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.badgeNeedsTelemetry {
-  display: inline-flex;
-  padding: 2px 7px;
-  background-color: #f0f2f0;
-  border: 1px solid #e2e8f0;
-  color: #6e7670;
-  border-radius: 4px;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.badgePartial {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 7px;
-  background-color: rgba(240, 154, 11, 0.08);
-  border: 1px solid rgba(240, 154, 11, 0.25);
-  color: #b86e00;
-  border-radius: 4px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
   white-space: nowrap;
 }
 
-.badgeUnconnected {
+.utilityLink {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 2px 7px;
-  background-color: #f0f2f0;
-  border: 1px solid #e2e8f0;
-  color: #6e7670;
-  border-radius: 4px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-
-/* ==========================================================================
-   F & G. Bottom 2-Column Grid (Control Cadence & GENESIS Subsystems)
-   ========================================================================== */
-
-.bottom2Grid {
-  display: grid;
-  grid-template-columns: 1.45fr 1fr;
-  gap: 16px;
-}
-
-/* Control Cadence Table */
-.cadenceTableWrapper {
-  overflow-x: auto;
-  border: 1px solid #e7ebe7;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid #c9b482;
   border-radius: 6px;
-  margin-top: 6px;
-}
-
-.cadenceTable {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 0.78rem;
-}
-
-.cadenceTable th {
-  padding: 8px 12px;
-  font-size: 0.68rem;
+  color: #3f3523;
+  font-size: 0.76rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #6e7670;
-  background-color: #fbfbf9;
-  border-bottom: 1px solid #e7ebe7;
-  white-space: nowrap;
-}
-
-.cadenceTable td {
-  padding: 10px 12px;
-  border-bottom: 1px solid #f0f3f0;
-  color: #141619;
-  vertical-align: middle;
-}
-
-.cadenceTable tr:last-child td {
-  border-bottom: none;
-}
-
-.cadenceFrequency {
-  font-weight: 600;
-  color: #5a625d;
-  white-space: nowrap;
-}
-
-.cadenceControl {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.cadenceControlId {
-  font-family: ui-monospace, SFMono-Regular, monospace;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #99732f;
-}
-
-.cadenceControlName {
-  font-weight: 600;
-}
-
-.cadenceEvidence {
-  font-size: 0.74rem;
-  color: #5a625d;
-}
-
-/* ==========================================================================
-   G. GENESIS Control Plane Technical Subsystem Section
-   ========================================================================== */
-
-.genesisSection {
-  background: #141619;
-  border: 1px solid #27272a;
-  border-radius: 8px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  color: #f8f6ef;
-}
-
-.genesisHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #27272a;
-}
-
-.genesisEyebrow {
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #d1a357;
-}
-
-.genesisTitle {
-  font-family: var(--font-manrope, sans-serif);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-.genesisSubtitle {
-  font-size: 0.74rem;
-  color: #a1a1aa;
-  margin: 0;
-}
-
-.genesisList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.genesisItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 9px 12px;
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 6px;
-  gap: 12px;
   text-decoration: none;
-  transition: background-color 0.15s ease;
 }
 
-.genesisItem:hover {
-  background-color: rgba(255, 255, 255, 0.06);
+.utilityLink:hover {
+  background: #f3efe4;
 }
 
-.genesisItemLeft {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.utilityLink:focus-visible {
+  outline: 2px solid #99732f;
+  outline-offset: 2px;
 }
-
-.genesisDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #f09a0b;
-  flex-shrink: 0;
-}
-
-.genesisItemTitle {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #f4f4f5;
-}
-
-.genesisBadge {
-  display: inline-flex;
-  padding: 2px 7px;
-  background-color: rgba(209, 163, 87, 0.12);
-  border: 1px solid rgba(209, 163, 87, 0.3);
-  border-radius: 4px;
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: #efd083;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.genesisCtaButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 9px 14px;
-  background-color: #27272a;
-  color: #f4f4f5;
-  border: 1px solid #3f3f46;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-  margin-top: auto;
-}
-
-.genesisCtaButton:hover {
-  background-color: #3f3f46;
-  border-color: #52525b;
-}
-
-/* ==========================================================================
-   Responsive Breakpoints
-   ========================================================================== */
 
 @media (max-width: 1100px) {
   .dashboardWrapper {
     padding: 16px 20px 80px;
-    gap: 16px;
+    gap: 20px;
   }
 
-  .middle3Grid {
-    grid-template-columns: 1fr;
+  .readinessStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .bottom2Grid {
-    grid-template-columns: 1fr;
+  .readinessItem:nth-child(2n) {
+    border-right: 0;
   }
 
-  .metricsGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .readinessItem {
+    border-bottom: 1px solid #e7ebe7;
+  }
+
+  .readinessItem:last-child {
+    border-bottom: 0;
   }
 }
 
 @media (max-width: 640px) {
-  .metricsGrid {
+  .dashboardWrapper {
+    padding-inline: 14px;
+  }
+
+  .readinessStrip {
     grid-template-columns: 1fr;
   }
 
-  .readinessItems {
-    gap: 12px;
-  }
-
-  .pageTitle {
-    font-size: 1.4rem;
+  .readinessItem {
+    border-right: 0;
   }
 }
-

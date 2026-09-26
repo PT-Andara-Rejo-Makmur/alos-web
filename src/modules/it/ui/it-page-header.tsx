@@ -13,7 +13,7 @@ export function ItPageHeader({
   breadcrumb,
   title,
   description,
-  sourceContext = "Backend Projection · Read-only",
+  sourceContext,
   sourceState,
 }: ItPageHeaderProps) {
   return (
@@ -24,22 +24,24 @@ export function ItPageHeader({
         <p className={styles.pageDescription}>{description}</p>
       </div>
 
-      <div className={styles.headerMeta}>
-        <div className={styles.sourceBadge}>
-          <span
-            aria-hidden="true"
-            className={styles.sourceDot}
-            style={
-              sourceState === "NOT_CONNECTED"
-                ? { backgroundColor: "#8a928c" }
-                : sourceState === "LIVE"
-                  ? { backgroundColor: "#0b9952" }
-                  : undefined
-            }
-          />
-          <span>{sourceContext}</span>
+      {sourceContext && (
+        <div className={styles.headerMeta}>
+          <div className={styles.sourceBadge}>
+            <span
+              aria-hidden="true"
+              className={styles.sourceDot}
+              style={
+                sourceState === "NOT_CONNECTED"
+                  ? { backgroundColor: "#8a928c" }
+                  : sourceState === "LIVE"
+                    ? { backgroundColor: "#0b9952" }
+                    : undefined
+              }
+            />
+            <span>{sourceContext}</span>
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }

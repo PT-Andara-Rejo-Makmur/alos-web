@@ -247,9 +247,11 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const readiness = getModuleReadiness("control-plane");
       expect(readiness.availability).toBe("BLOCKED");
 
-      expect(screen.getByText(`Control Plane Status: ${readiness.availability}`)).toBeInTheDocument();
+      const statusRegion = screen.getByRole("region", { name: "Control Plane status" });
+      expect(within(statusRegion).getByText("Control Plane Status")).toBeInTheDocument();
+      expect(within(statusRegion).getByText(readiness.availability)).toBeInTheDocument();
       expect(
-        screen.getByText("Frontend control surface tersedia. Backend operational integration belum terhubung."),
+        screen.getByText("Frontend control surface available. Backend operational integration not connected."),
       ).toBeInTheDocument();
 
       expect(screen.queryByText(/Control Plane Status: PARTIAL/i)).not.toBeInTheDocument();
@@ -342,7 +344,9 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       expect(result).not.toBeNull();
       render(result);
       expect(screen.getByRole("heading", { name: "Monitoring", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("Telemetry Source: NOT CONNECTED")).toBeInTheDocument();
+      const telemetryRegion = screen.getByRole("region", { name: "Telemetry source" });
+      expect(within(telemetryRegion).getByText("Telemetry Source")).toBeInTheDocument();
+      expect(within(telemetryRegion).getByText("NOT CONNECTED")).toBeInTheDocument();
     });
 
     it("renders ItUnavailableSurface with title Systems and centralized readiness for systems", () => {

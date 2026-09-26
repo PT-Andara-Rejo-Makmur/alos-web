@@ -1,216 +1,124 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
 import {
-  ArrowRight,
   BadgeCheck,
   Blocks,
   Bot,
   BrainCircuit,
-  ChevronRight,
   Fingerprint,
   FlaskConical,
   SearchCheck,
   ShieldCheck,
 } from "lucide-react";
-
 import { getModuleReadiness } from "@/features/workspace-routing";
+import {
+  ItDataTable,
+  ItPageHeader,
+  ItSectionHeader,
+  ItStatusBadge,
+  ItStatusRow,
+} from "@/modules/it/ui";
 import styles from "./genesis-control-plane.module.css";
 
-interface TechnicalAreaItem {
+interface RegistryItem {
   readonly id: string;
   readonly title: string;
   readonly description: string;
   readonly route: string;
-  readonly icon: React.ComponentType<{ size?: number; className?: string; "aria-hidden"?: boolean }>;
+  readonly icon: LucideIcon;
 }
 
-const TECHNICAL_AREAS: readonly TechnicalAreaItem[] = [
-  {
-    id: "agents",
-    title: "Agent Workforce & Factory",
-    description: "Technical agent design, capability draft, and execution runtime",
-    route: "/workspace/it/genesis/agents",
-    icon: Bot,
-  },
-  {
-    id: "skills",
-    title: "Skill Registry & Tools",
-    description: "Standard operational toolchain and modular skill definitions",
-    route: "/workspace/it/genesis/skills",
-    icon: Blocks,
-  },
-  {
-    id: "research",
-    title: "R&D Domain Governance",
-    description: "Autonomous domain research boundary and access control",
-    route: "/workspace/it/genesis/research",
-    icon: SearchCheck,
-  },
-  {
-    id: "models-tools",
-    title: "Models & Tools Registry",
-    description: "Model routing, token limits, and integration interfaces",
-    route: "/workspace/it/genesis/models-tools",
-    icon: BrainCircuit,
-  },
+const TECHNICAL_REGISTRY: readonly RegistryItem[] = [
+  { id: "agents", title: "Agents", description: "Agent registry and execution boundaries", route: "/workspace/it/genesis/agents", icon: Bot },
+  { id: "skills", title: "Skills", description: "Capability definitions and controlled tool access", route: "/workspace/it/genesis/skills", icon: Blocks },
+  { id: "research", title: "Research", description: "Research sources, review boundaries, and evidence", route: "/workspace/it/genesis/research", icon: SearchCheck },
+  { id: "models-tools", title: "Models & Tools", description: "Model routing and integration interfaces", route: "/workspace/it/genesis/models-tools", icon: BrainCircuit },
 ];
 
-interface GovernanceItem {
-  readonly id: string;
-  readonly title: string;
-  readonly description: string;
-  readonly route: string;
-  readonly icon: React.ComponentType<{ size?: number; className?: string; "aria-hidden"?: boolean }>;
+const GOVERNANCE_REFERENCES: readonly RegistryItem[] = [
+  { id: "evidence", title: "Evidence", description: "Evidence chain and audit trace", route: "/workspace/it/governance/evidence", icon: Fingerprint },
+  { id: "uat", title: "UAT & Gates", description: "Verification gates and release checks", route: "/workspace/it/governance/uat", icon: FlaskConical },
+  { id: "decisions", title: "Decisions", description: "Governed approvals and system decisions", route: "/workspace/it/governance/decisions", icon: BadgeCheck },
+];
+
+function RegistryRows({ items }: { readonly items: readonly RegistryItem[] }) {
+  return items.map((item) => {
+    const Icon = item.icon;
+    const readiness = getModuleReadiness(item.id);
+    return (
+      <tr key={item.id}>
+        <td>
+          <div className={styles.registryIdentity}>
+            <Icon aria-hidden={true} size={18} />
+            <span>{item.title}</span>
+          </div>
+        </td>
+        <td className={styles.descriptionCell}>{item.description}</td>
+        <td>
+          <div className={styles.readinessCell}>
+            <ItStatusBadge status={readiness.availability} />
+            {readiness.blockReason && <code>{readiness.blockReason}</code>}
+          </div>
+        </td>
+        <td><Link className={styles.routeLink} href={item.route}>{item.route}</Link></td>
+      </tr>
+    );
+  });
 }
-
-const GOVERNANCE_ITEMS: readonly GovernanceItem[] = [
-  {
-    id: "evidence",
-    title: "Evidence Chain & Logs",
-    description: "Immutable evidence verification and audit trace",
-    route: "/workspace/it/governance/evidence",
-    icon: Fingerprint,
-  },
-  {
-    id: "uat",
-    title: "UAT Gates & Verification",
-    description: "Automated test gates and release checklists",
-    route: "/workspace/it/governance/uat",
-    icon: FlaskConical,
-  },
-  {
-    id: "decisions",
-    title: "Operational Decisions",
-    description: "Governed human approvals and system sign-offs",
-    route: "/workspace/it/governance/decisions",
-    icon: BadgeCheck,
-  },
-];
 
 export function GenesisControlPlaneWorkspace() {
   const controlPlaneReadiness = getModuleReadiness("control-plane");
-  const isControlPlaneReady = controlPlaneReadiness.availability === "READY";
 
   return (
     <div className={styles.genesisWrapper}>
-      {/* Header */}
-      <header className={styles.headerRow}>
-        <div className={styles.contextBar}>
-          <span className={styles.breadcrumbs}>ALOS / IT / GENESIS</span>
-          <h1 className={styles.pageTitle}>GENESIS Control Plane</h1>
-          <p className={styles.subtitle}>
-            Technical AI operations, agent registry, capability controls, research and governance.
-          </p>
-        </div>
-      </header>
+      <ItPageHeader
+        breadcrumb="ALOS / IT / GENESIS"
+        description="Technical AI operations, agent registry, capability controls, research, models, tools, and governance."
+        title="GENESIS Control Plane"
+      />
 
-      {/* B. Control Plane Status Strip */}
-      <section
-        aria-label="Status Control Plane"
-        className={`${styles.statusStrip} ${!isControlPlaneReady ? styles.statusStripBlocked : ""}`}
-      >
-        <div className={styles.statusLeft}>
-          <span
-            aria-hidden="true"
-            className={`${styles.statusIcon} ${!isControlPlaneReady ? styles.statusIconBlocked : ""}`}
-          >
-            <ShieldCheck aria-hidden={true} size={18} />
-          </span>
-          <div className={styles.statusText}>
-            <span className={styles.statusTitle}>
-              Control Plane Status: {controlPlaneReadiness.availability}
-            </span>
-            <span className={styles.statusContext}>
-              {controlPlaneReadiness.availability === "BLOCKED"
-                ? "Frontend control surface tersedia. Backend operational integration belum terhubung."
-                : "Operational telemetry active."}
-            </span>
-          </div>
-        </div>
+      <section aria-label="Control Plane status">
+        <ItStatusRow
+          detail={controlPlaneReadiness.blockReason}
+          helper="Frontend control surface available. Backend operational integration not connected."
+          icon={ShieldCheck}
+          label="Control Plane Status"
+          status={controlPlaneReadiness.availability}
+        />
       </section>
 
-      {/* C & D. Technical Areas & Governance Cross-Reference */}
-      <div className={styles.registryGrid}>
-        {/* C. Technical Areas */}
-        <section aria-label="Area Teknis GENESIS" className={styles.consoleSection}>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionEyebrow}>CORE REGISTRY</span>
-            <h2 className={styles.sectionTitle}>Technical Areas</h2>
-          </div>
+      <section aria-labelledby="technical-registry-title" className={styles.section}>
+        <ItSectionHeader
+          eyebrow="Capabilities"
+          id="technical-registry-title"
+          subtitle="Readiness is resolved from the centralized module source."
+          title="Technical Registry"
+        />
+        <ItDataTable
+          ariaLabel="GENESIS technical registry"
+          columns={["Capability", "Technical Scope", "Readiness", "Canonical Route"]}
+          minWidth={900}
+        >
+          <RegistryRows items={TECHNICAL_REGISTRY} />
+        </ItDataTable>
+      </section>
 
-          <div className={styles.registryList}>
-            {TECHNICAL_AREAS.map((area) => {
-              const Icon = area.icon;
-              const readiness = getModuleReadiness(area.id);
-              const isReady = readiness.availability === "READY";
-
-              return (
-                <Link className={styles.registryRow} href={area.route} key={area.id}>
-                  <div className={styles.rowLeft}>
-                    <span aria-hidden="true" className={styles.rowIcon}>
-                      <Icon aria-hidden={true} size={18} />
-                    </span>
-                    <div className={styles.rowMeta}>
-                      <span className={styles.rowTitle}>{area.title}</span>
-                      <span className={styles.rowDesc}>{area.description}</span>
-                    </div>
-                  </div>
-                  <div className={styles.rowRight}>
-                    <span
-                      className={
-                        isReady
-                          ? styles.badgeReady
-                          : styles.badgeBlocked
-                      }
-                    >
-                      {isReady ? "READY" : "BLOCKED"}
-                    </span>
-                    <ChevronRight aria-hidden={true} className={styles.arrowIcon} size={14} />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* D. Governance Cross-Reference */}
-        <section aria-label="Koneksi Tata Kelola" className={styles.consoleSection}>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionEyebrow}>GOVERNANCE INTEGRATION</span>
-            <h2 className={styles.sectionTitle}>Audit &amp; Decision Portals</h2>
-          </div>
-
-          <div className={styles.registryList}>
-            {GOVERNANCE_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const readiness = getModuleReadiness(item.id);
-              const isReady = readiness.availability === "READY";
-
-              return (
-                <Link className={styles.registryRow} href={item.route} key={item.id}>
-                  <div className={styles.rowLeft}>
-                    <span aria-hidden="true" className={styles.rowIcon}>
-                      <Icon aria-hidden={true} size={18} />
-                    </span>
-                    <div className={styles.rowMeta}>
-                      <span className={styles.rowTitle}>{item.title}</span>
-                      <span className={styles.rowDesc}>{item.description}</span>
-                    </div>
-                  </div>
-                  <div className={styles.rowRight}>
-                    <span className={isReady ? styles.badgeReady : styles.badgeBlocked}>
-                      {readiness.availability}
-                    </span>
-                    <ArrowRight aria-hidden={true} className={styles.arrowIcon} size={14} />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      </div>
+      <section aria-labelledby="governance-references-title" className={styles.section}>
+        <ItSectionHeader
+          eyebrow="Controls"
+          id="governance-references-title"
+          title="Governance References"
+        />
+        <ItDataTable
+          ariaLabel="GENESIS governance references"
+          columns={["Reference", "Technical Scope", "Readiness", "Canonical Route"]}
+          minWidth={900}
+        >
+          <RegistryRows items={GOVERNANCE_REFERENCES} />
+        </ItDataTable>
+      </section>
     </div>
   );
 }

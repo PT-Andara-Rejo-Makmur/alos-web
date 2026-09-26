@@ -1,256 +1,70 @@
-/* ==========================================================================
-   ALOS IT Operations Console - GENESIS Control Plane Styles
-   Technical, enterprise AI control plane.
-   No chatbot marketing, no AI glow, calm technical palette.
-   ========================================================================== */
-
 .genesisWrapper {
   width: 100%;
   max-width: 1440px;
+  min-height: 100%;
   margin: 0 auto;
   padding: 24px 32px 64px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  font-family: var(--font-manrope, sans-serif);
+  background: #f8f7f4;
   color: #141619;
-  background-color: #f8f7f4;
-  min-height: 100%;
-}
-
-/* Header */
-.headerRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e7ebe7;
-}
-
-.contextBar {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.breadcrumbs {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8a928c;
-}
-
-.pageTitle {
   font-family: var(--font-manrope, sans-serif);
-  font-size: 1.65rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #141619;
-  line-height: 1.2;
-  margin: 0;
 }
 
-.subtitle {
-  font-size: 0.88rem;
+.section {
+  padding-top: 2px;
+}
+
+.registryIdentity {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #141619;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.registryIdentity svg {
   color: #5a625d;
-  margin: 0;
-  max-width: 720px;
-  line-height: 1.45;
+  flex: 0 0 auto;
 }
 
-/* Status Strip */
-.statusStrip {
-  background-color: #ffffff;
-  border: 1px solid #e7ebe7;
-  border-left: 4px solid #f09a0b;
-  border-radius: 6px;
-  padding: 12px 18px;
+.descriptionCell {
+  color: #6e7670 !important;
+  line-height: 1.4;
+}
+
+.readinessCell {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.statusLeft {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.statusIcon {
-  color: #b86e00;
-  display: flex;
-  align-items: center;
-}
-
-.statusText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.statusTitle {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #141619;
-}
-
-.statusContext {
-  font-size: 0.74rem;
-  color: #6e7670;
-}
-
-.statusStripBlocked {
-  border-left-color: #dc2626;
-}
-
-.statusIconBlocked {
-  color: #b91c1c;
-}
-
-/* Split Grid for Technical Areas & Governance Cross-Ref */
-.registryGrid {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 16px;
-}
-
-.consoleSection {
-  background: #ffffff;
-  border: 1px solid #e7ebe7;
-  border-radius: 8px;
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.sectionHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f0f3f0;
-}
-
-.sectionEyebrow {
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8a928c;
-}
-
-.sectionTitle {
-  font-family: var(--font-manrope, sans-serif);
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #141619;
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-/* Registry List */
-.registryList {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
 }
 
-.registryRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  background-color: #fbfbf9;
-  border: 1px solid #f0f3f0;
-  border-radius: 6px;
-  gap: 12px;
-  text-decoration: none;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+.readinessCell code,
+.routeLink {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.7rem;
+  white-space: nowrap;
 }
 
-.registryRow:hover {
-  background-color: #f4f4f0;
-  border-color: #e2e8f0;
-}
-
-.rowLeft {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.rowIcon {
-  color: #5a625d;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.rowMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.rowTitle {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #141619;
-}
-
-.rowDesc {
-  font-size: 0.72rem;
+.readinessCell code {
   color: #6e7670;
 }
 
-.rowRight {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+.routeLink {
+  color: #3f3523;
 }
-
-.arrowIcon {
-  color: #8a928c;
-}
-
-/* Badges */
-.badgeReady {
-  display: inline-flex;
-  padding: 2px 7px;
-  background-color: rgba(11, 153, 82, 0.08);
-  border: 1px solid rgba(11, 153, 82, 0.2);
-  color: #0b9952;
-  border-radius: 4px;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.badgeBlocked {
-  display: inline-flex;
-  padding: 2px 7px;
-  background-color: #f0f2f0;
-  border: 1px solid #e2e8f0;
-  color: #6e7670;
-  border-radius: 4px;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
 
 @media (max-width: 1024px) {
   .genesisWrapper {
     padding: 16px 20px 80px;
-    gap: 16px;
+    gap: 20px;
   }
+}
 
-  .registryGrid {
-    grid-template-columns: 1fr;
+@media (max-width: 640px) {
+  .genesisWrapper {
+    padding-inline: 14px;
   }
 }
