@@ -11,9 +11,11 @@ import WorkspaceItUsersRegisterPage from "@/app/workspace/it/users/register/page
 import WorkspaceItGovernancePage from "@/app/workspace/it/governance/page";
 import WorkspaceItGovernanceSubmodulePage from "@/app/workspace/it/governance/[submodule]/page";
 import WorkspaceItGenesisSubmodulePage from "@/app/workspace/it/genesis/[submodule]/page";
+import ItModuleRoute from "@/app/workspace/it/[module]/page";
+import { renderItWorkspaceModule } from "@/modules/it";
 import { WorkspaceMobileNav } from "@/features/workspace-shell/workspace-mobile-nav";
 import { projectWorkspaceNavigation } from "@/features/workspace-shell/workspace-navigation";
-import { getModuleReadiness } from "@/features/workspace-routing";
+import { getModuleReadiness, isKnownItModule } from "@/features/workspace-routing";
 
 // Mock next/navigation
 const mockPush = vi.fn();
@@ -331,6 +333,145 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Register Akun Baru", level: 1 })).toBeInTheDocument();
       });
+    });
+  });
+
+  describe("6. IT Module Renderer Behavior (Section 3-7, 15)", () => {
+    it("renders dedicated ItMonitoringWorkspace for monitoring", () => {
+      const result = renderItWorkspaceModule("monitoring");
+      expect(result).not.toBeNull();
+      render(result);
+      expect(screen.getByRole("heading", { name: "Monitoring", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("Telemetry Source: NOT CONNECTED")).toBeInTheDocument();
+    });
+
+    it("renders ItUnavailableSurface with title Systems and centralized readiness for systems", () => {
+      const result = renderItWorkspaceModule("systems");
+      expect(result).not.toBeNull();
+      render(result);
+      expect(screen.getByRole("heading", { name: "Systems", level: 2 })).toBeInTheDocument();
+      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT / SYSTEMS")).toBeInTheDocument();
+    });
+
+    it("renders ItUnavailableSurface with title Security and centralized readiness for security", () => {
+      const result = renderItWorkspaceModule("security");
+      expect(result).not.toBeNull();
+      render(result);
+      expect(screen.getByRole("heading", { name: "Security", level: 2 })).toBeInTheDocument();
+      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT / SECURITY")).toBeInTheDocument();
+    });
+
+    it("renders ItUnavailableSurface with title Repositories and centralized readiness for repositories", () => {
+      const result = renderItWorkspaceModule("repositories");
+      expect(result).not.toBeNull();
+      render(result);
+      expect(screen.getByRole("heading", { name: "Repositories", level: 2 })).toBeInTheDocument();
+      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT / REPOSITORIES")).toBeInTheDocument();
+    });
+
+    it("returns null for unknown modules", () => {
+      expect(renderItWorkspaceModule("unknown-module")).toBeNull();
+      expect(renderItWorkspaceModule("foobar")).toBeNull();
+    });
+
+    it("verifies isKnownItModule identifies known IT modules", () => {
+      expect(isKnownItModule("systems")).toBe(true);
+      expect(isKnownItModule("integrations")).toBe(true);
+      expect(isKnownItModule("database")).toBe(true);
+      expect(isKnownItModule("environments")).toBe(true);
+      expect(isKnownItModule("repositories")).toBe(true);
+      expect(isKnownItModule("cicd")).toBe(true);
+      expect(isKnownItModule("releases")).toBe(true);
+      expect(isKnownItModule("tech-debt")).toBe(true);
+      expect(isKnownItModule("monitoring")).toBe(true);
+      expect(isKnownItModule("incidents")).toBe(true);
+      expect(isKnownItModule("security")).toBe(true);
+      expect(isKnownItModule("backup")).toBe(true);
+      expect(isKnownItModule("unknown-slug")).toBe(false);
+    });
+  });
+
+  describe("7. Direct URL Canonical IT Blocked Modules (Section 13, 14, 16)", () => {
+    it("/workspace/it/systems renders ItUnavailableSurface, title Systems, BLOCKED, and no legacy workspace-panel", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
+        authenticated: true,
+        principal: canonicalPrincipal({
+          actorId: "usr_it_admin",
+          divisionCode: "IT",
+          workspaceId: "ws_it_01",
+          workspaceKey: "it",
+          workspaceName: "IT Workspace",
+          roles: ["IT_ADMIN"],
+        }),
+      });
+
+      const pageResult = await ItModuleRoute({ params: Promise.resolve({ module: "systems" }) });
+      const { container } = render(pageResult);
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Systems", level: 2 })).toBeInTheDocument();
+      });
+
+      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT / SYSTEMS")).toBeInTheDocument();
+      expect(screen.getByText(/Modul ini belum tersedia pada sistem backend/i)).toBeInTheDocument();
+
+      // Must NOT use generic legacy fallback
+      expect(container.querySelector(".workspace-panel")).toBeNull();
+      expect(screen.queryByText(/Kesiapan operasional disajikan secara transparan tanpa data tiruan/i)).toBeInTheDocument();
+    });
+
+    it("/workspace/it/security renders ItUnavailableSurface, title Security, BLOCKED, and no legacy workspace-panel", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
+        authenticated: true,
+        principal: canonicalPrincipal({
+          actorId: "usr_it_admin",
+          divisionCode: "IT",
+          workspaceId: "ws_it_01",
+          workspaceKey: "it",
+          workspaceName: "IT Workspace",
+          roles: ["IT_ADMIN"],
+        }),
+      });
+
+      const pageResult = await ItModuleRoute({ params: Promise.resolve({ module: "security" }) });
+      const { container } = render(pageResult);
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Security", level: 2 })).toBeInTheDocument();
+      });
+
+      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT / SECURITY")).toBeInTheDocument();
+      expect(container.querySelector(".workspace-panel")).toBeNull();
+    });
+
+    it("/workspace/it/repositories renders ItUnavailableSurface, title Repositories, BLOCKED, and no legacy workspace-panel", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
+        authenticated: true,
+        principal: canonicalPrincipal({
+          actorId: "usr_it_admin",
+          divisionCode: "IT",
+          workspaceId: "ws_it_01",
+          workspaceKey: "it",
+          workspaceName: "IT Workspace",
+          roles: ["IT_ADMIN"],
+        }),
+      });
+
+      const pageResult = await ItModuleRoute({ params: Promise.resolve({ module: "repositories" }) });
+      const { container } = render(pageResult);
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Repositories", level: 2 })).toBeInTheDocument();
+      });
+
+      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT / REPOSITORIES")).toBeInTheDocument();
+      expect(container.querySelector(".workspace-panel")).toBeNull();
     });
   });
 });

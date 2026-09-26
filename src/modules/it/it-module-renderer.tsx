@@ -1,5 +1,26 @@
 import type { ReactNode } from "react";
+import { getModuleReadiness } from "@/features/workspace-routing";
 import { ItMonitoringWorkspace } from "./monitoring";
+import { ItUnavailableSurface } from "./ui";
+
+export const IT_MODULE_TITLES: Record<string, string> = {
+  systems: "Systems",
+  integrations: "Integrations",
+  database: "Database",
+  environments: "Environments",
+  repositories: "Repositories",
+  cicd: "CI/CD",
+  releases: "Releases",
+  "tech-debt": "Technical Debt",
+  incidents: "Incidents",
+  security: "Security",
+  backup: "Backup & DR",
+  backups: "Backup & DR",
+  infrastructure: "Infrastructure",
+  "audit-trail": "Audit Trail",
+  "disaster-recovery": "Disaster Recovery",
+  credentials: "Credentials",
+};
 
 /**
  * Resolves IT workspace canonical module presentations.
@@ -8,6 +29,20 @@ import { ItMonitoringWorkspace } from "./monitoring";
 export function renderItWorkspaceModule(canonicalModule: string): ReactNode | null {
   if (canonicalModule === "monitoring") {
     return <ItMonitoringWorkspace />;
+  }
+
+  if (canonicalModule in IT_MODULE_TITLES) {
+    const readiness = getModuleReadiness(canonicalModule);
+    return (
+      <ItUnavailableSurface
+        backHref="/workspace/it"
+        backLabel="← Kembali ke IT Overview"
+        description={`Modul ini belum tersedia pada sistem backend (${readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}). Kesiapan operasional disajikan secara transparan tanpa data tiruan.`}
+        eyebrow={`ALOS / IT / ${canonicalModule.toUpperCase()}`}
+        readiness={readiness}
+        title={IT_MODULE_TITLES[canonicalModule]}
+      />
+    );
   }
 
   return null;

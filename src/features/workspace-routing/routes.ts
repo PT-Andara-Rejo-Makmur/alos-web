@@ -189,6 +189,13 @@ export function isKnownWorkspaceModule(workspaceKey: string, module: string): bo
 }
 
 /**
+ * Checks whether a module is an officially known canonical module for the IT workspace.
+ */
+export function isKnownItModule(module: string): boolean {
+  return isKnownWorkspaceModule("it", module);
+}
+
+/**
  * Checks whether a submodule is an officially known IT GENESIS submodule.
  */
 export function isKnownGenesisSubmodule(submodule: string): boolean {

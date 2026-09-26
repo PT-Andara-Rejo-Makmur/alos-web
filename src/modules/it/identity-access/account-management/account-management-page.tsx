@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, type ChangeEvent } from "react";
 import { apiMessage, authenticatedApiRequest } from "@/lib/api";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
+import { ItUnavailableSurface } from "@/modules/it/ui";
 import { RolePicker } from "../components/role-picker";
 import styles from "./account-management.module.css";
 
@@ -168,10 +169,14 @@ export function AccountManagementPage() {
           actor.roles.includes("IT_ADMIN") && actor.permissions?.includes("identity.accounts.manage");
         if (!allowed) {
           return (
-            <section className="panel workspace-panel">
-              <h1>Akses Dibatasi</h1>
-              <p>Hanya IT Admin dengan izin kelola akun yang dapat membuka halaman ini.</p>
-            </section>
+            <ItUnavailableSurface
+              backHref="/workspace/it"
+              backLabel="← Kembali ke IT Overview"
+              description="Hanya IT Admin dengan izin kelola akun yang dapat membuka halaman ini."
+              eyebrow="ALOS / IT / IDENTITY & ACCESS"
+              readiness={{ availability: "BLOCKED", blockReason: "ACCESS_DENIED" }}
+              title="Akses Dibatasi"
+            />
           );
         }
         return (

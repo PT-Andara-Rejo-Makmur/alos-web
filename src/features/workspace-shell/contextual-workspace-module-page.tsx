@@ -12,6 +12,7 @@ import { AraWorkspace, createAraRouteAdapter } from "@/features/ara-workspace";
 import { AgentWorkforce } from "@/features/agent-workforce";
 import { ExecutiveDashboard } from "@/features/executive-dashboard/workspace-dashboard";
 import { renderItWorkspaceModule } from "@/modules/it";
+import { ItUnavailableSurface } from "@/modules/it/ui";
 import {
   type CanonicalWorkspaceKey,
   getModuleReadiness,
@@ -170,6 +171,19 @@ export function ContextualWorkspaceModulePage({
         if (workspaceKey === "it") {
           const itModule = renderItWorkspaceModule(canonicalModule);
           if (itModule) return itModule;
+
+          // Invariant: Canonical IT modules must never fall through to generic legacy fallback.
+          const itReadiness = getModuleReadiness(canonicalModule);
+          return (
+            <ItUnavailableSurface
+              backHref="/workspace/it"
+              backLabel="← Kembali ke IT Overview"
+              description={`Modul ini belum tersedia pada sistem backend (${itReadiness.blockReason ?? "BACKEND_NOT_CONNECTED"}). Kesiapan operasional disajikan secara transparan tanpa data tiruan.`}
+              eyebrow={`ALOS / IT / ${canonicalModule.toUpperCase()}`}
+              readiness={itReadiness}
+              title={canonicalModule.replace(/-/g, " ")}
+            />
+          );
         }
 
         // 9. Domain-specific or BLOCKED modules

@@ -188,6 +188,29 @@ describe("production architecture hygiene", () => {
 
     expect(forbiddenIconFiles).toEqual([]);
   });
+
+  it("ensures canonical IT module path does not use className='panel workspace-panel' as fallback", () => {
+    const itDirectories = [
+      join(sourceRoot, "modules/it"),
+      join(sourceRoot, "app/workspace/it"),
+    ];
+
+    const itFiles = itDirectories.flatMap((dir) => {
+      try {
+        return productionFiles(dir);
+      } catch {
+        return [];
+      }
+    });
+
+    const fallbackPattern = /panel\s+workspace-panel/i;
+    const offenders = itFiles.filter((filePath) => {
+      const content = readFileSync(filePath, "utf8");
+      return fallbackPattern.test(content);
+    });
+
+    expect(offenders.map((p) => relative(process.cwd(), p))).toEqual([]);
+  });
 });
 
 

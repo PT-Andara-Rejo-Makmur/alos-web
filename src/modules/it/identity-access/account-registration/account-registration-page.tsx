@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { authenticatedApiRequest, apiMessage } from "@/lib/api";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
+import { ItUnavailableSurface } from "@/modules/it/ui";
 import { RolePicker } from "../components/role-picker";
 import styles from "./account-registration.module.css";
 
@@ -133,10 +134,14 @@ export function AccountRegistrationPage() {
 
         if (!isAdmin) {
           return (
-            <section className="panel workspace-panel">
-              <h1>Akses Dibatasi</h1>
-              <p>Membership IT aktif dengan izin pengelolaan akun diperlukan.</p>
-            </section>
+            <ItUnavailableSurface
+              backHref="/workspace/it/users"
+              backLabel="← Kembali ke Kelola Akun"
+              description="Membership IT aktif dengan izin pengelolaan akun diperlukan."
+              eyebrow="ALOS / IT / IDENTITY & ACCESS"
+              readiness={{ availability: "BLOCKED", blockReason: "ACCESS_DENIED" }}
+              title="Akses Dibatasi"
+            />
           );
         }
 

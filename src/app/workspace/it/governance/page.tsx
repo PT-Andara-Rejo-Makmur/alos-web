@@ -1,9 +1,12 @@
 "use client";
 
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
+import { getModuleReadiness } from "@/features/workspace-routing";
 import { ItUnavailableSurface } from "@/modules/it/ui";
 
 export default function WorkspaceItGovernancePage() {
+  const readiness = getModuleReadiness("governance");
+
   return (
     <ProtectedDomainWorkspace
       activeNavKey="governance"
@@ -16,9 +19,9 @@ export default function WorkspaceItGovernancePage() {
         <ItUnavailableSurface
           backHref="/workspace/it"
           backLabel="← Kembali ke IT Overview"
-          description="Backend operational integration belum terhubung. Modul tata kelola IT belum memiliki konektor operasional aktif."
+          description={`Backend operational integration belum terhubung (${readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}). Modul tata kelola IT belum memiliki konektor operasional aktif.`}
           eyebrow="ALOS / IT / GOVERNANCE"
-          readiness={{ availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" }}
+          readiness={readiness}
           title="IT Governance"
         />
       )}
