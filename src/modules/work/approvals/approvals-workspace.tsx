@@ -339,7 +339,7 @@ export const ApprovalsWorkspace: React.FC<ApprovalsWorkspaceProps> = ({
                   <td className={styles.primaryCell}>
                     <div>{humanStatus(item.action_type)}</div>
                     <div className={styles.subtextCell}>
-                      {String(item.payload.title ?? item.proposed_action_id)}
+                      {String((item.payload as Record<string, unknown> | undefined)?.title ?? item.proposed_action_id)}
                     </div>
                   </td>
                   <td>

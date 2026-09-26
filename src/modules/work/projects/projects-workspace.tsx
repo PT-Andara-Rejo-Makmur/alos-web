@@ -457,8 +457,9 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
             {mode === "milestone" && (
               <div className={styles.formGrid}>
                 <div className={styles.formGroupFull}>
-                  <label className={styles.formLabel}>Judul Milestone</label>
+                  <label className={styles.formLabel} htmlFor="proj-ms-title">Judul Milestone</label>
                   <input
+                    id="proj-ms-title"
                     type="text"
                     className={styles.formInput}
                     required
@@ -469,8 +470,9 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Tenggat Milestone</label>
+                  <label className={styles.formLabel} htmlFor="proj-ms-due">Tenggat Milestone</label>
                   <input
+                    id="proj-ms-due"
                     type="date"
                     className={styles.formInput}
                     required
@@ -479,8 +481,9 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Status Milestone</label>
+                  <label className={styles.formLabel} htmlFor="proj-ms-status">Status Milestone</label>
                   <select
+                    id="proj-ms-status"
                     className={styles.formSelect}
                     value={milestoneForm.status}
                     onChange={(e) => setMilestoneForm({ ...milestoneForm, status: e.target.value })}
@@ -497,8 +500,9 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
             {mode === "issue" && (
               <div className={styles.formGrid}>
                 <div className={styles.formGroupFull}>
-                  <label className={styles.formLabel}>Judul Isu</label>
+                  <label className={styles.formLabel} htmlFor="proj-iss-title">Judul Isu</label>
                   <input
+                    id="proj-iss-title"
                     type="text"
                     className={styles.formInput}
                     required
@@ -509,8 +513,9 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
                   />
                 </div>
                 <div className={styles.formGroupFull}>
-                  <label className={styles.formLabel}>Deskripsi Isu</label>
+                  <label className={styles.formLabel} htmlFor="proj-iss-desc">Deskripsi Isu</label>
                   <textarea
+                    id="proj-iss-desc"
                     className={styles.formTextarea}
                     rows={2}
                     value={issueForm.description}
@@ -518,8 +523,9 @@ export const ProjectsWorkspace: React.FC<ProjectsWorkspaceProps> = ({
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Severitas</label>
+                  <label className={styles.formLabel} htmlFor="proj-iss-sev">Tingkat Keparahan</label>
                   <select
+                    id="proj-iss-sev"
                     className={styles.formSelect}
                     value={issueForm.severity}
                     onChange={(e) => setIssueForm({ ...issueForm, severity: e.target.value })}

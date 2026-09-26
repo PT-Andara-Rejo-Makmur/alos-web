@@ -353,8 +353,8 @@ afterEach(() => {
 
       render(createElement(ContextualWorkspaceModulePage, { workspaceKey: "finance", module: "tasks" }));
 
-      const taskBoardHeading = await screen.findByText(/Task Board/i);
-      expect(taskBoardHeading).toBeDefined();
+      const taskHeading = await screen.findByRole("heading", { name: "Tugas" });
+      expect(taskHeading).toBeDefined();
       expect(screen.getAllByText(/Finance Holding Workspace/i).length).toBeGreaterThan(0);
     });
   });

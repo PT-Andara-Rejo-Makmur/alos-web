@@ -209,24 +209,24 @@ describe("IT Menu Completeness and IA Verification", () => {
       const page = await ItModuleRoute({ params: Promise.resolve({ module: "projects" }) });
       render(page);
 
-      // Projects renders ProjectPortfolioDashboard
-      expect(await screen.findByText(/kelola proyek dalam scope anda/i)).toBeInTheDocument();
+      // Projects renders ProjectsWorkspace
+      expect(await screen.findByRole("heading", { name: "Portofolio Proyek" })).toBeInTheDocument();
     });
 
     it("renders contextual work documents module under IT workspace", async () => {
       const page = await ItModuleRoute({ params: Promise.resolve({ module: "documents" }) });
       render(page);
 
-      // Documents renders DocumentCenter
-      expect(await screen.findByRole("heading", { name: "Documents", level: 2 })).toBeInTheDocument();
+      // Documents renders DocumentsWorkspace
+      expect(await screen.findByRole("heading", { name: "Dokumen" })).toBeInTheDocument();
     });
 
     it("renders contextual work tasks module under IT workspace", async () => {
       const page = await ItModuleRoute({ params: Promise.resolve({ module: "tasks" }) });
       render(page);
 
-      // Tasks renders OperationalModuleDashboard
-      expect(await screen.findByRole("heading", { name: "Tasks", level: 2 })).toBeInTheDocument();
+      // Tasks renders TasksWorkspace
+      expect(await screen.findByRole("heading", { name: "Tugas" })).toBeInTheDocument();
     });
 
     it("fails closed when user session is for a different workspace", async () => {

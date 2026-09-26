@@ -9,12 +9,28 @@ import { WorkStatusBadge } from "../ui/work-status-badge";
 import { WorkNotice } from "../ui/work-notice";
 import {
   formatOperationalDate,
-  humanStatus,
   type OperationalDashboard,
   type OperationalTask,
   type TaskStatus,
 } from "@/features/operations/types";
 import styles from "../ui/work-ui.module.css";
+
+function toIndonesianTaskStatus(status: TaskStatus): string {
+  switch (status) {
+    case "TODO":
+      return "Akan Dikerjakan";
+    case "IN_PROGRESS":
+      return "Sedang Dikerjakan";
+    case "IN_REVIEW":
+      return "Dalam Review";
+    case "DONE":
+      return "Selesai";
+    case "CANCELLED":
+      return "Dibatalkan";
+    default:
+      return status;
+  }
+}
 
 interface TasksWorkspaceProps {
   readonly activeWorkspace: WorkWorkspaceContext;
@@ -122,7 +138,7 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
         method: "PATCH",
         body: JSON.stringify({ status: nextStatus }),
       });
-      setNotice(`Status tugas diubah menjadi ${humanStatus(nextStatus)}.`);
+      setNotice(`Status tugas diubah menjadi ${toIndonesianTaskStatus(nextStatus)}.`);
       await loadTasks();
     } catch (err) {
       setError(apiMessage(err));
@@ -341,7 +357,7 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
           <div style={{ display: "flex", gap: "16px", fontSize: "12px", color: "#57534e", flexWrap: "wrap" }}>
             <span><strong>Proyek:</strong> {selectedTask.project_name ?? "Umum"}</span>
             <span><strong>Prioritas:</strong> {selectedTask.priority}</span>
-            <span><strong>Status:</strong> {humanStatus(selectedTask.status)}</span>
+            <span><strong>Status:</strong> {toIndonesianTaskStatus(selectedTask.status)}</span>
             <span><strong>Tenggat:</strong> {formatOperationalDate(selectedTask.due_date)}</span>
           </div>
 
@@ -452,12 +468,12 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
                                 className={styles.buttonSmall}
                                 onClick={() => void handleStatusTransition(task, next)}
                               >
-                                <span>Lanjut ke {humanStatus(next)}</span>
+                                <span>Lanjut ke {toIndonesianTaskStatus(next)}</span>
                                 <ArrowRight size={10} aria-hidden="true" />
                               </button>
                             ) : (
                               <span className={styles.statusTextOnTrack} style={{ fontSize: "11px", fontWeight: 600 }}>
-                                {humanStatus(task.status)}
+                                {toIndonesianTaskStatus(task.status)}
                               </span>
                             )}
                             <button
@@ -543,7 +559,7 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
                               className={styles.buttonSmall}
                               onClick={() => void handleStatusTransition(task, next)}
                             >
-                              <span>{humanStatus(next)}</span>
+                              <span>{toIndonesianTaskStatus(next)}</span>
                             </button>
                           )}
                           <button

@@ -350,7 +350,7 @@ describe("ALOS Property & Project Dashboard", () => {
     expect(within(sidebar).getByText("AI")).toBeInTheDocument();
 
     // Verify Property items
-    expect(within(sidebar).getByText("Projects")).toBeInTheDocument();
+    expect(within(sidebar).getByText("Proyek")).toBeInTheDocument();
     expect(within(sidebar).getByText("Milestones")).toBeInTheDocument();
     expect(within(sidebar).getByText("Construction")).toBeInTheDocument();
     expect(within(sidebar).getByText("Change Orders")).toBeInTheDocument();
