@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { getModuleReadiness } from "@/features/workspace-routing";
 import { ItMonitoringWorkspace } from "./monitoring";
+import { DatabaseWorkspace, IntegrationsWorkspace, SystemsWorkspace } from "./platform";
 import { ItUnavailableSurface } from "./ui";
 
 export const IT_MODULE_TITLES: Record<string, string> = {
@@ -29,6 +30,18 @@ export const IT_MODULE_TITLES: Record<string, string> = {
 export function renderItWorkspaceModule(canonicalModule: string): ReactNode | null {
   if (canonicalModule === "monitoring") {
     return <ItMonitoringWorkspace />;
+  }
+
+  if (canonicalModule === "systems") {
+    return <SystemsWorkspace />;
+  }
+
+  if (canonicalModule === "integrations") {
+    return <IntegrationsWorkspace />;
+  }
+
+  if (canonicalModule === "database") {
+    return <DatabaseWorkspace />;
   }
 
   if (canonicalModule in IT_MODULE_TITLES) {

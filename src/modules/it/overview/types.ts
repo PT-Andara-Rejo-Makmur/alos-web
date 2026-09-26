@@ -10,8 +10,12 @@ export type ItSourceState = "LIVE" | "PARTIAL" | "NOT_CONNECTED";
 export interface ItSourceReadinessItem {
   readonly key: ItSourceReadinessKey;
   readonly label: string;
-  readonly state: ItSourceState;
-  readonly context: string;
+  readonly sourceState: ItSourceState;
+  readonly sourceContext: string;
+  /** @deprecated Kept for backward compatibility with existing tests/projections */
+  readonly state?: ItSourceState;
+  /** @deprecated Kept for backward compatibility with existing tests/projections */
+  readonly context?: string;
 }
 
 export interface SystemDeliveryRow {

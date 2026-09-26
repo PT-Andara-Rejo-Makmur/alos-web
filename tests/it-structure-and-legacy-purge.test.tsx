@@ -349,13 +349,13 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       expect(within(telemetryRegion).getByText("NOT CONNECTED")).toBeInTheDocument();
     });
 
-    it("renders ItUnavailableSurface with title Systems and centralized readiness for systems", () => {
-      const result = renderItWorkspaceModule("systems");
+    it("renders ItUnavailableSurface with title Environments and centralized readiness for environments", () => {
+      const result = renderItWorkspaceModule("environments");
       expect(result).not.toBeNull();
       render(result);
-      expect(screen.getByRole("heading", { name: "Systems", level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Environments", level: 2 })).toBeInTheDocument();
       expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("ALOS / IT / SYSTEMS")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT / ENVIRONMENTS")).toBeInTheDocument();
     });
 
     it("renders ItUnavailableSurface with title Security and centralized readiness for security", () => {
@@ -399,7 +399,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
   });
 
   describe("7. Direct URL Canonical IT Blocked Modules (Section 13, 14, 16)", () => {
-    it("/workspace/it/systems renders ItUnavailableSurface, title Systems, BLOCKED, and no legacy workspace-panel", async () => {
+    it("/workspace/it/environments renders ItUnavailableSurface, title Environments, BLOCKED, and no legacy workspace-panel", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
         authenticated: true,
         principal: canonicalPrincipal({
@@ -412,15 +412,15 @@ describe("IT Structure Normalization and Legacy Purge", () => {
         }),
       });
 
-      const pageResult = await ItModuleRoute({ params: Promise.resolve({ module: "systems" }) });
+      const pageResult = await ItModuleRoute({ params: Promise.resolve({ module: "environments" }) });
       const { container } = render(pageResult);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Systems", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Environments", level: 2 })).toBeInTheDocument();
       });
 
       expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("ALOS / IT / SYSTEMS")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT / ENVIRONMENTS")).toBeInTheDocument();
       expect(screen.getByText(/Modul ini belum tersedia pada sistem backend/i)).toBeInTheDocument();
 
       // Must NOT use generic legacy fallback

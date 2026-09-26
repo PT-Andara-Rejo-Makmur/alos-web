@@ -406,9 +406,9 @@ export function projectWorkspaceNavigation(
       { key: "register-user", label: "Register Akun", href: "/workspace/it/users/register", icon: "UserPlus", group: "IDENTITY_ACCESS", available: true, navigable: true },
     );
     items.push(
-      { key: "systems", label: "Systems", href: "/workspace/it/systems", icon: "Server", group: "ALOS_PLATFORM", available: false, navigable: false },
-      { key: "integrations", label: "Integrations", href: "/workspace/it/integrations", icon: "Cable", group: "ALOS_PLATFORM", available: false, navigable: false },
-      { key: "database", label: "Database", href: "/workspace/it/database", icon: "Database", group: "ALOS_PLATFORM", available: false, navigable: false },
+      { key: "systems", label: "Systems", href: "/workspace/it/systems", icon: "Server", group: "ALOS_PLATFORM", available: false, navigable: true },
+      { key: "integrations", label: "Integrations", href: "/workspace/it/integrations", icon: "Cable", group: "ALOS_PLATFORM", available: false, navigable: true },
+      { key: "database", label: "Database", href: "/workspace/it/database", icon: "Database", group: "ALOS_PLATFORM", available: false, navigable: true },
       { key: "environments", label: "Environments", href: "/workspace/it/environments", icon: "Boxes", group: "ALOS_PLATFORM", available: false, navigable: false },
     );
 

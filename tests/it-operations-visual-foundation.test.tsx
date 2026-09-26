@@ -80,10 +80,10 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       render(<ItDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Operational Readiness", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Operational Source Coverage", level: 2 })).toBeInTheDocument();
       });
 
-      const strip = screen.getByRole("heading", { name: "Operational Readiness", level: 2 }).parentElement!;
+      const strip = screen.getByRole("heading", { name: "Operational Source Coverage", level: 2 }).parentElement!;
       expect(within(strip).getByText("GENESIS")).toBeInTheDocument();
       expect(within(strip).getByText("Governance")).toBeInTheDocument();
       expect(within(strip).getByText("Monitoring")).toBeInTheDocument();
@@ -410,17 +410,45 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(cpLink).toHaveAttribute("href", "/workspace/it/genesis");
     });
 
-    it("C. Module without surface: BLOCKED, navigable false, sidebar disabled", () => {
+    it("C. Platform surfaces: systems, integrations, database are BLOCKED but navigable true", () => {
       const nav = projectWorkspaceNavigation(itIdentity, itActor);
-      const systemsItem = nav.find((i) => i.key === "systems");
 
+      const systemsItem = nav.find((i) => i.key === "systems");
       expect(systemsItem).toBeDefined();
       expect(systemsItem?.availability).toBe("BLOCKED");
-      expect(systemsItem?.navigable).toBe(false);
-      expect(systemsItem?.href).toBeNull();
+      expect(systemsItem?.navigable).toBe(true);
+      expect(systemsItem?.href).toBe("/workspace/it/systems");
+
+      const integrationsItem = nav.find((i) => i.key === "integrations");
+      expect(integrationsItem).toBeDefined();
+      expect(integrationsItem?.availability).toBe("BLOCKED");
+      expect(integrationsItem?.navigable).toBe(true);
+      expect(integrationsItem?.href).toBe("/workspace/it/integrations");
+
+      const dbItem = nav.find((i) => i.key === "database");
+      expect(dbItem).toBeDefined();
+      expect(dbItem?.availability).toBe("BLOCKED");
+      expect(dbItem?.navigable).toBe(true);
+      expect(dbItem?.href).toBe("/workspace/it/database");
 
       render(<WorkspaceSidebar identity={itIdentity} navigation={nav} activeNavKey="overview" />);
-      expect(screen.queryByRole("link", { name: /^Systems/i })).not.toBeInTheDocument();
+      const systemsLink = screen.getByRole("link", { name: /^Systems/i });
+      expect(systemsLink).toBeInTheDocument();
+      expect(systemsLink).toHaveAttribute("href", "/workspace/it/systems");
+      expect(within(systemsLink).getByText("Belum terhubung")).toBeInTheDocument();
+    });
+
+    it("D. Module without surface (environments, incidents): BLOCKED, navigable false, sidebar disabled", () => {
+      const nav = projectWorkspaceNavigation(itIdentity, itActor);
+      const envItem = nav.find((i) => i.key === "environments");
+
+      expect(envItem).toBeDefined();
+      expect(envItem?.availability).toBe("BLOCKED");
+      expect(envItem?.navigable).toBe(false);
+      expect(envItem?.href).toBeNull();
+
+      render(<WorkspaceSidebar identity={itIdentity} navigation={nav} activeNavKey="overview" />);
+      expect(screen.queryByRole("link", { name: /^Environments/i })).not.toBeInTheDocument();
 
       const incidentsItem = nav.find((i) => i.key === "incidents");
       expect(incidentsItem?.navigable).toBe(false);

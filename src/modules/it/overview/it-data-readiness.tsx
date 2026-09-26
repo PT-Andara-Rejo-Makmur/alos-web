@@ -18,21 +18,23 @@ const READINESS_ICONS: Record<ItSourceReadinessKey, LucideIcon> = {
 
 export function ItDataReadiness({ items }: ItDataReadinessProps) {
   return (
-    <section aria-labelledby="operational-readiness-title" className={styles.readinessSection}>
-      <h2 className={styles.readinessTitle} id="operational-readiness-title">
-        Operational Readiness
+    <section aria-labelledby="operational-source-coverage-title" className={styles.readinessSection}>
+      <h2 className={styles.readinessTitle} id="operational-source-coverage-title">
+        Operational Source Coverage
       </h2>
       <div className={styles.readinessStrip}>
         {items.map((item) => {
           const Icon = READINESS_ICONS[item.key];
+          const state = item.sourceState ?? item.state ?? "NOT_CONNECTED";
+          const context = item.sourceContext ?? item.context ?? "";
           return (
             <div className={styles.readinessItem} key={item.key}>
               <Icon aria-hidden={true} className={styles.readinessIcon} size={18} />
               <div className={styles.readinessText}>
                 <span className={styles.readinessLabel}>{item.label}</span>
-                <span className={styles.readinessHelper}>{item.context}</span>
+                <span className={styles.readinessHelper}>{context}</span>
               </div>
-              <ItStatusBadge status={item.state} />
+              <ItStatusBadge status={state} />
             </div>
           );
         })}

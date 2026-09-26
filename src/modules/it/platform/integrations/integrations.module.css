@@ -1,0 +1,153 @@
+.integrationsWrapper {
+  width: 100%;
+  max-width: 1440px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 24px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: #f8f7f4;
+  color: #141619;
+  font-family: var(--font-manrope, sans-serif);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.diagnosticPanel {
+  border: 1px solid #e7ebe7;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.diagnosticHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.diagnosticIdentity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.diagnosticIcon {
+  color: #5a625d;
+}
+
+.diagnosticTitle {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #141619;
+  margin: 0;
+}
+
+.diagnosticSubtitle {
+  font-size: 0.78rem;
+  color: #6e7670;
+  margin: 2px 0 0;
+}
+
+.diagnosticGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fafbfa;
+  border: 1px solid #edf0ed;
+  border-radius: 6px;
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metricLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #727a74;
+}
+
+.metricValue {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #141619;
+}
+
+.monospaceText {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  color: #242926;
+  word-break: break-all;
+}
+
+.troubleshootingContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 8px;
+}
+
+.troubleshootingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: #fafbfa;
+  border: 1px solid #edf0ed;
+  border-radius: 6px;
+}
+
+.troubleshootingKey {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #141619;
+}
+
+.troubleshootingValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.76rem;
+  color: #2b302d;
+  background: #f1f3f1;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.tableCode {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  color: #242926;
+}
+
+@media (max-width: 900px) {
+  .integrationsWrapper {
+    padding: 16px 20px 80px;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .integrationsWrapper {
+    padding-inline: 14px;
+  }
+}

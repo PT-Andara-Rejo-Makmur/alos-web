@@ -38,7 +38,7 @@ describe("IT visual foundation", () => {
       render(<ItDashboardHome snapshot={snapshot} />);
 
       expect(screen.getByRole("heading", { level: 1, name: "IT Operations" })).toBeInTheDocument();
-      const readiness = screen.getByRole("heading", { level: 2, name: "Operational Readiness" }).parentElement!;
+      const readiness = screen.getByRole("heading", { level: 2, name: "Operational Source Coverage" }).parentElement!;
       expect(within(readiness).getByText("GENESIS")).toBeInTheDocument();
       expect(within(readiness).getByText("Governance")).toBeInTheDocument();
       expect(within(readiness).getByText("Monitoring")).toBeInTheDocument();
