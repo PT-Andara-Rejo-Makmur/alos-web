@@ -1,14 +1,25 @@
 "use client";
 
-import { use } from "react";
+import { use, type ComponentType } from "react";
 import { notFound, redirect } from "next/navigation";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
-import { ItUnavailableSurface } from "@/modules/it/ui";
 import {
-  getModuleReadiness,
+  AgentsWorkspace,
+  ModelsToolsWorkspace,
+  ResearchWorkspace,
+  SkillsWorkspace,
+} from "@/modules/it/genesis";
+import {
   isKnownGenesisSubmodule,
   normalizeCanonicalModuleSegment,
 } from "@/features/workspace-routing";
+
+const SUBMODULE_COMPONENTS: Record<string, ComponentType> = {
+  agents: AgentsWorkspace,
+  skills: SkillsWorkspace,
+  research: ResearchWorkspace,
+  "models-tools": ModelsToolsWorkspace,
+};
 
 export default function WorkspaceItGenesisSubmodulePage({
   params,
@@ -30,27 +41,20 @@ export default function WorkspaceItGenesisSubmodulePage({
     notFound();
   }
 
+  const Component = SUBMODULE_COMPONENTS[submodule];
+  if (!Component) {
+    notFound();
+  }
+
   return (
     <ProtectedDomainWorkspace
-      activeNavKey={submodule}
+      activeNavKey={submodule === "models-tools" ? "models" : submodule}
       deniedTitle="Bukan Otoritas IT / GENESIS"
       divisionCodes={["IT", "TECHNOLOGY"]}
       loadingLabel="Memuat Modul GENESIS IT…"
       workspaceKeys={["it", "technology"]}
     >
-      {() => {
-        const readiness = getModuleReadiness(submodule);
-        return (
-          <ItUnavailableSurface
-            backHref="/workspace/it/genesis"
-            backLabel="← Kembali ke GENESIS Control Plane"
-            description={`Modul teknis ini belum tersedia pada sistem (${readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}).`}
-            eyebrow={`ALOS / IT / GENESIS / ${submodule.toUpperCase()}`}
-            readiness={readiness}
-            title={`GENESIS: ${submodule.replace(/-/g, " ").toUpperCase()}`}
-          />
-        );
-      }}
+      {() => <Component />}
     </ProtectedDomainWorkspace>
   );
 }

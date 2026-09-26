@@ -433,10 +433,10 @@ export function projectWorkspaceNavigation(
     // Group: GENESIS (canonical control plane routes under IT namespace)
     items.push(
       { key: "control-plane", label: "Control Plane", href: getGenesisRoute(), icon: "Bot", group: "GENESIS", available: true, navigable: true },
-      { key: "agents", label: "Agents", href: getGenesisRoute("agents"), icon: "Bot", group: "GENESIS", available: false, navigable: false },
-      { key: "skills", label: "Skills", href: getGenesisRoute("skills"), icon: "Blocks", group: "GENESIS", available: false, navigable: false },
-      { key: "research", label: "Research", href: getGenesisRoute("research"), icon: "SearchCheck", group: "GENESIS", available: false, navigable: false },
-      { key: "models", label: "Models & Tools", href: getGenesisRoute("models-tools"), icon: "BrainCircuit", group: "GENESIS", available: false, navigable: false },
+      { key: "agents", label: "Agents", href: getGenesisRoute("agents"), icon: "Bot", group: "GENESIS", available: false, navigable: true },
+      { key: "skills", label: "Skills", href: getGenesisRoute("skills"), icon: "Blocks", group: "GENESIS", available: false, navigable: true },
+      { key: "research", label: "Research", href: getGenesisRoute("research"), icon: "SearchCheck", group: "GENESIS", available: false, navigable: true },
+      { key: "models", label: "Models & Tools", href: getGenesisRoute("models-tools"), icon: "BrainCircuit", group: "GENESIS", available: false, navigable: true },
     );
 
     // Group: GOVERNANCE

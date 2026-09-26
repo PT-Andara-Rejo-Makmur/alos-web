@@ -1,0 +1,156 @@
+.researchWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.descCell {
+  color: #5a625d;
+  font-size: 0.8rem;
+  max-width: 320px;
+}
+
+.reasonCell {
+  color: #6e7670;
+  font-size: 0.78rem;
+  max-width: 260px;
+}
+
+.codeTag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  color: #5a625d;
+  background-color: #f0f2f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+  margin-top: 2px;
+}
+
+.textMuted {
+  color: #8a928c;
+}
+
+.requestForm {
+  background-color: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.fieldGroup label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5a625d;
+}
+
+.fieldGroup select,
+.fieldGroup textarea {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #141619;
+  font-family: inherit;
+}
+
+.fieldGroup textarea {
+  resize: vertical;
+}
+
+.fieldGroup select:focus,
+.fieldGroup textarea:focus {
+  outline: 2px solid #99732f;
+  outline-offset: 1px;
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.submitBtn {
+  padding: 8px 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background-color: #141619;
+  color: #ffffff;
+  border: 1px solid #141619;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: #2c2f35;
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.deniedNotice {
+  font-size: 0.78rem;
+  color: #b91c1c;
+  font-style: italic;
+}
+
+.receiptCard {
+  background-color: #fafaf8;
+  border: 1px solid #e7ebe7;
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.receiptHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #141619;
+}
+
+.receiptDetails {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+}
+
+.receiptLabel {
+  color: #6e7670;
+  margin-right: 6px;
+}
