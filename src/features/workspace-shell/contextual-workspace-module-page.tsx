@@ -5,9 +5,15 @@ import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 
 import { ProtectedDomainWorkspace } from "./protected-domain-workspace";
-import { DocumentCenter } from "@/features/documents/document-center";
-import { OperationalModuleDashboard } from "@/features/operations/operational-module-dashboard";
-import { ProjectPortfolioDashboard } from "@/features/projects/portfolio-dashboards";
+import {
+  ProjectsWorkspace,
+  TasksWorkspace,
+  ApprovalsWorkspace,
+  DocumentsWorkspace,
+  ReportsWorkspace,
+  FindingsWorkspace,
+} from "@/modules/work";
+import { StrategyOverviewWorkspace } from "@/modules/strategy";
 import { AraWorkspace, createAraRouteAdapter } from "@/features/ara-workspace";
 import { AgentWorkforce } from "@/features/agent-workforce";
 import { ExecutiveDashboard } from "@/features/executive-dashboard/workspace-dashboard";
@@ -26,7 +32,7 @@ interface ContextualWorkspaceModulePageProps {
   readonly module: string;
 }
 
-const WORKSPACE_AUTHORITY_CONFIG: Record<
+export const WORKSPACE_AUTHORITY_CONFIG: Record<
   CanonicalWorkspaceKey,
   {
     divisionCodes: readonly string[];
@@ -125,34 +131,71 @@ export function ContextualWorkspaceModulePage({
           );
         }
 
-        // 3. Shared Work Contextual: Projects
-        if (canonicalModule === "projects") {
-          return <ProjectPortfolioDashboard activeWorkspace={identity} />;
-        }
-
-        // 4. Shared Work Contextual: Documents
-        if (canonicalModule === "documents") {
+        // 3. Shared Strategy Contextual: Strategy Overview
+        if (canonicalModule === "strategy") {
           return (
-            <DocumentCenter
-              activeWorkspace={identity}
-              actor={actor}
-              mode="documents"
+            <StrategyOverviewWorkspace
+              context={{
+                workspaceKey,
+                workspaceLabel: identity.workspaceLabel,
+                divisionCode: identity.divisionCode,
+                isCompanyWide: workspaceKey === "executive",
+              }}
             />
           );
         }
 
-        // 5. Shared Work Contextual: Tasks, Approvals, Reports, Findings
-        if (
-          canonicalModule === "tasks" ||
-          canonicalModule === "approvals" ||
-          canonicalModule === "reports" ||
-          canonicalModule === "findings"
-        ) {
+        // 4. Shared Work Contextual: Projects
+        if (canonicalModule === "projects") {
+          return <ProjectsWorkspace activeWorkspace={identity} />;
+        }
+
+        // 5. Shared Work Contextual: Documents
+        if (canonicalModule === "documents") {
           return (
-            <OperationalModuleDashboard
+            <DocumentsWorkspace
               activeWorkspace={identity}
               actor={actor}
-              module={canonicalModule}
+            />
+          );
+        }
+
+        // 6. Shared Work Contextual: Tasks
+        if (canonicalModule === "tasks") {
+          return (
+            <TasksWorkspace
+              activeWorkspace={identity}
+              actor={actor}
+            />
+          );
+        }
+
+        // 7. Shared Work Contextual: Approvals
+        if (canonicalModule === "approvals") {
+          return (
+            <ApprovalsWorkspace
+              activeWorkspace={identity}
+              actor={actor}
+            />
+          );
+        }
+
+        // 8. Shared Work Contextual: Reports
+        if (canonicalModule === "reports") {
+          return (
+            <ReportsWorkspace
+              activeWorkspace={identity}
+              actor={actor}
+            />
+          );
+        }
+
+        // 9. Shared Work Contextual: Findings
+        if (canonicalModule === "findings") {
+          return (
+            <FindingsWorkspace
+              activeWorkspace={identity}
+              actor={actor}
             />
           );
         }
