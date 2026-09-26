@@ -6,4 +6,5 @@ export * from "./ui";
 export * from "./platform";
 export * from "./engineering";
 export * from "./operations";
+export * from "./governance";
 export * from "./it-module-renderer";

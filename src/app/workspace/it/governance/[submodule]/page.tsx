@@ -1,14 +1,23 @@
 "use client";
 
-import { use } from "react";
+import { use, type ComponentType } from "react";
 import { notFound, redirect } from "next/navigation";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
-import { ItUnavailableSurface } from "@/modules/it/ui";
 import {
-  getModuleReadiness,
+  DecisionsWorkspace,
+  EvidenceWorkspace,
+  UatWorkspace,
+} from "@/modules/it/governance";
+import {
   isKnownGovernanceSubmodule,
   normalizeCanonicalModuleSegment,
 } from "@/features/workspace-routing";
+
+const SUBMODULE_COMPONENTS: Record<string, ComponentType> = {
+  evidence: EvidenceWorkspace,
+  uat: UatWorkspace,
+  decisions: DecisionsWorkspace,
+};
 
 export default function WorkspaceItGovernanceSubmodulePage({
   params,
@@ -30,6 +39,11 @@ export default function WorkspaceItGovernanceSubmodulePage({
     notFound();
   }
 
+  const Component = SUBMODULE_COMPONENTS[submodule];
+  if (!Component) {
+    notFound();
+  }
+
   return (
     <ProtectedDomainWorkspace
       activeNavKey={submodule}
@@ -38,19 +52,8 @@ export default function WorkspaceItGovernanceSubmodulePage({
       loadingLabel="Memuat Modul Governance IT…"
       workspaceKeys={["it", "technology"]}
     >
-      {() => {
-        const readiness = getModuleReadiness(submodule);
-        return (
-          <ItUnavailableSurface
-            backHref="/workspace/it/governance"
-            backLabel="← Kembali ke IT Governance"
-            description={`Modul tata kelola ini belum tersedia pada sistem (${readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}).`}
-            eyebrow={`ALOS / IT / GOVERNANCE / ${submodule.toUpperCase()}`}
-            readiness={readiness}
-            title={`IT Governance: ${submodule.replace(/-/g, " ").toUpperCase()}`}
-          />
-        );
-      }}
+      {() => <Component />}
     </ProtectedDomainWorkspace>
   );
 }
+

@@ -1,0 +1,18 @@
+.decisionsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6, 24px);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+}
+
+.emptyTableRow {
+  text-align: center;
+  padding: var(--space-6, 24px);
+  color: var(--color-text-muted, #71717a);
+  font-size: var(--font-size-sm, 14px);
+}

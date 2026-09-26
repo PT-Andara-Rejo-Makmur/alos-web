@@ -441,9 +441,9 @@ export function projectWorkspaceNavigation(
 
     // Group: GOVERNANCE
     items.push(
-      { key: "evidence", label: "Evidence", href: getGovernanceRoute("evidence"), icon: "Fingerprint", group: "GOVERNANCE", available: true, navigable: true },
-      { key: "uat", label: "UAT & Gates", href: getGovernanceRoute("uat"), icon: "FlaskConical", group: "GOVERNANCE", available: false, navigable: false },
-      { key: "decisions", label: "Decisions", href: getGovernanceRoute("decisions"), icon: "BadgeCheck", group: "GOVERNANCE", available: true, navigable: true },
+      { key: "evidence", label: "Evidence", href: getGovernanceRoute("evidence"), icon: "Fingerprint", group: "GOVERNANCE", available: false, navigable: true },
+      { key: "uat", label: "UAT & Gates", href: getGovernanceRoute("uat"), icon: "FlaskConical", group: "GOVERNANCE", available: false, navigable: true },
+      { key: "decisions", label: "Decisions", href: getGovernanceRoute("decisions"), icon: "BadgeCheck", group: "GOVERNANCE", available: false, navigable: true },
     );
 
     // Group: AI
