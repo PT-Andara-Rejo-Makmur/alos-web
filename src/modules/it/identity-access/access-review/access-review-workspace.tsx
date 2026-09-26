@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ShieldCheck } from "lucide-react";
-import { apiMessage, authenticatedApiRequest } from "@/lib/api";
+import { apiMessage } from "@/lib/api";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
 import {
   ItDataTable,
@@ -14,28 +14,8 @@ import {
   ItStatusRow,
   ItUnavailableSurface,
 } from "@/modules/it/ui";
+import { loadAccounts, type Account, type Membership } from "../shared";
 import styles from "./access-review.module.css";
-
-interface Membership {
-  workspace: {
-    workspace_id: string;
-    workspace_key: string;
-    workspace_name: string;
-    workspace_type?: string;
-  };
-  role_refs: string[];
-  permission_refs: string[];
-  scope_refs: string[];
-  data_scope: "COMPANY" | "ORGANIZATIONAL_UNIT" | "WORKSPACE" | "PROJECT" | "OWN_ASSIGNED";
-}
-
-interface Account {
-  actor_id: string;
-  display_name: string;
-  email: string;
-  active: boolean;
-  workspace_access: Membership[];
-}
 
 function displayRole(role: string): string {
   return role.replaceAll("_", " ");
@@ -51,8 +31,7 @@ function AccessReviewContent() {
     try {
       setLoading(true);
       setError("");
-      const nextAccounts = await authenticatedApiRequest<Account[]>("/api/v1/identity/accounts");
-      setAccounts(nextAccounts);
+      setAccounts(await loadAccounts());
     } catch (cause) {
       setError(apiMessage(cause));
     } finally {

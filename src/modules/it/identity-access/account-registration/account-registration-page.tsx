@@ -6,10 +6,10 @@ import { authenticatedApiRequest, apiMessage } from "@/lib/api";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
 import { ItUnavailableSurface } from "@/modules/it/ui";
 import { RolePicker } from "../components/role-picker";
+import type { WorkspaceOption } from "../shared";
 import styles from "./account-registration.module.css";
 
 type FormState = { display_name: string; email: string; password: string; role_refs: string[] };
-type WorkspaceOption = { workspace_id: string; workspace_key: string; workspace_name: string; workspace_type?: string; active?: boolean };
 type ProvisionedAccount = { actor: { actor_id: string } };
 
 export function AccountRegistrationPage() {

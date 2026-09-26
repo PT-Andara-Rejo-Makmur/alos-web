@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, type ChangeEvent } from "react";
-import { apiMessage, authenticatedApiRequest } from "@/lib/api";
+import { Plus, X } from "lucide-react";
+import { apiMessage } from "@/lib/api";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
 import {
   ItDataTable,
@@ -13,31 +14,15 @@ import {
   ItUnavailableSurface,
 } from "@/modules/it/ui";
 import { RolePicker } from "../components/role-picker";
+import {
+  loadIdentityAccessData,
+  saveActorMemberships,
+  type Account,
+  type DraftMembership,
+  type Membership,
+  type WorkspaceOption,
+} from "../shared";
 import styles from "./workspace-access.module.css";
-
-interface Membership {
-  workspace: {
-    workspace_id: string;
-    workspace_key: string;
-    workspace_name: string;
-    workspace_type?: string;
-  };
-  role_refs: string[];
-  permission_refs: string[];
-  scope_refs: string[];
-  data_scope: "COMPANY" | "ORGANIZATIONAL_UNIT" | "WORKSPACE" | "PROJECT" | "OWN_ASSIGNED";
-}
-
-interface Account {
-  actor_id: string;
-  display_name: string;
-  email: string;
-  active: boolean;
-  workspace_access: Membership[];
-}
-
-type WorkspaceOption = Membership["workspace"];
-type DraftMembership = Membership & { original_workspace_id: string | null };
 
 const DATA_SCOPES: readonly Membership["data_scope"][] = [
   "COMPANY",
@@ -66,14 +51,10 @@ function WorkspaceAccessContent() {
     try {
       setLoading(true);
       setError("");
-      const [nextAccounts, nextRoles, nextWorkspaces] = await Promise.all([
-        authenticatedApiRequest<Account[]>("/api/v1/identity/accounts"),
-        authenticatedApiRequest<string[]>("/api/v1/identity/assignable-roles"),
-        authenticatedApiRequest<WorkspaceOption[]>("/api/v1/identity/workspaces"),
-      ]);
-      setAccounts(nextAccounts);
-      setRoleOptions(nextRoles);
-      setWorkspaceOptions(nextWorkspaces);
+      const data = await loadIdentityAccessData();
+      setAccounts(data.accounts);
+      setRoleOptions(data.assignableRoles);
+      setWorkspaceOptions(data.workspaces);
     } catch (cause) {
       setError(apiMessage(cause));
     } finally {
@@ -144,53 +125,14 @@ function WorkspaceAccessContent() {
       setError("Setiap membership harus memiliki workspace dan minimal satu role.");
       return;
     }
-    if (
-      new Set(draftMemberships.map((membership) => membership.workspace.workspace_id)).size !==
-      draftMemberships.length
-    ) {
-      setError("Satu workspace hanya boleh memiliki satu membership per akun.");
-      return;
-    }
-
     setSaving(true);
     setError("");
     try {
-      const actorPath = `/api/v1/identity/actors/${encodeURIComponent(editingAccount.actor_id)}`;
-      const original = editingAccount.workspace_access;
-      for (const membership of draftMemberships) {
-        const body = {
-          workspace_id: membership.workspace.workspace_id,
-          role_refs: membership.role_refs,
-          permission_refs: membership.permission_refs,
-          scope_refs: membership.scope_refs,
-          data_scope: membership.data_scope,
-        };
-        if (
-          membership.original_workspace_id &&
-          membership.original_workspace_id !== membership.workspace.workspace_id
-        ) {
-          await authenticatedApiRequest(`${actorPath}/memberships`, { method: "POST", body });
-          await authenticatedApiRequest(
-            `${actorPath}/memberships/${encodeURIComponent(membership.original_workspace_id)}`,
-            { method: "DELETE" },
-          );
-        } else if (membership.original_workspace_id) {
-          await authenticatedApiRequest(`${actorPath}/memberships`, { method: "PUT", body });
-        } else {
-          await authenticatedApiRequest(`${actorPath}/memberships`, { method: "POST", body });
-        }
-      }
-      const retainedIds = new Set(
-        draftMemberships.map((membership) => membership.original_workspace_id).filter(Boolean),
-      );
-      for (const membership of original) {
-        if (!retainedIds.has(membership.workspace.workspace_id)) {
-          await authenticatedApiRequest(
-            `${actorPath}/memberships/${encodeURIComponent(membership.workspace.workspace_id)}`,
-            { method: "DELETE" },
-          );
-        }
-      }
+      await saveActorMemberships({
+        actorId: editingAccount.actor_id,
+        originalMemberships: editingAccount.workspace_access,
+        draftMemberships,
+      });
       setEditingAccount(null);
       await loadData();
     } catch (cause) {
@@ -363,7 +305,7 @@ function WorkspaceAccessContent() {
                 onClick={() => setEditingAccount(null)}
                 type="button"
               >
-                ✕
+                <X aria-hidden={true} size={18} />
               </button>
             </div>
 
@@ -375,7 +317,8 @@ function WorkspaceAccessContent() {
                   onClick={addMembership}
                   type="button"
                 >
-                  + Tambah Workspace
+                  <Plus aria-hidden={true} size={16} />
+                  Tambah Workspace
                 </button>
               </div>
 

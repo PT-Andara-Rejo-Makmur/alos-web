@@ -1,23 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useState } from "react";
+import { Plus, X } from "lucide-react";
 import { apiMessage, authenticatedApiRequest } from "@/lib/api";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
 import { ItUnavailableSurface } from "@/modules/it/ui";
-import { RolePicker } from "../components/role-picker";
+import { loadAccounts, type Account } from "../shared";
 import styles from "./account-management.module.css";
-
-type Membership = {
-  workspace: { workspace_id: string; workspace_key: string; workspace_name: string; workspace_type?: string };
-  role_refs: string[];
-  permission_refs: string[];
-  scope_refs: string[];
-  data_scope: "COMPANY" | "ORGANIZATIONAL_UNIT" | "WORKSPACE" | "PROJECT" | "OWN_ASSIGNED";
-};
-type Account = { actor_id: string; display_name: string; email: string; active: boolean; workspace_access: Membership[] };
-type WorkspaceOption = Membership["workspace"];
-type DraftMembership = Membership & { original_workspace_id: string | null };
 
 function displayRole(role: string): string {
   return role.replaceAll("_", " ");
@@ -25,10 +15,7 @@ function displayRole(role: string): string {
 
 export function AccountManagementPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [roleOptions, setRoleOptions] = useState<string[]>([]);
-  const [workspaceOptions, setWorkspaceOptions] = useState<WorkspaceOption[]>([]);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
-  const [draftMemberships, setDraftMemberships] = useState<DraftMembership[]>([]);
   const [draftActive, setDraftActive] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -37,14 +24,7 @@ export function AccountManagementPage() {
   async function load() {
     try {
       setLoading(true);
-      const [nextAccounts, nextRoles, nextWorkspaces] = await Promise.all([
-        authenticatedApiRequest<Account[]>("/api/v1/identity/accounts"),
-        authenticatedApiRequest<string[]>("/api/v1/identity/assignable-roles"),
-        authenticatedApiRequest<WorkspaceOption[]>("/api/v1/identity/workspaces"),
-      ]);
-      setAccounts(nextAccounts);
-      setRoleOptions(nextRoles);
-      setWorkspaceOptions(nextWorkspaces);
+      setAccounts(await loadAccounts());
     } catch (cause) {
       setError(apiMessage(cause));
     } finally {
@@ -63,85 +43,14 @@ export function AccountManagementPage() {
     setError("");
     setEditingAccount(account);
     setDraftActive(account.active);
-    setDraftMemberships(
-      account.workspace_access.map((membership) => ({
-        ...membership,
-        role_refs: [...membership.role_refs],
-        original_workspace_id: membership.workspace.workspace_id,
-      })),
-    );
-  }
-
-  function updateDraft(index: number, patch: Partial<DraftMembership>) {
-    setDraftMemberships((current) =>
-      current.map((membership, itemIndex) =>
-        itemIndex === index ? { ...membership, ...patch } : membership,
-      ),
-    );
-  }
-
-  function selectWorkspace(index: number, event: ChangeEvent<HTMLSelectElement>) {
-    const option = workspaceOptions.find((item) => item.workspace_id === event.target.value);
-    if (option) updateDraft(index, { workspace: option });
   }
 
   async function saveAccount() {
     if (!editingAccount) return;
-    if (
-      !draftMemberships.length ||
-      draftMemberships.some(
-        (membership) => !membership.workspace.workspace_id || membership.role_refs.length === 0,
-      )
-    ) {
-      setError("Setiap akun harus memiliki workspace dan minimal satu role pada setiap membership.");
-      return;
-    }
-    if (
-      new Set(draftMemberships.map((membership) => membership.workspace.workspace_id)).size !==
-      draftMemberships.length
-    ) {
-      setError("Satu workspace hanya boleh memiliki satu membership per akun.");
-      return;
-    }
     setSaving(true);
     setError("");
     try {
       const actorPath = `/api/v1/identity/actors/${encodeURIComponent(editingAccount.actor_id)}`;
-      const original = editingAccount.workspace_access;
-      for (const membership of draftMemberships) {
-        const body = {
-          workspace_id: membership.workspace.workspace_id,
-          role_refs: membership.role_refs,
-          permission_refs: membership.permission_refs,
-          scope_refs: membership.scope_refs,
-          data_scope: membership.data_scope,
-        };
-        if (
-          membership.original_workspace_id &&
-          membership.original_workspace_id !== membership.workspace.workspace_id
-        ) {
-          await authenticatedApiRequest(`${actorPath}/memberships`, { method: "POST", body });
-          await authenticatedApiRequest(
-            `${actorPath}/memberships/${encodeURIComponent(membership.original_workspace_id)}`,
-            { method: "DELETE" },
-          );
-        } else if (membership.original_workspace_id) {
-          await authenticatedApiRequest(`${actorPath}/memberships`, { method: "PUT", body });
-        } else {
-          await authenticatedApiRequest(`${actorPath}/memberships`, { method: "POST", body });
-        }
-      }
-      const retainedIds = new Set(
-        draftMemberships.map((membership) => membership.original_workspace_id).filter(Boolean),
-      );
-      for (const membership of original) {
-        if (!retainedIds.has(membership.workspace.workspace_id)) {
-          await authenticatedApiRequest(
-            `${actorPath}/memberships/${encodeURIComponent(membership.workspace.workspace_id)}`,
-            { method: "DELETE" },
-          );
-        }
-      }
       if (draftActive !== editingAccount.active) {
         await authenticatedApiRequest(`${actorPath}/${draftActive ? "activate" : "suspend"}`, {
           method: "POST",
@@ -187,11 +96,12 @@ export function AccountManagementPage() {
                 <h1 className={styles.title}>Kelola Akun</h1>
               </div>
               <Link className={styles.primaryButton} href="/workspace/it/users/register">
-                + Register Akun Baru
+                <Plus aria-hidden={true} size={16} />
+                Register Akun Baru
               </Link>
             </div>
             <p className={styles.intro}>
-              Kelola informasi akun, membership workspace, role, dan status akses dari satu tempat.
+              Kelola status akun dan lihat ringkasan akses. Detail membership dikelola melalui Akses Workspace.
             </p>
             {error ? <p className={styles.alert} role="alert">{error}</p> : null}
             {loading ? (
@@ -254,7 +164,7 @@ export function AccountManagementPage() {
                               type="button"
                               onClick={() => openEdit(account)}
                             >
-                              Edit
+                              Ubah Status
                             </button>
                           </td>
                         </tr>
@@ -290,7 +200,7 @@ export function AccountManagementPage() {
                       type="button"
                       onClick={() => setEditingAccount(null)}
                     >
-                      ×
+                      <X aria-hidden={true} size={18} />
                     </button>
                   </div>
                   <div className={styles.drawerBody}>
@@ -318,80 +228,14 @@ export function AccountManagementPage() {
                       </div>
                     </section>
                     <section className={styles.formSection}>
-                      <div className={styles.sectionHeading}>
-                        <div>
-                          <h3>Workspace &amp; Role</h3>
-                          <p>Role dan workspace mengikuti otorisasi Backend.</p>
-                        </div>
-                        <button
-                          className={styles.secondaryButton}
-                          type="button"
-                          onClick={() =>
-                            setDraftMemberships((current) => [
-                              ...current,
-                              {
-                                workspace: {
-                                  workspace_id: "",
-                                  workspace_key: "",
-                                  workspace_name: "Pilih workspace",
-                                },
-                                role_refs: roleOptions.length ? [roleOptions[0]] : [],
-                                permission_refs: [],
-                                scope_refs: [],
-                                data_scope: "OWN_ASSIGNED",
-                                original_workspace_id: null,
-                              },
-                            ])
-                          }
-                        >
-                          + Tambah Workspace
-                        </button>
-                      </div>
-                      <div className={styles.editMembershipList}>
-                        {draftMemberships.map((membership, index) => (
-                          <div
-                            className={styles.editMembershipCard}
-                            key={`${membership.original_workspace_id ?? "new"}-${index}`}
-                          >
-                            <div className={styles.membershipCardHeader}>
-                              <label>
-                                Workspace
-                                <select
-                                  value={membership.workspace.workspace_id}
-                                  onChange={(event) => selectWorkspace(index, event)}
-                                >
-                                  <option value="">Pilih workspace</option>
-                                  {workspaceOptions.map((item) => (
-                                    <option key={item.workspace_id} value={item.workspace_id}>
-                                      {item.workspace_name}
-                                    </option>
-                                  ))}
-                                </select>
-                              </label>
-                              <button
-                                aria-label="Hapus membership"
-                                className={styles.removeMembership}
-                                type="button"
-                                onClick={() =>
-                                  setDraftMemberships((current) =>
-                                    current.filter((_, itemIndex) => itemIndex !== index),
-                                  )
-                                }
-                              >
-                                Hapus
-                              </button>
-                            </div>
-                            <div>
-                              <span className={styles.formLabel}>Role</span>
-                              <RolePicker
-                                options={roleOptions}
-                                selected={membership.role_refs}
-                                onChange={(roles) => updateDraft(index, { role_refs: roles })}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <h3>Ringkasan Membership</h3>
+                      <p>
+                        Akun ini memiliki {editingAccount.workspace_access.length} membership workspace.
+                        Perubahan role, scope data, dan membership dilakukan pada halaman Akses Workspace.
+                      </p>
+                      <Link className={styles.secondaryButton} href="/workspace/it/users/access">
+                        Buka Akses Workspace
+                      </Link>
                     </section>
                   </div>
                   <div className={styles.drawerFooter}>

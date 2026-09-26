@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Plus, X } from "lucide-react";
 import styles from "./role-picker.module.css";
 
 function displayRole(role: string): string {
@@ -40,13 +41,16 @@ export function RolePicker({
               type="button"
               onClick={() => toggleRole(role)}
             >
-              ×
+              <X aria-hidden={true} size={14} />
             </button>
           </span>
         ))}
       </div>
       <details className={styles.roleMenu}>
-        <summary>+ Tambah Role</summary>
+        <summary>
+          <Plus aria-hidden={true} size={14} />
+          Tambah Role
+        </summary>
         <div className={styles.roleMenuPanel}>
           <input
             aria-label="Cari role"
