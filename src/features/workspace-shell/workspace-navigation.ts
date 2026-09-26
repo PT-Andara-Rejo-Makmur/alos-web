@@ -366,7 +366,8 @@ export function projectWorkspaceNavigation(
         href: getWorkspaceModuleRoute("executive", "projects"),
         icon: "BriefcaseBusiness",
         group: "ORGANIZATION",
-        available: true,
+        available: false,
+        navigable: true,
       },
       {
         key: "tasks",
@@ -374,24 +375,27 @@ export function projectWorkspaceNavigation(
         href: getWorkspaceModuleRoute("executive", "tasks"),
         icon: "ListChecks",
         group: "ORGANIZATION",
-        available: true,
+        available: false,
+        navigable: true,
       },
       // Group: DECISIONS
       {
         key: "approvals",
-        label: "Approval",
+        label: "Persetujuan",
         href: getWorkspaceModuleRoute("executive", "approvals"),
         icon: "BadgeCheck",
         group: "DECISIONS",
-        available: true,
+        available: false,
+        navigable: true,
       },
       {
         key: "findings",
-        label: "Temuan & Risiko",
+        label: "Temuan",
         href: getWorkspaceModuleRoute("executive", "findings"),
         icon: "TriangleAlert",
         group: "DECISIONS",
-        available: true,
+        available: false,
+        navigable: true,
       },
       // Group: INFORMATION
       {
@@ -400,7 +404,8 @@ export function projectWorkspaceNavigation(
         href: getWorkspaceModuleRoute("executive", "documents"),
         icon: "Files",
         group: "INFORMATION",
-        available: true,
+        available: false,
+        navigable: true,
       },
       {
         key: "reports",
@@ -408,7 +413,8 @@ export function projectWorkspaceNavigation(
         href: getWorkspaceModuleRoute("executive", "reports"),
         icon: "ChartColumn",
         group: "INFORMATION",
-        available: true,
+        available: false,
+        navigable: true,
       },
       // Group: AI
       {
@@ -546,10 +552,12 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("legal", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("legal", "approvals"), icon: "Scale", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("legal", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("legal", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "projects", label: "Proyek", href: getWorkspaceModuleRoute("legal", "projects"), icon: "BriefcaseBusiness", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("legal", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("legal", "approvals"), icon: "Scale", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("legal", "documents"), icon: "Files", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("legal", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "findings", label: "Temuan", href: getWorkspaceModuleRoute("legal", "findings"), icon: "TriangleAlert", group: "PEKERJAAN", available: false, navigable: true },
     );
 
     // Group: AI
@@ -599,10 +607,12 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("hr", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("hr", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("hr", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("hr", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "projects", label: "Proyek", href: getWorkspaceModuleRoute("hr", "projects"), icon: "BriefcaseBusiness", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("hr", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("hr", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("hr", "documents"), icon: "Files", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("hr", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "findings", label: "Temuan", href: getWorkspaceModuleRoute("hr", "findings"), icon: "TriangleAlert", group: "PEKERJAAN", available: false, navigable: true },
     );
 
     // Group: AI
@@ -652,10 +662,12 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("sales", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("sales", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("sales", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("sales", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "projects", label: "Proyek", href: getWorkspaceModuleRoute("sales", "projects"), icon: "BriefcaseBusiness", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("sales", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("sales", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("sales", "documents"), icon: "Files", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("sales", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "findings", label: "Temuan", href: getWorkspaceModuleRoute("sales", "findings"), icon: "TriangleAlert", group: "PEKERJAAN", available: false, navigable: true },
     );
 
     // Group: AI
@@ -682,7 +694,6 @@ export function projectWorkspaceNavigation(
 
     // Group: PROJECT
     items.push(
-      { key: "projects", label: "Projects", href: getWorkspaceModuleRoute("property", "projects"), icon: "BriefcaseBusiness", group: "PROJECT", available: true },
       { key: "milestones", label: "Milestones", href: "/workspace/property/milestones", icon: "Milestone", group: "PROJECT", available: false },
       { key: "construction", label: "Construction", href: "/workspace/property/construction", icon: "HardHat", group: "PROJECT", available: false },
       { key: "quality", label: "Quality & NCR", href: "/workspace/property/quality", icon: "ClipboardCheck", group: "PROJECT", available: false },
@@ -698,10 +709,12 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN
     items.push(
-      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("property", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("property", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("property", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("property", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
+      { key: "projects", label: "Proyek", href: getWorkspaceModuleRoute("property", "projects"), icon: "BriefcaseBusiness", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("property", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("property", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("property", "documents"), icon: "Files", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("property", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "findings", label: "Temuan", href: getWorkspaceModuleRoute("property", "findings"), icon: "TriangleAlert", group: "PEKERJAAN", available: false, navigable: true },
     );
 
     // Group: AI
@@ -738,12 +751,12 @@ export function projectWorkspaceNavigation(
 
     // Group: PEKERJAAN (Cross-functional work modules)
     items.push(
-      { key: "projects", label: "Proyek", href: getWorkspaceModuleRoute("finance", "projects"), icon: "BriefcaseBusiness", group: "PEKERJAAN", available: true },
-      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("finance", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: true },
-      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("finance", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: true },
-      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("finance", "documents"), icon: "Files", group: "PEKERJAAN", available: true },
-      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("finance", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: true },
-      { key: "findings", label: "Temuan", href: getWorkspaceModuleRoute("finance", "findings"), icon: "TriangleAlert", group: "PEKERJAAN", available: true },
+      { key: "projects", label: "Proyek", href: getWorkspaceModuleRoute("finance", "projects"), icon: "BriefcaseBusiness", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("finance", "tasks"), icon: "ListChecks", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("finance", "approvals"), icon: "BadgeCheck", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("finance", "documents"), icon: "Files", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("finance", "reports"), icon: "ChartColumn", group: "PEKERJAAN", available: false, navigable: true },
+      { key: "findings", label: "Temuan", href: getWorkspaceModuleRoute("finance", "findings"), icon: "TriangleAlert", group: "PEKERJAAN", available: false, navigable: true },
     );
 
     // Group: AI

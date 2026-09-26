@@ -165,19 +165,20 @@ afterEach(() => {
     it("maps navigation items to READY or BLOCKED with href=null when BLOCKED", () => {
       const items = projectWorkspaceNavigation(samplePropertyIdentity, samplePropertyActor);
 
-      // Shared modules stay visible but fail closed until every readiness dimension is green.
+      // Shared modules have dedicated surface (navigable: true) while maintaining truthful backend readiness (BLOCKED)
       const projectsItem = items.find((item) => item.key === "projects");
       expect(projectsItem).toBeDefined();
       expect(projectsItem?.availability).toBe("BLOCKED");
-      expect(projectsItem?.href).toBeNull();
-      expect(projectsItem?.available).toBe(false);
+      expect(projectsItem?.navigable).toBe(true);
+      expect(projectsItem?.href).toBe("/workspace/property/projects");
 
       const tasksItem = items.find((item) => item.key === "tasks");
       expect(tasksItem).toBeDefined();
       expect(tasksItem?.availability).toBe("BLOCKED");
-      expect(tasksItem?.href).toBeNull();
+      expect(tasksItem?.navigable).toBe(true);
+      expect(tasksItem?.href).toBe("/workspace/property/tasks");
 
-      // Blocked domain modules should have null href and BLOCKED availability
+      // Blocked domain modules without dedicated surface have null href and BLOCKED availability
       const constructionItem = items.find((item) => item.key === "construction");
       expect(constructionItem).toBeDefined();
       expect(constructionItem?.availability).toBe("BLOCKED");
@@ -197,7 +198,8 @@ afterEach(() => {
         })
       );
 
-      expect(html).not.toContain('href="/workspace/property/projects"');
+      // Unready domain modules without dedicated frontend remain non-navigable
+      expect(html).not.toContain('href="/workspace/property/construction"');
 
       // Blocked items have aria-disabled="true" and "Belum tersedia" badge
       expect(html).toContain('aria-disabled="true"');
@@ -221,9 +223,15 @@ afterEach(() => {
       const nav = projectWorkspaceNavigation(targetIdentity, sampleDirectorActor);
       expect(nav).toBeDefined();
 
-      // Navigation uses canonical routes
+      // Navigation uses canonical routes for target finance workspace
       const approvalItem = nav.find((item) => item.key === "approvals");
-      expect(approvalItem?.href).toBeNull();
+      expect(approvalItem?.href).toBe("/workspace/finance/approvals");
+      expect(approvalItem?.availability).toBe("BLOCKED");
+
+      // Unready domain item has null href
+      const cashItem = nav.find((item) => item.key === "cash");
+      expect(cashItem?.href).toBeNull();
+      expect(cashItem?.availability).toBe("BLOCKED");
     });
   });
 
