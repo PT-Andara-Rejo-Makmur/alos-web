@@ -1,7 +1,18 @@
 import type { ReactNode } from "react";
 import { getModuleReadiness } from "@/features/workspace-routing";
 import { ItMonitoringWorkspace } from "./monitoring";
-import { DatabaseWorkspace, IntegrationsWorkspace, SystemsWorkspace } from "./platform";
+import {
+  DatabaseWorkspace,
+  EnvironmentsWorkspace,
+  IntegrationsWorkspace,
+  SystemsWorkspace,
+} from "./platform";
+import {
+  CicdWorkspace,
+  ReleasesWorkspace,
+  RepositoriesWorkspace,
+  TechnicalDebtWorkspace,
+} from "./engineering";
 import { ItUnavailableSurface } from "./ui";
 
 export const IT_MODULE_TITLES: Record<string, string> = {
@@ -42,6 +53,26 @@ export function renderItWorkspaceModule(canonicalModule: string): ReactNode | nu
 
   if (canonicalModule === "database") {
     return <DatabaseWorkspace />;
+  }
+
+  if (canonicalModule === "environments") {
+    return <EnvironmentsWorkspace />;
+  }
+
+  if (canonicalModule === "repositories") {
+    return <RepositoriesWorkspace />;
+  }
+
+  if (canonicalModule === "cicd") {
+    return <CicdWorkspace />;
+  }
+
+  if (canonicalModule === "releases") {
+    return <ReleasesWorkspace />;
+  }
+
+  if (canonicalModule === "tech-debt") {
+    return <TechnicalDebtWorkspace />;
   }
 
   if (canonicalModule in IT_MODULE_TITLES) {

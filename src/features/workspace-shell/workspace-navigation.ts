@@ -411,15 +411,15 @@ export function projectWorkspaceNavigation(
       { key: "systems", label: "Systems", href: "/workspace/it/systems", icon: "Server", group: "ALOS_PLATFORM", available: false, navigable: true },
       { key: "integrations", label: "Integrations", href: "/workspace/it/integrations", icon: "Cable", group: "ALOS_PLATFORM", available: false, navigable: true },
       { key: "database", label: "Database", href: "/workspace/it/database", icon: "Database", group: "ALOS_PLATFORM", available: false, navigable: true },
-      { key: "environments", label: "Environments", href: "/workspace/it/environments", icon: "Boxes", group: "ALOS_PLATFORM", available: false, navigable: false },
+      { key: "environments", label: "Environments", href: "/workspace/it/environments", icon: "Boxes", group: "ALOS_PLATFORM", available: false, navigable: true },
     );
 
     // Group: ENGINEERING
     items.push(
-      { key: "repositories", label: "Repositories", href: "/workspace/it/repositories", icon: "GitBranch", group: "ENGINEERING", available: false, navigable: false },
-      { key: "cicd", label: "CI/CD", href: "/workspace/it/cicd", icon: "Workflow", group: "ENGINEERING", available: false, navigable: false },
-      { key: "releases", label: "Releases", href: "/workspace/it/releases", icon: "Rocket", group: "ENGINEERING", available: false, navigable: false },
-      { key: "tech-debt", label: "Technical Debt", href: "/workspace/it/tech-debt", icon: "Wrench", group: "ENGINEERING", available: false, navigable: false },
+      { key: "repositories", label: "Repositories", href: "/workspace/it/repositories", icon: "GitBranch", group: "ENGINEERING", available: false, navigable: true },
+      { key: "cicd", label: "CI/CD", href: "/workspace/it/cicd", icon: "Workflow", group: "ENGINEERING", available: false, navigable: true },
+      { key: "releases", label: "Releases", href: "/workspace/it/releases", icon: "Rocket", group: "ENGINEERING", available: false, navigable: true },
+      { key: "tech-debt", label: "Technical Debt", href: "/workspace/it/tech-debt", icon: "Wrench", group: "ENGINEERING", available: false, navigable: true },
     );
 
     // Group: OPERATIONS

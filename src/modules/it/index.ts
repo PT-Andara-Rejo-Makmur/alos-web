@@ -4,4 +4,5 @@ export * from "./genesis/control-plane";
 export * from "./identity-access";
 export * from "./ui";
 export * from "./platform";
+export * from "./engineering";
 export * from "./it-module-renderer";

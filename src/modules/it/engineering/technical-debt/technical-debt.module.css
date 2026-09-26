@@ -1,0 +1,20 @@
+.debtWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.emptyTableRow {
+  text-align: center;
+  padding: 36px 16px !important;
+  color: #6e7670;
+  font-size: 0.85rem;
+  font-style: italic;
+  background-color: #fafaf8;
+}
