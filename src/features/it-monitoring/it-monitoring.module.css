@@ -1,0 +1,288 @@
+/* ==========================================================================
+   ALOS IT Operations Console - Monitoring Workspace Styles
+   Data-dense, calm, enterprise operational telemetry console
+   Zero fake telemetry, honest NOT CONNECTED states
+   ========================================================================== */
+
+.monitoringWrapper {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: var(--font-manrope, sans-serif);
+  color: #141619;
+  background-color: #f8f7f4;
+  min-height: 100%;
+}
+
+/* Header */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e7ebe7;
+}
+
+.contextBar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.breadcrumbs {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a928c;
+}
+
+.pageTitle {
+  font-family: var(--font-manrope, sans-serif);
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #141619;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.88rem;
+  color: #5a625d;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Telemetry Source Status Strip */
+.sourceStatusStrip {
+  background-color: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-left: 4px solid #8a928c;
+  border-radius: 6px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sourceStatusLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sourceIconWrapper {
+  color: #6e7670;
+  display: flex;
+  align-items: center;
+}
+
+.sourceStatusText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sourceStatusTitle {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #141619;
+}
+
+.sourceStatusContext {
+  font-size: 0.74rem;
+  color: #6e7670;
+}
+
+/* Section styling */
+.consoleSection {
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 8px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f3f0;
+}
+
+.sectionTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sectionEyebrow {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a928c;
+}
+
+.sectionTitle {
+  font-family: var(--font-manrope, sans-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #141619;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Table styling */
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e7ebe7;
+  border-radius: 6px;
+}
+
+.serviceTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.8rem;
+}
+
+.serviceTable th {
+  padding: 9px 12px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6e7670;
+  background-color: #fbfbf9;
+  border-bottom: 1px solid #e7ebe7;
+  white-space: nowrap;
+}
+
+.serviceTable td {
+  padding: 12px;
+  border-bottom: 1px solid #f0f3f0;
+  color: #141619;
+  vertical-align: middle;
+}
+
+.emptyTableRow {
+  text-align: center;
+  padding: 32px 16px !important;
+  color: #6e7670;
+  font-size: 0.8rem;
+  font-style: italic;
+  background-color: #ffffff;
+}
+
+/* Coverage Grid */
+.coverageGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+.coverageCard {
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.coverageHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #5a625d;
+}
+
+.coverageTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #141619;
+}
+
+.coverageState {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #6e7670;
+  background-color: #f0f2f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+/* Event Stream / Log Box */
+.eventStreamBox {
+  background-color: #141619;
+  border: 1px solid #27272a;
+  border-radius: 6px;
+  padding: 18px 20px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  color: #a1a1aa;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyEventText {
+  color: #71717a;
+  font-style: italic;
+}
+
+/* Operational Notice */
+.operationalNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: #5a625d;
+  line-height: 1.45;
+}
+
+.noticeIcon {
+  color: #8a928c;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+@media (max-width: 1024px) {
+  .monitoringWrapper {
+    padding: 16px 20px 80px;
+    gap: 16px;
+  }
+
+  .coverageGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .coverageGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

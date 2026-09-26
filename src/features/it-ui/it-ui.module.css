@@ -1,0 +1,331 @@
+/* ==========================================================================
+   ALOS IT Operations Console - Shared UI Primitives
+   Design: Calm, data-dense, technical enterprise console.
+   Strict rules: No neon, no gradients, no AI emojis, no custom SVG.
+   ========================================================================== */
+
+/* Page Header */
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e7ebe7;
+}
+
+.headerMain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.breadcrumb {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a928c;
+  margin: 0;
+}
+
+.pageTitle {
+  font-family: var(--font-manrope, sans-serif);
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #141619;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.pageDescription {
+  font-size: 0.88rem;
+  color: #5a625d;
+  line-height: 1.45;
+  margin: 0;
+  max-width: 720px;
+}
+
+.headerMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.sourceBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background-color: #f0f2f0;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #5a625d;
+}
+
+.sourceDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #f09a0b;
+  flex-shrink: 0;
+}
+
+/* Section Header */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.sectionHeadingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sectionEyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a928c;
+  margin: 0;
+}
+
+.sectionTitle {
+  font-family: var(--font-manrope, sans-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #141619;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.sectionSubtitle {
+  font-size: 0.8rem;
+  color: #5a625d;
+  margin: 0;
+}
+
+.sectionAction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Status Badges */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusLive {
+  background-color: rgba(11, 153, 82, 0.08);
+  border: 1px solid rgba(11, 153, 82, 0.25);
+  color: #0b9952;
+}
+.statusLive .dot {
+  background-color: #0b9952;
+}
+
+.statusAvailable {
+  background-color: rgba(11, 153, 82, 0.08);
+  border: 1px solid rgba(11, 153, 82, 0.25);
+  color: #0b9952;
+}
+.statusAvailable .dot {
+  background-color: #0b9952;
+}
+
+.statusPartial {
+  background-color: rgba(240, 154, 11, 0.08);
+  border: 1px solid rgba(240, 154, 11, 0.3);
+  color: #b86e00;
+}
+.statusPartial .dot {
+  background-color: #f09a0b;
+}
+
+.statusNotConnected {
+  background-color: #f0f2f0;
+  border: 1px solid #e2e8f0;
+  color: #6e7670;
+}
+.statusNotConnected .dot {
+  background-color: #8a928c;
+}
+
+.statusNeedsTelemetry {
+  background-color: #f0f2f0;
+  border: 1px solid #e2e8f0;
+  color: #6e7670;
+}
+.statusNeedsTelemetry .dot {
+  background-color: #8a928c;
+}
+
+.statusBlocked {
+  background-color: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  color: #b91c1c;
+}
+.statusBlocked .dot {
+  background-color: #dc2626;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 36px 24px;
+  background-color: #ffffff;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  gap: 10px;
+}
+
+.emptyIcon {
+  color: #8a928c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyTitle {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #141619;
+  margin: 0;
+}
+
+.emptyDescription {
+  font-size: 0.8rem;
+  color: #6e7670;
+  max-width: 460px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Notice / Alert Strip */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.noticeWarning {
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+.noticeNeutral {
+  background-color: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  color: #52525b;
+}
+
+.noticeInfo {
+  background-color: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+}
+
+.noticeIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Technical Monospace Values */
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.82rem;
+  color: #27272a;
+}
+
+/* Technical Table Base */
+.techTableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e7ebe7;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.techTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.82rem;
+}
+
+.techTable th {
+  padding: 10px 14px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6e7670;
+  background-color: #fbfbf9;
+  border-bottom: 1px solid #e7ebe7;
+  white-space: nowrap;
+}
+
+.techTable td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f0f3f0;
+  color: #141619;
+  vertical-align: middle;
+}
+
+.techTable tr:last-child td {
+  border-bottom: none;
+}
+
+.techTable tr:hover td {
+  background-color: #fafaf8;
+}
+
+/* Compact Technical Container */
+.consoleSection {
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

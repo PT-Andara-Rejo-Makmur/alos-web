@@ -1,3 +1,4 @@
+import React from "react";
 import type { ItCadenceItem } from "./types";
 import styles from "./it-dashboard.module.css";
 
@@ -21,6 +22,7 @@ export function ItControlCadence({ cadence }: ItControlCadenceProps) {
               <th scope="col">Kontrol</th>
               <th scope="col">Bukti</th>
               <th scope="col">Status</th>
+              <th scope="col">Target Capability</th>
             </tr>
           </thead>
           <tbody>
@@ -32,9 +34,8 @@ export function ItControlCadence({ cadence }: ItControlCadenceProps) {
                   <td className={styles.cadenceFrequency}>{item.frequency}</td>
                   <td>
                     <div className={styles.cadenceControl}>
-                      <span className={styles.cadenceControlName}>
-                        {item.controlName}
-                      </span>
+                      <span className={styles.cadenceControlId}>{item.controlId}</span>
+                      <span className={styles.cadenceControlName}>{item.controlName}</span>
                     </div>
                   </td>
                   <td className={styles.cadenceEvidence}>{item.workEvidence}</td>
@@ -49,6 +50,7 @@ export function ItControlCadence({ cadence }: ItControlCadenceProps) {
                         : "NOT CONNECTED"}
                     </span>
                   </td>
+                  <td className={styles.cadenceEvidence}>{item.targetCapability}</td>
                 </tr>
               );
             })}

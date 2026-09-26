@@ -111,5 +111,46 @@ describe("production architecture hygiene", () => {
     expect(executiveMatch?.[1] || "").not.toMatch(/getGovernanceRoute|\/workspace\/it\/governance/);
     expect(financeMatch?.[1] || "").not.toMatch(/getGovernanceRoute|\/workspace\/it\/governance/);
   });
+
+  it("ensures production IT UI files do not contain handwritten SVG tags or paths", () => {
+    const itUiDirectories = [
+      join(sourceRoot, "features/it-dashboard"),
+      join(sourceRoot, "features/it-monitoring"),
+      join(sourceRoot, "features/it-ui"),
+      join(sourceRoot, "features/genesis-control-plane"),
+      join(sourceRoot, "app/workspace/it"),
+    ];
+
+    const itFiles = itUiDirectories.flatMap((dir) => {
+      try {
+        return productionFiles(dir);
+      } catch {
+        return [];
+      }
+    });
+
+    const svgPattern = /<(?:svg|path|circle|polygon|rect)[\s>]/i;
+    const offenders = itFiles.filter((filePath) => {
+      const content = readFileSync(filePath, "utf8");
+      return svgPattern.test(content);
+    });
+
+    expect(offenders.map((p) => relative(process.cwd(), p))).toEqual([]);
+  });
+
+  it("ensures no unauthorized custom or generated icon files exist in IT UI", () => {
+    const allProdFiles = productionFiles();
+    const forbiddenIconFiles = allProdFiles.filter((filePath) => {
+      const lower = filePath.toLowerCase();
+      return (
+        lower.includes("custom-icon") ||
+        lower.includes("generated-icon") ||
+        lower.includes("ai-icon")
+      );
+    });
+
+    expect(forbiddenIconFiles).toEqual([]);
+  });
 });
+
 

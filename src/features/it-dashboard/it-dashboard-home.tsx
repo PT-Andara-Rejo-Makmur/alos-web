@@ -21,12 +21,18 @@ export function ItDashboardHome({ snapshot }: ItDashboardHomeProps) {
       <header className={styles.headerRow}>
         <div className={styles.contextBar}>
           <span className={styles.breadcrumbs}>
-            ALOS / IT & TECHNOLOGY / OVERVIEW
+            ALOS / IT & TECHNOLOGY
           </span>
-          <h1 className={styles.pageTitle}>IT & Technology Command Center</h1>
+          <h1 className={styles.pageTitle}>IT Operations</h1>
           <p className={styles.subtitle}>
-            Pantau kesiapan platform, release, keamanan, backup, data quality, dan GENESIS dari satu workspace.
+            Platform status, delivery controls, operational readiness, dan technical AI control plane.
           </p>
+        </div>
+        <div className={styles.headerMeta}>
+          <div className={styles.sourceBadge}>
+            <span aria-hidden="true" className={styles.sourceDot} />
+            <span>Backend Projection · Read-only</span>
+          </div>
         </div>
       </header>
 

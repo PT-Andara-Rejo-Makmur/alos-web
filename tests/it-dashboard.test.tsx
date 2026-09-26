@@ -74,10 +74,10 @@ describe("ALOS IT & Technology Dashboard", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole("heading", { name: "IT & Technology Command Center", level: 1 }),
+        screen.getByRole("heading", { name: "IT Operations", level: 1 }),
       ).toBeInTheDocument();
     });
-    expect(screen.getByText("ALOS / IT & TECHNOLOGY / OVERVIEW")).toBeInTheDocument();
+    expect(screen.getByText("ALOS / IT & TECHNOLOGY")).toBeInTheDocument();
   });
 
   // 2. QA/Security reviewer does not automatically gain IT Lead write actions (SoD)
@@ -99,7 +99,7 @@ describe("ALOS IT & Technology Dashboard", () => {
       expect(screen.getByText("403 — AKSES DITOLAK")).toBeInTheDocument();
     });
     expect(screen.getByText("Bukan Otoritas IT & Technology")).toBeInTheDocument();
-    expect(screen.queryByText("IT & Technology Command Center")).not.toBeInTheDocument();
+    expect(screen.queryByText("IT Operations")).not.toBeInTheDocument();
   });
 
   // 3. Missing monitoring source → "—", not 99.9%
@@ -212,7 +212,7 @@ describe("ALOS IT & Technology Dashboard", () => {
     render(<ItDashboardPage initialSnapshot={defaultSnapshot} />);
 
     await waitFor(() => {
-      expect(screen.getByText("IT & Technology Command Center")).toBeInTheDocument();
+      expect(screen.getByText("IT Operations")).toBeInTheDocument();
     });
 
     expect(localStorage.getItem("github_token")).toBeNull();

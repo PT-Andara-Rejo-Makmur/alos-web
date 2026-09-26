@@ -1,3 +1,4 @@
+import React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -10,9 +11,14 @@ interface GenesisControlPlanePanelProps {
 
 export function GenesisControlPlanePanel({ items }: GenesisControlPlanePanelProps) {
   return (
-    <article aria-label="GENESIS Control Plane Operations" className={styles.obsidianCard}>
-      <span className={styles.obsidianEyebrow}>GENESIS CONTROL PLANE</span>
-      <h2 className={styles.obsidianTitle}>Agent & Governance Operations</h2>
+    <article aria-label="GENESIS Control Plane Operations" className={styles.genesisSection}>
+      <header className={styles.genesisHeader}>
+        <span className={styles.genesisEyebrow}>GENESIS SUBSYSTEM</span>
+        <h2 className={styles.genesisTitle}>Control Plane Operations</h2>
+        <p className={styles.genesisSubtitle}>
+          Technical AI operations, agent registry &amp; governance portals
+        </p>
+      </header>
 
       <div className={styles.genesisList}>
         {items.map((item) => (
@@ -32,11 +38,11 @@ export function GenesisControlPlanePanel({ items }: GenesisControlPlanePanelProp
 
       <Link
         aria-label="Buka GENESIS Control Plane"
-        className={styles.obsidianCtaButton}
+        className={styles.genesisCtaButton}
         href="/workspace/it/genesis"
       >
         <span>Buka GENESIS Control Plane</span>
-        <ArrowRight aria-hidden="true" size={16} strokeWidth={2} />
+        <ArrowRight aria-hidden="true" size={14} strokeWidth={2} />
       </Link>
     </article>
   );

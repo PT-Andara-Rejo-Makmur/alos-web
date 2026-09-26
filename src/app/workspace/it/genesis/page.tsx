@@ -1,9 +1,7 @@
 "use client";
 
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
-import { FactoryWorkspace } from "@/features/factory";
-import { ItReviewProjection } from "@/features/reviews/it-review-projection";
-import { GenesisWorkspace, GenesisRdGovernanceView } from "@/experiences/genesis";
+import { GenesisControlPlaneWorkspace } from "@/features/genesis-control-plane";
 
 export default function WorkspaceItGenesisPage() {
   return (
@@ -14,14 +12,7 @@ export default function WorkspaceItGenesisPage() {
       loadingLabel="Memuat GENESIS Control Plane…"
       workspaceKeys={["it", "technology"]}
     >
-      {() => (
-        <div style={{ padding: "1.5rem" }}>
-          <FactoryWorkspace />
-          <ItReviewProjection />
-          <GenesisRdGovernanceView />
-          <GenesisWorkspace />
-        </div>
-      )}
+      {() => <GenesisControlPlaneWorkspace />}
     </ProtectedDomainWorkspace>
   );
 }
