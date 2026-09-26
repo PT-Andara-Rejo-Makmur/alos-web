@@ -40,30 +40,30 @@ describe("IT Governance Submodules", () => {
       render(<EvidenceWorkspace />);
 
       expect(screen.getByRole("heading", { name: "Evidence", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("Evidence Ledger Source")).toBeInTheDocument();
+      expect(screen.getByText("Sumber Bukti")).toBeInTheDocument();
       expect(screen.getByText("NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("No backend evidence ledger source connected.")).toBeInTheDocument();
-      expect(screen.getByText("Evidence Sanitization Boundary")).toBeInTheDocument();
+      expect(screen.getByText("Sumber bukti dari Backend belum terhubung.")).toBeInTheDocument();
+      expect(screen.getByText("Batas Sumber Bukti")).toBeInTheDocument();
     });
 
     it("renders UatWorkspace with truthful blocked and not-connected state", () => {
       render(<UatWorkspace />);
 
       expect(screen.getByRole("heading", { name: "UAT & Gates", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("UAT Evidence Source")).toBeInTheDocument();
+      expect(screen.getByText("Sumber Bukti UAT")).toBeInTheDocument();
       expect(screen.getByText("NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("No UAT/gate evidence source connected.")).toBeInTheDocument();
-      expect(screen.getByText("Authoritative UAT Verification Boundary")).toBeInTheDocument();
+      expect(screen.getByText("Sumber bukti UAT dan gate belum terhubung.")).toBeInTheDocument();
+      expect(screen.getByText("Batas Verifikasi UAT")).toBeInTheDocument();
     });
 
     it("renders DecisionsWorkspace with truthful blocked and not-connected state", () => {
       render(<DecisionsWorkspace />);
 
       expect(screen.getByRole("heading", { name: "Decisions", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("Technology Decision Source")).toBeInTheDocument();
+      expect(screen.getByText("Sumber Keputusan Teknologi")).toBeInTheDocument();
       expect(screen.getByText("NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("No technology decision register source connected.")).toBeInTheDocument();
-      expect(screen.getByText("Authoritative Decision Boundary")).toBeInTheDocument();
+      expect(screen.getByText("Sumber keputusan teknologi dari Backend belum terhubung.")).toBeInTheDocument();
+      expect(screen.getByText("Batas Sumber Keputusan")).toBeInTheDocument();
     });
   });
 
@@ -87,7 +87,7 @@ describe("IT Governance Submodules", () => {
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Evidence", level: 1 })).toBeInTheDocument();
-        expect(screen.getByText("No backend evidence ledger source connected.")).toBeInTheDocument();
+        expect(screen.getByText("Sumber bukti dari Backend belum terhubung.")).toBeInTheDocument();
       });
     });
 
@@ -96,7 +96,7 @@ describe("IT Governance Submodules", () => {
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "UAT & Gates", level: 1 })).toBeInTheDocument();
-        expect(screen.getByText("No UAT/gate evidence source connected.")).toBeInTheDocument();
+        expect(screen.getByText("Sumber bukti UAT dan gate belum terhubung.")).toBeInTheDocument();
       });
     });
 
@@ -105,7 +105,7 @@ describe("IT Governance Submodules", () => {
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Decisions", level: 1 })).toBeInTheDocument();
-        expect(screen.getByText("No technology decision register source connected.")).toBeInTheDocument();
+        expect(screen.getByText("Sumber keputusan teknologi dari Backend belum terhubung.")).toBeInTheDocument();
       });
     });
 

@@ -17,29 +17,29 @@ export function SkillsWorkspace() {
   return (
     <div className={styles.skillWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / GENESIS / SKILLS"
-        description="Technical capability modules, reusable agent tools, and capability lifecycle states."
+        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS / SKILLS"
+        description="Modul kapabilitas teknis, tools agen yang dapat digunakan kembali, dan status siklus kapabilitas."
         title="Skills"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat."
           icon={Blocks}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
       {/* Skill Registry Source Status */}
-      <section aria-label="Skill registry source status">
+      <section aria-label="Status sumber registri skill">
         <ItStatusRow
           detail="NOT_CONNECTED"
-          helper="Backend skill registry source is not connected."
+          helper="Integrasi registri skill Backend belum tersedia."
           icon={Blocks}
-          label="Skill Registry Source"
+          label="Sumber Registri Skill"
           status="NOT_CONNECTED"
         />
       </section>
@@ -47,20 +47,20 @@ export function SkillsWorkspace() {
       {/* Skills Registry */}
       <section aria-labelledby="skills-registry-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Capability Units"
+          eyebrow="Unit Kapabilitas"
           id="skills-registry-title"
-          subtitle="Reusable deterministic skill definitions and registered agent bindings"
-          title="Skills Registry"
+          subtitle="Definisi skill teknis dan keterkaitannya dengan agen terdaftar"
+          title="Registri Skills"
         />
 
         <ItDataTable
-          ariaLabel="Technical skills registry"
-          columns={["Skill", "Purpose", "Lifecycle", "Agents", "Source"]}
+          ariaLabel="Registri skill teknis"
+          columns={["Skill", "Tujuan", "Siklus", "Agen", "Sumber"]}
           minWidth={780}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={5}>
-              No backend skill registry source connected.
+              Sumber registri skill dari Backend belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -69,17 +69,17 @@ export function SkillsWorkspace() {
       {/* Sandbox & Tool Boundary Notice */}
       <section aria-labelledby="skills-boundary-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Execution Boundary"
+          eyebrow="Batas Eksekusi"
           id="skills-boundary-title"
-          subtitle="Sandboxed capability execution and boundary enforcement"
-          title="Capability Boundary"
+          subtitle="Eksekusi kapabilitas dan penerapan batas akses"
+          title="Batas Kapabilitas"
         />
 
         <ItNotice
-          title="Governed Skill Invocation"
+          title="Pemanggilan Skill Terkendali"
           variant="neutral"
         >
-          Skills represent atomic executable units bound to verified agents. In the absence of an authoritative Backend registry connection, skills are neither assumed available nor synthesized locally.
+          Skills merupakan unit eksekusi yang terkait dengan agen. Tanpa koneksi ke registri Backend yang berwenang, ketersediaan skill tidak diasumsikan dan tidak dibuat secara lokal.
         </ItNotice>
       </section>
     </div>

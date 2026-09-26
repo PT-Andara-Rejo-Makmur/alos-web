@@ -17,29 +17,29 @@ export function RepositoriesWorkspace() {
   return (
     <div className={styles.repoWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / REPOSITORIES"
-        description="Repository inventory, source code version control references, and branch policy governance."
+        breadcrumb="ALOS / IT & TEKNOLOGI / REPOSITORIES"
+        description="Inventaris repositori, referensi version control source code, dan tata kelola kebijakan branch."
         title="Repositories"
       />
 
-      {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      {/* Kesiapan Modul */}
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat."
           icon={GitBranch}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
-      {/* Repository Source Status */}
-      <section aria-label="Repository source status">
+      {/* Status Sumber Repositori */}
+      <section aria-label="Status sumber repositori">
         <ItStatusRow
           detail="NOT_CONNECTED"
-          helper="Backend repository inventory source is not connected."
+          helper="Integrasi inventaris repositori Backend belum tersedia."
           icon={GitFork}
-          label="Repository Inventory Source"
+          label="Sumber Repositori"
           status="NOT_CONNECTED"
         />
       </section>
@@ -49,18 +49,18 @@ export function RepositoriesWorkspace() {
         <ItSectionHeader
           eyebrow="Version Control"
           id="repo-registry-title"
-          subtitle="Monitored enterprise codebases and branch governance"
-          title="Repository Registry"
+          subtitle="Codebase perusahaan dan tata kelola branch yang dipantau"
+          title="Registri Repositori"
         />
 
         <ItDataTable
-          ariaLabel="Repository inventory registry"
-          columns={["Repository", "Purpose", "Owner", "State", "Last Evidence", "Source"]}
+          ariaLabel="Registri inventaris repositori"
+          columns={["Repositori", "Tujuan", "Pemilik", "Status", "Bukti Terakhir", "Sumber"]}
           minWidth={820}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={6}>
-              No backend repository inventory source connected.
+              Sumber inventaris repositori dari Backend belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -69,17 +69,17 @@ export function RepositoriesWorkspace() {
       {/* Authority & Security Boundary */}
       <section aria-labelledby="repo-security-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Security & Access"
+          eyebrow="Keamanan & Akses"
           id="repo-security-title"
-          subtitle="Direct browser connection to VCS providers is strictly prohibited"
-          title="Authority Boundary"
+          subtitle="Browser tidak terhubung langsung ke penyedia VCS"
+          title="Batas Otoritas"
         />
 
         <ItNotice
-          title="VCS Telemetry Governed via Backend"
+          title="Telemetri VCS Melalui Backend"
           variant="neutral"
         >
-          ALOS Web does not directly query GitHub or external VCS providers from the client browser. Repository inventory, commit history, and compliance gates are served exclusively via authoritative Backend proxies. No tokens or personal access tokens are stored in the client.
+          ALOS Web tidak mengambil data GitHub atau penyedia VCS eksternal langsung dari browser. Inventaris repositori, riwayat commit, dan gate kepatuhan memerlukan sumber Backend yang berwenang. Token akses tidak disimpan di client.
         </ItNotice>
       </section>
     </div>

@@ -82,7 +82,7 @@ export function AccountManagementPage() {
               backHref="/workspace/it"
               backLabel="← Kembali ke IT Overview"
               description="Hanya IT Admin dengan izin kelola akun yang dapat membuka halaman ini."
-              eyebrow="ALOS / IT / IDENTITY & ACCESS"
+              eyebrow="ALOS / IT / IDENTITAS & AKSES"
               readiness={{ availability: "BLOCKED", blockReason: "ACCESS_DENIED" }}
               title="Akses Dibatasi"
             />
@@ -92,7 +92,7 @@ export function AccountManagementPage() {
           <section className={styles.pageShell}>
             <div className={styles.headerRow}>
               <div>
-                <p className={styles.eyebrow}>IT · IDENTITY & ACCESS</p>
+                <p className={styles.eyebrow}>IT · IDENTITAS & AKSES</p>
                 <h1 className={styles.title}>Kelola Akun</h1>
               </div>
               <Link className={styles.primaryButton} href="/workspace/it/users/register">
@@ -114,7 +114,7 @@ export function AccountManagementPage() {
                       <th>Pengguna</th>
                       <th>Email</th>
                       <th>Workspace</th>
-                      <th>Role</th>
+                      <th>Peran</th>
                       <th>Status</th>
                       <th>Aksi</th>
                     </tr>
@@ -228,7 +228,7 @@ export function AccountManagementPage() {
                       </div>
                     </section>
                     <section className={styles.formSection}>
-                      <h3>Ringkasan Membership</h3>
+                      <h3>Ringkasan Keanggotaan</h3>
                       <p>
                         Akun ini memiliki {editingAccount.workspace_access.length} membership workspace.
                         Perubahan role, scope data, dan membership dilakukan pada halaman Akses Workspace.

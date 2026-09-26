@@ -32,8 +32,8 @@ const SOURCE_MODES: readonly { id: ResearchSourceMode; label: string; descriptio
   },
   {
     id: "EXTERNAL",
-    label: "External",
-    description: "Untrusted input. Backend menentukan permission, egress, source policy, dan audit.",
+    label: "Eksternal",
+    description: "Input tidak tepercaya. Backend menentukan permission, egress, kebijakan sumber, dan audit.",
   },
 ];
 
@@ -103,29 +103,29 @@ export function ResearchWorkspace() {
   return (
     <div className={styles.researchWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / GENESIS / RESEARCH"
-        description="Controlled domain access, empirical research verification, and research evidence receipts."
+        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS / RESEARCH"
+        description="Akses domain terkendali, verifikasi riset, dan tanda terima bukti riset."
         title="Research"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat."
           icon={SearchCheck}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
       {/* Research Access Source Status */}
-      <section aria-label="Research access status">
+      <section aria-label="Status akses riset">
         <ItStatusRow
           detail={loading ? "VERIFYING" : currentPermission?.status ?? "UNAVAILABLE"}
-          helper="Authority domain policy diproyeksikan langsung dari Backend research service."
+          helper="Kebijakan otoritas domain diproyeksikan langsung dari layanan riset Backend."
           icon={ShieldCheck}
-          label="Domain Authorization Source"
+          label="Sumber Otorisasi Domain"
           status={
             loading
               ? "PARTIAL"
@@ -137,7 +137,7 @@ export function ResearchWorkspace() {
       </section>
 
       {error ? (
-        <section aria-label="Error message">
+        <section aria-label="Pesan kesalahan">
           <ItNotice
             title="Terjadi kesalahan komunikasi dengan server"
             variant="warning"
@@ -153,12 +153,12 @@ export function ResearchWorkspace() {
           eyebrow="Otoritas & Cakupan"
           id="domain-access-title"
           subtitle="Daftar domain riset berizin sesuai kebijakan keamanan Backend"
-          title="Domain Access Control"
+          title="Kontrol Akses Domain"
         />
 
         <ItDataTable
           ariaLabel="Tabel Otoritas Domain Riset"
-          columns={["Domain", "Description", "Access Status", "Required Scope", "Reason"]}
+          columns={["Domain", "Deskripsi", "Status Akses", "Scope Wajib", "Alasan"]}
           minWidth={880}
         >
           {researchDomains.map((domain) => {
@@ -205,7 +205,7 @@ export function ResearchWorkspace() {
           eyebrow="Permintaan Riset"
           id="research-request-title"
           subtitle="Kirimkan pertanyaan riset untuk diproses oleh pipeline verifikasi GENESIS"
-          title="Research Request"
+          title="Permintaan Riset"
         />
 
         <form className={styles.requestForm} onSubmit={handleSubmit}>
@@ -276,22 +276,22 @@ export function ResearchWorkspace() {
           eyebrow="Tanda Terima & Bukti"
           id="research-receipt-title"
           subtitle="Bukti tanda terima eksekusi riset yang diterbitkan oleh Backend"
-          title="Request Receipt / Evidence"
+          title="Tanda Terima Permintaan / Bukti"
         />
 
         {receipt ? (
           <div className={styles.receiptCard}>
             <div className={styles.receiptHeader}>
-              <strong>Request #{receipt.request_id}</strong>
+              <strong>Permintaan #{receipt.request_id}</strong>
               <ItStatusBadge label={receipt.state} status="AVAILABLE" />
             </div>
             <div className={styles.receiptDetails}>
               <div>
-                <span className={styles.receiptLabel}>Decision:</span>
+                <span className={styles.receiptLabel}>Keputusan:</span>
                 <code>{receipt.decision}</code>
               </div>
               <div>
-                <span className={styles.receiptLabel}>Correlation Ref:</span>
+                <span className={styles.receiptLabel}>Referensi Korelasi:</span>
                 <code>{receipt.correlation_id}</code>
               </div>
             </div>

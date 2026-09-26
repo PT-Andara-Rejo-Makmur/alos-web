@@ -17,29 +17,29 @@ export function ReleasesWorkspace() {
   return (
     <div className={styles.releaseWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / RELEASES"
-        description="Software release registry, release gate verification, and deployment rollback evidence."
+        breadcrumb="ALOS / IT & TEKNOLOGI / RELEASES"
+        description="Registri rilis perangkat lunak, verifikasi gate rilis, dan bukti rollback deployment."
         title="Releases"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat."
           icon={Rocket}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
       {/* Release Source Status */}
-      <section aria-label="Release source status">
+      <section aria-label="Status sumber rilis">
         <ItStatusRow
           detail="NOT_CONNECTED"
-          helper="Backend release lifecycle source is not connected."
+          helper="Integrasi siklus rilis Backend belum tersedia."
           icon={Rocket}
-          label="Release Lifecycle Source"
+          label="Sumber Siklus Rilis"
           status="NOT_CONNECTED"
         />
       </section>
@@ -47,20 +47,20 @@ export function ReleasesWorkspace() {
       {/* Release Registry */}
       <section aria-labelledby="release-registry-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Lifecycle"
+          eyebrow="Siklus Rilis"
           id="release-registry-title"
-          subtitle="Governed deployment packages and promotion history"
-          title="Release Registry"
+          subtitle="Paket deployment dan riwayat promosi yang dikelola"
+          title="Registri Rilis"
         />
 
         <ItDataTable
-          ariaLabel="Release lifecycle registry"
-          columns={["Release", "Version", "Environment", "Gate Status", "Approval", "Evidence"]}
+          ariaLabel="Registri siklus rilis"
+          columns={["Rilis", "Versi", "Environment", "Status Gate", "Persetujuan", "Bukti"]}
           minWidth={840}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={6}>
-              No backend release lifecycle source connected.
+              Sumber siklus rilis dari Backend belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -69,17 +69,17 @@ export function ReleasesWorkspace() {
       {/* Gate Summary & Rollback Evidence */}
       <section aria-labelledby="rollback-evidence-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Governance & Rollback"
+          eyebrow="Tata Kelola & Rollback"
           id="rollback-evidence-title"
-          subtitle="Promotion approvals and verified rollback mechanisms"
-          title="Gate Summary & Rollback Evidence"
+          subtitle="Persetujuan promosi dan bukti mekanisme rollback"
+          title="Ringkasan Gate & Bukti Rollback"
         />
 
         <ItNotice
-          title="Release Gate Governance Boundary"
+          title="Batas Tata Kelola Gate Rilis"
           variant="neutral"
         >
-          Release governance records, canary metrics, and rollback evidence require authoritative Backend lifecycle management. Release versions, dates, and sign-offs are never fabricated in the client presentation layer.
+          Catatan tata kelola rilis, metrik canary, dan bukti rollback memerlukan sumber siklus rilis dari Backend. Versi, tanggal, dan persetujuan rilis tidak dibuat oleh lapisan presentasi client.
         </ItNotice>
       </section>
     </div>

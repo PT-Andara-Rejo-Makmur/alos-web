@@ -135,7 +135,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
 
       // Honest unavailable state
       expect(screen.getByText(/Backend operational integration belum terhubung/i)).toBeInTheDocument();
-      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
+      expect(screen.getByText("TERBLOKIR · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
     });
 
     it("/workspace/it/governance/evidence does not render legacy ItReviewProjection", async () => {
@@ -167,7 +167,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
 
       expect(screen.queryByText(/Detailed assurance structure/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/REVIEW PACKAGE · IT PROJECTION/i)).not.toBeInTheDocument();
-      expect(screen.getByText("No backend evidence ledger source connected.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber bukti dari Backend belum terhubung.")).toBeInTheDocument();
     });
 
     it("/workspace/it/governance/decisions does not render old generic OperationalModuleDashboard", async () => {
@@ -198,7 +198,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       });
 
       expect(screen.queryByText(/Daftar Approval/i)).not.toBeInTheDocument();
-      expect(screen.getByText("No technology decision register source connected.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber keputusan teknologi dari Backend belum terhubung.")).toBeInTheDocument();
     });
   });
 
@@ -236,8 +236,8 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       expect(screen.queryByText("R&D Domain Access")).not.toBeInTheDocument();
 
       // Honest new-generation research surface with domain access control
-      expect(screen.getByRole("heading", { name: "Domain Access Control", level: 2 })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Research Request", level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Kontrol Akses Domain", level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Permintaan Riset", level: 2 })).toBeInTheDocument();
     });
   });
 
@@ -248,11 +248,11 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const readiness = getModuleReadiness("control-plane");
       expect(readiness.availability).toBe("BLOCKED");
 
-      const statusRegion = screen.getByRole("region", { name: "Control Plane status" });
-      expect(within(statusRegion).getByText("Control Plane Status")).toBeInTheDocument();
-      expect(within(statusRegion).getByText(readiness.availability)).toBeInTheDocument();
+      const statusRegion = screen.getByRole("region", { name: "Status Control Plane" });
+      expect(within(statusRegion).getByText("Status Control Plane")).toBeInTheDocument();
+      expect(within(statusRegion).getByText("TERBLOKIR")).toBeInTheDocument();
       expect(
-        screen.getByText("Frontend control surface available. Backend operational integration not connected."),
+        screen.getByText("Permukaan kontrol frontend tersedia. Integrasi operasional Backend belum terhubung."),
       ).toBeInTheDocument();
 
       expect(screen.queryByText(/Control Plane Status: PARTIAL/i)).not.toBeInTheDocument();
@@ -278,7 +278,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       render(<WorkspaceItPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "IT Operations", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Operasi IT", level: 1 })).toBeInTheDocument();
       });
     });
 
@@ -308,7 +308,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Kelola Akun", level: 1 })).toBeInTheDocument();
       });
-      expect(screen.getByText("IT · IDENTITY & ACCESS")).toBeInTheDocument();
+      expect(screen.getByText("IT · IDENTITAS & AKSES")).toBeInTheDocument();
     });
 
     it("renders thin route WorkspaceItUsersRegisterPage wrapping AccountRegistrationPage", async () => {
@@ -345,9 +345,9 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       expect(result).not.toBeNull();
       render(result);
       expect(screen.getByRole("heading", { name: "Monitoring", level: 1 })).toBeInTheDocument();
-      const telemetryRegion = screen.getByRole("region", { name: "Telemetry source" });
-      expect(within(telemetryRegion).getByText("Telemetry Source")).toBeInTheDocument();
-      expect(within(telemetryRegion).getByText("NOT CONNECTED")).toBeInTheDocument();
+      const telemetryRegion = screen.getByRole("region", { name: "Sumber telemetri" });
+      expect(within(telemetryRegion).getByText("Sumber Telemetri")).toBeInTheDocument();
+      expect(within(telemetryRegion).getByText("BELUM TERHUBUNG")).toBeInTheDocument();
     });
 
     it("renders dedicated EnvironmentsWorkspace for environments", () => {
@@ -355,7 +355,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       expect(result).not.toBeNull();
       render(result);
       expect(screen.getByRole("heading", { name: "Environments", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("No backend environment inventory source connected.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber inventaris environment dari Backend belum terhubung.")).toBeInTheDocument();
     });
 
     it("renders dedicated SecurityWorkspace for security", () => {
@@ -363,7 +363,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       expect(result).not.toBeNull();
       render(result);
       expect(screen.getByRole("heading", { name: "Security", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("No security finding source connected.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber temuan keamanan belum terhubung.")).toBeInTheDocument();
     });
 
     it("renders dedicated RepositoriesWorkspace for repositories", () => {
@@ -371,7 +371,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       expect(result).not.toBeNull();
       render(result);
       expect(screen.getByRole("heading", { name: "Repositories", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("No backend repository inventory source connected.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber inventaris repositori dari Backend belum terhubung.")).toBeInTheDocument();
     });
 
     it("renders ItUnavailableSurface for modules without dedicated surface (infrastructure)", () => {
@@ -379,7 +379,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       expect(result).not.toBeNull();
       render(result);
       expect(screen.getByRole("heading", { name: "Infrastructure", level: 2 })).toBeInTheDocument();
-      expect(screen.getByText("BLOCKED · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
+      expect(screen.getByText("TERBLOKIR · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
       expect(screen.getByText("ALOS / IT / INFRASTRUCTURE")).toBeInTheDocument();
     });
 
@@ -426,7 +426,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
         expect(screen.getByRole("heading", { name: "Environments", level: 1 })).toBeInTheDocument();
       });
 
-      expect(screen.getByText("No backend environment inventory source connected.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber inventaris environment dari Backend belum terhubung.")).toBeInTheDocument();
       expect(container.querySelector(".workspace-panel")).toBeNull();
     });
 
@@ -450,7 +450,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
         expect(screen.getByRole("heading", { name: "Security", level: 1 })).toBeInTheDocument();
       });
 
-      expect(screen.getByText("No security finding source connected.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber temuan keamanan belum terhubung.")).toBeInTheDocument();
       expect(container.querySelector(".workspace-panel")).toBeNull();
     });
 
@@ -474,7 +474,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
         expect(screen.getByRole("heading", { name: "Repositories", level: 1 })).toBeInTheDocument();
       });
 
-      expect(screen.getByText("No backend repository inventory source connected.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber inventaris repositori dari Backend belum terhubung.")).toBeInTheDocument();
       expect(container.querySelector(".workspace-panel")).toBeNull();
     });
   });

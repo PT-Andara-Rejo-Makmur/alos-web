@@ -53,13 +53,13 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("heading", { name: "IT Operations", level: 1 }),
+          screen.getByRole("heading", { name: "Operasi IT", level: 1 }),
         ).toBeInTheDocument();
       });
 
-      expect(screen.getByText("ALOS / IT & TECHNOLOGY")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT & TEKNOLOGI")).toBeInTheDocument();
       expect(
-        screen.getByText("Platform health, delivery controls, operational readiness, security, backup, and GENESIS status."),
+        screen.getByText("Kesehatan platform, kontrol delivery, kesiapan operasional, keamanan, backup, dan status GENESIS."),
       ).toBeInTheDocument();
       expect(screen.queryByText(/last updated/i)).not.toBeInTheDocument();
     });
@@ -80,18 +80,18 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       render(<ItDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Operational Source Coverage", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Cakupan Sumber Operasional", level: 2 })).toBeInTheDocument();
       });
 
-      const strip = screen.getByRole("heading", { name: "Operational Source Coverage", level: 2 }).parentElement!;
+      const strip = screen.getByRole("heading", { name: "Cakupan Sumber Operasional", level: 2 }).parentElement!;
       expect(within(strip).getByText("GENESIS")).toBeInTheDocument();
-      expect(within(strip).getByText("Governance")).toBeInTheDocument();
+      expect(within(strip).getByText("Tata Kelola")).toBeInTheDocument();
       expect(within(strip).getByText("Monitoring")).toBeInTheDocument();
       expect(within(strip).getByText("Backup")).toBeInTheDocument();
-      expect(within(strip).getByText("Security")).toBeInTheDocument();
+      expect(within(strip).getByText("Keamanan")).toBeInTheDocument();
 
-      expect(within(strip).getAllByText("PARTIAL").length).toBe(2);
-      expect(within(strip).getAllByText("NOT CONNECTED").length).toBe(3);
+      expect(within(strip).getAllByText("SEBAGIAN").length).toBe(2);
+      expect(within(strip).getAllByText("BELUM TERHUBUNG").length).toBe(3);
     });
 
     it("renders Systems & Delivery table asserting repository existence != runtime health", async () => {
@@ -110,14 +110,14 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       render(<ItDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByText("Systems & Delivery")).toBeInTheDocument();
+        expect(screen.getByText("Sistem & Delivery")).toBeInTheDocument();
       });
 
       expect(screen.getByText("Web App")).toBeInTheDocument();
       expect(screen.getByText("Backend API")).toBeInTheDocument();
       expect(screen.getByText("Contracts")).toBeInTheDocument();
-      expect(screen.getByText("Infrastructure")).toBeInTheDocument();
-      expect(screen.getByText("Repository exists != runtime healthy.")).toBeInTheDocument();
+      expect(screen.getByText("Infrastruktur")).toBeInTheDocument();
+      expect(screen.getByText("Repositori tersedia != runtime sehat.")).toBeInTheDocument();
     });
 
     it("renders dense technical Control Cadence table with 6 rows and monospace control IDs", async () => {
@@ -136,7 +136,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       render(<ItDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Control Cadence", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Cadence Kontrol", level: 2 })).toBeInTheDocument();
       });
 
       expect(screen.getByText("IT-D-01")).toBeInTheDocument();
@@ -146,7 +146,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(screen.getByText("IT-M-01/02/03")).toBeInTheDocument();
       expect(screen.getByText("IT-M-04")).toBeInTheDocument();
 
-      const rows = within(screen.getByRole("table", { name: "IT control cadence" })).getAllByRole("row");
+      const rows = within(screen.getByRole("table", { name: "Cadence kontrol IT" })).getAllByRole("row");
       expect(rows.length).toBe(7); // 1 header + 6 data rows
     });
 
@@ -166,10 +166,10 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       render(<ItDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "GENESIS Summary", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Ringkasan GENESIS", level: 2 })).toBeInTheDocument();
       });
 
-      const ctaLink = screen.getByRole("link", { name: /Open Control Plane/i });
+      const ctaLink = screen.getByRole("link", { name: /Buka Control Plane/i });
       expect(ctaLink).toHaveAttribute("href", "/workspace/it/genesis");
 
       const agentLink = screen.getByRole("link", { name: "/workspace/it/genesis/agents" });
@@ -182,20 +182,20 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       render(<ItMonitoringWorkspace />);
 
       expect(screen.getByRole("heading", { name: "Monitoring", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("ALOS / IT & TECHNOLOGY / MONITORING")).toBeInTheDocument();
-      expect(screen.getByText("Operational telemetry, service health, signals, and coverage.")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT & TEKNOLOGI / MONITORING")).toBeInTheDocument();
+      expect(screen.getByText("Telemetri operasional, kesehatan layanan, sinyal, dan cakupan.")).toBeInTheDocument();
 
-      const sourceRegion = screen.getByRole("region", { name: "Telemetry source" });
-      expect(within(sourceRegion).getByText("Telemetry Source")).toBeInTheDocument();
-      expect(within(sourceRegion).getByText("NOT CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("Backend telemetry integration unavailable.")).toBeInTheDocument();
+      const sourceRegion = screen.getByRole("region", { name: "Sumber telemetri" });
+      expect(within(sourceRegion).getByText("Sumber Telemetri")).toBeInTheDocument();
+      expect(within(sourceRegion).getByText("BELUM TERHUBUNG")).toBeInTheDocument();
+      expect(screen.getByText("Integrasi telemetri Backend belum tersedia.")).toBeInTheDocument();
     });
 
     it("renders Service Health table with honest empty state without fake service rows", () => {
       render(<ItMonitoringWorkspace />);
 
-      expect(screen.getByRole("heading", { name: "Service Health", level: 2 })).toBeInTheDocument();
-      expect(screen.getByText("No telemetry source connected.")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Kesehatan Layanan", level: 2 })).toBeInTheDocument();
+      expect(screen.getByText("Sumber telemetri belum terhubung.")).toBeInTheDocument();
       expect(screen.queryByText("99.99% uptime")).not.toBeInTheDocument();
       expect(screen.queryByText("healthy")).not.toBeInTheDocument();
     });
@@ -203,23 +203,23 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
     it("renders Active Signal & Event stream with honest empty state without fake incidents", () => {
       render(<ItMonitoringWorkspace />);
 
-      expect(screen.getByRole("heading", { name: "Signal / Event Stream", level: 2 })).toBeInTheDocument();
-      expect(screen.getByText("No operational events available.")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Aliran Sinyal / Event", level: 2 })).toBeInTheDocument();
+      expect(screen.getByText("Event operasional belum tersedia.")).toBeInTheDocument();
       expect(screen.queryByText("0 critical incidents")).not.toBeInTheDocument();
     });
 
     it("renders 6 coverage categories with NOT CONNECTED status", () => {
       render(<ItMonitoringWorkspace />);
 
-      expect(screen.getByText("Monitoring Coverage")).toBeInTheDocument();
-      expect(screen.getByText("Application")).toBeInTheDocument();
+      expect(screen.getByText("Cakupan Monitoring")).toBeInTheDocument();
+      expect(screen.getByText("Aplikasi")).toBeInTheDocument();
       expect(screen.getByText("Backend")).toBeInTheDocument();
-      expect(screen.getByText("Infrastructure")).toBeInTheDocument();
+      expect(screen.getByText("Infrastruktur")).toBeInTheDocument();
       expect(screen.getByText("Database")).toBeInTheDocument();
-      expect(screen.getByText("Security")).toBeInTheDocument();
+      expect(screen.getByText("Keamanan")).toBeInTheDocument();
       expect(screen.getByText("Backup")).toBeInTheDocument();
 
-      const notConnectedBadges = screen.getAllByText("NOT CONNECTED");
+      const notConnectedBadges = screen.getAllByText("BELUM TERHUBUNG");
       expect(notConnectedBadges.length).toBe(7);
     });
 
@@ -227,7 +227,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       render(<ItMonitoringWorkspace />);
 
       expect(
-        screen.getByText(/This surface is presentation-only. Backend telemetry remains source of truth./i),
+        screen.getByText(/Permukaan ini hanya untuk presentasi. Telemetri Backend tetap menjadi sumber kebenaran./i),
       ).toBeInTheDocument();
     });
 
@@ -256,8 +256,8 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Monitoring", level: 1 })).toBeInTheDocument();
       });
-      const sourceRegion = screen.getByRole("region", { name: "Telemetry source" });
-      expect(within(sourceRegion).getByText("NOT CONNECTED")).toBeInTheDocument();
+      const sourceRegion = screen.getByRole("region", { name: "Sumber telemetri" });
+      expect(within(sourceRegion).getByText("BELUM TERHUBUNG")).toBeInTheDocument();
     });
   });
 
@@ -270,15 +270,14 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       ).toBeInTheDocument();
       expect(screen.getByText("ALOS / IT / GENESIS")).toBeInTheDocument();
       expect(
-        screen.getByText("Technical AI operations, agent registry, capability controls, research, models, tools, and governance."),
+        screen.getByText("Operasi AI teknis, registri agen, kontrol kapabilitas, riset, model, tools, dan tata kelola."),
       ).toBeInTheDocument();
 
-      const readiness = getModuleReadiness("control-plane");
-      const statusRegion = screen.getByRole("region", { name: "Control Plane status" });
-      expect(within(statusRegion).getByText("Control Plane Status")).toBeInTheDocument();
-      expect(within(statusRegion).getByText(readiness.availability)).toBeInTheDocument();
+      const statusRegion = screen.getByRole("region", { name: "Status Control Plane" });
+      expect(within(statusRegion).getByText("Status Control Plane")).toBeInTheDocument();
+      expect(within(statusRegion).getByText("TERBLOKIR")).toBeInTheDocument();
       expect(
-        screen.getByText(/Frontend control surface available\. Backend operational integration not connected\./i),
+        screen.getByText(/Permukaan kontrol frontend tersedia\. Integrasi operasional Backend belum terhubung\./i),
       ).toBeInTheDocument();
       expect(screen.queryByText(/Control Plane Status: PARTIAL/i)).not.toBeInTheDocument();
     });
@@ -286,41 +285,41 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
     it("renders Core Registry technical areas reading from centralized readiness", () => {
       render(<GenesisControlPlaneWorkspace />);
 
-      expect(screen.getByRole("heading", { name: "Technical Registry", level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Registri Teknis", level: 2 })).toBeInTheDocument();
 
       const agentsLink = screen.getByRole("link", { name: "/workspace/it/genesis/agents" });
       expect(agentsLink).toHaveAttribute("href", "/workspace/it/genesis/agents");
-      expect(within(agentsLink.closest("tr")!).getByText("BLOCKED")).toBeInTheDocument();
+      expect(within(agentsLink.closest("tr")!).getByText("TERBLOKIR")).toBeInTheDocument();
 
       const skillsLink = screen.getByRole("link", { name: "/workspace/it/genesis/skills" });
       expect(skillsLink).toHaveAttribute("href", "/workspace/it/genesis/skills");
-      expect(within(skillsLink.closest("tr")!).getByText("BLOCKED")).toBeInTheDocument();
+      expect(within(skillsLink.closest("tr")!).getByText("TERBLOKIR")).toBeInTheDocument();
 
       const researchLink = screen.getByRole("link", { name: "/workspace/it/genesis/research" });
       expect(researchLink).toHaveAttribute("href", "/workspace/it/genesis/research");
-      expect(within(researchLink.closest("tr")!).getByText("BLOCKED")).toBeInTheDocument();
+      expect(within(researchLink.closest("tr")!).getByText("TERBLOKIR")).toBeInTheDocument();
 
       const modelsLink = screen.getByRole("link", { name: "/workspace/it/genesis/models-tools" });
       expect(modelsLink).toHaveAttribute("href", "/workspace/it/genesis/models-tools");
-      expect(within(modelsLink.closest("tr")!).getByText("BLOCKED")).toBeInTheDocument();
+      expect(within(modelsLink.closest("tr")!).getByText("TERBLOKIR")).toBeInTheDocument();
     });
 
     it("renders Governance cross-reference section pointing to canonical IT governance routes and showing centralized readiness", () => {
       render(<GenesisControlPlaneWorkspace />);
 
-      expect(screen.getByRole("heading", { name: "Governance References", level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Referensi Tata Kelola", level: 2 })).toBeInTheDocument();
 
       const evidenceLink = screen.getByRole("link", { name: "/workspace/it/governance/evidence" });
       expect(evidenceLink).toHaveAttribute("href", "/workspace/it/governance/evidence");
-      expect(within(evidenceLink.closest("tr")!).getByText("BLOCKED")).toBeInTheDocument();
+      expect(within(evidenceLink.closest("tr")!).getByText("TERBLOKIR")).toBeInTheDocument();
 
       const uatLink = screen.getByRole("link", { name: "/workspace/it/governance/uat" });
       expect(uatLink).toHaveAttribute("href", "/workspace/it/governance/uat");
-      expect(within(uatLink.closest("tr")!).getByText("BLOCKED")).toBeInTheDocument();
+      expect(within(uatLink.closest("tr")!).getByText("TERBLOKIR")).toBeInTheDocument();
 
       const decisionsLink = screen.getByRole("link", { name: "/workspace/it/governance/decisions" });
       expect(decisionsLink).toHaveAttribute("href", "/workspace/it/governance/decisions");
-      expect(within(decisionsLink.closest("tr")!).getByText("BLOCKED")).toBeInTheDocument();
+      expect(within(decisionsLink.closest("tr")!).getByText("TERBLOKIR")).toBeInTheDocument();
     });
 
     it("does NOT render legacy subsystem tabs or legacy workspaces in control plane", () => {

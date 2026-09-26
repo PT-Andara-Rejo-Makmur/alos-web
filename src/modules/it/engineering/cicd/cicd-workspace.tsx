@@ -17,29 +17,29 @@ export function CicdWorkspace() {
   return (
     <div className={styles.cicdWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / CI/CD"
-        description="Build execution pipelines, quality gate verifications, and automated deployment telemetry."
+        breadcrumb="ALOS / IT & TEKNOLOGI / CI/CD"
+        description="Eksekusi pipeline build, verifikasi quality gate, dan telemetri deployment otomatis."
         title="CI/CD"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat."
           icon={Workflow}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
       {/* CI/CD Source Status */}
-      <section aria-label="CI/CD source status">
+      <section aria-label="Status sumber CI/CD">
         <ItStatusRow
           detail="NOT_CONNECTED"
-          helper="Backend CI/CD pipeline source is not connected."
+          helper="Sumber pipeline CI/CD dari Backend belum terhubung."
           icon={Play}
-          label="CI/CD Pipeline Source"
+          label="Sumber Pipeline CI/CD"
           status="NOT_CONNECTED"
         />
       </section>
@@ -49,18 +49,18 @@ export function CicdWorkspace() {
         <ItSectionHeader
           eyebrow="Continuous Integration"
           id="pipeline-runs-title"
-          subtitle="Recent automated pipeline executions across build and test stages"
-          title="Pipeline Runs"
+          subtitle="Eksekusi pipeline otomatis pada tahap build dan test"
+          title="Riwayat Pipeline"
         />
 
         <ItDataTable
-          ariaLabel="CI/CD pipeline runs registry"
-          columns={["Pipeline", "Branch", "Stage", "State", "Last Evidence", "Source"]}
+          ariaLabel="Registri riwayat pipeline CI/CD"
+          columns={["Pipeline", "Branch", "Tahap", "Status", "Bukti Terakhir", "Sumber"]}
           minWidth={820}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={6}>
-              No backend CI/CD telemetry source connected.
+              Sumber telemetri CI/CD dari Backend belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -69,17 +69,17 @@ export function CicdWorkspace() {
       {/* Quality Gates & Deployment Proof */}
       <section aria-labelledby="quality-gates-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Verification Gates"
+          eyebrow="Gate Verifikasi"
           id="quality-gates-title"
-          subtitle="Automated lint, unit test, security scan, and build verification gates"
-          title="Quality Gates & Deployment Proof"
+          subtitle="Gate otomatis untuk lint, unit test, pemindaian keamanan, dan verifikasi build"
+          title="Quality Gate & Bukti Deployment"
         />
 
         <ItNotice
-          title="Authoritative Build Verification Boundary"
+          title="Batas Verifikasi Build"
           variant="neutral"
         >
-          Quality gate results and deployment evidence require live connection to the build orchestrator proxy. Build numbers and test results are never synthesized in the presentation layer.
+          Hasil quality gate dan bukti deployment memerlukan koneksi ke sumber build yang berwenang. Nomor build dan hasil test tidak dibuat oleh lapisan presentasi.
         </ItNotice>
       </section>
     </div>

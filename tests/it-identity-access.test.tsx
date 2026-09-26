@@ -163,7 +163,7 @@ describe("IT Identity & Access - Workspace Access & Access Review", () => {
       render(<WorkspaceItUsersAccessPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Workspace Access", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Akses Workspace", level: 1 })).toBeInTheDocument();
         expect(screen.getByText("Alice Developer")).toBeInTheDocument();
         expect(screen.getAllByText("IT Workspace").length).toBeGreaterThanOrEqual(1);
         expect(screen.getByText("IT ENGINEER")).toBeInTheDocument();
@@ -238,9 +238,9 @@ describe("IT Identity & Access - Workspace Access & Access Review", () => {
       render(<WorkspaceItUsersAccessReviewPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Access Review", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Tinjauan Akses", level: 1 })).toBeInTheDocument();
         expect(screen.getByText("Bob SysAdmin")).toBeInTheDocument();
-        expect(screen.getByText("Change history source unavailable.")).toBeInTheDocument();
+        expect(screen.getByText("Sumber riwayat perubahan belum tersedia.")).toBeInTheDocument();
       });
     });
   });

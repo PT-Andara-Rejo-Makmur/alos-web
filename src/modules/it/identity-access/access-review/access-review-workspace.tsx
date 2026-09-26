@@ -81,18 +81,18 @@ function AccessReviewContent() {
   return (
     <div className={styles.reviewWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / ACCESS REVIEW"
+        breadcrumb="ALOS / IT & TEKNOLOGI / TINJAUAN AKSES"
         description="Tinjauan hak akses efektif (effective-access review) seluruh pengguna berdasarkan proyeksi Backend saat ini."
-        title="Access Review"
+        title="Tinjauan Akses"
       />
 
       {/* Identity Source Status */}
-      <section aria-label="Identity source status">
+      <section aria-label="Status sumber identitas">
         <ItStatusRow
           detail="LIVE_PROJECTION"
           helper="Proyeksi hak akses efektif dibaca langsung dari Backend identity service."
           icon={ShieldCheck}
-          label="Identity Projection Source"
+          label="Sumber Proyeksi Identitas"
           status="LIVE"
         />
       </section>
@@ -112,10 +112,10 @@ function AccessReviewContent() {
       <section aria-labelledby="effective-access-title" className={styles.section}>
         <div className={styles.filterBar}>
           <ItSectionHeader
-            eyebrow="Audit & Governance"
+            eyebrow="Audit & Tata Kelola"
             id="effective-access-title"
             subtitle="Matriks akses efektif per akun dan per scope keanggotaan"
-            title="Effective Access Review"
+            title="Tinjauan Akses Efektif"
           />
           <div className={styles.filterActions}>
             <input
@@ -142,13 +142,13 @@ function AccessReviewContent() {
           <ItDataTable
             ariaLabel="Tabel Tinjauan Hak Akses Efektif"
             columns={[
-              "User",
-              "Account State",
+              "Pengguna",
+              "Status Akun",
               "Workspace",
-              "Roles",
+              "Peran",
               "Permission Refs",
               "Scope Refs",
-              "Data Scope",
+              "Cakupan Data",
             ]}
             minWidth={1040}
           >
@@ -229,14 +229,14 @@ function AccessReviewContent() {
       {/* Change History Audit Boundary */}
       <section aria-labelledby="change-history-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Audit Trail"
+          eyebrow="Jejak Audit"
           id="change-history-title"
           subtitle="Catatan riwayat perubahan hak akses dan keanggotaan pengguna"
-          title="Change History"
+          title="Riwayat Perubahan"
         />
 
         <ItNotice
-          title="Change history source unavailable."
+          title="Sumber riwayat perubahan belum tersedia."
           variant="neutral"
         >
           Backend audit-history projection is not connected. Audit trail for historical access transitions requires dedicated identity log telemetry.
@@ -250,7 +250,7 @@ export function AccessReviewWorkspace() {
   return (
     <ProtectedDomainWorkspace
       activeNavKey="access-review"
-      deniedTitle="Access Review hanya untuk IT"
+      deniedTitle="Tinjauan Akses hanya untuk IT"
       divisionCodes={["IT", "TECHNOLOGY"]}
       loadingLabel="Memverifikasi otoritas IT…"
       workspaceKeys={["it", "technology"]}
@@ -268,7 +268,7 @@ export function AccessReviewWorkspace() {
                 availability: "BLOCKED",
                 blockReason: "REQUIRES_AUTHORITY",
               }}
-              title="Access Review"
+              title="Tinjauan Akses"
             />
           );
         }

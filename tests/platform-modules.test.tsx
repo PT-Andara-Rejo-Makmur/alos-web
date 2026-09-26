@@ -181,7 +181,7 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       expect(el).not.toBeNull();
       render(el!);
       expect(screen.getByRole("heading", { name: "Environments", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("No backend environment inventory source connected.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber inventaris environment dari Backend belum terhubung.")).toBeInTheDocument();
     });
   });
 
@@ -191,11 +191,11 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
 
       render(<SystemsWorkspace />);
 
-      expect(screen.getByText("ALOS / IT & TECHNOLOGY / SYSTEMS")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT & TEKNOLOGI / SYSTEMS")).toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Systems", level: 1 })).toBeInTheDocument();
 
-      const readinessSection = screen.getByLabelText("Module readiness");
-      expect(within(readinessSection).getByText("BLOCKED")).toBeInTheDocument();
+      const readinessSection = screen.getByLabelText("Kesiapan modul");
+      expect(within(readinessSection).getByText("TERBLOKIR")).toBeInTheDocument();
       expect(within(readinessSection).getByText("BACKEND_NOT_CONNECTED")).toBeInTheDocument();
       expect(getModuleReadiness("systems").availability).toBe("BLOCKED");
     });
@@ -206,7 +206,7 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       render(<SystemsWorkspace />);
 
       await waitFor(() => {
-        expect(screen.getAllByText("CONNECTED").length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText("TERHUBUNG").length).toBeGreaterThanOrEqual(1);
       });
 
       expect(screen.getAllByText("alos-backend").length).toBeGreaterThanOrEqual(1);
@@ -222,10 +222,10 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       render(<SystemsWorkspace />);
 
       await waitFor(() => {
-        expect(screen.getAllByText("DISCONNECTED").length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText("TERPUTUS").length).toBeGreaterThanOrEqual(1);
       });
 
-      expect(screen.getAllByText("Integration diagnostic unavailable").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("Diagnostik integrasi belum tersedia").length).toBeGreaterThanOrEqual(1);
       // Must not render fake healthy metrics
       expect(screen.queryByText("100%")).toBeNull();
       expect(screen.queryByText("99.9%")).toBeNull();
@@ -236,15 +236,15 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
 
       const { container } = render(<SystemsWorkspace />);
 
-      const table = screen.getByRole("table", { name: "Platform systems registry" });
+      const table = screen.getByRole("table", { name: "Registri sistem platform" });
       expect(within(table).getByText("Web App")).toBeInTheDocument();
       expect(within(table).getByText("ALOS Backend")).toBeInTheDocument();
       expect(within(table).getByText("GENESIS")).toBeInTheDocument();
-      expect(within(table).getByText("Database & Infra")).toBeInTheDocument();
+      expect(within(table).getByText("Database & Infrastruktur")).toBeInTheDocument();
 
-      expect(screen.getByText("Web Client")).toBeInTheDocument();
+      expect(screen.getByText("Client Web")).toBeInTheDocument();
       expect(
-        screen.getByText(/The browser never issues direct requests to GENESIS/i),
+        screen.getByText(/Browser tidak mengirim permintaan langsung ke GENESIS/i),
       ).toBeInTheDocument();
 
       // No secrets or credentials in DOM
@@ -260,11 +260,11 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
 
       render(<IntegrationsWorkspace />);
 
-      expect(screen.getByText("ALOS / IT & TECHNOLOGY / INTEGRATIONS")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT & TEKNOLOGI / INTEGRATIONS")).toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Integrations", level: 1 })).toBeInTheDocument();
 
-      const readinessSection = screen.getByLabelText("Module readiness");
-      expect(within(readinessSection).getByText("BLOCKED")).toBeInTheDocument();
+      const readinessSection = screen.getByLabelText("Kesiapan modul");
+      expect(within(readinessSection).getByText("TERBLOKIR")).toBeInTheDocument();
 
       await waitFor(() => {
         expect(screen.getAllByText("ALOS_BACKEND").length).toBeGreaterThanOrEqual(1);
@@ -280,10 +280,10 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       render(<IntegrationsWorkspace />);
 
       await waitFor(() => {
-        expect(screen.getAllByText("DISCONNECTED").length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText("TERPUTUS").length).toBeGreaterThanOrEqual(1);
       });
 
-      expect(screen.getAllByText("Integration diagnostic unavailable").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("Diagnostik integrasi belum tersedia").length).toBeGreaterThanOrEqual(1);
       // Must not falsely assert individual hop failure
       expect(screen.queryByText("GENESIS down")).toBeNull();
       expect(screen.queryByText("Backend down")).toBeNull();
@@ -304,22 +304,22 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
     it("renders Database page header, BLOCKED readiness, and NOT CONNECTED source", () => {
       render(<DatabaseWorkspace />);
 
-      expect(screen.getByText("ALOS / IT & TECHNOLOGY / DATABASE")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT & TEKNOLOGI / DATABASE")).toBeInTheDocument();
       expect(screen.getByRole("heading", { name: "Database", level: 1 })).toBeInTheDocument();
 
-      const readinessSection = screen.getByLabelText("Module readiness");
-      expect(within(readinessSection).getByText("BLOCKED")).toBeInTheDocument();
+      const readinessSection = screen.getByLabelText("Kesiapan modul");
+      expect(within(readinessSection).getByText("TERBLOKIR")).toBeInTheDocument();
 
-      const sourceSection = screen.getByLabelText("Database source status");
-      expect(within(sourceSection).getByText("NOT CONNECTED")).toBeInTheDocument();
-      expect(within(sourceSection).getByText("Backend database inventory source is not connected.")).toBeInTheDocument();
+      const sourceSection = screen.getByLabelText("Status sumber database");
+      expect(within(sourceSection).getByText("BELUM TERHUBUNG")).toBeInTheDocument();
+      expect(within(sourceSection).getByText("Sumber inventaris database dari Backend belum terhubung.")).toBeInTheDocument();
     });
 
     it("displays honest empty state for Database Registry with zero fake instances", () => {
       const { container } = render(<DatabaseWorkspace />);
 
-      const table = screen.getByRole("table", { name: "Database instances registry" });
-      expect(within(table).getByText("No backend database inventory source connected.")).toBeInTheDocument();
+      const table = screen.getByRole("table", { name: "Registri instance database" });
+      expect(within(table).getByText("Sumber inventaris database dari Backend belum terhubung.")).toBeInTheDocument();
 
       // Zero fabricated DB instances
       expect(container.innerHTML).not.toContain("production-db");
@@ -331,13 +331,13 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
     it("shows NOT CONNECTED for all operational evidence rows and strict security notice", () => {
       const { container } = render(<DatabaseWorkspace />);
 
-      expect(screen.getByText("Database Connectivity")).toBeInTheDocument();
-      expect(screen.getByText("Schema & Migrations")).toBeInTheDocument();
-      expect(screen.getByText("Engine Health Signals")).toBeInTheDocument();
+      expect(screen.getByText("Konektivitas Database")).toBeInTheDocument();
+      expect(screen.getByText("Skema & Migrasi")).toBeInTheDocument();
+      expect(screen.getByText("Sinyal Kesehatan Engine")).toBeInTheDocument();
 
       expect(
         screen.getByText(
-          /Browser does not connect directly to business databases\. Database authority and credentials remain behind Backend \/ infrastructure boundaries\./i,
+          /Browser tidak terhubung langsung ke database bisnis\. Otoritas dan kredensial database/i,
         ),
       ).toBeInTheDocument();
 

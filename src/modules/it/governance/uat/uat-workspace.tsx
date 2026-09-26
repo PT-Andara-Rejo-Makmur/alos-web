@@ -17,29 +17,29 @@ export function UatWorkspace() {
   return (
     <div className={styles.uatWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / GOVERNANCE / UAT & GATES"
-        description="User acceptance testing verification gates, sign-off criteria, and outstanding release blockers."
+        breadcrumb="ALOS / IT & TEKNOLOGI / TATA KELOLA / UAT & GATES"
+        description="Hasil UAT, status gate, catatan, dan tindak lanjut dari sumber Backend."
         title="UAT & Gates"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat."
           icon={FlaskConical}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
       {/* UAT Source Status */}
-      <section aria-label="UAT source status">
+      <section aria-label="Status sumber UAT">
         <ItStatusRow
           detail="NOT_CONNECTED"
-          helper="Backend UAT and gate evidence source is not connected."
+          helper="Sumber bukti UAT dan gate dari Backend belum terhubung."
           icon={FlaskConical}
-          label="UAT Evidence Source"
+          label="Sumber Bukti UAT"
           status="NOT_CONNECTED"
         />
       </section>
@@ -47,20 +47,20 @@ export function UatWorkspace() {
       {/* Gate Registry */}
       <section aria-labelledby="gate-registry-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Verification Gates"
+          eyebrow="Gate Verifikasi"
           id="gate-registry-title"
-          subtitle="Governed UAT test criteria and release promotion gate requirements"
-          title="Gate Registry"
+          subtitle="Kriteria UAT dan persyaratan gate promosi rilis"
+          title="Registri Gate"
         />
 
         <ItDataTable
-          ariaLabel="UAT and release gates registry"
-          columns={["Gate", "Target Release", "Verification Level", "Status", "Sign-Off Authority", "Evidence"]}
+          ariaLabel="Registri UAT dan gate rilis"
+          columns={["Gate", "Target Rilis", "Hasil UAT", "Status", "Catatan", "Bukti"]}
           minWidth={860}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={6}>
-              No UAT/gate evidence source connected.
+              Sumber bukti UAT dan gate belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -69,17 +69,17 @@ export function UatWorkspace() {
       {/* Outstanding Gates & Approval Boundary */}
       <section aria-labelledby="outstanding-gates-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Gate Enforcement"
+          eyebrow="Tindak Lanjut"
           id="outstanding-gates-title"
-          subtitle="Outstanding criteria required prior to promotion approvals"
-          title="Outstanding Gates"
+          subtitle="Kriteria yang perlu ditindaklanjuti sebelum persetujuan promosi"
+          title="Gate Belum Terpenuhi"
         />
 
         <ItNotice
-          title="Authoritative UAT Verification Boundary"
+          title="Batas Verifikasi UAT"
           variant="neutral"
         >
-          UAT sign-offs and gate validations require authoritative human sign-off evidence stored in the backend governance ledger. Gate approvals or PASS statuses are never synthesized in the client presentation layer.
+          Hasil UAT, validasi gate, catatan, dan tindak lanjut ditampilkan dari sumber Backend yang berwenang. Status lulus tidak dibuat oleh lapisan presentasi client.
         </ItNotice>
       </section>
     </div>

@@ -40,7 +40,7 @@ export interface ReleaseControlRow {
 }
 
 export interface ItCadenceItem {
-  readonly frequency: "Daily" | "Weekly" | "Monthly";
+  readonly frequency: "Harian" | "Mingguan" | "Bulanan";
   readonly controlId: string;
   readonly controlName: string;
   readonly workEvidence: string;

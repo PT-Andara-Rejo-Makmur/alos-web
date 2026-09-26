@@ -17,29 +17,29 @@ export function BackupDrWorkspace() {
   return (
     <div className={styles.backupWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / BACKUP & DR"
-        description="Data protection schedules, immutable backup verification, and disaster recovery restore tests."
+        breadcrumb="ALOS / IT & TEKNOLOGI / BACKUP & DR"
+        description="Jadwal perlindungan data, bukti backup, dan pengujian restore disaster recovery."
         title="Backup & DR"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat."
           icon={DatabaseBackup}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
       {/* Backup Source Status */}
-      <section aria-label="Backup source status">
+      <section aria-label="Status sumber backup">
         <ItStatusRow
           detail="NOT_CONNECTED"
-          helper="Backend backup evidence source is not connected."
+          helper="Integrasi sumber bukti backup Backend belum tersedia."
           icon={DatabaseBackup}
-          label="Backup Evidence Source"
+          label="Sumber Bukti Backup"
           status="NOT_CONNECTED"
         />
       </section>
@@ -47,20 +47,20 @@ export function BackupDrWorkspace() {
       {/* Backup Controls */}
       <section aria-labelledby="backup-controls-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Data Protection"
+          eyebrow="Perlindungan Data"
           id="backup-controls-title"
-          subtitle="Scheduled snapshot policies, database dump cadences, and retention periods"
-          title="Backup Controls & Policies"
+          subtitle="Kebijakan snapshot, cadence database dump, dan periode retensi"
+          title="Kontrol & Kebijakan Backup"
         />
 
         <ItDataTable
-          ariaLabel="Backup controls and policies registry"
-          columns={["Control", "Schedule", "Last Evidence", "State", "Source"]}
+          ariaLabel="Registri kontrol dan kebijakan backup"
+          columns={["Kontrol", "Jadwal", "Bukti Terakhir", "Status", "Sumber"]}
           minWidth={780}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={5}>
-              No backend backup evidence source connected.
+              Sumber bukti backup dari Backend belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -71,18 +71,18 @@ export function BackupDrWorkspace() {
         <ItSectionHeader
           eyebrow="Disaster Recovery"
           id="restore-tests-title"
-          subtitle="Empirical restore drill executions, recovery time objectives (RTO), and recovery point objectives (RPO)"
-          title="Disaster Recovery Restore Tests"
+          subtitle="Pelaksanaan uji restore serta target RTO dan RPO"
+          title="Pengujian Restore"
         />
 
         <ItDataTable
-          ariaLabel="Disaster recovery restore drill records"
-          columns={["Restore Test", "Environment", "Evidence", "Result", "Source"]}
+          ariaLabel="Catatan pengujian restore disaster recovery"
+          columns={["Pengujian Restore", "Environment", "Bukti", "Hasil", "Sumber"]}
           minWidth={780}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={5}>
-              No restore test evidence source connected.
+              Sumber bukti pengujian restore belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -91,17 +91,17 @@ export function BackupDrWorkspace() {
       {/* DR Readiness Boundary */}
       <section aria-labelledby="dr-readiness-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Verification Boundary"
+          eyebrow="Batas Verifikasi"
           id="dr-readiness-title"
-          subtitle="Proof of recoverability and immutable retention guarantees"
-          title="Disaster Recovery Readiness"
+          subtitle="Bukti kemampuan pemulihan dari sumber operasional"
+          title="Kesiapan Disaster Recovery"
         />
 
         <ItNotice
-          title="Disaster Recovery Telemetry Boundary"
+          title="Batas Telemetri Disaster Recovery"
           variant="neutral"
         >
-          Disaster recovery objectives (RTO/RPO) and snapshot integrity require cryptographic verification from backup storage vaults. Operational recoverability is never presumed without verified proof from the authoritative backend.
+          Status backup, restore, RTO, dan RPO memerlukan bukti dari Backend atau sistem operasional yang terhubung. Kemampuan pemulihan tidak diasumsikan tanpa bukti dari sumber yang berwenang.
         </ItNotice>
       </section>
     </div>

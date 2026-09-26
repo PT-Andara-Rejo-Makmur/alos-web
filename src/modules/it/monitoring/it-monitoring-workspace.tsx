@@ -19,12 +19,12 @@ import {
 import styles from "./it-monitoring.module.css";
 
 const COVERAGE_CATEGORIES = [
-  { id: "app", name: "Application", source: "Application telemetry", icon: AppWindow },
-  { id: "backend", name: "Backend", source: "Backend telemetry", icon: Server },
-  { id: "infra", name: "Infrastructure", source: "Infrastructure telemetry", icon: RadioTower },
-  { id: "db", name: "Database", source: "Database telemetry", icon: Database },
-  { id: "security", name: "Security", source: "Security telemetry", icon: ShieldCheck },
-  { id: "backup", name: "Backup", source: "Backup reports", icon: DatabaseBackup },
+  { id: "app", name: "Aplikasi", source: "Telemetri aplikasi", icon: AppWindow },
+  { id: "backend", name: "Backend", source: "Telemetri Backend", icon: Server },
+  { id: "infra", name: "Infrastruktur", source: "Telemetri infrastruktur", icon: RadioTower },
+  { id: "db", name: "Database", source: "Telemetri database", icon: Database },
+  { id: "security", name: "Keamanan", source: "Telemetri keamanan", icon: ShieldCheck },
+  { id: "backup", name: "Backup", source: "Laporan backup", icon: DatabaseBackup },
 ] as const;
 
 export function ItMonitoringWorkspace() {
@@ -33,52 +33,52 @@ export function ItMonitoringWorkspace() {
   return (
     <div className={styles.monitoringWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / MONITORING"
-        description="Operational telemetry, service health, signals, and coverage."
+        breadcrumb="ALOS / IT & TEKNOLOGI / MONITORING"
+        description="Telemetri operasional, kesehatan layanan, sinyal, dan cakupan."
         title="Monitoring"
       />
 
-      <section aria-label="Telemetry source">
+      <section aria-label="Sumber telemetri">
         <ItStatusRow
           detail={readiness.blockReason}
-          helper="Backend telemetry integration unavailable."
+          helper="Integrasi telemetri Backend belum tersedia."
           icon={RadioTower}
-          label="Telemetry Source"
+          label="Sumber Telemetri"
           status="NOT_CONNECTED"
         />
       </section>
 
       <section aria-labelledby="service-health-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Services"
+          eyebrow="Layanan"
           id="service-health-title"
-          subtitle={`${readiness.availability} · ${readiness.blockReason ?? "Source unavailable"}`}
-          title="Service Health"
+          subtitle={`${readiness.availability} · ${readiness.blockReason ?? "Sumber belum tersedia"}`}
+          title="Kesehatan Layanan"
         />
         <ItDataTable
-          ariaLabel="Service health telemetry"
-          columns={["Service", "Environment", "Health", "Last Signal", "Source"]}
+          ariaLabel="Telemetri kesehatan layanan"
+          columns={["Layanan", "Environment", "Kesehatan", "Sinyal Terakhir", "Sumber"]}
           minWidth={760}
         >
           <tr>
-            <td className={styles.emptyTableRow} colSpan={5}>No telemetry source connected.</td>
+            <td className={styles.emptyTableRow} colSpan={5}>Sumber telemetri belum terhubung.</td>
           </tr>
         </ItDataTable>
       </section>
 
       <section aria-labelledby="event-stream-title" className={styles.section}>
-        <ItSectionHeader eyebrow="Signals" id="event-stream-title" title="Signal / Event Stream" />
+        <ItSectionHeader eyebrow="Sinyal" id="event-stream-title" title="Aliran Sinyal / Event" />
         <div className={styles.eventRegion} role="status">
           <Activity aria-hidden={true} size={18} />
-          <span>No operational events available.</span>
+          <span>Event operasional belum tersedia.</span>
         </div>
       </section>
 
       <section aria-labelledby="monitoring-coverage-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Source coverage"
+          eyebrow="Cakupan Sumber"
           id="monitoring-coverage-title"
-          title="Monitoring Coverage"
+          title="Cakupan Monitoring"
         />
         <div className={styles.coverageList}>
           {COVERAGE_CATEGORIES.map((category) => {
@@ -97,8 +97,8 @@ export function ItMonitoringWorkspace() {
         </div>
       </section>
 
-      <ItNotice title="Boundary notice">
-        This surface is presentation-only. Backend telemetry remains source of truth.
+      <ItNotice title="Catatan Batas Otoritas">
+        Permukaan ini hanya untuk presentasi. Telemetri Backend tetap menjadi sumber kebenaran.
       </ItNotice>
     </div>
   );

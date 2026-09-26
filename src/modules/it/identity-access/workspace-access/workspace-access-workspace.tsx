@@ -174,9 +174,9 @@ function WorkspaceAccessContent() {
   return (
     <div className={styles.workspaceWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / WORKSPACE ACCESS"
+        breadcrumb="ALOS / IT & TEKNOLOGI / AKSES WORKSPACE"
         description="Melihat dan mengelola keanggotaan workspace (workspace membership) pengguna sesuai otoritas Backend."
-        title="Workspace Access"
+        title="Akses Workspace"
       />
 
       {error ? (
@@ -193,10 +193,10 @@ function WorkspaceAccessContent() {
       <section aria-labelledby="workspace-access-table-title" className={styles.section}>
         <div className={styles.filterBar}>
           <ItSectionHeader
-            eyebrow="Access Control"
+            eyebrow="Kontrol Akses"
             id="workspace-access-table-title"
             subtitle="Daftar keanggotaan workspace per akun pengguna"
-            title="Workspace Memberships"
+            title="Keanggotaan Workspace"
           />
           <div className={styles.filterActions}>
             <input
@@ -222,7 +222,7 @@ function WorkspaceAccessContent() {
         ) : (
           <ItDataTable
             ariaLabel="Tabel Keanggotaan Workspace Pengguna"
-            columns={["User", "Workspace", "Roles", "Data Scope", "State", "Action"]}
+            columns={["Pengguna", "Workspace", "Peran", "Cakupan Data", "Status", "Aksi"]}
             minWidth={880}
           >
             {filteredRows.map(({ account, membership, key }) => (
@@ -341,7 +341,7 @@ function WorkspaceAccessContent() {
                     </div>
 
                     <div className={styles.fieldGroup}>
-                      <label htmlFor={`datascope-${index}`}>Data Scope</label>
+                      <label htmlFor={`datascope-${index}`}>Cakupan Data</label>
                       <select
                         id={`datascope-${index}`}
                         onChange={(e) =>
@@ -370,7 +370,7 @@ function WorkspaceAccessContent() {
                   </div>
 
                   <div className={styles.rolePickerBox}>
-                    <label>Peran (Roles)</label>
+                    <label>Peran</label>
                     <RolePicker
                       onChange={(role_refs) => updateDraft(index, { role_refs })}
                       options={roleOptions}
@@ -410,7 +410,7 @@ export function WorkspaceAccessWorkspace() {
   return (
     <ProtectedDomainWorkspace
       activeNavKey="workspace-access"
-      deniedTitle="Workspace Access hanya untuk IT"
+      deniedTitle="Akses Workspace hanya untuk IT"
       divisionCodes={["IT", "TECHNOLOGY"]}
       loadingLabel="Memverifikasi otoritas IT…"
       workspaceKeys={["it", "technology"]}
@@ -428,7 +428,7 @@ export function WorkspaceAccessWorkspace() {
                 availability: "BLOCKED",
                 blockReason: "REQUIRES_AUTHORITY",
               }}
-              title="Workspace Access"
+              title="Akses Workspace"
             />
           );
         }

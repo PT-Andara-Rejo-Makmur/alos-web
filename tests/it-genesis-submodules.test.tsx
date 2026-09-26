@@ -90,7 +90,7 @@ describe("IT GENESIS Technical Administration Submodules", () => {
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Agents", level: 1 })).toBeInTheDocument();
-        expect(screen.getByText("No backend agent registry source connected.")).toBeInTheDocument();
+        expect(screen.getByText("Sumber registri agen dari Backend belum terhubung.")).toBeInTheDocument();
       });
 
       expect(screen.queryByText(/prompt_template/i)).not.toBeInTheDocument();
@@ -102,7 +102,7 @@ describe("IT GENESIS Technical Administration Submodules", () => {
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Skills", level: 1 })).toBeInTheDocument();
-        expect(screen.getByText("No backend skill registry source connected.")).toBeInTheDocument();
+        expect(screen.getByText("Sumber registri skill dari Backend belum terhubung.")).toBeInTheDocument();
       });
     });
 
@@ -128,8 +128,8 @@ describe("IT GENESIS Technical Administration Submodules", () => {
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Research", level: 1 })).toBeInTheDocument();
-        expect(screen.getByRole("heading", { name: "Domain Access Control", level: 2 })).toBeInTheDocument();
-        expect(screen.getByRole("heading", { name: "Research Request", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Kontrol Akses Domain", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Permintaan Riset", level: 2 })).toBeInTheDocument();
       });
     });
 
@@ -138,8 +138,8 @@ describe("IT GENESIS Technical Administration Submodules", () => {
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Models & Tools", level: 1 })).toBeInTheDocument();
-        expect(screen.getByText("No model registry source connected.")).toBeInTheDocument();
-        expect(screen.getByText("No tool registry source connected.")).toBeInTheDocument();
+        expect(screen.getByText("Sumber registri model belum terhubung.")).toBeInTheDocument();
+        expect(screen.getByText("Sumber registri tools belum terhubung.")).toBeInTheDocument();
       });
 
       expect(screen.queryByText(/gpt-4 online/i)).not.toBeInTheDocument();

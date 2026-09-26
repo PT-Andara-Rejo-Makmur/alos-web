@@ -37,13 +37,13 @@ describe("IT visual foundation", () => {
     it("renders the operations heading and compact readiness strip", () => {
       render(<ItDashboardHome snapshot={snapshot} />);
 
-      expect(screen.getByRole("heading", { level: 1, name: "IT Operations" })).toBeInTheDocument();
-      const readiness = screen.getByRole("heading", { level: 2, name: "Operational Source Coverage" }).parentElement!;
+      expect(screen.getByRole("heading", { level: 1, name: "Operasi IT" })).toBeInTheDocument();
+      const readiness = screen.getByRole("heading", { level: 2, name: "Cakupan Sumber Operasional" }).parentElement!;
       expect(within(readiness).getByText("GENESIS")).toBeInTheDocument();
-      expect(within(readiness).getByText("Governance")).toBeInTheDocument();
+      expect(within(readiness).getByText("Tata Kelola")).toBeInTheDocument();
       expect(within(readiness).getByText("Monitoring")).toBeInTheDocument();
       expect(within(readiness).getByText("Backup")).toBeInTheDocument();
-      expect(within(readiness).getByText("Security")).toBeInTheDocument();
+      expect(within(readiness).getByText("Keamanan")).toBeInTheDocument();
     });
 
     it("does not render fabricated KPI values or the old metric-card structure", () => {
@@ -54,34 +54,34 @@ describe("IT visual foundation", () => {
 
     it("separates repository presence from runtime health", () => {
       render(<ItDashboardHome snapshot={snapshot} />);
-      const table = screen.getByRole("table", { name: "Systems and delivery status" });
+      const table = screen.getByRole("table", { name: "Status sistem dan delivery" });
       const webRow = within(table).getByText("Web App").closest("tr")!;
-      expect(within(webRow).getByText("Current repository")).toBeInTheDocument();
-      expect(within(webRow).getByText("Unknown")).toBeInTheDocument();
-      expect(screen.getByText("Repository exists != runtime healthy.")).toBeInTheDocument();
+      expect(within(webRow).getByText("Repositori saat ini")).toBeInTheDocument();
+      expect(within(webRow).getByText("Tidak diketahui")).toBeInTheDocument();
+      expect(screen.getByText("Repositori tersedia != runtime sehat.")).toBeInTheDocument();
     });
 
     it("reports Monitoring, Backup, and Security as NOT CONNECTED", () => {
       render(<ItDashboardHome snapshot={snapshot} />);
-      const table = screen.getByRole("table", { name: "Operations source status" });
+      const table = screen.getByRole("table", { name: "Status sumber operasi" });
       for (const label of ["Monitoring", "Backup", "Security"]) {
         const row = within(table).getByText(label).closest("tr")!;
-        expect(within(row).getByText("NOT CONNECTED")).toBeInTheDocument();
+        expect(within(row).getByText("BELUM TERHUBUNG")).toBeInTheDocument();
       }
     });
 
     it("uses a technical Control Cadence table with monospace control IDs", () => {
       render(<ItDashboardHome snapshot={snapshot} />);
-      const table = screen.getByRole("table", { name: "IT control cadence" });
+      const table = screen.getByRole("table", { name: "Cadence kontrol IT" });
       expect(within(table).getAllByRole("row")).toHaveLength(7);
       expect(within(table).getByText("IT-D-01").tagName).toBe("CODE");
-      expect(within(table).getByText("Backup success")).toBeInTheDocument();
-      expect(within(table).getByText("Restore drill")).toBeInTheDocument();
+      expect(within(table).getByText("Keberhasilan backup")).toBeInTheDocument();
+      expect(within(table).getByText("Uji restore")).toBeInTheDocument();
     });
 
     it("links the GENESIS utility CTA to its canonical route", () => {
       render(<ItDashboardHome snapshot={snapshot} />);
-      expect(screen.getByRole("link", { name: /Open Control Plane/i })).toHaveAttribute("href", "/workspace/it/genesis");
+      expect(screen.getByRole("link", { name: /Buka Control Plane/i })).toHaveAttribute("href", "/workspace/it/genesis");
     });
   });
 
@@ -91,22 +91,22 @@ describe("IT visual foundation", () => {
       expect(screen.getByRole("heading", { level: 1, name: "Monitoring" })).toBeInTheDocument();
       expect(getModuleReadiness("monitoring")).toEqual({ availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" });
       expect(screen.getByText("BACKEND_NOT_CONNECTED")).toBeInTheDocument();
-      const sourceRegion = screen.getByRole("region", { name: "Telemetry source" });
-      expect(within(sourceRegion).getByText("NOT CONNECTED")).toBeInTheDocument();
+      const sourceRegion = screen.getByRole("region", { name: "Sumber telemetri" });
+      expect(within(sourceRegion).getByText("BELUM TERHUBUNG")).toBeInTheDocument();
     });
 
     it("renders an honest empty service table and event region", () => {
       render(<ItMonitoringWorkspace />);
-      const table = screen.getByRole("table", { name: "Service health telemetry" });
-      expect(within(table).getByText("No telemetry source connected.")).toBeInTheDocument();
+      const table = screen.getByRole("table", { name: "Telemetri kesehatan layanan" });
+      expect(within(table).getByText("Sumber telemetri belum terhubung.")).toBeInTheDocument();
       expect(within(table).queryAllByRole("row")).toHaveLength(2);
-      expect(screen.getByText("No operational events available.")).toBeInTheDocument();
+      expect(screen.getByText("Event operasional belum tersedia.")).toBeInTheDocument();
       expect(document.body.textContent).not.toMatch(/99\.9%|uptime|deployed at|incident opened/i);
     });
 
     it("shows all six coverage rows without a card grid", () => {
       const { container } = render(<ItMonitoringWorkspace />);
-      for (const label of ["Application", "Backend", "Infrastructure", "Database", "Security", "Backup"]) {
+      for (const label of ["Aplikasi", "Backend", "Infrastruktur", "Database", "Keamanan", "Backup"]) {
         expect(screen.getByText(label)).toBeInTheDocument();
       }
       expect(container.querySelector('[class*="coverageCard"]')).toBeNull();
@@ -123,16 +123,16 @@ describe("IT visual foundation", () => {
       render(<GenesisControlPlaneWorkspace />);
       expect(screen.getByRole("heading", { level: 1, name: "GENESIS Control Plane" })).toBeInTheDocument();
       expect(getModuleReadiness("control-plane")).toEqual({ availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" });
-      expect(screen.getByText("Frontend control surface available. Backend operational integration not connected.")).toBeInTheDocument();
+      expect(screen.getByText("Permukaan kontrol frontend tersedia. Integrasi operasional Backend belum terhubung.")).toBeInTheDocument();
       expect(document.body.textContent).not.toMatch(/healthy|online|27 agents|AI score/i);
     });
 
     it("resolves every technical registry readiness from the centralized matrix", () => {
       render(<GenesisControlPlaneWorkspace />);
-      const table = screen.getByRole("table", { name: "GENESIS technical registry" });
+      const table = screen.getByRole("table", { name: "Registri teknis GENESIS" });
       for (const [label, key] of [["Agents", "agents"], ["Skills", "skills"], ["Research", "research"], ["Models & Tools", "models-tools"]] as const) {
         const row = within(table).getByText(label).closest("tr")!;
-        expect(within(row).getByText(getModuleReadiness(key).availability)).toBeInTheDocument();
+        expect(within(row).getByText("TERBLOKIR")).toBeInTheDocument();
         expect(within(row).getByText(getModuleReadiness(key).blockReason!)).toBeInTheDocument();
       }
     });
@@ -164,7 +164,7 @@ describe("IT visual foundation", () => {
         principal: canonicalPrincipal({ actorId: "usr_it_01", divisionCode: "IT", workspaceId: "ws_it_01", workspaceKey: "it", workspaceName: "IT Workspace", roles: ["IT_ADMIN"] }),
       });
       render(<ItDashboardPage initialSnapshot={snapshot} />);
-      await waitFor(() => expect(screen.getByRole("heading", { level: 1, name: "IT Operations" })).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByRole("heading", { level: 1, name: "Operasi IT" })).toBeInTheDocument());
     });
 
     it("preserves secret sanitization and maker-checker checks", () => {

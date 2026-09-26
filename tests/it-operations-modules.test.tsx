@@ -60,7 +60,7 @@ describe("IT Operations Modules - Incidents, Security, Backup & DR", () => {
       render(renderItWorkspaceModule("incidents"));
 
       expect(screen.getByRole("heading", { name: "Incidents", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("No incident source connected.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber incident belum terhubung.")).toBeInTheDocument();
       expect(screen.queryByText(/0 incidents/i)).not.toBeInTheDocument();
     });
   });
@@ -70,7 +70,7 @@ describe("IT Operations Modules - Incidents, Security, Backup & DR", () => {
       render(renderItWorkspaceModule("security"));
 
       expect(screen.getByRole("heading", { name: "Security", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("No security finding source connected.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber temuan keamanan belum terhubung.")).toBeInTheDocument();
       expect(screen.queryByText(/no vulnerabilities/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/100% compliant/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/^secure$/i)).not.toBeInTheDocument();
@@ -83,10 +83,10 @@ describe("IT Operations Modules - Incidents, Security, Backup & DR", () => {
 
       expect(screen.getByRole("heading", { name: "Backup & DR", level: 1 })).toBeInTheDocument();
       expect(
-        screen.getByText("No backend backup evidence source connected."),
+        screen.getByText("Sumber bukti backup dari Backend belum terhubung."),
       ).toBeInTheDocument();
       expect(
-        screen.getByText("No restore test evidence source connected."),
+        screen.getByText("Sumber bukti pengujian restore belum terhubung."),
       ).toBeInTheDocument();
       expect(screen.queryByText(/backup success/i)).not.toBeInTheDocument();
     });

@@ -17,29 +17,29 @@ export function IncidentsWorkspace() {
   return (
     <div className={styles.incidentWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / INCIDENTS"
-        description="Operational incident response, post-mortem tracking, and service impact telemetry."
+        breadcrumb="ALOS / IT & TEKNOLOGI / INCIDENTS"
+        description="Respons incident operasional, tindak lanjut, dan telemetri dampak layanan."
         title="Incidents"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat."
           icon={Siren}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
       {/* Incident Source Status */}
-      <section aria-label="Incident source status">
+      <section aria-label="Status sumber incident">
         <ItStatusRow
           detail="NOT_CONNECTED"
-          helper="Backend incident management source is not connected."
+          helper="Sumber pengelolaan incident dari Backend belum terhubung."
           icon={Siren}
-          label="Incident Source"
+          label="Sumber Incident"
           status="NOT_CONNECTED"
         />
       </section>
@@ -47,20 +47,20 @@ export function IncidentsWorkspace() {
       {/* Incident Registry */}
       <section aria-labelledby="incident-registry-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Triage & Operations"
+          eyebrow="Triage & Operasi"
           id="incident-registry-title"
-          subtitle="Active operational degradations, severity assessments, and response tracking"
-          title="Incident Registry"
+          subtitle="Gangguan operasional, penilaian severity, dan pelacakan respons"
+          title="Registri Incident"
         />
 
         <ItDataTable
-          ariaLabel="Incident management registry"
-          columns={["Incident", "Severity", "Impact", "State", "Owner", "Last Update"]}
+          ariaLabel="Registri pengelolaan incident"
+          columns={["Incident", "Severity", "Dampak", "Status", "Pemilik", "Pembaruan Terakhir"]}
           minWidth={840}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={6}>
-              No incident source connected.
+              Sumber incident belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -69,17 +69,17 @@ export function IncidentsWorkspace() {
       {/* Response Timeline & Ownership Boundary */}
       <section aria-labelledby="response-timeline-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Follow-Up & Post-Mortem"
+          eyebrow="Tindak Lanjut"
           id="response-timeline-title"
-          subtitle="Audit-backed response timelines and mitigation action items"
-          title="Response Timeline & Ownership"
+          subtitle="Linimasa respons dan item tindakan mitigasi"
+          title="Linimasa Respons & Kepemilikan"
         />
 
         <ItNotice
-          title="Operational Telemetry Boundary"
+          title="Batas Telemetri Operasional"
           variant="neutral"
         >
-          Incident response timeline, severity classifications, and post-incident reviews require authoritative operational telemetry. Zero incident counts or MTTR metrics are claimed without live backend connection. Absence of connected source telemetry does not indicate zero active incidents.
+          Linimasa respons, klasifikasi severity, dan tinjauan setelah incident memerlukan telemetri operasional yang berwenang. Tanpa sumber yang terhubung, sistem tidak mengasumsikan jumlah incident nol atau nilai MTTR tertentu.
         </ItNotice>
       </section>
     </div>

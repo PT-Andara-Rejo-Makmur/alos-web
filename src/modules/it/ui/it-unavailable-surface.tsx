@@ -30,8 +30,8 @@ export function ItUnavailableSurface({
 }: ItUnavailableSurfaceProps) {
   const status = (readiness?.availability ?? "BLOCKED") as ItStatusType;
   const label = readiness?.blockReason
-    ? `BLOCKED · ${readiness.blockReason}`
-    : readiness?.availability ?? "BLOCKED";
+    ? `TERBLOKIR · ${readiness.blockReason}`
+    : readiness?.availability === "READY" ? "SIAP" : "TERBLOKIR";
 
   return (
     <section

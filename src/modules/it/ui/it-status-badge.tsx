@@ -17,36 +17,36 @@ export interface ItStatusBadgeProps {
 
 export function ItStatusBadge({ status, label }: ItStatusBadgeProps) {
   let styleClass = styles.statusNotConnected;
-  let defaultLabel = "NOT CONNECTED";
+  let defaultLabel = "BELUM TERHUBUNG";
 
   switch (status) {
     case "LIVE":
       styleClass = styles.statusLive;
-      defaultLabel = "LIVE";
+      defaultLabel = "AKTIF";
       break;
     case "READY":
       styleClass = styles.statusLive;
-      defaultLabel = "READY";
+      defaultLabel = "SIAP";
       break;
     case "AVAILABLE":
       styleClass = styles.statusAvailable;
-      defaultLabel = "AVAILABLE";
+      defaultLabel = "TERSEDIA";
       break;
     case "PARTIAL":
       styleClass = styles.statusPartial;
-      defaultLabel = "PARTIAL";
+      defaultLabel = "SEBAGIAN";
       break;
     case "NOT_CONNECTED":
       styleClass = styles.statusNotConnected;
-      defaultLabel = "NOT CONNECTED";
+      defaultLabel = "BELUM TERHUBUNG";
       break;
     case "NEEDS_TELEMETRY":
       styleClass = styles.statusNeedsTelemetry;
-      defaultLabel = "NEEDS TELEMETRY";
+      defaultLabel = "MEMERLUKAN TELEMETRI";
       break;
     case "BLOCKED":
       styleClass = styles.statusBlocked;
-      defaultLabel = "BLOCKED";
+      defaultLabel = "TERBLOKIR";
       break;
   }
 

@@ -20,7 +20,7 @@ export function ItDataReadiness({ items }: ItDataReadinessProps) {
   return (
     <section aria-labelledby="operational-source-coverage-title" className={styles.readinessSection}>
       <h2 className={styles.readinessTitle} id="operational-source-coverage-title">
-        Operational Source Coverage
+        Cakupan Sumber Operasional
       </h2>
       <div className={styles.readinessStrip}>
         {items.map((item) => {

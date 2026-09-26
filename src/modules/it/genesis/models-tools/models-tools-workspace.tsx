@@ -17,29 +17,29 @@ export function ModelsToolsWorkspace() {
   return (
     <div className={styles.modelsWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / GENESIS / MODELS & TOOLS"
-        description="Foundation model gateway routing policies, token quotas, and technical tool runtime boundaries."
+        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS / MODELS & TOOLS"
+        description="Registri model dan tools teknis, kebijakan penggunaan, serta batas runtime."
         title="Models & Tools"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat."
           icon={BrainCircuit}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
       {/* Registry Source Status */}
-      <section aria-label="Registry source status">
+      <section aria-label="Status sumber registri">
         <ItStatusRow
           detail="NOT_CONNECTED"
-          helper="Backend foundation model gateway and tool runtime source is not connected."
+          helper="Sumber model dan tools dari Backend belum terhubung."
           icon={Cpu}
-          label="Gateway & Tool Source"
+          label="Sumber Model & Tools"
           status="NOT_CONNECTED"
         />
       </section>
@@ -47,20 +47,20 @@ export function ModelsToolsWorkspace() {
       {/* Models Registry */}
       <section aria-labelledby="models-registry-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Foundation Models"
+          eyebrow="Model Teknis"
           id="models-registry-title"
-          subtitle="Model gateway routing tiers, context windows, and controlled token budgets"
-          title="Models Registry"
+          subtitle="Route model, batas konteks, dan kebijakan penggunaan"
+          title="Registri Model"
         />
 
         <ItDataTable
-          ariaLabel="Foundation models gateway registry"
-          columns={["Model Route", "Provider Gateway", "Quota Policy", "Data Boundary", "State", "Source"]}
+          ariaLabel="Registri model teknis"
+          columns={["Route Model", "Penyedia", "Kebijakan Kuota", "Batas Data", "Status", "Sumber"]}
           minWidth={840}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={6}>
-              No model registry source connected.
+              Sumber registri model belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -69,20 +69,20 @@ export function ModelsToolsWorkspace() {
       {/* Tools Registry */}
       <section aria-labelledby="tools-registry-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Runtime Capabilities"
+          eyebrow="Kapabilitas Runtime"
           id="tools-registry-title"
-          subtitle="Registered runtime tools, execution sandboxes, and permission scopes"
-          title="Tools Registry"
+          subtitle="Tools runtime, lingkungan eksekusi, dan cakupan izin"
+          title="Registri Tools"
         />
 
         <ItDataTable
-          ariaLabel="Runtime tools registry"
-          columns={["Tool Key", "Runtime Sandbox", "Permission Scope", "Audit Policy", "State", "Source"]}
+          ariaLabel="Registri tools runtime"
+          columns={["Key Tool", "Runtime", "Cakupan Izin", "Kebijakan Audit", "Status", "Sumber"]}
           minWidth={840}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={6}>
-              No tool registry source connected.
+              Sumber registri tools belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -91,17 +91,17 @@ export function ModelsToolsWorkspace() {
       {/* Credential & Telemetry Boundary Notice */}
       <section aria-labelledby="credential-boundary-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Security & Isolation"
+          eyebrow="Keamanan & Isolasi"
           id="credential-boundary-title"
-          subtitle="Zero credential exposure and truthful provider telemetry"
-          title="Usage Policy & Isolation"
+          subtitle="Perlindungan kredensial dan telemetri sesuai sumber"
+          title="Kebijakan Penggunaan & Isolasi"
         />
 
         <ItNotice
-          title="Zero Credential Exposure & Source Truth"
+          title="Batas Kredensial & Sumber"
           variant="neutral"
         >
-          Foundation models and deterministic tools are mediated exclusively via internal gateway proxies. Provider credentials, secret tokens, and raw upstream endpoints are never exposed to browser presentation surfaces. No synthetic claims of model availability are made without active Backend health telemetry.
+          Model dan tools hanya ditampilkan jika tersedia melalui sumber Backend yang diizinkan. Kredensial penyedia, token rahasia, dan endpoint upstream tidak ditampilkan di browser. Ketersediaan model tidak diasumsikan tanpa telemetri Backend.
         </ItNotice>
       </section>
     </div>

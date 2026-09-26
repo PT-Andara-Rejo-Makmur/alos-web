@@ -21,23 +21,23 @@ export function ItDashboardHome({ snapshot }: ItDashboardHomeProps) {
   return (
     <div className={styles.dashboardWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY"
-        description="Platform health, delivery controls, operational readiness, security, backup, and GENESIS status."
-        title="IT Operations"
+        breadcrumb="ALOS / IT & TEKNOLOGI"
+        description="Kesehatan platform, kontrol delivery, kesiapan operasional, keamanan, backup, dan status GENESIS."
+        title="Operasi IT"
       />
 
       <ItDataReadiness items={snapshot.readiness} />
 
       <section aria-labelledby="systems-delivery-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Platform inventory"
+          eyebrow="Inventaris Platform"
           id="systems-delivery-title"
-          subtitle="Source presence and runtime evidence are reported separately."
-          title="Systems & Delivery"
+          subtitle="Keberadaan source dan bukti runtime dilaporkan secara terpisah."
+          title="Sistem & Delivery"
         />
         <ItDataTable
-          ariaLabel="Systems and delivery status"
-          columns={["System", "Source", "Runtime", "Telemetry", "Context"]}
+          ariaLabel="Status sistem dan delivery"
+          columns={["Sistem", "Sumber", "Runtime", "Telemetri", "Konteks"]}
           minWidth={880}
         >
           {snapshot.systems.map((item) => (
@@ -50,18 +50,18 @@ export function ItDashboardHome({ snapshot }: ItDashboardHomeProps) {
             </tr>
           ))}
         </ItDataTable>
-        <p className={styles.tableNote}>Repository exists != runtime healthy.</p>
+        <p className={styles.tableNote}>Repositori tersedia != runtime sehat.</p>
       </section>
 
       <section aria-labelledby="operations-status-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Operational sources"
+          eyebrow="Sumber Operasional"
           id="operations-status-title"
-          title="Operations Status"
+          title="Status Operasi"
         />
         <ItDataTable
-          ariaLabel="Operations source status"
-          columns={["Operation", "State", "Source", "Description"]}
+          ariaLabel="Status sumber operasi"
+          columns={["Operasi", "Status", "Sumber", "Deskripsi"]}
         >
           {snapshot.operations.map((item) => (
             <tr key={item.id}>
@@ -75,10 +75,10 @@ export function ItDashboardHome({ snapshot }: ItDashboardHomeProps) {
       </section>
 
       <section aria-labelledby="release-change-title" className={styles.section}>
-        <ItSectionHeader eyebrow="Delivery controls" id="release-change-title" title="Release & Change" />
+        <ItSectionHeader eyebrow="Kontrol Delivery" id="release-change-title" title="Rilis & Perubahan" />
         <ItDataTable
-          ariaLabel="Release and change controls"
-          columns={["Control", "State", "Evidence", "Source"]}
+          ariaLabel="Kontrol rilis dan perubahan"
+          columns={["Kontrol", "Status", "Bukti", "Sumber"]}
         >
           {snapshot.releaseControls.map((item) => (
             <tr key={item.id}>
@@ -93,14 +93,14 @@ export function ItDashboardHome({ snapshot }: ItDashboardHomeProps) {
 
       <section aria-labelledby="control-cadence-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Assurance schedule"
+          eyebrow="Jadwal Assurance"
           id="control-cadence-title"
-          subtitle="Backup verification and restore testing remain distinct controls."
-          title="Control Cadence"
+          subtitle="Verifikasi backup dan pengujian restore tetap menjadi kontrol terpisah."
+          title="Cadence Kontrol"
         />
         <ItDataTable
-          ariaLabel="IT control cadence"
-          columns={["Cadence", "Control ID", "Control", "Evidence", "State", "Target Capability"]}
+          ariaLabel="Cadence kontrol IT"
+          columns={["Cadence", "ID Kontrol", "Kontrol", "Bukti", "Status", "Target Kapabilitas"]}
           minWidth={980}
         >
           {snapshot.cadence.map((item) => (
@@ -120,17 +120,17 @@ export function ItDashboardHome({ snapshot }: ItDashboardHomeProps) {
         <ItSectionHeader
           action={
             <Link className={styles.utilityLink} href="/workspace/it/genesis">
-              Open Control Plane
+              Buka Control Plane
               <ArrowRight aria-hidden={true} size={16} />
             </Link>
           }
-          eyebrow="Technical AI operations"
+          eyebrow="Operasi AI Teknis"
           id="genesis-summary-title"
-          title="GENESIS Summary"
+          title="Ringkasan GENESIS"
         />
         <ItDataTable
-          ariaLabel="GENESIS operational summary"
-          columns={["Area", "Purpose", "Readiness", "Route"]}
+          ariaLabel="Ringkasan operasional GENESIS"
+          columns={["Area", "Tujuan", "Kesiapan", "Route"]}
           minWidth={760}
         >
           {snapshot.genesisSummary.map((item) => {

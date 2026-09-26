@@ -31,16 +31,16 @@ interface RegistryItem {
 }
 
 const TECHNICAL_REGISTRY: readonly RegistryItem[] = [
-  { id: "agents", title: "Agents", description: "Agent registry and execution boundaries", route: "/workspace/it/genesis/agents", icon: Bot },
-  { id: "skills", title: "Skills", description: "Capability definitions and controlled tool access", route: "/workspace/it/genesis/skills", icon: Blocks },
-  { id: "research", title: "Research", description: "Research sources, review boundaries, and evidence", route: "/workspace/it/genesis/research", icon: SearchCheck },
-  { id: "models-tools", title: "Models & Tools", description: "Model routing and integration interfaces", route: "/workspace/it/genesis/models-tools", icon: BrainCircuit },
+  { id: "agents", title: "Agents", description: "Registri agen dan batas eksekusi", route: "/workspace/it/genesis/agents", icon: Bot },
+  { id: "skills", title: "Skills", description: "Definisi kapabilitas dan akses tools terkendali", route: "/workspace/it/genesis/skills", icon: Blocks },
+  { id: "research", title: "Research", description: "Sumber riset, batas tinjauan, dan bukti", route: "/workspace/it/genesis/research", icon: SearchCheck },
+  { id: "models-tools", title: "Models & Tools", description: "Route model dan antarmuka integrasi", route: "/workspace/it/genesis/models-tools", icon: BrainCircuit },
 ];
 
 const GOVERNANCE_REFERENCES: readonly RegistryItem[] = [
-  { id: "evidence", title: "Evidence", description: "Evidence chain and audit trace", route: "/workspace/it/governance/evidence", icon: Fingerprint },
-  { id: "uat", title: "UAT & Gates", description: "Verification gates and release checks", route: "/workspace/it/governance/uat", icon: FlaskConical },
-  { id: "decisions", title: "Decisions", description: "Governed approvals and system decisions", route: "/workspace/it/governance/decisions", icon: BadgeCheck },
+  { id: "evidence", title: "Evidence", description: "Rangkaian bukti dan jejak audit", route: "/workspace/it/governance/evidence", icon: Fingerprint },
+  { id: "uat", title: "UAT & Gates", description: "Gate verifikasi dan pemeriksaan rilis", route: "/workspace/it/governance/uat", icon: FlaskConical },
+  { id: "decisions", title: "Decisions", description: "Persetujuan dan keputusan sistem", route: "/workspace/it/governance/decisions", icon: BadgeCheck },
 ];
 
 function RegistryRows({ items }: { readonly items: readonly RegistryItem[] }) {
@@ -75,30 +75,30 @@ export function GenesisControlPlaneWorkspace() {
     <div className={styles.genesisWrapper}>
       <ItPageHeader
         breadcrumb="ALOS / IT / GENESIS"
-        description="Technical AI operations, agent registry, capability controls, research, models, tools, and governance."
+        description="Operasi AI teknis, registri agen, kontrol kapabilitas, riset, model, tools, dan tata kelola."
         title="GENESIS Control Plane"
       />
 
-      <section aria-label="Control Plane status">
+      <section aria-label="Status Control Plane">
         <ItStatusRow
           detail={controlPlaneReadiness.blockReason}
-          helper="Frontend control surface available. Backend operational integration not connected."
+          helper="Permukaan kontrol frontend tersedia. Integrasi operasional Backend belum terhubung."
           icon={ShieldCheck}
-          label="Control Plane Status"
+          label="Status Control Plane"
           status={controlPlaneReadiness.availability}
         />
       </section>
 
       <section aria-labelledby="technical-registry-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Capabilities"
+          eyebrow="Kapabilitas"
           id="technical-registry-title"
-          subtitle="Readiness is resolved from the centralized module source."
-          title="Technical Registry"
+          subtitle="Kesiapan ditentukan dari sumber modul terpusat."
+          title="Registri Teknis"
         />
         <ItDataTable
-          ariaLabel="GENESIS technical registry"
-          columns={["Capability", "Technical Scope", "Readiness", "Canonical Route"]}
+          ariaLabel="Registri teknis GENESIS"
+          columns={["Kapabilitas", "Cakupan Teknis", "Kesiapan", "Route Kanonis"]}
           minWidth={900}
         >
           <RegistryRows items={TECHNICAL_REGISTRY} />
@@ -107,13 +107,13 @@ export function GenesisControlPlaneWorkspace() {
 
       <section aria-labelledby="governance-references-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Controls"
+          eyebrow="Kontrol"
           id="governance-references-title"
-          title="Governance References"
+          title="Referensi Tata Kelola"
         />
         <ItDataTable
-          ariaLabel="GENESIS governance references"
-          columns={["Reference", "Technical Scope", "Readiness", "Canonical Route"]}
+          ariaLabel="Referensi tata kelola GENESIS"
+          columns={["Referensi", "Cakupan Teknis", "Kesiapan", "Route Kanonis"]}
           minWidth={900}
         >
           <RegistryRows items={GOVERNANCE_REFERENCES} />

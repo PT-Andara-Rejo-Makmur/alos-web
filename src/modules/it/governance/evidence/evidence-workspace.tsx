@@ -17,29 +17,29 @@ export function EvidenceWorkspace() {
   return (
     <div className={styles.evidenceWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / GOVERNANCE / EVIDENCE"
-        description="Cryptographic audit evidence ledger, verification proofs, and safe citation references."
+        breadcrumb="ALOS / IT & TEKNOLOGI / TATA KELOLA / EVIDENCE"
+        description="Bukti, sumber, waktu, keterkaitan, dan status validasi dari Backend."
         title="Evidence"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat."
           icon={Fingerprint}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
       {/* Evidence Source Status */}
-      <section aria-label="Evidence source status">
+      <section aria-label="Status sumber bukti">
         <ItStatusRow
           detail="NOT_CONNECTED"
-          helper="Backend evidence ledger source is not connected."
+          helper="Integrasi sumber bukti Backend belum tersedia."
           icon={Fingerprint}
-          label="Evidence Ledger Source"
+          label="Sumber Bukti"
           status="NOT_CONNECTED"
         />
       </section>
@@ -47,20 +47,20 @@ export function EvidenceWorkspace() {
       {/* Evidence Registry */}
       <section aria-labelledby="evidence-registry-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Immutable Audit"
+          eyebrow="Bukti & Sumber"
           id="evidence-registry-title"
-          subtitle="Cryptographically verified evidence records and data classification tags"
-          title="Evidence Registry"
+          subtitle="Referensi bukti dan status validasi dari sumber yang berwenang"
+          title="Registri Bukti"
         />
 
         <ItDataTable
-          ariaLabel="Audit evidence registry"
-          columns={["Evidence ID", "Source Type", "Classification", "Freshness", "Validation", "Safe Citation"]}
+          ariaLabel="Registri bukti audit"
+          columns={["ID Bukti", "Jenis Sumber", "Waktu", "Keterkaitan", "Status", "Referensi"]}
           minWidth={860}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={6}>
-              No backend evidence ledger source connected.
+              Sumber bukti dari Backend belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -69,17 +69,17 @@ export function EvidenceWorkspace() {
       {/* Validation / Freshness & Safe Citation Boundary */}
       <section aria-labelledby="evidence-boundary-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Sanitization & Trust"
+          eyebrow="Validasi & Keamanan"
           id="evidence-boundary-title"
-          subtitle="Sanitized citation references and strict exclusion of sensitive credentials"
-          title="Validation & Safe Citation"
+          subtitle="Referensi validasi tanpa menampilkan kredensial sensitif"
+          title="Validasi & Referensi Aman"
         />
 
         <ItNotice
-          title="Evidence Sanitization Boundary"
+          title="Batas Sumber Bukti"
           variant="neutral"
         >
-          Evidence artifacts and citation locators are cryptographically anchored and sanitized. Sensitive locators, internal hostnames, and bearer credentials are automatically masked to preserve zero-trust confidentiality.
+          Bukti dan referensi validasi berasal dari Backend. Saat sumber bukti belum terhubung, tidak ada status verifikasi yang diasumsikan. Kredensial sensitif tidak ditampilkan di client.
         </ItNotice>
       </section>
     </div>

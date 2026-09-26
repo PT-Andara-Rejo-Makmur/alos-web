@@ -17,29 +17,29 @@ export function TechnicalDebtWorkspace() {
   return (
     <div className={styles.debtWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / TECHNICAL DEBT"
-        description="Engineering debt registry, architectural remediation items, and refactoring priority tracking."
+        breadcrumb="ALOS / IT & TEKNOLOGI / TECHNICAL DEBT"
+        description="Registri technical debt, item remediasi arsitektur, dan prioritas refactoring."
         title="Technical Debt"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat."
           icon={Wrench}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
       {/* Tech Debt Source Status */}
-      <section aria-label="Technical debt source status">
+      <section aria-label="Status sumber technical debt">
         <ItStatusRow
           detail="NOT_CONNECTED"
-          helper="Backend technical debt register source is not connected."
+          helper="Sumber registri technical debt dari Backend belum terhubung."
           icon={Wrench}
-          label="Technical Debt Register Source"
+          label="Sumber Registri Technical Debt"
           status="NOT_CONNECTED"
         />
       </section>
@@ -47,20 +47,20 @@ export function TechnicalDebtWorkspace() {
       {/* Technical Debt Registry */}
       <section aria-labelledby="debt-registry-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Remediation Backlog"
+          eyebrow="Backlog Remediasi"
           id="debt-registry-title"
-          subtitle="Cataloged technical debt items, architectural compromises, and remediation owners"
-          title="Technical Debt Register"
+          subtitle="Item technical debt, kompromi arsitektur, dan pemilik remediasi"
+          title="Registri Technical Debt"
         />
 
         <ItDataTable
-          ariaLabel="Technical debt registry"
-          columns={["Item", "Area", "Impact", "Priority", "Owner", "State", "Evidence"]}
+          ariaLabel="Registri technical debt"
+          columns={["Item", "Area", "Dampak", "Prioritas", "Pemilik", "Status", "Bukti"]}
           minWidth={880}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={7}>
-              No technical-debt registry source connected.
+              Sumber registri technical debt belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -69,17 +69,17 @@ export function TechnicalDebtWorkspace() {
       {/* Backlog Boundary Notice */}
       <section aria-labelledby="debt-boundary-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Integrity Boundary"
+          eyebrow="Batas Integritas"
           id="debt-boundary-title"
-          subtitle="Strict requirement for authoritative backlog synchronization"
-          title="Remediation Boundary"
+          subtitle="Sinkronisasi backlog memerlukan sumber yang berwenang"
+          title="Batas Remediasi"
         />
 
         <ItNotice
-          title="Authoritative Backlog Boundary"
+          title="Batas Sumber Backlog"
           variant="neutral"
         >
-          Technical debt tracking requires authoritative engineering backlog telemetry from the Backend. Sample, mock, or estimated debt items are strictly disallowed to maintain audit and operational honesty.
+          Pelacakan technical debt memerlukan data backlog engineering dari Backend. Item contoh, mock, atau estimasi tidak ditampilkan agar informasi tetap dapat diaudit dan sesuai sumber.
         </ItNotice>
       </section>
     </div>

@@ -34,9 +34,9 @@ export const IT_MODULE_TITLES: Record<string, string> = {
   backup: "Backup & DR",
   backups: "Backup & DR",
   infrastructure: "Infrastructure",
-  "audit-trail": "Audit Trail",
-  "disaster-recovery": "Disaster Recovery",
-  credentials: "Credentials",
+  "audit-trail": "Jejak Audit",
+  "disaster-recovery": "Pemulihan Bencana",
+  credentials: "Kredensial",
 };
 
 /**
@@ -97,7 +97,7 @@ export function renderItWorkspaceModule(canonicalModule: string): ReactNode | nu
     return (
       <ItUnavailableSurface
         backHref="/workspace/it"
-        backLabel="← Kembali ke IT Overview"
+        backLabel="← Kembali ke Ringkasan IT"
         description={`Modul ini belum tersedia pada sistem backend (${readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}). Kesiapan operasional disajikan secara transparan tanpa data tiruan.`}
         eyebrow={`ALOS / IT / ${canonicalModule.toUpperCase()}`}
         readiness={readiness}

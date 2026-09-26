@@ -17,29 +17,29 @@ export function EnvironmentsWorkspace() {
   return (
     <div className={styles.envWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / ENVIRONMENTS"
-        description="Operational evidence, deployment tiers, and configuration boundary for Development, Staging, and Production."
+        breadcrumb="ALOS / IT & TEKNOLOGI / ENVIRONMENTS"
+        description="Bukti operasional, tingkat deployment, dan batas konfigurasi untuk Development, Staging, dan Production."
         title="Environments"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix."
+          helper="Ketersediaan modul ditentukan oleh matriks kesiapan terpusat."
           icon={Boxes}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
 
       {/* Environment Source Status */}
-      <section aria-label="Environment source status">
+      <section aria-label="Status sumber environment">
         <ItStatusRow
           detail="NO_SOURCE"
-          helper="Backend environment inventory source is not connected."
+          helper="Integrasi inventaris environment Backend belum tersedia."
           icon={Server}
-          label="Environment Inventory Source"
+          label="Sumber Inventaris Environment"
           status="NOT_CONNECTED"
         />
       </section>
@@ -47,20 +47,20 @@ export function EnvironmentsWorkspace() {
       {/* Environment Registry */}
       <section aria-labelledby="env-registry-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Tiers & Deployments"
+          eyebrow="Tingkat & Deployment"
           id="env-registry-title"
-          subtitle="Runtime deployment tiers and active configuration boundaries"
-          title="Environment Registry"
+          subtitle="Tingkat deployment runtime dan batas konfigurasi aktif"
+          title="Registri Environment"
         />
 
         <ItDataTable
-          ariaLabel="Environment deployment tiers registry"
-          columns={["Environment", "Version", "Deployment State", "Last Evidence", "Source"]}
+          ariaLabel="Registri tingkat deployment environment"
+          columns={["Environment", "Versi", "Status Deployment", "Bukti Terakhir", "Sumber"]}
           minWidth={760}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={5}>
-              No backend environment inventory source connected.
+              Sumber inventaris environment dari Backend belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -69,17 +69,17 @@ export function EnvironmentsWorkspace() {
       {/* Configuration & Secret Boundary Notice */}
       <section aria-labelledby="env-boundary-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Security & Isolation"
+          eyebrow="Keamanan & Isolasi"
           id="env-boundary-title"
-          subtitle="Strict isolation between development, staging, and production tiers"
-          title="Configuration Boundary"
+          subtitle="Isolasi antara tingkat development, staging, dan production"
+          title="Batas Konfigurasi"
         />
 
         <ItNotice
-          title="Configuration Boundary & Zero Secret Exposure"
+          title="Batas Konfigurasi & Perlindungan Secret"
           variant="neutral"
         >
-          All runtime environment descriptors, release digests, and deployment proofs require authoritative Backend telemetry. Sensitive environment variables, DSN strings, and infrastructure credentials are strictly masked and never rendered in browser surfaces.
+          Descriptor environment runtime, digest rilis, dan bukti deployment memerlukan telemetri Backend yang berwenang. Environment variable sensitif, DSN, dan kredensial infrastruktur disamarkan dan tidak ditampilkan pada browser.
         </ItNotice>
       </section>
     </div>

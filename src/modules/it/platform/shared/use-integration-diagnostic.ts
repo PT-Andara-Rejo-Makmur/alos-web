@@ -27,7 +27,7 @@ export function useIntegrationDiagnostic(): UseIntegrationDiagnosticResult {
   );
   const [diagnostic, setDiagnostic] = useState<IntegrationDiagnostic | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(() =>
-    hasBaseUrl ? null : "Backend not configured",
+    hasBaseUrl ? null : "Backend belum dikonfigurasi",
   );
   const [reloadIndex, setReloadIndex] = useState(0);
 
@@ -35,7 +35,7 @@ export function useIntegrationDiagnostic(): UseIntegrationDiagnosticResult {
     if (!getBackendBaseUrl()) {
       setState("not-configured");
       setDiagnostic(null);
-      setErrorMessage("Backend not configured");
+      setErrorMessage("Backend belum dikonfigurasi");
       return;
     }
     setState("checking");
@@ -64,10 +64,10 @@ export function useIntegrationDiagnostic(): UseIntegrationDiagnosticResult {
         setDiagnostic(null);
         if (error instanceof ApiConfigurationError) {
           setState("not-configured");
-          setErrorMessage("Backend not configured");
+          setErrorMessage("Backend belum dikonfigurasi");
         } else {
           setState("disconnected");
-          setErrorMessage("Integration diagnostic unavailable");
+          setErrorMessage("Diagnostik integrasi belum tersedia");
         }
       });
 

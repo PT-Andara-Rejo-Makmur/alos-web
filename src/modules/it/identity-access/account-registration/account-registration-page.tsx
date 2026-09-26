@@ -44,7 +44,7 @@ export function AccountRegistrationPage() {
   return (
     <ProtectedDomainWorkspace
       activeNavKey="register-user"
-      deniedTitle="User Management hanya untuk IT"
+      deniedTitle="Pengelolaan Pengguna hanya untuk IT"
       divisionCodes={["IT", "TECHNOLOGY"]}
       loadingLabel="Memverifikasi otoritas IT…"
       workspaceKeys={["it", "technology"]}
@@ -138,7 +138,7 @@ export function AccountRegistrationPage() {
               backHref="/workspace/it/users"
               backLabel="← Kembali ke Kelola Akun"
               description="Membership IT aktif dengan izin pengelolaan akun diperlukan."
-              eyebrow="ALOS / IT / IDENTITY & ACCESS"
+              eyebrow="ALOS / IT / IDENTITAS & AKSES"
               readiness={{ availability: "BLOCKED", blockReason: "ACCESS_DENIED" }}
               title="Akses Dibatasi"
             />
@@ -149,7 +149,7 @@ export function AccountRegistrationPage() {
           <section className={styles.page}>
             <div className={styles.registrationHeader}>
               <div>
-                <p className={styles.eyebrow}>IT · IDENTITY & ACCESS</p>
+                <p className={styles.eyebrow}>IT · IDENTITAS & AKSES</p>
                 <h1 className={styles.title}>Register Akun Baru</h1>
                 <p className={styles.intro}>Buat akun baru dan tentukan akses awal pengguna.</p>
               </div>
@@ -237,7 +237,7 @@ export function AccountRegistrationPage() {
                       </div>
                     </div>
                     <div>
-                      <span className={styles.formLabel}>Role</span>
+                      <span className={styles.formLabel}>Peran</span>
                       <RolePicker
                         options={assignableRoles}
                         selected={form.role_refs}
@@ -273,7 +273,7 @@ export function AccountRegistrationPage() {
                       </dd>
                     </div>
                     <div>
-                      <dt>Role</dt>
+                      <dt>Peran</dt>
                       <dd>
                         <div className={styles.roleChips}>
                           {form.role_refs.map((role) => (

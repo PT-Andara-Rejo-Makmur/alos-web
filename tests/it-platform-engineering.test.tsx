@@ -63,7 +63,7 @@ describe("IT Platform Environments & Engineering Modules", () => {
 
       expect(screen.getByRole("heading", { name: "Environments", level: 1 })).toBeInTheDocument();
       expect(
-        screen.getByText("No backend environment inventory source connected."),
+        screen.getByText("Sumber inventaris environment dari Backend belum terhubung."),
       ).toBeInTheDocument();
       expect(screen.queryByText(/healthy/i)).not.toBeInTheDocument();
     });
@@ -75,7 +75,7 @@ describe("IT Platform Environments & Engineering Modules", () => {
 
       expect(screen.getByRole("heading", { name: "Repositories", level: 1 })).toBeInTheDocument();
       expect(
-        screen.getByText("No backend repository inventory source connected."),
+        screen.getByText("Sumber inventaris repositori dari Backend belum terhubung."),
       ).toBeInTheDocument();
       expect(screen.queryByText("alos-web")).not.toBeInTheDocument();
     });
@@ -87,7 +87,7 @@ describe("IT Platform Environments & Engineering Modules", () => {
 
       expect(screen.getByRole("heading", { name: "CI/CD", level: 1 })).toBeInTheDocument();
       expect(
-        screen.getByText("No backend CI/CD telemetry source connected."),
+        screen.getByText("Sumber telemetri CI/CD dari Backend belum terhubung."),
       ).toBeInTheDocument();
       expect(screen.queryByText(/build #/i)).not.toBeInTheDocument();
     });
@@ -99,7 +99,7 @@ describe("IT Platform Environments & Engineering Modules", () => {
 
       expect(screen.getByRole("heading", { name: "Releases", level: 1 })).toBeInTheDocument();
       expect(
-        screen.getByText("No backend release lifecycle source connected."),
+        screen.getByText("Sumber siklus rilis dari Backend belum terhubung."),
       ).toBeInTheDocument();
       expect(screen.queryByText(/v1\./i)).not.toBeInTheDocument();
     });
@@ -111,7 +111,7 @@ describe("IT Platform Environments & Engineering Modules", () => {
 
       expect(screen.getByRole("heading", { name: "Technical Debt", level: 1 })).toBeInTheDocument();
       expect(
-        screen.getByText("No technical-debt registry source connected."),
+        screen.getByText("Sumber registri technical debt belum terhubung."),
       ).toBeInTheDocument();
     });
   });

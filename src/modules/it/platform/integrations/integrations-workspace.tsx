@@ -29,28 +29,28 @@ export function IntegrationsWorkspace() {
 
   const diagnosticBadgeLabel =
     diagnosticState === "checking"
-      ? "CHECKING"
+      ? "MEMERIKSA"
       : diagnosticState === "connected"
-        ? "CONNECTED"
+        ? "TERHUBUNG"
         : diagnosticState === "not-configured"
-          ? "NOT CONFIGURED"
-          : "DISCONNECTED";
+          ? "BELUM DIKONFIGURASI"
+          : "TERPUTUS";
 
   return (
     <div className={styles.integrationsWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TECHNOLOGY / INTEGRATIONS"
-        description="Backend integration diagnostics, authority boundaries, interface state, and troubleshooting evidence."
+        breadcrumb="ALOS / IT & TEKNOLOGI / INTEGRATIONS"
+        description="Diagnostik integrasi Backend, batas otoritas, status antarmuka, dan bukti troubleshooting."
         title="Integrations"
       />
 
       {/* Module Readiness */}
-      <section aria-label="Module readiness">
+      <section aria-label="Kesiapan modul">
         <ItStatusRow
           detail={readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}
-          helper="Module availability is governed by centralized readiness matrix; integration diagnostic does not bypass module status."
+          helper="Ketersediaan modul mengikuti matriks kesiapan terpusat; diagnostik integrasi tidak menggantikan status modul."
           icon={Cable}
-          label="Module Readiness"
+          label="Kesiapan Modul"
           status={readiness.availability}
         />
       </section>
@@ -58,10 +58,10 @@ export function IntegrationsWorkspace() {
       {/* Integration Diagnostic Region */}
       <section aria-labelledby="integration-status-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Health Probe"
+          eyebrow="Pemeriksaan Kesehatan"
           id="integration-status-title"
-          subtitle="Contract-backed integration diagnostic via ALOS Backend"
-          title="Integration Status"
+          subtitle="Diagnostik integrasi melalui ALOS Backend"
+          title="Status Integrasi"
         />
 
         <div className={styles.diagnosticPanel}>
@@ -69,11 +69,11 @@ export function IntegrationsWorkspace() {
             <div className={styles.diagnosticIdentity}>
               <Network aria-hidden={true} className={styles.diagnosticIcon} size={20} />
               <div>
-                <p className={styles.diagnosticTitle}>Backend System Integration Probe</p>
+                <p className={styles.diagnosticTitle}>Pemeriksaan Integrasi Sistem Backend</p>
                 <p className={styles.diagnosticSubtitle}>
                   {isConnected
-                    ? "Diagnostic endpoint responded successfully with validated contract data."
-                    : errorMessage ?? "Checking connection to ALOS Backend..."}
+                    ? "Endpoint diagnostik merespons dengan data contract yang valid."
+                    : errorMessage ?? "Memeriksa koneksi ke ALOS Backend..."}
                 </p>
               </div>
             </div>
@@ -84,7 +84,7 @@ export function IntegrationsWorkspace() {
             <div className={styles.diagnosticGrid}>
               <div className={styles.metricCard}>
                 <span className={styles.metricLabel}>Diagnostic</span>
-                <span className={styles.metricValue}>CONNECTED</span>
+                <span className={styles.metricValue}>TERHUBUNG</span>
               </div>
               <div className={styles.metricCard}>
                 <span className={styles.metricLabel}>Backend</span>
@@ -95,7 +95,7 @@ export function IntegrationsWorkspace() {
                 <span className={styles.metricValue}>{diagnostic.genesis.status}</span>
               </div>
               <div className={styles.metricCard}>
-                <span className={styles.metricLabel}>Authority</span>
+                <span className={styles.metricLabel}>Otoritas</span>
                 <span className={styles.metricValue}>{diagnostic.backend.authority}</span>
               </div>
               {correlationId && (
@@ -112,11 +112,11 @@ export function IntegrationsWorkspace() {
                 <span className={styles.metricValue}>{diagnosticBadgeLabel}</span>
               </div>
               <div className={styles.metricCard}>
-                <span className={styles.metricLabel}>Diagnostic Evidence</span>
+                <span className={styles.metricLabel}>Bukti Diagnostik</span>
                 <span className={styles.metricValue}>
                   {isChecking
-                    ? "Probing integration endpoint..."
-                    : errorMessage ?? "Integration diagnostic unavailable"}
+                    ? "Memeriksa endpoint integrasi..."
+                    : errorMessage ?? "Diagnostik integrasi belum tersedia"}
                 </span>
               </div>
             </div>
@@ -129,13 +129,13 @@ export function IntegrationsWorkspace() {
         <ItSectionHeader
           eyebrow="Endpoints"
           id="interface-registry-title"
-          subtitle="Officially recognized public and boundary interfaces"
-          title="Interface Registry"
+          subtitle="Antarmuka publik dan batas sistem yang dikenali"
+          title="Registri Antarmuka"
         />
 
         <ItDataTable
-          ariaLabel="Interface boundary registry"
-          columns={["Interface", "Direction", "Authority", "State", "Evidence"]}
+          ariaLabel="Registri batas antarmuka"
+          columns={["Antarmuka", "Arah", "Otoritas", "Status", "Bukti"]}
           minWidth={760}
         >
           {/* Public diagnostic interface */}
@@ -143,7 +143,7 @@ export function IntegrationsWorkspace() {
             <td>
               <code className={styles.tableCode}>GET /api/v1/system/integration</code>
             </td>
-            <td>Inbound (HTTPS)</td>
+            <td>Masuk (HTTPS)</td>
             <td>ALOS_BACKEND</td>
             <td>
               <ItStatusBadge
@@ -153,51 +153,51 @@ export function IntegrationsWorkspace() {
             </td>
             <td>
               {isConnected
-                ? "IntegrationDiagnostic contract"
+                ? "Contract IntegrationDiagnostic"
                 : isChecking
-                  ? "Probing endpoint"
-                  : "No response"}
+                  ? "Memeriksa endpoint"
+                  : "Tanpa respons"}
             </td>
           </tr>
         </ItDataTable>
 
-        <ItNotice title="Interface policy">
-          Internal microservice endpoints and GENESIS direct URLs are excluded from public interface
-          registries to prevent credential leakage and uphold architectural boundary integrity.
+        <ItNotice title="Kebijakan antarmuka">
+          Endpoint microservice internal dan URL langsung GENESIS tidak ditampilkan dalam registri
+          antarmuka publik untuk melindungi kredensial dan menjaga batas arsitektur.
         </ItNotice>
       </section>
 
       {/* Troubleshooting Evidence */}
       <section aria-labelledby="troubleshooting-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Diagnostics"
+          eyebrow="Diagnostik"
           id="troubleshooting-title"
-          subtitle="Non-credential troubleshooting identifiers and audit evidence"
+          subtitle="Identifier troubleshooting tanpa kredensial dan bukti audit"
           title="Troubleshooting"
         />
 
         <div className={styles.troubleshootingContainer}>
           <div className={styles.troubleshootingRow}>
-            <span className={styles.troubleshootingKey}>Active Correlation ID</span>
+            <span className={styles.troubleshootingKey}>Correlation ID Aktif</span>
             <span className={styles.troubleshootingValue}>
-              {correlationId ?? "No active correlation trace available"}
+              {correlationId ?? "Jejak correlation aktif belum tersedia"}
             </span>
           </div>
 
           <div className={styles.troubleshootingRow}>
-            <span className={styles.troubleshootingKey}>Authority Validation</span>
+            <span className={styles.troubleshootingKey}>Validasi Otoritas</span>
             <span className={styles.troubleshootingValue}>
               {isConnected && diagnostic
-                ? `Authoritative state: ${diagnostic.genesis.authoritative_business_state ? "YES" : "NO"} | Provider required: ${diagnostic.genesis.provider_required ? "YES" : "NO"}`
-                : "Awaiting valid diagnostic probe"}
+                ? `Status berwenang: ${diagnostic.genesis.authoritative_business_state ? "YA" : "TIDAK"} | Penyedia diperlukan: ${diagnostic.genesis.provider_required ? "YA" : "TIDAK"}`
+                : "Menunggu hasil diagnostik yang valid"}
             </span>
           </div>
         </div>
 
-        <ItNotice title="Security & credential protection">
-          Troubleshooting identifiers (Correlation IDs) are tracing tokens only and do not contain
-          secrets. Authorization headers, API keys, Bearer tokens, Personal Access Tokens (PAT),
-          and credentials remain strictly hidden.
+        <ItNotice title="Keamanan & perlindungan kredensial">
+          Identifier troubleshooting seperti Correlation ID hanya digunakan untuk tracing dan tidak memuat
+          rahasia. Header otorisasi, API key, Bearer token, Personal Access Token (PAT),
+          dan kredensial tidak ditampilkan.
         </ItNotice>
       </section>
     </div>
