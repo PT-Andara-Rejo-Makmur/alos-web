@@ -6,4 +6,3 @@ export * from "./release-governance";
 export * from "./readiness-decisions";
 export * from "./sources";
 export * from "./control-ui";
-export * from "./governance-dashboard";

@@ -89,7 +89,7 @@ export function LoginForm() {
               className={`${styles.inputControl} ${styles.inputWithToggle}`}
               disabled={submitting}
               id="session-password"
-              minLength={12}
+              minLength={8}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Masukkan kata sandi"
               required

@@ -288,6 +288,17 @@
   white-space: nowrap;
 }
 
+.notConnectedBadge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #e5a63b;
+  background: rgba(229, 166, 59, 0.12);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(229, 166, 59, 0.25);
+  white-space: nowrap;
+}
+
 /* Sidebar Footer */
 .sidebarFooter {
   padding-top: 16px;

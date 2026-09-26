@@ -126,6 +126,9 @@ export type WorkspaceNavItem = {
   readonly group: WorkspaceNavGroup;
   readonly badge?: number;
 
+  // Navigability vs Operational Readiness
+  readonly navigable?: boolean;
+
   // 2-Dimensional Navigation
   readonly visibility?: WorkspaceNavVisibility;
   readonly availability?: WorkspaceNavAvailability;

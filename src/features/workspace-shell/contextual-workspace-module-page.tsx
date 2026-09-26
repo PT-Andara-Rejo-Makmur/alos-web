@@ -11,7 +11,7 @@ import { ProjectPortfolioDashboard } from "@/features/projects/portfolio-dashboa
 import { AraWorkspace, createAraRouteAdapter } from "@/features/ara-workspace";
 import { AgentWorkforce } from "@/features/agent-workforce";
 import { ExecutiveDashboard } from "@/features/executive-dashboard/workspace-dashboard";
-import { ItMonitoringWorkspace } from "@/features/it-monitoring";
+import { renderItWorkspaceModule } from "@/workspaces/it";
 import {
   type CanonicalWorkspaceKey,
   getModuleReadiness,
@@ -166,9 +166,10 @@ export function ContextualWorkspaceModulePage({
           return <ExecutiveDashboard />;
         }
 
-        // 8. IT specific: monitoring (dedicated presentation surface while remaining BLOCKED)
-        if (workspaceKey === "it" && canonicalModule === "monitoring") {
-          return <ItMonitoringWorkspace />;
+        // 8. IT specific module delegation (presentation boundary)
+        if (workspaceKey === "it") {
+          const itModule = renderItWorkspaceModule(canonicalModule);
+          if (itModule) return itModule;
         }
 
         // 9. Domain-specific or BLOCKED modules

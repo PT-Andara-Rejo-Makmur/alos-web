@@ -1,7 +1,7 @@
 "use client";
 
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
-import { GenesisControlPlaneWorkspace } from "@/features/genesis-control-plane";
+import { GenesisControlPlaneWorkspace } from "@/workspaces/it/genesis/control-plane";
 
 export default function WorkspaceItGenesisPage() {
   return (

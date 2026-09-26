@@ -1,4 +1,4 @@
-import { ItDashboardPage } from "@/features/it-dashboard";
+import { ItDashboardPage } from "@/workspaces/it/overview";
 
 export default function WorkspaceItPage() {
   return <ItDashboardPage />;

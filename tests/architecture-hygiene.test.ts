@@ -114,10 +114,7 @@ describe("production architecture hygiene", () => {
 
   it("ensures production IT UI files do not contain handwritten SVG tags or paths", () => {
     const itUiDirectories = [
-      join(sourceRoot, "features/it-dashboard"),
-      join(sourceRoot, "features/it-monitoring"),
-      join(sourceRoot, "features/it-ui"),
-      join(sourceRoot, "features/genesis-control-plane"),
+      join(sourceRoot, "workspaces/it"),
       join(sourceRoot, "app/workspace/it"),
     ];
 
@@ -133,6 +130,18 @@ describe("production architecture hygiene", () => {
     const offenders = itFiles.filter((filePath) => {
       const content = readFileSync(filePath, "utf8");
       return svgPattern.test(content);
+    });
+
+    expect(offenders.map((p) => relative(process.cwd(), p))).toEqual([]);
+  });
+
+  it("ensures production code does not import from legacy IT feature folders", () => {
+    const allProdFiles = productionFiles();
+    const forbiddenImportPattern = /@\/features\/(?:it-dashboard|it-monitoring|it-ui|genesis-control-plane)[\/'"]/i;
+
+    const offenders = allProdFiles.filter((filePath) => {
+      const content = readFileSync(filePath, "utf8");
+      return forbiddenImportPattern.test(content);
     });
 
     expect(offenders.map((p) => relative(process.cwd(), p))).toEqual([]);

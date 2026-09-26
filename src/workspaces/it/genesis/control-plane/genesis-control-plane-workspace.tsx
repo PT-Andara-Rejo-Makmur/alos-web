@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -15,9 +15,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import { FactoryWorkspace } from "@/features/factory";
-import { ItReviewProjection } from "@/features/reviews/it-review-projection";
-import { GenesisWorkspace, GenesisRdGovernanceView } from "@/experiences/genesis";
+import { getModuleReadiness } from "@/features/workspace-routing";
 import styles from "./genesis-control-plane.module.css";
 
 interface TechnicalAreaItem {
@@ -25,7 +23,6 @@ interface TechnicalAreaItem {
   readonly title: string;
   readonly description: string;
   readonly route: string;
-  readonly readiness: "READY" | "BLOCKED";
   readonly icon: React.ComponentType<{ size?: number; className?: string; "aria-hidden"?: boolean }>;
 }
 
@@ -35,7 +32,6 @@ const TECHNICAL_AREAS: readonly TechnicalAreaItem[] = [
     title: "Agent Workforce & Factory",
     description: "Technical agent design, capability draft, and execution runtime",
     route: "/workspace/it/genesis/agents",
-    readiness: "READY",
     icon: Bot,
   },
   {
@@ -43,7 +39,6 @@ const TECHNICAL_AREAS: readonly TechnicalAreaItem[] = [
     title: "Skill Registry & Tools",
     description: "Standard operational toolchain and modular skill definitions",
     route: "/workspace/it/genesis/skills",
-    readiness: "BLOCKED",
     icon: Blocks,
   },
   {
@@ -51,7 +46,6 @@ const TECHNICAL_AREAS: readonly TechnicalAreaItem[] = [
     title: "R&D Domain Governance",
     description: "Autonomous domain research boundary and access control",
     route: "/workspace/it/genesis/research",
-    readiness: "READY",
     icon: SearchCheck,
   },
   {
@@ -59,7 +53,6 @@ const TECHNICAL_AREAS: readonly TechnicalAreaItem[] = [
     title: "Models & Tools Registry",
     description: "Model routing, token limits, and integration interfaces",
     route: "/workspace/it/genesis/models-tools",
-    readiness: "BLOCKED",
     icon: BrainCircuit,
   },
 ];
@@ -96,11 +89,7 @@ const GOVERNANCE_ITEMS: readonly GovernanceItem[] = [
   },
 ];
 
-type SubsystemTabKey = "factory" | "assurance" | "rd-gov" | "platform-gov" | "all";
-
 export function GenesisControlPlaneWorkspace() {
-  const [activeTab, setActiveTab] = useState<SubsystemTabKey>("factory");
-
   return (
     <div className={styles.genesisWrapper}>
       {/* Header */}
@@ -141,6 +130,9 @@ export function GenesisControlPlaneWorkspace() {
           <div className={styles.registryList}>
             {TECHNICAL_AREAS.map((area) => {
               const Icon = area.icon;
+              const readiness = getModuleReadiness(area.id);
+              const isReady = readiness.availability === "READY";
+
               return (
                 <Link className={styles.registryRow} href={area.route} key={area.id}>
                   <div className={styles.rowLeft}>
@@ -155,12 +147,12 @@ export function GenesisControlPlaneWorkspace() {
                   <div className={styles.rowRight}>
                     <span
                       className={
-                        area.readiness === "READY"
+                        isReady
                           ? styles.badgeReady
                           : styles.badgeBlocked
                       }
                     >
-                      {area.readiness === "READY" ? "READY" : "BLOCKED"}
+                      {isReady ? "READY" : "BLOCKED"}
                     </span>
                     <ChevronRight aria-hidden={true} className={styles.arrowIcon} size={14} />
                   </div>
@@ -200,101 +192,6 @@ export function GenesisControlPlaneWorkspace() {
           </div>
         </section>
       </div>
-
-      {/* E. Existing Workspaces with Clear Boundaries */}
-      <section aria-label="Operasi Sub-sistem GENESIS" className={styles.subsystemContainer}>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionEyebrow}>SUBSYSTEM WORKSPACES</span>
-          <h2 className={styles.sectionTitle}>Capability &amp; Assurance Workspaces</h2>
-        </div>
-
-        {/* Tab Navigation */}
-        <div aria-label="Tab Sub-sistem" className={styles.tabNav} role="tablist">
-          <button
-            className={`${styles.tabButton} ${activeTab === "factory" ? styles.tabActive : ""}`}
-            onClick={() => setActiveTab("factory")}
-            role="tab"
-            type="button"
-          >
-            Capability Factory
-          </button>
-          <button
-            className={`${styles.tabButton} ${activeTab === "assurance" ? styles.tabActive : ""}`}
-            onClick={() => setActiveTab("assurance")}
-            role="tab"
-            type="button"
-          >
-            Assurance Structure
-          </button>
-          <button
-            className={`${styles.tabButton} ${activeTab === "rd-gov" ? styles.tabActive : ""}`}
-            onClick={() => setActiveTab("rd-gov")}
-            role="tab"
-            type="button"
-          >
-            R&amp;D Domain Access
-          </button>
-          <button
-            className={`${styles.tabButton} ${activeTab === "platform-gov" ? styles.tabActive : ""}`}
-            onClick={() => setActiveTab("platform-gov")}
-            role="tab"
-            type="button"
-          >
-            Platform Governance
-          </button>
-          <button
-            className={`${styles.tabButton} ${activeTab === "all" ? styles.tabActive : ""}`}
-            onClick={() => setActiveTab("all")}
-            role="tab"
-            type="button"
-          >
-            Show All
-          </button>
-        </div>
-
-        {/* Tab Contents */}
-        <div className={styles.subsystemPanel}>
-          {(activeTab === "factory" || activeTab === "all") && (
-            <div className={styles.subsystemSection}>
-              <div className={styles.subsystemHeader}>
-                <span className={styles.subsystemTitle}>Capability Factory</span>
-                <span className={styles.subsystemTag}>GENESIS-FACTORY-V1</span>
-              </div>
-              <FactoryWorkspace />
-            </div>
-          )}
-
-          {(activeTab === "assurance" || activeTab === "all") && (
-            <div className={styles.subsystemSection}>
-              <div className={styles.subsystemHeader}>
-                <span className={styles.subsystemTitle}>Review Package &amp; Assurance</span>
-                <span className={styles.subsystemTag}>IT-REVIEW-PROJECTION</span>
-              </div>
-              <ItReviewProjection />
-            </div>
-          )}
-
-          {(activeTab === "rd-gov" || activeTab === "all") && (
-            <div className={styles.subsystemSection}>
-              <div className={styles.subsystemHeader}>
-                <span className={styles.subsystemTitle}>R&amp;D Domain Governance</span>
-                <span className={styles.subsystemTag}>RD-GOVERNANCE-4DOMAINS</span>
-              </div>
-              <GenesisRdGovernanceView />
-            </div>
-          )}
-
-          {(activeTab === "platform-gov" || activeTab === "all") && (
-            <div className={styles.subsystemSection}>
-              <div className={styles.subsystemHeader}>
-                <span className={styles.subsystemTitle}>Platform Assurance Dashboard</span>
-                <span className={styles.subsystemTag}>GENESIS-GOVERNANCE-CORE</span>
-              </div>
-              <GenesisWorkspace />
-            </div>
-          )}
-        </div>
-      </section>
     </div>
   );
 }

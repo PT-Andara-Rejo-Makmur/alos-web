@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useState, type ChangeEvent } from "react";
 import { apiMessage, authenticatedApiRequest } from "@/lib/api";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
-import { RolePicker } from "@/features/it-dashboard/role-picker";
-import styles from "@/features/it-dashboard/user-management.module.css";
+import { RolePicker } from "@/workspaces/it/overview/role-picker";
+import styles from "@/workspaces/it/overview/user-management.module.css";
 
 type Membership = {
   workspace: { workspace_id: string; workspace_key: string; workspace_name: string; workspace_type?: string };

@@ -153,11 +153,9 @@ export function WorkspaceSidebar({
 
                 const IconComponent = WORKSPACE_ICONS[item.icon] || WORKSPACE_ICONS.LayoutDashboard;
                 const isActive = activeNavKey === item.key;
-                const isReady =
-                  item.availability === "READY" ||
-                  (item.availability === undefined && item.available !== false && Boolean(item.href));
+                const isNavigable = item.navigable !== false && Boolean(item.href);
 
-                if (!isReady || !item.href) {
+                if (!isNavigable || !item.href) {
                   return (
                     <div
                       aria-disabled="true"
@@ -190,7 +188,9 @@ export function WorkspaceSidebar({
                       <IconComponent size={18} strokeWidth={isActive ? 2.2 : 1.8} />
                     </div>
                     <span className={styles.navLabel}>{item.label}</span>
-                    {item.badge && item.badge > 0 ? (
+                    {item.availability === "BLOCKED" ? (
+                      <span className={styles.notConnectedBadge}>Belum terhubung</span>
+                    ) : item.badge && item.badge > 0 ? (
                       <span className={styles.navBadge}>{item.badge}</span>
                     ) : null}
                   </Link>

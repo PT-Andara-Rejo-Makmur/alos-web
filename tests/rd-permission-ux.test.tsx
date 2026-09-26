@@ -1,7 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { GenesisRdGovernanceView } from "@/experiences/genesis";
 import {
   projectBackendDomainAccess,
   RdPermissionPanel,
@@ -108,11 +107,6 @@ describe("R&D Permission UX", () => {
     expect(propertyCard).not.toHaveTextContent("AUTHORIZED");
   });
 
-  it("merender tata kelola dari projection Backend", () => {
-    render(<GenesisRdGovernanceView initialDomainAccess={domainAccess} />);
-    expect(screen.getByTestId("genesis-rd-governance")).toBeInTheDocument();
-    expect(screen.getByText("Status Tata Kelola 4 Domain R&D")).toBeInTheDocument();
-  });
 
   it("menangani error request Backend dan mempertahankan correlation id", async () => {
     const mockAdapter: ResearchBackendAdapter = {

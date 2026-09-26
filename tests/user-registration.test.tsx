@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/lib/api";
-import { UserRegistrationPage } from "@/features/it-dashboard/user-registration-page";
+import { UserRegistrationPage } from "@/workspaces/it/overview/user-registration-page";
 
 vi.mock("@/features/workspace-shell", () => ({
   ProtectedDomainWorkspace: ({ children }: { children: (value: unknown) => React.ReactNode }) =>

@@ -191,6 +191,7 @@ function buildNavItem(raw: {
   icon: WorkspaceIconKey;
   group: WorkspaceNavGroup;
   available?: boolean;
+  navigable?: boolean;
   requiredRole?: readonly string[];
   requiredCapability?: string;
   badge?: number;
@@ -198,7 +199,17 @@ function buildNavItem(raw: {
   const readiness = getModuleReadiness(raw.key);
   const isExplicitBlocked = raw.available === false || readiness.availability === "BLOCKED";
   const availability = isExplicitBlocked ? "BLOCKED" : "READY";
-  const href = isExplicitBlocked ? null : raw.href;
+
+  // Separation of Navigability from Backend Readiness:
+  // If `navigable` is explicitly specified, respect it.
+  // Otherwise, fallback: if raw.available === false or raw.href is null, navigable = false;
+  // if available and has href, default to !isExplicitBlocked.
+  const navigable = raw.navigable !== undefined
+    ? raw.navigable && Boolean(raw.href)
+    : !isExplicitBlocked && Boolean(raw.href);
+
+  const href = navigable ? raw.href : null;
+
   return {
     key: raw.key,
     label: raw.label,
@@ -208,8 +219,9 @@ function buildNavItem(raw: {
     badge: raw.badge,
     visibility: "VISIBLE",
     availability,
+    navigable,
     blockReason: isExplicitBlocked ? (readiness.blockReason ?? "BACKEND_NOT_CONNECTED") : undefined,
-    available: !isExplicitBlocked,
+    available: navigable,
     requiredRole: raw.requiredRole,
     requiredCapability: raw.requiredCapability,
   };
@@ -222,6 +234,7 @@ type RawNavItem = {
   icon: WorkspaceIconKey;
   group: WorkspaceNavGroup;
   available?: boolean;
+  navigable?: boolean;
   requiredRole?: readonly string[];
   requiredCapability?: string;
   badge?: number;
@@ -382,57 +395,58 @@ export function projectWorkspaceNavigation(
     icon: "LayoutDashboard",
     group: "UTAMA",
     available: true,
+    navigable: isIt ? true : undefined,
   });
 
   // IT & Technology Workspace specific IA
   if (isIt) {
-    // Group: ALOS_PLATFORM
+    // Group: IDENTITY_ACCESS
     if (roles.includes("IT_ADMIN")) items.push(
-      { key: "users", label: "Kelola Akun", href: "/workspace/it/users", icon: "UsersRound", group: "IDENTITY_ACCESS", available: true },
-      { key: "register-user", label: "Register Akun", href: "/workspace/it/users/register", icon: "UserPlus", group: "IDENTITY_ACCESS", available: true },
+      { key: "users", label: "Kelola Akun", href: "/workspace/it/users", icon: "UsersRound", group: "IDENTITY_ACCESS", available: true, navigable: true },
+      { key: "register-user", label: "Register Akun", href: "/workspace/it/users/register", icon: "UserPlus", group: "IDENTITY_ACCESS", available: true, navigable: true },
     );
     items.push(
-      { key: "systems", label: "Systems", href: "/workspace/it/systems", icon: "Server", group: "ALOS_PLATFORM", available: true },
-      { key: "integrations", label: "Integrations", href: "/workspace/it/integrations", icon: "Cable", group: "ALOS_PLATFORM", available: false },
-      { key: "database", label: "Database", href: "/workspace/it/database", icon: "Database", group: "ALOS_PLATFORM", available: false },
-      { key: "environments", label: "Environments", href: "/workspace/it/environments", icon: "Boxes", group: "ALOS_PLATFORM", available: false },
+      { key: "systems", label: "Systems", href: "/workspace/it/systems", icon: "Server", group: "ALOS_PLATFORM", available: false, navigable: false },
+      { key: "integrations", label: "Integrations", href: "/workspace/it/integrations", icon: "Cable", group: "ALOS_PLATFORM", available: false, navigable: false },
+      { key: "database", label: "Database", href: "/workspace/it/database", icon: "Database", group: "ALOS_PLATFORM", available: false, navigable: false },
+      { key: "environments", label: "Environments", href: "/workspace/it/environments", icon: "Boxes", group: "ALOS_PLATFORM", available: false, navigable: false },
     );
 
     // Group: ENGINEERING
     items.push(
-      { key: "repositories", label: "Repositories", href: "/workspace/it/repositories", icon: "GitBranch", group: "ENGINEERING", available: false },
-      { key: "cicd", label: "CI/CD", href: "/workspace/it/cicd", icon: "Workflow", group: "ENGINEERING", available: false },
-      { key: "releases", label: "Releases", href: "/workspace/it/releases", icon: "Rocket", group: "ENGINEERING", available: false },
-      { key: "tech-debt", label: "Technical Debt", href: "/workspace/it/tech-debt", icon: "Wrench", group: "ENGINEERING", available: false },
+      { key: "repositories", label: "Repositories", href: "/workspace/it/repositories", icon: "GitBranch", group: "ENGINEERING", available: false, navigable: false },
+      { key: "cicd", label: "CI/CD", href: "/workspace/it/cicd", icon: "Workflow", group: "ENGINEERING", available: false, navigable: false },
+      { key: "releases", label: "Releases", href: "/workspace/it/releases", icon: "Rocket", group: "ENGINEERING", available: false, navigable: false },
+      { key: "tech-debt", label: "Technical Debt", href: "/workspace/it/tech-debt", icon: "Wrench", group: "ENGINEERING", available: false, navigable: false },
     );
 
     // Group: OPERATIONS
     items.push(
-      { key: "monitoring", label: "Monitoring", href: "/workspace/it/monitoring", icon: "Activity", group: "OPERATIONS", available: true },
-      { key: "incidents", label: "Incidents", href: "/workspace/it/incidents", icon: "Siren", group: "OPERATIONS", available: false },
-      { key: "security", label: "Security", href: "/workspace/it/security", icon: "ShieldCheck", group: "OPERATIONS", available: false },
-      { key: "backup", label: "Backup & DR", href: "/workspace/it/backup", icon: "DatabaseBackup", group: "OPERATIONS", available: false },
+      { key: "monitoring", label: "Monitoring", href: "/workspace/it/monitoring", icon: "Activity", group: "OPERATIONS", available: true, navigable: true },
+      { key: "incidents", label: "Incidents", href: "/workspace/it/incidents", icon: "Siren", group: "OPERATIONS", available: false, navigable: false },
+      { key: "security", label: "Security", href: "/workspace/it/security", icon: "ShieldCheck", group: "OPERATIONS", available: false, navigable: false },
+      { key: "backup", label: "Backup & DR", href: "/workspace/it/backup", icon: "DatabaseBackup", group: "OPERATIONS", available: false, navigable: false },
     );
 
     // Group: GENESIS (canonical control plane routes under IT namespace)
     items.push(
-      { key: "control-plane", label: "Control Plane", href: getGenesisRoute(), icon: "Bot", group: "GENESIS", available: true },
-      { key: "agents", label: "Agents", href: getGenesisRoute("agents"), icon: "Bot", group: "GENESIS", available: true },
-      { key: "skills", label: "Skills", href: getGenesisRoute("skills"), icon: "Blocks", group: "GENESIS", available: false },
-      { key: "research", label: "Research", href: getGenesisRoute("research"), icon: "SearchCheck", group: "GENESIS", available: true },
-      { key: "models", label: "Models & Tools", href: getGenesisRoute("models-tools"), icon: "BrainCircuit", group: "GENESIS", available: false },
+      { key: "control-plane", label: "Control Plane", href: getGenesisRoute(), icon: "Bot", group: "GENESIS", available: true, navigable: true },
+      { key: "agents", label: "Agents", href: getGenesisRoute("agents"), icon: "Bot", group: "GENESIS", available: false, navigable: false },
+      { key: "skills", label: "Skills", href: getGenesisRoute("skills"), icon: "Blocks", group: "GENESIS", available: false, navigable: false },
+      { key: "research", label: "Research", href: getGenesisRoute("research"), icon: "SearchCheck", group: "GENESIS", available: false, navigable: false },
+      { key: "models", label: "Models & Tools", href: getGenesisRoute("models-tools"), icon: "BrainCircuit", group: "GENESIS", available: false, navigable: false },
     );
 
     // Group: GOVERNANCE
     items.push(
-      { key: "evidence", label: "Evidence", href: getGovernanceRoute("evidence"), icon: "Fingerprint", group: "GOVERNANCE", available: true },
-      { key: "uat", label: "UAT & Gates", href: getGovernanceRoute("uat"), icon: "FlaskConical", group: "GOVERNANCE", available: false },
-      { key: "decisions", label: "Decisions", href: getGovernanceRoute("decisions"), icon: "BadgeCheck", group: "GOVERNANCE", available: true },
+      { key: "evidence", label: "Evidence", href: getGovernanceRoute("evidence"), icon: "Fingerprint", group: "GOVERNANCE", available: true, navigable: true },
+      { key: "uat", label: "UAT & Gates", href: getGovernanceRoute("uat"), icon: "FlaskConical", group: "GOVERNANCE", available: false, navigable: false },
+      { key: "decisions", label: "Decisions", href: getGovernanceRoute("decisions"), icon: "BadgeCheck", group: "GOVERNANCE", available: true, navigable: true },
     );
 
     // Group: AI
     items.push(
-      { key: "ara", label: "ARA", href: getWorkspaceAraRoute("it"), icon: "Sparkles", group: "AI", available: true },
+      { key: "ara", label: "ARA", href: getWorkspaceAraRoute("it"), icon: "Sparkles", group: "AI", available: true, navigable: true },
     );
 
     return items.map(buildNavItem);

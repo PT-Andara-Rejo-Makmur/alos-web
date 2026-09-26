@@ -3,12 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/lib/api";
 import { canonicalPrincipal } from "./helpers/canonical-session";
-import { ItDashboardPage } from "@/features/it-dashboard";
-import { ItMonitoringWorkspace } from "@/features/it-monitoring";
-import { GenesisControlPlaneWorkspace } from "@/features/genesis-control-plane";
+import { ItDashboardPage } from "@/workspaces/it/overview";
+import { ItMonitoringWorkspace } from "@/workspaces/it/monitoring";
+import { GenesisControlPlaneWorkspace } from "@/workspaces/it/genesis/control-plane";
 import WorkspaceItGenesisPage from "@/app/workspace/it/genesis/page";
 import ItModuleRoute from "@/app/workspace/it/[module]/page";
 import { getModuleReadiness } from "@/features/workspace-routing";
+import { projectWorkspaceNavigation, WorkspaceSidebar } from "@/features/workspace-shell";
 
 // Mock next/navigation
 const mockPush = vi.fn();
@@ -275,14 +276,14 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       ).toBeInTheDocument();
     });
 
-    it("renders Core Registry technical areas with correct routes and readiness", () => {
+    it("renders Core Registry technical areas reading from centralized readiness", () => {
       render(<GenesisControlPlaneWorkspace />);
 
       expect(screen.getByText("Technical Areas")).toBeInTheDocument();
 
       const agentsLink = screen.getByRole("link", { name: /Agent Workforce & Factory/i });
       expect(agentsLink).toHaveAttribute("href", "/workspace/it/genesis/agents");
-      expect(within(agentsLink).getByText("READY")).toBeInTheDocument();
+      expect(within(agentsLink).getByText("BLOCKED")).toBeInTheDocument();
 
       const skillsLink = screen.getByRole("link", { name: /Skill Registry & Tools/i });
       expect(skillsLink).toHaveAttribute("href", "/workspace/it/genesis/skills");
@@ -290,7 +291,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
 
       const researchLink = screen.getByRole("link", { name: /R&D Domain Governance/i });
       expect(researchLink).toHaveAttribute("href", "/workspace/it/genesis/research");
-      expect(within(researchLink).getByText("READY")).toBeInTheDocument();
+      expect(within(researchLink).getByText("BLOCKED")).toBeInTheDocument();
 
       const modelsLink = screen.getByRole("link", { name: /Models & Tools Registry/i });
       expect(modelsLink).toHaveAttribute("href", "/workspace/it/genesis/models-tools");
@@ -312,18 +313,20 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(decisionsLink).toHaveAttribute("href", "/workspace/it/governance/decisions");
     });
 
-    it("renders sub-system tabs and capability factory without stacking", () => {
+    it("does NOT render legacy subsystem tabs or legacy workspaces in control plane", () => {
       render(<GenesisControlPlaneWorkspace />);
 
-      expect(screen.getByRole("tab", { name: "Capability Factory" })).toBeInTheDocument();
-      expect(screen.getByRole("tab", { name: "Assurance Structure" })).toBeInTheDocument();
-      expect(screen.getByRole("tab", { name: "R&D Domain Access" })).toBeInTheDocument();
-      expect(screen.getByRole("tab", { name: "Platform Governance" })).toBeInTheDocument();
-      expect(screen.getByRole("tab", { name: "Show All" })).toBeInTheDocument();
+      // Subsystem tabs must NOT be present
+      expect(screen.queryByRole("tab", { name: "Capability Factory" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("tab", { name: "Assurance Structure" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("tab", { name: "R&D Domain Access" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("tab", { name: "Platform Governance" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("tab", { name: "Show All" })).not.toBeInTheDocument();
 
-      // Factory workspace is rendered inside bounded subsystem section
-      expect(screen.getByText("Requirement menjadi proposal terstruktur")).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Analisis melalui Backend" })).toBeInTheDocument();
+      // Legacy UI content must NOT be present
+      expect(screen.queryByText("Requirement menjadi proposal terstruktur")).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Analisis melalui Backend" })).not.toBeInTheDocument();
+      expect(screen.queryByText("Status Tata Kelola 4 Domain R&D")).not.toBeInTheDocument();
     });
 
     it("renders WorkspaceItGenesisPage under verified IT authority", async () => {
@@ -345,6 +348,73 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
         expect(screen.getByRole("heading", { name: "GENESIS Control Plane", level: 1 })).toBeInTheDocument();
       });
       expect(screen.getByText("ALOS / IT / GENESIS")).toBeInTheDocument();
+    });
+  });
+
+  describe("D. Navigation Navigability vs Operational Readiness (Section 25)", () => {
+    const itIdentity = {
+      workspaceId: "ws_it_01",
+      workspaceKey: "it",
+      workspaceLabel: "IT Workspace",
+      roleLabel: "IT Lead",
+      divisionCode: "IT",
+    };
+    const itActor = {
+      user_id: "usr_01",
+      organization_id: "org_01",
+      roles: ["IT_ADMIN"],
+      division_codes: ["IT"],
+      workspace_ids: ["ws_it_01"],
+      issued_at: "",
+      expires_at: "",
+    };
+
+    it("A. Monitoring: readiness BLOCKED, surface navigable, href /workspace/it/monitoring, sidebar clickable", () => {
+      const nav = projectWorkspaceNavigation(itIdentity, itActor);
+      const monitoringItem = nav.find((i) => i.key === "monitoring");
+
+      expect(monitoringItem).toBeDefined();
+      expect(monitoringItem?.availability).toBe("BLOCKED");
+      expect(monitoringItem?.navigable).toBe(true);
+      expect(monitoringItem?.href).toBe("/workspace/it/monitoring");
+
+      render(<WorkspaceSidebar identity={itIdentity} navigation={nav} activeNavKey="overview" />);
+      const monitoringLink = screen.getByRole("link", { name: /Monitoring/i });
+      expect(monitoringLink).toBeInTheDocument();
+      expect(monitoringLink).toHaveAttribute("href", "/workspace/it/monitoring");
+      expect(within(monitoringLink).getByText("Belum terhubung")).toBeInTheDocument();
+    });
+
+    it("B. Control Plane: readiness BLOCKED, surface navigable, href /workspace/it/genesis, sidebar clickable", () => {
+      const nav = projectWorkspaceNavigation(itIdentity, itActor);
+      const cpItem = nav.find((i) => i.key === "control-plane");
+
+      expect(cpItem).toBeDefined();
+      expect(cpItem?.availability).toBe("BLOCKED");
+      expect(cpItem?.navigable).toBe(true);
+      expect(cpItem?.href).toBe("/workspace/it/genesis");
+
+      render(<WorkspaceSidebar identity={itIdentity} navigation={nav} activeNavKey="overview" />);
+      const cpLink = screen.getByRole("link", { name: /Control Plane/i });
+      expect(cpLink).toBeInTheDocument();
+      expect(cpLink).toHaveAttribute("href", "/workspace/it/genesis");
+    });
+
+    it("C. Module without surface: BLOCKED, navigable false, sidebar disabled", () => {
+      const nav = projectWorkspaceNavigation(itIdentity, itActor);
+      const systemsItem = nav.find((i) => i.key === "systems");
+
+      expect(systemsItem).toBeDefined();
+      expect(systemsItem?.availability).toBe("BLOCKED");
+      expect(systemsItem?.navigable).toBe(false);
+      expect(systemsItem?.href).toBeNull();
+
+      render(<WorkspaceSidebar identity={itIdentity} navigation={nav} activeNavKey="overview" />);
+      expect(screen.queryByRole("link", { name: /^Systems/i })).not.toBeInTheDocument();
+
+      const incidentsItem = nav.find((i) => i.key === "incidents");
+      expect(incidentsItem?.navigable).toBe(false);
+      expect(incidentsItem?.href).toBeNull();
     });
   });
 });

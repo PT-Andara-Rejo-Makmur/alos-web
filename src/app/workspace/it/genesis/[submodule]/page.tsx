@@ -6,8 +6,6 @@ import Link from "next/link";
 import { AlertCircle } from "lucide-react";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
 import { SharedResearchWorkspace } from "@/features/research";
-import { FactoryWorkspace } from "@/features/factory";
-import { ItReviewProjection } from "@/features/reviews/it-review-projection";
 import {
   getModuleReadiness,
   isKnownGenesisSubmodule,
@@ -43,15 +41,6 @@ export default function WorkspaceItGenesisSubmodulePage({
           return (
             <div style={{ padding: "1.5rem" }}>
               <SharedResearchWorkspace />
-            </div>
-          );
-        }
-
-        if (submodule === "agents") {
-          return (
-            <div style={{ padding: "1.5rem" }}>
-              <FactoryWorkspace />
-              <ItReviewProjection />
             </div>
           );
         }

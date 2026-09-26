@@ -22,7 +22,7 @@ import {
   DEFAULT_SECURITY_ACCESS,
   DEFAULT_IT_CADENCE,
   DEFAULT_GENESIS_OPERATIONS,
-} from "@/features/it-dashboard";
+} from "@/workspaces/it/overview";
 import { projectWorkspaceNavigation } from "@/features/workspace-shell";
 
 // Mock next/image
@@ -322,7 +322,8 @@ describe("ALOS IT & Technology Dashboard", () => {
     expect(groups.has("AI")).toBe(true);
 
     const overviewItem = nav.find((i) => i.key === "overview");
-    expect(overviewItem?.href).toBeNull();
+    expect(overviewItem?.href).toBe("/workspace/it");
+    expect(overviewItem?.navigable).toBe(true);
     expect(nav.find((item) => item.key === "users")?.group).toBe("IDENTITY_ACCESS");
     expect(nav.find((item) => item.key === "register-user")?.group).toBe("IDENTITY_ACCESS");
   });
