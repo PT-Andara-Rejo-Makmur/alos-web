@@ -13,3 +13,5 @@ export function ItDashboardPage({ initialSnapshot }: { readonly initialSnapshot?
     </ProtectedDomainWorkspace>
   );
 }
+
+export const ItOverviewPage = ItDashboardPage;

@@ -103,6 +103,14 @@
   color: #6e7670;
 }
 
+.statusStripBlocked {
+  border-left-color: #dc2626;
+}
+
+.statusIconBlocked {
+  color: #b91c1c;
+}
+
 /* Split Grid for Technical Areas & Governance Cross-Ref */
 .registryGrid {
   display: grid;

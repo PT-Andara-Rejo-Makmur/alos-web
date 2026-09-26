@@ -10,6 +10,7 @@ interface CanonicalPrincipalOptions {
   readonly workspaceKey: string;
   readonly workspaceName: string;
   readonly roles?: readonly AuthorizationRole[];
+  readonly permissions?: readonly string[];
   readonly allWorkspaceIds?: readonly string[];
 }
 
@@ -20,6 +21,7 @@ export function canonicalPrincipal({
   workspaceKey,
   workspaceName,
   roles = ["WORKSPACE_MEMBER"],
+  permissions = [],
   allWorkspaceIds = [workspaceId],
 }: CanonicalPrincipalOptions): AuthenticatedPrincipalProjection {
   const activeWorkspace = {
@@ -33,7 +35,7 @@ export function canonicalPrincipal({
       active: true,
     },
     role_refs: roles,
-    permission_refs: [] as readonly string[],
+    permission_refs: permissions,
     scope_refs: [] as readonly string[],
     data_scope: "WORKSPACE" as const,
     active: true,

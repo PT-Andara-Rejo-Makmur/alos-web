@@ -1,83 +1,43 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
+import * as api from "@/lib/api";
 import {
-  FactoryResultPanel,
-  FactoryWorkspace,
+  backendFactoryAdapter,
   projectFactoryResponse,
 } from "@/features/factory";
-import type { FactoryAnalysisProjection } from "@/features/factory";
 
-afterEach(cleanup);
-
-const reuseResult: FactoryAnalysisProjection = {
-  decision: "REUSE",
-  reason: "Backend catalog already satisfies this requirement.",
-  correlationId: "corr_factory_reuse_001",
-  existingCapabilities: [
-    {
-      capabilityId: "report.generate",
-      version: "1.0.0",
-      name: "Generate report",
-      capabilityType: "REPORT",
-      purpose: "Generate a governed report.",
-    },
-  ],
-  draft: null,
-  registryState: null,
-};
-
-const createResult: FactoryAnalysisProjection = {
-  decision: "CREATE",
-  reason: "A new capability proposal is required.",
-  correlationId: "corr_factory_create_001",
-  existingCapabilities: [],
-  draft: {
-    identifier: "capability_factory_001",
-    version: "0.1.0",
-    purpose: "Prepare a governed operational report.",
-    capabilityType: "REPORT",
-    scope: ["scope.workspace"],
-    risk: "MEDIUM",
-    tools: ["report.generate"],
-    permissions: ["reports.create"],
-    lifecycleState: "DRAFT",
-    readiness: "REGISTERED_AS_DRAFT",
-  },
-  registryState: "DRAFT",
-};
-
-describe("Factory contract UX", () => {
-  it("merender REUSE sebagai existing Backend capability tanpa draft", () => {
-    render(<FactoryResultPanel result={reuseResult} />);
-
-    expect(screen.getByText("Keputusan REUSE")).toBeInTheDocument();
-    expect(screen.getByText("Generate report")).toBeInTheDocument();
-    expect(screen.queryByText("Capability proposal")).not.toBeInTheDocument();
-  });
-
-  it("merender CREATE sebagai proposal DRAFT", () => {
-    render(<FactoryResultPanel result={createResult} />);
-
-    expect(screen.getByText("Keputusan CREATE")).toBeInTheDocument();
-    expect(screen.getByText("DRAFT")).toBeInTheDocument();
-    expect(screen.getByText("capability_factory_001")).toBeInTheDocument();
-    expect(screen.getByText("reports.create")).toBeInTheDocument();
-  });
-
+describe("Factory contract UX and adapter", () => {
   it("mengirim requirement melalui typed Backend adapter", async () => {
-    const analyze = vi.fn().mockResolvedValue(reuseResult);
-    render(<FactoryWorkspace adapter={{ analyze }} />);
-
-    fireEvent.change(screen.getByLabelText("Business requirement"), {
-      target: { value: "Buat laporan operasional yang dapat direview oleh manajemen" },
+    const apiSpy = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce({
+      correlation_id: "corr_factory_001",
+      decision: "REUSE",
+      reason: "Matched",
+      existing_capability_refs: [
+        {
+          capability_id: "report.generate",
+          version: "1.0.0",
+          name: "Generate report",
+          capability_type: "REPORT",
+          purpose: "Generate a governed report.",
+        },
+      ],
+      capability_draft: null,
+      agent_draft: null,
+      registry_result: null,
     });
-    fireEvent.click(screen.getByRole("button", { name: "Analisis melalui Backend" }));
 
-    await waitFor(() => expect(analyze).toHaveBeenCalledWith({
+    const result = await backendFactoryAdapter.analyze({
       requirement: "Buat laporan operasional yang dapat direview oleh manajemen",
-    }));
-    expect(await screen.findByText("Keputusan REUSE")).toBeInTheDocument();
+    });
+
+    expect(apiSpy).toHaveBeenCalledWith(
+      "/api/v1/genesis/factory/analyze",
+      expect.objectContaining({
+        method: "POST",
+        body: { requirement: "Buat laporan operasional yang dapat direview oleh manajemen" },
+      }),
+    );
+    expect(result.decision).toBe("REUSE");
   });
 
   it("memproyeksikan canonical Backend CREATE response tanpa contract lama", () => {
@@ -134,12 +94,14 @@ describe("Factory contract UX", () => {
   });
 
   it("menolak response Factory lama yang bukan canonical public response", () => {
-    expect(() => projectFactoryResponse({
-      correlation_id: "corr_factory_legacy_001",
-      resolution: { decision: "CREATE", reason: "Legacy response" },
-      existing_capability_refs: [],
-      capability_draft: null,
-      capability_specification: { lifecycle_state: "DRAFT" },
-    })).toThrow(/decision/);
+    expect(() =>
+      projectFactoryResponse({
+        correlation_id: "corr_factory_legacy_001",
+        resolution: { decision: "CREATE", reason: "Legacy response" },
+        existing_capability_refs: [],
+        capability_draft: null,
+        capability_specification: { lifecycle_state: "DRAFT" },
+      }),
+    ).toThrow(/decision/);
   });
 });

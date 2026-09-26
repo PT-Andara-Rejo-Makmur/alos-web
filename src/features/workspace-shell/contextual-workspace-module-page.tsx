@@ -11,7 +11,7 @@ import { ProjectPortfolioDashboard } from "@/features/projects/portfolio-dashboa
 import { AraWorkspace, createAraRouteAdapter } from "@/features/ara-workspace";
 import { AgentWorkforce } from "@/features/agent-workforce";
 import { ExecutiveDashboard } from "@/features/executive-dashboard/workspace-dashboard";
-import { renderItWorkspaceModule } from "@/workspaces/it";
+import { renderItWorkspaceModule } from "@/modules/it";
 import {
   type CanonicalWorkspaceKey,
   getModuleReadiness,

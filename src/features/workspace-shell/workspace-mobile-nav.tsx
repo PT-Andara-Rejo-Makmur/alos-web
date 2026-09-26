@@ -548,41 +548,39 @@ export function WorkspaceMobileNav({
           </>
         ) : identity.workspaceKey === "it" ? (
           <>
-            <Link
-              aria-current={activeNavKey === "overview" ? "page" : undefined}
-              className={`${styles.bottomNavItem} ${activeNavKey === "overview" ? styles.activeBottomItem : ""}`}
-              href="/workspace/it"
-            >
-              <div className={styles.bottomNavIconCircle}>O</div>
-              <span>Overview</span>
-            </Link>
+            {navigation
+              .filter(
+                (item) =>
+                  item.navigable !== false &&
+                  Boolean(item.href) &&
+                  item.visibility !== "HIDDEN" &&
+                  ["overview", "monitoring", "control-plane", "users"].includes(item.key),
+              )
+              .map((item) => {
+                const IconComponent =
+                  WORKSPACE_ICONS[item.icon] || WORKSPACE_ICONS.LayoutDashboard;
+                const isActive =
+                  activeNavKey === item.key ||
+                  (item.key === "control-plane" && activeNavKey === "genesis");
 
-            <Link
-              aria-current={activeNavKey === "systems" ? "page" : undefined}
-              className={`${styles.bottomNavItem} ${activeNavKey === "systems" ? styles.activeBottomItem : ""}`}
-              href="/workspace/it/systems"
-            >
-              <div className={styles.bottomNavIconCircle}>S</div>
-              <span>Systems</span>
-            </Link>
-
-            <Link
-              aria-current={activeNavKey === "genesis" || activeNavKey === "control-plane" ? "page" : undefined}
-              className={`${styles.bottomNavItem} ${activeNavKey === "genesis" || activeNavKey === "control-plane" ? styles.activeBottomItem : ""}`}
-              href="/workspace/it/genesis"
-            >
-              <div className={styles.bottomNavIconCircle}>G</div>
-              <span>Genesis</span>
-            </Link>
-
-            <Link
-              aria-current={activeNavKey === "security" ? "page" : undefined}
-              className={`${styles.bottomNavItem} ${activeNavKey === "security" ? styles.activeBottomItem : ""}`}
-              href="/workspace/it/security"
-            >
-              <div className={styles.bottomNavIconCircle}>X</div>
-              <span>Security</span>
-            </Link>
+                return (
+                  <Link
+                    aria-current={isActive ? "page" : undefined}
+                    className={`${styles.bottomNavItem} ${isActive ? styles.activeBottomItem : ""}`}
+                    href={item.href!}
+                    key={item.key}
+                  >
+                    <div className={styles.bottomNavIconWrap}>
+                      <IconComponent
+                        aria-hidden="true"
+                        size={18}
+                        strokeWidth={isActive ? 2.2 : 1.8}
+                      />
+                    </div>
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
 
             <button
               aria-label="Buka seluruh menu"
@@ -590,7 +588,9 @@ export function WorkspaceMobileNav({
               onClick={() => setDrawerOpen(true)}
               type="button"
             >
-              <div className={styles.bottomNavIconCircle}>M</div>
+              <div className={styles.bottomNavIconWrap}>
+                <Menu aria-hidden="true" size={18} strokeWidth={1.8} />
+              </div>
               <span>Menu</span>
             </button>
           </>

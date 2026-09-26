@@ -1,7 +1,7 @@
 "use client";
 
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
-import { ItReviewProjection } from "@/features/reviews/it-review-projection";
+import { ItUnavailableSurface } from "@/modules/it/ui";
 
 export default function WorkspaceItGovernancePage() {
   return (
@@ -13,9 +13,14 @@ export default function WorkspaceItGovernancePage() {
       workspaceKeys={["it", "technology"]}
     >
       {() => (
-        <div style={{ padding: "1.5rem" }}>
-          <ItReviewProjection />
-        </div>
+        <ItUnavailableSurface
+          backHref="/workspace/it"
+          backLabel="← Kembali ke IT Overview"
+          description="Backend operational integration belum terhubung. Modul tata kelola IT belum memiliki konektor operasional aktif."
+          eyebrow="ALOS / IT / GOVERNANCE"
+          readiness={{ availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" }}
+          title="IT Governance"
+        />
       )}
     </ProtectedDomainWorkspace>
   );

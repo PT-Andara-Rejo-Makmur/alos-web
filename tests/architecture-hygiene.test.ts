@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -114,7 +114,7 @@ describe("production architecture hygiene", () => {
 
   it("ensures production IT UI files do not contain handwritten SVG tags or paths", () => {
     const itUiDirectories = [
-      join(sourceRoot, "workspaces/it"),
+      join(sourceRoot, "modules/it"),
       join(sourceRoot, "app/workspace/it"),
     ];
 
@@ -135,6 +135,21 @@ describe("production architecture hygiene", () => {
     expect(offenders.map((p) => relative(process.cwd(), p))).toEqual([]);
   });
 
+  it("ensures src/modules/it exists and src/workspaces does NOT exist", () => {
+    expect(existsSync(join(sourceRoot, "modules/it"))).toBe(true);
+    expect(existsSync(join(sourceRoot, "workspaces"))).toBe(false);
+  });
+
+  it("ensures production code does not import from @/workspaces/it", () => {
+    const allProdFiles = productionFiles();
+    const forbiddenPattern = /@\/workspaces(?:\/it)?[\/'"]/i;
+    const offenders = allProdFiles.filter((filePath) => {
+      const content = readFileSync(filePath, "utf8");
+      return forbiddenPattern.test(content);
+    });
+    expect(offenders.map((p) => relative(process.cwd(), p))).toEqual([]);
+  });
+
   it("ensures production code does not import from legacy IT feature folders", () => {
     const allProdFiles = productionFiles();
     const forbiddenImportPattern = /@\/features\/(?:it-dashboard|it-monitoring|it-ui|genesis-control-plane)[\/'"]/i;
@@ -142,6 +157,19 @@ describe("production architecture hygiene", () => {
     const offenders = allProdFiles.filter((filePath) => {
       const content = readFileSync(filePath, "utf8");
       return forbiddenImportPattern.test(content);
+    });
+
+    expect(offenders.map((p) => relative(process.cwd(), p))).toEqual([]);
+  });
+
+  it("ensures canonical IT app routes do not import legacy components", () => {
+    const itAppDir = join(sourceRoot, "app/workspace/it");
+    const itAppFiles = productionFiles(itAppDir);
+    const legacyComponentsPattern = /\b(?:FactoryWorkspace|ItReviewProjection|SharedResearchWorkspace|GenesisWorkspace|GovernanceDashboard)\b/;
+
+    const offenders = itAppFiles.filter((filePath) => {
+      const content = readFileSync(filePath, "utf8");
+      return legacyComponentsPattern.test(content);
     });
 
     expect(offenders.map((p) => relative(process.cwd(), p))).toEqual([]);

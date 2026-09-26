@@ -90,6 +90,9 @@ const GOVERNANCE_ITEMS: readonly GovernanceItem[] = [
 ];
 
 export function GenesisControlPlaneWorkspace() {
+  const controlPlaneReadiness = getModuleReadiness("control-plane");
+  const isControlPlaneReady = controlPlaneReadiness.availability === "READY";
+
   return (
     <div className={styles.genesisWrapper}>
       {/* Header */}
@@ -104,15 +107,25 @@ export function GenesisControlPlaneWorkspace() {
       </header>
 
       {/* B. Control Plane Status Strip */}
-      <section aria-label="Status Control Plane" className={styles.statusStrip}>
+      <section
+        aria-label="Status Control Plane"
+        className={`${styles.statusStrip} ${!isControlPlaneReady ? styles.statusStripBlocked : ""}`}
+      >
         <div className={styles.statusLeft}>
-          <span aria-hidden="true" className={styles.statusIcon}>
+          <span
+            aria-hidden="true"
+            className={`${styles.statusIcon} ${!isControlPlaneReady ? styles.statusIconBlocked : ""}`}
+          >
             <ShieldCheck aria-hidden={true} size={18} />
           </span>
           <div className={styles.statusText}>
-            <span className={styles.statusTitle}>Control Plane Status: PARTIAL</span>
+            <span className={styles.statusTitle}>
+              Control Plane Status: {controlPlaneReadiness.availability}
+            </span>
             <span className={styles.statusContext}>
-              Configuration &amp; governance models active; autonomous telemetry awaiting backend connector.
+              {controlPlaneReadiness.availability === "BLOCKED"
+                ? "Frontend control surface tersedia. Backend operational integration belum terhubung."
+                : "Operational telemetry active."}
             </span>
           </div>
         </div>
@@ -172,6 +185,9 @@ export function GenesisControlPlaneWorkspace() {
           <div className={styles.registryList}>
             {GOVERNANCE_ITEMS.map((item) => {
               const Icon = item.icon;
+              const readiness = getModuleReadiness(item.id);
+              const isReady = readiness.availability === "READY";
+
               return (
                 <Link className={styles.registryRow} href={item.route} key={item.id}>
                   <div className={styles.rowLeft}>
@@ -184,6 +200,9 @@ export function GenesisControlPlaneWorkspace() {
                     </div>
                   </div>
                   <div className={styles.rowRight}>
+                    <span className={isReady ? styles.badgeReady : styles.badgeBlocked}>
+                      {readiness.availability}
+                    </span>
                     <ArrowRight aria-hidden={true} className={styles.arrowIcon} size={14} />
                   </div>
                 </Link>

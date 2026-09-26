@@ -322,6 +322,80 @@
   padding: 20px;
 }
 
+/* Unavailable Surface */
+.unavailableSurface {
+  background: #ffffff;
+  border: 1px solid #e7ebe7;
+  border-radius: 8px;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 640px;
+  margin: 24px auto;
+}
+
+.unavailableIconWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #fffbeb;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.unavailableEyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a928c;
+  margin: 0 0 8px 0;
+}
+
+.unavailableBadge {
+  margin-bottom: 12px;
+}
+
+.unavailableTitle {
+  font-family: var(--font-manrope, sans-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #141619;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px 0;
+}
+
+.unavailableDescription {
+  font-size: 0.85rem;
+  color: #5a625d;
+  line-height: 1.55;
+  margin: 0 0 20px 0;
+  max-width: 480px;
+}
+
+.unavailableAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #141619;
+  color: #ffffff;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+.unavailableAction:hover {
+  background-color: #272a2e;
+}
+
 @media (max-width: 768px) {
   .pageHeader {
     flex-direction: column;

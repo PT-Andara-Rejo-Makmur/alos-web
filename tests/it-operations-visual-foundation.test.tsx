@@ -3,9 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/lib/api";
 import { canonicalPrincipal } from "./helpers/canonical-session";
-import { ItDashboardPage } from "@/workspaces/it/overview";
-import { ItMonitoringWorkspace } from "@/workspaces/it/monitoring";
-import { GenesisControlPlaneWorkspace } from "@/workspaces/it/genesis/control-plane";
+import { ItDashboardPage } from "@/modules/it/overview";
+import { ItMonitoringWorkspace } from "@/modules/it/monitoring";
+import { GenesisControlPlaneWorkspace } from "@/modules/it/genesis/control-plane";
 import WorkspaceItGenesisPage from "@/app/workspace/it/genesis/page";
 import ItModuleRoute from "@/app/workspace/it/[module]/page";
 import { getModuleReadiness } from "@/features/workspace-routing";
@@ -259,7 +259,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
   });
 
   describe("C. GENESIS Control Plane Redesign", () => {
-    it("renders technical control plane header and PARTIAL status strip", () => {
+    it("renders technical control plane header and BLOCKED status strip reading from centralized readiness", () => {
       render(<GenesisControlPlaneWorkspace />);
 
       expect(
@@ -270,10 +270,12 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
         screen.getByText("Technical AI operations, agent registry, capability controls, research and governance."),
       ).toBeInTheDocument();
 
-      expect(screen.getByText("Control Plane Status: PARTIAL")).toBeInTheDocument();
+      const readiness = getModuleReadiness("control-plane");
+      expect(screen.getByText(`Control Plane Status: ${readiness.availability}`)).toBeInTheDocument();
       expect(
-        screen.getByText(/Configuration & governance models active; autonomous telemetry awaiting backend connector./i),
+        screen.getByText(/Frontend control surface tersedia\. Backend operational integration belum terhubung\./i),
       ).toBeInTheDocument();
+      expect(screen.queryByText(/Control Plane Status: PARTIAL/i)).not.toBeInTheDocument();
     });
 
     it("renders Core Registry technical areas reading from centralized readiness", () => {
@@ -298,19 +300,22 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(within(modelsLink).getByText("BLOCKED")).toBeInTheDocument();
     });
 
-    it("renders Governance cross-reference section pointing to canonical IT governance routes", () => {
+    it("renders Governance cross-reference section pointing to canonical IT governance routes and showing centralized readiness", () => {
       render(<GenesisControlPlaneWorkspace />);
 
       expect(screen.getByText("Audit & Decision Portals")).toBeInTheDocument();
 
       const evidenceLink = screen.getByRole("link", { name: /Evidence Chain & Logs/i });
       expect(evidenceLink).toHaveAttribute("href", "/workspace/it/governance/evidence");
+      expect(within(evidenceLink).getByText("BLOCKED")).toBeInTheDocument();
 
       const uatLink = screen.getByRole("link", { name: /UAT Gates & Verification/i });
       expect(uatLink).toHaveAttribute("href", "/workspace/it/governance/uat");
+      expect(within(uatLink).getByText("BLOCKED")).toBeInTheDocument();
 
       const decisionsLink = screen.getByRole("link", { name: /Operational Decisions/i });
       expect(decisionsLink).toHaveAttribute("href", "/workspace/it/governance/decisions");
+      expect(within(decisionsLink).getByText("BLOCKED")).toBeInTheDocument();
     });
 
     it("does NOT render legacy subsystem tabs or legacy workspaces in control plane", () => {

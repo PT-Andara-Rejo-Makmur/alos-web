@@ -726,11 +726,29 @@
   transition: all 150ms ease;
 }
 
+.bottomNavIconWrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--shell-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms ease;
+  color: var(--shell-muted);
+}
+
 .activeBottomItem {
   color: var(--shell-ink);
 }
 
 .activeBottomItem .bottomNavIconCircle {
+  background: var(--shell-obsidian);
+  color: var(--shell-gold);
+  border-color: var(--shell-gold);
+}
+
+.activeBottomItem .bottomNavIconWrap {
   background: var(--shell-obsidian);
   color: var(--shell-gold);
   border-color: var(--shell-gold);

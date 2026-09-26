@@ -1,5 +1,4 @@
 export { backendFactoryAdapter, projectFactoryResponse } from "./backend-adapter";
-export { FactoryResultPanel, FactoryWorkspace } from "./factory-workspace";
 export type {
   CapabilityDraftProjection,
   ExistingCapabilityProjection,

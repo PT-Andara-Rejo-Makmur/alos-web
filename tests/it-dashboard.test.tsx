@@ -22,7 +22,7 @@ import {
   DEFAULT_SECURITY_ACCESS,
   DEFAULT_IT_CADENCE,
   DEFAULT_GENESIS_OPERATIONS,
-} from "@/workspaces/it/overview";
+} from "@/modules/it/overview";
 import { projectWorkspaceNavigation } from "@/features/workspace-shell";
 
 // Mock next/image
