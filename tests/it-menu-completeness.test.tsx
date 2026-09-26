@@ -46,19 +46,19 @@ describe("IT Menu Completeness and IA Verification", () => {
     organization_id: "org_01",
     tenant_id: "tenant_01",
     roles: ["IT_ADMIN"],
+    permissions: ["identity.accounts.manage"],
     division_codes: ["IT"],
     workspace_ids: ["ws_it_01"],
     issued_at: "",
     expires_at: "",
   };
 
-  it("verifies all 8 groups and all 29 items in canonical IT navigation", () => {
+  it("memverifikasi tepat 8 grup dan seluruh item navigasi IT kanonikal", () => {
     const items = projectWorkspaceNavigation(identity, actor);
 
     const expectedGroups = [
-      "UTAMA",
-      "IDENTITY_ACCESS",
       "ALOS_PLATFORM",
+      "IDENTITY_ACCESS",
       "ENGINEERING",
       "OPERATIONS",
       "GENESIS",
@@ -68,25 +68,24 @@ describe("IT Menu Completeness and IA Verification", () => {
     ];
 
     const actualGroups = Array.from(new Set(items.map((i) => i.group)));
+    expect(actualGroups).toEqual(expectedGroups);
     for (const group of expectedGroups) {
       expect(actualGroups).toContain(group);
     }
 
     const expectedItems: Array<{ key: string; label: string; href: string; group: string }> = [
-      // UTAMA
-      { key: "overview", label: "Overview", href: "/workspace/it", group: "UTAMA" },
-
-      // IDENTITY & ACCESS
-      { key: "users", label: "Kelola Akun", href: "/workspace/it/users", group: "IDENTITY_ACCESS" },
-      { key: "register-user", label: "Register Akun", href: "/workspace/it/users/register", group: "IDENTITY_ACCESS" },
-      { key: "workspace-access", label: "Workspace Access", href: "/workspace/it/users/access", group: "IDENTITY_ACCESS" },
-      { key: "access-review", label: "Access Review", href: "/workspace/it/users/access-review", group: "IDENTITY_ACCESS" },
-
       // ALOS PLATFORM
+      { key: "overview", label: "Overview", href: "/workspace/it", group: "ALOS_PLATFORM" },
       { key: "systems", label: "Systems", href: "/workspace/it/systems", group: "ALOS_PLATFORM" },
       { key: "integrations", label: "Integrations", href: "/workspace/it/integrations", group: "ALOS_PLATFORM" },
       { key: "database", label: "Database", href: "/workspace/it/database", group: "ALOS_PLATFORM" },
       { key: "environments", label: "Environments", href: "/workspace/it/environments", group: "ALOS_PLATFORM" },
+
+      // IDENTITY & ACCESS
+      { key: "users", label: "Kelola Akun", href: "/workspace/it/users", group: "IDENTITY_ACCESS" },
+      { key: "register-user", label: "Register Akun", href: "/workspace/it/users/register", group: "IDENTITY_ACCESS" },
+      { key: "workspace-access", label: "Akses Workspace", href: "/workspace/it/users/access", group: "IDENTITY_ACCESS" },
+      { key: "access-review", label: "Tinjauan Akses", href: "/workspace/it/users/access-review", group: "IDENTITY_ACCESS" },
 
       // ENGINEERING
       { key: "repositories", label: "Repositories", href: "/workspace/it/repositories", group: "ENGINEERING" },
@@ -105,7 +104,7 @@ describe("IT Menu Completeness and IA Verification", () => {
       { key: "agents", label: "Agents", href: "/workspace/it/genesis/agents", group: "GENESIS" },
       { key: "skills", label: "Skills", href: "/workspace/it/genesis/skills", group: "GENESIS" },
       { key: "research", label: "Research", href: "/workspace/it/genesis/research", group: "GENESIS" },
-      { key: "models", label: "Models & Tools", href: "/workspace/it/genesis/models-tools", group: "GENESIS" },
+      { key: "models-tools", label: "Models & Tools", href: "/workspace/it/genesis/models-tools", group: "GENESIS" },
 
       // GOVERNANCE
       { key: "evidence", label: "Evidence", href: "/workspace/it/governance/evidence", group: "GOVERNANCE" },
@@ -141,6 +140,7 @@ describe("IT Menu Completeness and IA Verification", () => {
         expect(actual?.availability).toBe(readiness.availability);
       }
     }
+    expect(items).toHaveLength(expectedItems.length);
   });
 
   it("verifies no business Agent Workforce in IT menu", () => {

@@ -48,7 +48,7 @@ export default function WorkspaceItGenesisSubmodulePage({
 
   return (
     <ProtectedDomainWorkspace
-      activeNavKey={submodule === "models-tools" ? "models" : submodule}
+      activeNavKey={submodule}
       deniedTitle="Bukan Otoritas IT / GENESIS"
       divisionCodes={["IT", "TECHNOLOGY"]}
       loadingLabel="Memuat Modul GENESIS IT…"

@@ -249,6 +249,7 @@ export function projectWorkspaceNavigation(
   actor?: SessionActor | null,
 ): readonly WorkspaceNavItem[] {
   const roles = actor?.roles ?? [];
+  const permissions = actor?.permissions ?? [];
   const division = (identity.divisionCode || "").toUpperCase();
 
   // Primary routing context: normalize canonical workspace key from verified identity.
@@ -393,19 +394,20 @@ export function projectWorkspaceNavigation(
                 ? WORKSPACE_ROUTES.it
                 : WORKSPACE_ROUTES.resolver,
     icon: "LayoutDashboard",
-    group: "UTAMA",
+    group: isIt ? "ALOS_PLATFORM" : "UTAMA",
     available: true,
     navigable: isIt ? true : undefined,
   });
 
   // IT & Technology Workspace specific IA
   if (isIt) {
-    // Group: IDENTITY_ACCESS
-    if (roles.includes("IT_ADMIN")) items.push(
+    // Group: IDENTITY_ACCESS. Visibility is only a Backend-projected UX affordance;
+    // every destination still enforces authority independently.
+    if (roles.includes("IT_ADMIN") && permissions.includes("identity.accounts.manage")) items.push(
       { key: "users", label: "Kelola Akun", href: "/workspace/it/users", icon: "UsersRound", group: "IDENTITY_ACCESS", available: true, navigable: true },
       { key: "register-user", label: "Register Akun", href: "/workspace/it/users/register", icon: "UserPlus", group: "IDENTITY_ACCESS", available: true, navigable: true },
-      { key: "workspace-access", label: "Workspace Access", href: "/workspace/it/users/access", icon: "FolderLock", group: "IDENTITY_ACCESS", available: true, navigable: true },
-      { key: "access-review", label: "Access Review", href: "/workspace/it/users/access-review", icon: "UserRoundSearch", group: "IDENTITY_ACCESS", available: true, navigable: true },
+      { key: "workspace-access", label: "Akses Workspace", href: "/workspace/it/users/access", icon: "FolderLock", group: "IDENTITY_ACCESS", available: false, navigable: true },
+      { key: "access-review", label: "Tinjauan Akses", href: "/workspace/it/users/access-review", icon: "UserRoundSearch", group: "IDENTITY_ACCESS", available: false, navigable: true },
     );
     items.push(
       { key: "systems", label: "Systems", href: "/workspace/it/systems", icon: "Server", group: "ALOS_PLATFORM", available: false, navigable: true },
@@ -436,7 +438,7 @@ export function projectWorkspaceNavigation(
       { key: "agents", label: "Agents", href: getGenesisRoute("agents"), icon: "Bot", group: "GENESIS", available: false, navigable: true },
       { key: "skills", label: "Skills", href: getGenesisRoute("skills"), icon: "Blocks", group: "GENESIS", available: false, navigable: true },
       { key: "research", label: "Research", href: getGenesisRoute("research"), icon: "SearchCheck", group: "GENESIS", available: false, navigable: true },
-      { key: "models", label: "Models & Tools", href: getGenesisRoute("models-tools"), icon: "BrainCircuit", group: "GENESIS", available: false, navigable: true },
+      { key: "models-tools", label: "Models & Tools", href: getGenesisRoute("models-tools"), icon: "BrainCircuit", group: "GENESIS", available: false, navigable: true },
     );
 
     // Group: GOVERNANCE

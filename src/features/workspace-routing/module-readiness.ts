@@ -18,6 +18,8 @@ export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> 
   // can provision accounts and manage their active membership roles.
   users: { availability: "READY" },
   "register-user": { availability: "READY" },
+  "workspace-access": { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  "access-review": { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
 
   // Shared modules
   projects: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
@@ -115,7 +117,6 @@ export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> 
   "disaster-recovery": { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   credentials: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   skills: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
-  models: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
   "models-tools": { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
   uat: { availability: "BLOCKED", blockReason: "MODULE_NOT_IMPLEMENTED" },
   research: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },

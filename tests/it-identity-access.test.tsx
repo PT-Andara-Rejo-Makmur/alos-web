@@ -6,6 +6,7 @@ import { canonicalPrincipal } from "./helpers/canonical-session";
 import WorkspaceItUsersAccessPage from "@/app/workspace/it/users/access/page";
 import WorkspaceItUsersAccessReviewPage from "@/app/workspace/it/users/access-review/page";
 import { projectWorkspaceNavigation } from "@/features/workspace-shell/workspace-navigation";
+import { getModuleReadiness } from "@/features/workspace-routing";
 
 const mockRouter = {
   push: vi.fn(),
@@ -29,6 +30,17 @@ describe("IT Identity & Access - Workspace Access & Access Review", () => {
   });
 
   describe("Navigation projection", () => {
+    it("memiliki readiness eksplisit untuk Akses Workspace dan Tinjauan Akses", () => {
+      expect(getModuleReadiness("workspace-access")).toEqual({
+        availability: "BLOCKED",
+        blockReason: "BACKEND_NOT_CONNECTED",
+      });
+      expect(getModuleReadiness("access-review")).toEqual({
+        availability: "BLOCKED",
+        blockReason: "BACKEND_NOT_CONNECTED",
+      });
+    });
+
     it("projects Workspace Access and Access Review for IT_ADMIN", () => {
       const nav = projectWorkspaceNavigation(
         {
@@ -43,6 +55,7 @@ describe("IT Identity & Access - Workspace Access & Access Review", () => {
           organization_id: "org_01",
           tenant_id: "tenant_01",
           roles: ["IT_ADMIN"],
+          permissions: ["identity.accounts.manage"],
           division_codes: ["IT"],
           workspace_ids: ["ws_it_01"],
           issued_at: "",
@@ -57,11 +70,17 @@ describe("IT Identity & Access - Workspace Access & Access Review", () => {
       expect(accessItem?.href).toBe("/workspace/it/users/access");
       expect(accessItem?.navigable).toBe(true);
       expect(accessItem?.group).toBe("IDENTITY_ACCESS");
+      expect(accessItem?.label).toBe("Akses Workspace");
+      expect(accessItem?.availability).toBe("BLOCKED");
+      expect(accessItem?.blockReason).toBe("BACKEND_NOT_CONNECTED");
 
       expect(reviewItem).toBeDefined();
       expect(reviewItem?.href).toBe("/workspace/it/users/access-review");
       expect(reviewItem?.navigable).toBe(true);
       expect(reviewItem?.group).toBe("IDENTITY_ACCESS");
+      expect(reviewItem?.label).toBe("Tinjauan Akses");
+      expect(reviewItem?.availability).toBe("BLOCKED");
+      expect(reviewItem?.blockReason).toBe("BACKEND_NOT_CONNECTED");
     });
   });
 

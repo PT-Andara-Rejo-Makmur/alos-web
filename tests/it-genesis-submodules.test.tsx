@@ -57,7 +57,7 @@ describe("IT GENESIS Technical Administration Submodules", () => {
         { key: "agents", href: getGenesisRoute("agents") },
         { key: "skills", href: getGenesisRoute("skills") },
         { key: "research", href: getGenesisRoute("research") },
-        { key: "models", href: getGenesisRoute("models-tools") },
+        { key: "models-tools", href: getGenesisRoute("models-tools") },
       ];
 
       for (const target of targetSubmodules) {
