@@ -103,9 +103,9 @@ export function ResearchWorkspace() {
   return (
     <div className={styles.researchWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS / RESEARCH"
+        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS / RISET"
         description="Akses domain terkendali, verifikasi riset, dan tanda terima bukti riset."
-        title="Research"
+        title="Riset"
       />
 
       {/* Module Readiness */}

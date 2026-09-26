@@ -75,49 +75,49 @@ describe("IT Menu Completeness and IA Verification", () => {
 
     const expectedItems: Array<{ key: string; label: string; href: string; group: string }> = [
       // ALOS PLATFORM
-      { key: "overview", label: "Overview", href: "/workspace/it", group: "ALOS_PLATFORM" },
-      { key: "systems", label: "Systems", href: "/workspace/it/systems", group: "ALOS_PLATFORM" },
-      { key: "integrations", label: "Integrations", href: "/workspace/it/integrations", group: "ALOS_PLATFORM" },
-      { key: "database", label: "Database", href: "/workspace/it/database", group: "ALOS_PLATFORM" },
-      { key: "environments", label: "Environments", href: "/workspace/it/environments", group: "ALOS_PLATFORM" },
+      { key: "overview", label: "Ringkasan", href: "/workspace/it", group: "ALOS_PLATFORM" },
+      { key: "systems", label: "Sistem", href: "/workspace/it/systems", group: "ALOS_PLATFORM" },
+      { key: "integrations", label: "Integrasi", href: "/workspace/it/integrations", group: "ALOS_PLATFORM" },
+      { key: "database", label: "Basis Data", href: "/workspace/it/database", group: "ALOS_PLATFORM" },
+      { key: "environments", label: "Lingkungan", href: "/workspace/it/environments", group: "ALOS_PLATFORM" },
 
       // IDENTITY & ACCESS
       { key: "users", label: "Kelola Akun", href: "/workspace/it/users", group: "IDENTITY_ACCESS" },
-      { key: "register-user", label: "Register Akun", href: "/workspace/it/users/register", group: "IDENTITY_ACCESS" },
+      { key: "register-user", label: "Daftarkan Akun", href: "/workspace/it/users/register", group: "IDENTITY_ACCESS" },
       { key: "workspace-access", label: "Akses Workspace", href: "/workspace/it/users/access", group: "IDENTITY_ACCESS" },
       { key: "access-review", label: "Tinjauan Akses", href: "/workspace/it/users/access-review", group: "IDENTITY_ACCESS" },
 
       // ENGINEERING
-      { key: "repositories", label: "Repositories", href: "/workspace/it/repositories", group: "ENGINEERING" },
+      { key: "repositories", label: "Repositori", href: "/workspace/it/repositories", group: "ENGINEERING" },
       { key: "cicd", label: "CI/CD", href: "/workspace/it/cicd", group: "ENGINEERING" },
-      { key: "releases", label: "Releases", href: "/workspace/it/releases", group: "ENGINEERING" },
-      { key: "tech-debt", label: "Technical Debt", href: "/workspace/it/tech-debt", group: "ENGINEERING" },
+      { key: "releases", label: "Rilis", href: "/workspace/it/releases", group: "ENGINEERING" },
+      { key: "tech-debt", label: "Utang Teknis", href: "/workspace/it/tech-debt", group: "ENGINEERING" },
 
       // OPERATIONS
-      { key: "monitoring", label: "Monitoring", href: "/workspace/it/monitoring", group: "OPERATIONS" },
-      { key: "incidents", label: "Incidents", href: "/workspace/it/incidents", group: "OPERATIONS" },
-      { key: "security", label: "Security", href: "/workspace/it/security", group: "OPERATIONS" },
-      { key: "backup", label: "Backup & DR", href: "/workspace/it/backup", group: "OPERATIONS" },
+      { key: "monitoring", label: "Pemantauan", href: "/workspace/it/monitoring", group: "OPERATIONS" },
+      { key: "incidents", label: "Insiden", href: "/workspace/it/incidents", group: "OPERATIONS" },
+      { key: "security", label: "Keamanan", href: "/workspace/it/security", group: "OPERATIONS" },
+      { key: "backup", label: "Backup & Pemulihan Bencana", href: "/workspace/it/backup", group: "OPERATIONS" },
 
       // GENESIS
-      { key: "control-plane", label: "Control Plane", href: "/workspace/it/genesis", group: "GENESIS" },
-      { key: "agents", label: "Agents", href: "/workspace/it/genesis/agents", group: "GENESIS" },
-      { key: "skills", label: "Skills", href: "/workspace/it/genesis/skills", group: "GENESIS" },
-      { key: "research", label: "Research", href: "/workspace/it/genesis/research", group: "GENESIS" },
-      { key: "models-tools", label: "Models & Tools", href: "/workspace/it/genesis/models-tools", group: "GENESIS" },
+      { key: "control-plane", label: "Pusat Kendali", href: "/workspace/it/genesis", group: "GENESIS" },
+      { key: "agents", label: "Agen", href: "/workspace/it/genesis/agents", group: "GENESIS" },
+      { key: "skills", label: "Kapabilitas", href: "/workspace/it/genesis/skills", group: "GENESIS" },
+      { key: "research", label: "Riset", href: "/workspace/it/genesis/research", group: "GENESIS" },
+      { key: "models-tools", label: "Model & Tools", href: "/workspace/it/genesis/models-tools", group: "GENESIS" },
 
       // GOVERNANCE
-      { key: "evidence", label: "Evidence", href: "/workspace/it/governance/evidence", group: "GOVERNANCE" },
-      { key: "uat", label: "UAT & Gates", href: "/workspace/it/governance/uat", group: "GOVERNANCE" },
-      { key: "decisions", label: "Decisions", href: "/workspace/it/governance/decisions", group: "GOVERNANCE" },
+      { key: "evidence", label: "Bukti", href: "/workspace/it/governance/evidence", group: "GOVERNANCE" },
+      { key: "uat", label: "UAT & Gerbang", href: "/workspace/it/governance/uat", group: "GOVERNANCE" },
+      { key: "decisions", label: "Keputusan", href: "/workspace/it/governance/decisions", group: "GOVERNANCE" },
 
       // WORK
-      { key: "projects", label: "Projects", href: "/workspace/it/projects", group: "WORK" },
-      { key: "tasks", label: "Tasks", href: "/workspace/it/tasks", group: "WORK" },
-      { key: "approvals", label: "Approvals", href: "/workspace/it/approvals", group: "WORK" },
-      { key: "documents", label: "Documents", href: "/workspace/it/documents", group: "WORK" },
-      { key: "reports", label: "Reports", href: "/workspace/it/reports", group: "WORK" },
-      { key: "findings", label: "Findings", href: "/workspace/it/findings", group: "WORK" },
+      { key: "projects", label: "Proyek", href: "/workspace/it/projects", group: "WORK" },
+      { key: "tasks", label: "Tugas", href: "/workspace/it/tasks", group: "WORK" },
+      { key: "approvals", label: "Persetujuan", href: "/workspace/it/approvals", group: "WORK" },
+      { key: "documents", label: "Dokumen", href: "/workspace/it/documents", group: "WORK" },
+      { key: "reports", label: "Laporan", href: "/workspace/it/reports", group: "WORK" },
+      { key: "findings", label: "Temuan", href: "/workspace/it/findings", group: "WORK" },
 
       // AI
       { key: "ara", label: "ARA", href: "/workspace/it/ara", group: "AI" },

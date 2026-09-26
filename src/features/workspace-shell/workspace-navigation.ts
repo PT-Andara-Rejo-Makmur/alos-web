@@ -379,7 +379,7 @@ export function projectWorkspaceNavigation(
   // Group 1: UTAMA
   items.push({
     key: "overview",
-    label: "Overview",
+    label: isIt ? "Ringkasan" : "Overview",
     href: isFinance
       ? WORKSPACE_ROUTES.finance
       : isProperty
@@ -410,52 +410,52 @@ export function projectWorkspaceNavigation(
       { key: "access-review", label: "Tinjauan Akses", href: "/workspace/it/users/access-review", icon: "UserRoundSearch", group: "IDENTITY_ACCESS", available: true, navigable: true },
     );
     items.push(
-      { key: "systems", label: "Systems", href: "/workspace/it/systems", icon: "Server", group: "ALOS_PLATFORM", available: false, navigable: true },
-      { key: "integrations", label: "Integrations", href: "/workspace/it/integrations", icon: "Cable", group: "ALOS_PLATFORM", available: false, navigable: true },
-      { key: "database", label: "Database", href: "/workspace/it/database", icon: "Database", group: "ALOS_PLATFORM", available: false, navigable: true },
-      { key: "environments", label: "Environments", href: "/workspace/it/environments", icon: "Boxes", group: "ALOS_PLATFORM", available: false, navigable: true },
+      { key: "systems", label: "Sistem", href: "/workspace/it/systems", icon: "Server", group: "ALOS_PLATFORM", available: false, navigable: true },
+      { key: "integrations", label: "Integrasi", href: "/workspace/it/integrations", icon: "Cable", group: "ALOS_PLATFORM", available: false, navigable: true },
+      { key: "database", label: "Basis Data", href: "/workspace/it/database", icon: "Database", group: "ALOS_PLATFORM", available: false, navigable: true },
+      { key: "environments", label: "Lingkungan", href: "/workspace/it/environments", icon: "Boxes", group: "ALOS_PLATFORM", available: false, navigable: true },
     );
 
     // Group: ENGINEERING
     items.push(
-      { key: "repositories", label: "Repositories", href: "/workspace/it/repositories", icon: "GitBranch", group: "ENGINEERING", available: false, navigable: true },
+      { key: "repositories", label: "Repositori", href: "/workspace/it/repositories", icon: "GitBranch", group: "ENGINEERING", available: false, navigable: true },
       { key: "cicd", label: "CI/CD", href: "/workspace/it/cicd", icon: "Workflow", group: "ENGINEERING", available: false, navigable: true },
-      { key: "releases", label: "Releases", href: "/workspace/it/releases", icon: "Rocket", group: "ENGINEERING", available: false, navigable: true },
-      { key: "tech-debt", label: "Technical Debt", href: "/workspace/it/tech-debt", icon: "Wrench", group: "ENGINEERING", available: false, navigable: true },
+      { key: "releases", label: "Rilis", href: "/workspace/it/releases", icon: "Rocket", group: "ENGINEERING", available: false, navigable: true },
+      { key: "tech-debt", label: "Utang Teknis", href: "/workspace/it/tech-debt", icon: "Wrench", group: "ENGINEERING", available: false, navigable: true },
     );
 
     // Group: OPERATIONS
     items.push(
-      { key: "monitoring", label: "Monitoring", href: "/workspace/it/monitoring", icon: "Activity", group: "OPERATIONS", available: true, navigable: true },
-      { key: "incidents", label: "Incidents", href: "/workspace/it/incidents", icon: "Siren", group: "OPERATIONS", available: false, navigable: true },
-      { key: "security", label: "Security", href: "/workspace/it/security", icon: "ShieldCheck", group: "OPERATIONS", available: false, navigable: true },
-      { key: "backup", label: "Backup & DR", href: "/workspace/it/backup", icon: "DatabaseBackup", group: "OPERATIONS", available: false, navigable: true },
+      { key: "monitoring", label: "Pemantauan", href: "/workspace/it/monitoring", icon: "Activity", group: "OPERATIONS", available: true, navigable: true },
+      { key: "incidents", label: "Insiden", href: "/workspace/it/incidents", icon: "Siren", group: "OPERATIONS", available: false, navigable: true },
+      { key: "security", label: "Keamanan", href: "/workspace/it/security", icon: "ShieldCheck", group: "OPERATIONS", available: false, navigable: true },
+      { key: "backup", label: "Backup & Pemulihan Bencana", href: "/workspace/it/backup", icon: "DatabaseBackup", group: "OPERATIONS", available: false, navigable: true },
     );
 
     // Group: GENESIS (canonical control plane routes under IT namespace)
     items.push(
-      { key: "control-plane", label: "Control Plane", href: getGenesisRoute(), icon: "Bot", group: "GENESIS", available: true, navigable: true },
-      { key: "agents", label: "Agents", href: getGenesisRoute("agents"), icon: "Bot", group: "GENESIS", available: false, navigable: true },
-      { key: "skills", label: "Skills", href: getGenesisRoute("skills"), icon: "Blocks", group: "GENESIS", available: false, navigable: true },
-      { key: "research", label: "Research", href: getGenesisRoute("research"), icon: "SearchCheck", group: "GENESIS", available: false, navigable: true },
-      { key: "models-tools", label: "Models & Tools", href: getGenesisRoute("models-tools"), icon: "BrainCircuit", group: "GENESIS", available: false, navigable: true },
+      { key: "control-plane", label: "Pusat Kendali", href: getGenesisRoute(), icon: "Bot", group: "GENESIS", available: true, navigable: true },
+      { key: "agents", label: "Agen", href: getGenesisRoute("agents"), icon: "Bot", group: "GENESIS", available: false, navigable: true },
+      { key: "skills", label: "Kapabilitas", href: getGenesisRoute("skills"), icon: "Blocks", group: "GENESIS", available: false, navigable: true },
+      { key: "research", label: "Riset", href: getGenesisRoute("research"), icon: "SearchCheck", group: "GENESIS", available: false, navigable: true },
+      { key: "models-tools", label: "Model & Tools", href: getGenesisRoute("models-tools"), icon: "BrainCircuit", group: "GENESIS", available: false, navigable: true },
     );
 
     // Group: GOVERNANCE
     items.push(
-      { key: "evidence", label: "Evidence", href: getGovernanceRoute("evidence"), icon: "Fingerprint", group: "GOVERNANCE", available: false, navigable: true },
-      { key: "uat", label: "UAT & Gates", href: getGovernanceRoute("uat"), icon: "FlaskConical", group: "GOVERNANCE", available: false, navigable: true },
-      { key: "decisions", label: "Decisions", href: getGovernanceRoute("decisions"), icon: "BadgeCheck", group: "GOVERNANCE", available: false, navigable: true },
+      { key: "evidence", label: "Bukti", href: getGovernanceRoute("evidence"), icon: "Fingerprint", group: "GOVERNANCE", available: false, navigable: true },
+      { key: "uat", label: "UAT & Gerbang", href: getGovernanceRoute("uat"), icon: "FlaskConical", group: "GOVERNANCE", available: false, navigable: true },
+      { key: "decisions", label: "Keputusan", href: getGovernanceRoute("decisions"), icon: "BadgeCheck", group: "GOVERNANCE", available: false, navigable: true },
     );
 
     // Group: WORK (Contextual Work Modules)
     items.push(
-      { key: "projects", label: "Projects", href: getWorkspaceModuleRoute("it", "projects"), icon: "FolderKanban", group: "WORK", available: false, navigable: true },
-      { key: "tasks", label: "Tasks", href: getWorkspaceModuleRoute("it", "tasks"), icon: "ListChecks", group: "WORK", available: false, navigable: true },
-      { key: "approvals", label: "Approvals", href: getWorkspaceModuleRoute("it", "approvals"), icon: "BadgeCheck", group: "WORK", available: false, navigable: true },
-      { key: "documents", label: "Documents", href: getWorkspaceModuleRoute("it", "documents"), icon: "Files", group: "WORK", available: false, navigable: true },
-      { key: "reports", label: "Reports", href: getWorkspaceModuleRoute("it", "reports"), icon: "ChartColumn", group: "WORK", available: false, navigable: true },
-      { key: "findings", label: "Findings", href: getWorkspaceModuleRoute("it", "findings"), icon: "TriangleAlert", group: "WORK", available: false, navigable: true },
+      { key: "projects", label: "Proyek", href: getWorkspaceModuleRoute("it", "projects"), icon: "FolderKanban", group: "WORK", available: false, navigable: true },
+      { key: "tasks", label: "Tugas", href: getWorkspaceModuleRoute("it", "tasks"), icon: "ListChecks", group: "WORK", available: false, navigable: true },
+      { key: "approvals", label: "Persetujuan", href: getWorkspaceModuleRoute("it", "approvals"), icon: "BadgeCheck", group: "WORK", available: false, navigable: true },
+      { key: "documents", label: "Dokumen", href: getWorkspaceModuleRoute("it", "documents"), icon: "Files", group: "WORK", available: false, navigable: true },
+      { key: "reports", label: "Laporan", href: getWorkspaceModuleRoute("it", "reports"), icon: "ChartColumn", group: "WORK", available: false, navigable: true },
+      { key: "findings", label: "Temuan", href: getWorkspaceModuleRoute("it", "findings"), icon: "TriangleAlert", group: "WORK", available: false, navigable: true },
     );
 
     // Group: AI

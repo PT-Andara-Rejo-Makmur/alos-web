@@ -43,7 +43,35 @@ const GROUP_ORDER: readonly WorkspaceNavGroup[] = [
   "AI",
 ];
 
-function getGroupLabel(group: WorkspaceNavGroup, divisionCode: string | null): string {
+function getGroupLabel(
+  group: WorkspaceNavGroup,
+  divisionCode: string | null,
+  workspaceKey?: string,
+): string {
+  const isIt = workspaceKey === "it" || divisionCode === "IT" || divisionCode === "TECHNOLOGY";
+  if (isIt) {
+    switch (group) {
+      case "ALOS_PLATFORM":
+        return "PLATFORM ALOS";
+      case "IDENTITY_ACCESS":
+        return "IDENTITAS & AKSES";
+      case "ENGINEERING":
+        return "REKAYASA";
+      case "OPERATIONS":
+        return "OPERASIONAL";
+      case "GENESIS":
+        return "GENESIS";
+      case "GOVERNANCE":
+        return "TATA KELOLA";
+      case "WORK":
+        return "PEKERJAAN";
+      case "AI":
+        return "AI";
+      default:
+        break;
+    }
+  }
+
   switch (group) {
     case "COMMAND_CENTER":
       return "COMMAND CENTER";
@@ -114,7 +142,7 @@ export function WorkspaceSidebar({
   // Group navigation items by group key
   const grouped = GROUP_ORDER.map((group) => ({
     group,
-    label: getGroupLabel(group, identity.divisionCode),
+    label: getGroupLabel(group, identity.divisionCode, identity.workspaceKey),
     items: navigation.filter((item) => item.group === group),
   })).filter((section) => section.items.length > 0);
 

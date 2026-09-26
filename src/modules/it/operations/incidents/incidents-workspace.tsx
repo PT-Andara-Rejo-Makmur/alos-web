@@ -17,9 +17,9 @@ export function IncidentsWorkspace() {
   return (
     <div className={styles.incidentWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / INCIDENTS"
-        description="Respons incident operasional, tindak lanjut, dan telemetri dampak layanan."
-        title="Incidents"
+        breadcrumb="ALOS / IT & TEKNOLOGI / INSIDEN"
+        description="Respons insiden operasional, tindak lanjut, dan telemetri dampak layanan."
+        title="Insiden"
       />
 
       {/* Module Readiness */}
@@ -34,12 +34,12 @@ export function IncidentsWorkspace() {
       </section>
 
       {/* Incident Source Status */}
-      <section aria-label="Status sumber incident">
+      <section aria-label="Status sumber insiden">
         <ItStatusRow
           detail="NOT_CONNECTED"
-          helper="Sumber pengelolaan incident dari Backend belum terhubung."
+          helper="Sumber pengelolaan insiden dari Backend belum terhubung."
           icon={Siren}
-          label="Sumber Incident"
+          label="Sumber Insiden"
           status="NOT_CONNECTED"
         />
       </section>
@@ -50,17 +50,17 @@ export function IncidentsWorkspace() {
           eyebrow="Triage & Operasi"
           id="incident-registry-title"
           subtitle="Gangguan operasional, penilaian severity, dan pelacakan respons"
-          title="Registri Incident"
+          title="Registri Insiden"
         />
 
         <ItDataTable
-          ariaLabel="Registri pengelolaan incident"
-          columns={["Incident", "Severity", "Dampak", "Status", "Pemilik", "Pembaruan Terakhir"]}
+          ariaLabel="Registri pengelolaan insiden"
+          columns={["Insiden", "Severity", "Dampak", "Status", "Pemilik", "Pembaruan Terakhir"]}
           minWidth={840}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={6}>
-              Sumber incident belum terhubung.
+              Sumber insiden belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -79,7 +79,7 @@ export function IncidentsWorkspace() {
           title="Batas Telemetri Operasional"
           variant="neutral"
         >
-          Linimasa respons, klasifikasi severity, dan tinjauan setelah incident memerlukan telemetri operasional yang berwenang. Tanpa sumber yang terhubung, sistem tidak mengasumsikan jumlah incident nol atau nilai MTTR tertentu.
+          Linimasa respons, klasifikasi severity, dan tinjauan pasca-insiden memerlukan telemetri operasional yang berwenang. Tanpa sumber yang terhubung, sistem tidak mengasumsikan jumlah insiden nol atau nilai MTTR tertentu.
         </ItNotice>
       </section>
     </div>

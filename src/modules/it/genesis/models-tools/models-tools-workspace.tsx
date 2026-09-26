@@ -17,9 +17,9 @@ export function ModelsToolsWorkspace() {
   return (
     <div className={styles.modelsWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS / MODELS & TOOLS"
+        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS / MODEL & TOOLS"
         description="Registri model dan tools teknis, kebijakan penggunaan, serta batas runtime."
-        title="Models & Tools"
+        title="Model & Tools"
       />
 
       {/* Module Readiness */}

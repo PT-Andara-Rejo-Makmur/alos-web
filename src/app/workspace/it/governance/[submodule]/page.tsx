@@ -47,9 +47,9 @@ export default function WorkspaceItGovernanceSubmodulePage({
   return (
     <ProtectedDomainWorkspace
       activeNavKey={submodule}
-      deniedTitle="Bukan Otoritas IT / Governance"
+      deniedTitle="Bukan Otoritas IT / Tata Kelola"
       divisionCodes={["IT", "TECHNOLOGY"]}
-      loadingLabel="Memuat Modul Governance IT…"
+      loadingLabel="Memuat Modul Tata Kelola IT…"
       workspaceKeys={["it", "technology"]}
     >
       {() => <Component />}

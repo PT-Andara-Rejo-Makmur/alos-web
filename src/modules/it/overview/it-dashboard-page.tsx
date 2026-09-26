@@ -8,7 +8,7 @@ import type { ItDashboardSnapshot } from "./types";
 export function ItDashboardPage({ initialSnapshot }: { readonly initialSnapshot?: ItDashboardSnapshot | null }) {
   const snapshot = initialSnapshot ?? createDefaultItSnapshot();
   return (
-    <ProtectedDomainWorkspace deniedTitle="Bukan Otoritas IT & Technology" divisionCodes={["IT", "TECHNOLOGY"]} loadingLabel="Memuat IT Operations…" workspaceKeys={["it", "technology"]}>
+    <ProtectedDomainWorkspace deniedTitle="Bukan Otoritas IT & Teknologi" divisionCodes={["IT", "TECHNOLOGY"]} loadingLabel="Memuat Operasi IT…" workspaceKeys={["it", "technology"]}>
       {() => <ItDashboardHome snapshot={snapshot} />}
     </ProtectedDomainWorkspace>
   );

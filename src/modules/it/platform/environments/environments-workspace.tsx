@@ -17,9 +17,9 @@ export function EnvironmentsWorkspace() {
   return (
     <div className={styles.envWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / ENVIRONMENTS"
+        breadcrumb="ALOS / IT & TEKNOLOGI / LINGKUNGAN"
         description="Bukti operasional, tingkat deployment, dan batas konfigurasi untuk Development, Staging, dan Production."
-        title="Environments"
+        title="Lingkungan"
       />
 
       {/* Module Readiness */}
@@ -39,7 +39,7 @@ export function EnvironmentsWorkspace() {
           detail="NO_SOURCE"
           helper="Integrasi inventaris environment Backend belum tersedia."
           icon={Server}
-          label="Sumber Inventaris Environment"
+          label="Sumber Inventaris Lingkungan"
           status="NOT_CONNECTED"
         />
       </section>
@@ -50,17 +50,17 @@ export function EnvironmentsWorkspace() {
           eyebrow="Tingkat & Deployment"
           id="env-registry-title"
           subtitle="Tingkat deployment runtime dan batas konfigurasi aktif"
-          title="Registri Environment"
+          title="Registri Lingkungan"
         />
 
         <ItDataTable
           ariaLabel="Registri tingkat deployment environment"
-          columns={["Environment", "Versi", "Status Deployment", "Bukti Terakhir", "Sumber"]}
+          columns={["Lingkungan", "Versi", "Status Deployment", "Bukti Terakhir", "Sumber"]}
           minWidth={760}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={5}>
-              Sumber inventaris environment dari Backend belum terhubung.
+              Sumber inventaris lingkungan dari Backend belum terhubung.
             </td>
           </tr>
         </ItDataTable>

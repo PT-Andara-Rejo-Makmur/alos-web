@@ -177,7 +177,7 @@ export function ContextualWorkspaceModulePage({
           return (
             <ItUnavailableSurface
               backHref="/workspace/it"
-              backLabel="← Kembali ke IT Overview"
+              backLabel="← Kembali ke Ringkasan IT"
               description={`Modul ini belum tersedia pada sistem backend (${itReadiness.blockReason ?? "BACKEND_NOT_CONNECTED"}). Kesiapan operasional disajikan secara transparan tanpa data tiruan.`}
               eyebrow={`ALOS / IT / ${canonicalModule.toUpperCase()}`}
               readiness={itReadiness}

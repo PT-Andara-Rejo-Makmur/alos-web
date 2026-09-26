@@ -22,6 +22,23 @@ describe("higiene bahasa dan klaim UI IT", () => {
     '"Module Readiness"',
     '"Change History"',
     '"Access Review"',
+    '"Backend audit-history projection',
+    '"System Registry"',
+    '"Repository Source"',
+    '"Pipeline Runs"',
+    '"Release Registry"',
+    '"Technical Debt Register"',
+    '"Incident Source"',
+    '"Security Findings"',
+    '"Agent Registry"',
+    '"Evidence Registry"',
+    '"Decision Register"',
+    '"effective-access review"',
+    '"Backend identity service"',
+    '"Cadence Kontrol"',
+    '"Buka Control Plane"',
+    '"Register Akun Baru"',
+    '"Kembali ke IT Overview"',
   ])("tidak memuat literal user-facing Inggris lama: %s", (legacyLiteral) => {
     expect(source).not.toContain(legacyLiteral);
   });

@@ -39,7 +39,7 @@ describe("IT Governance Submodules", () => {
     it("renders EvidenceWorkspace with truthful blocked and not-connected state", () => {
       render(<EvidenceWorkspace />);
 
-      expect(screen.getByRole("heading", { name: "Evidence", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Bukti", level: 1 })).toBeInTheDocument();
       expect(screen.getByText("Sumber Bukti")).toBeInTheDocument();
       expect(screen.getByText("NOT_CONNECTED")).toBeInTheDocument();
       expect(screen.getByText("Sumber bukti dari Backend belum terhubung.")).toBeInTheDocument();
@@ -49,17 +49,17 @@ describe("IT Governance Submodules", () => {
     it("renders UatWorkspace with truthful blocked and not-connected state", () => {
       render(<UatWorkspace />);
 
-      expect(screen.getByRole("heading", { name: "UAT & Gates", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "UAT & Gerbang", level: 1 })).toBeInTheDocument();
       expect(screen.getByText("Sumber Bukti UAT")).toBeInTheDocument();
       expect(screen.getByText("NOT_CONNECTED")).toBeInTheDocument();
-      expect(screen.getByText("Sumber bukti UAT dan gate belum terhubung.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber bukti UAT dan gerbang belum terhubung.")).toBeInTheDocument();
       expect(screen.getByText("Batas Verifikasi UAT")).toBeInTheDocument();
     });
 
     it("renders DecisionsWorkspace with truthful blocked and not-connected state", () => {
       render(<DecisionsWorkspace />);
 
-      expect(screen.getByRole("heading", { name: "Decisions", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Keputusan", level: 1 })).toBeInTheDocument();
       expect(screen.getByText("Sumber Keputusan Teknologi")).toBeInTheDocument();
       expect(screen.getByText("NOT_CONNECTED")).toBeInTheDocument();
       expect(screen.getByText("Sumber keputusan teknologi dari Backend belum terhubung.")).toBeInTheDocument();
@@ -86,7 +86,7 @@ describe("IT Governance Submodules", () => {
       render(<WorkspaceItGovernanceSubmodulePage params={{ submodule: "evidence" }} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Evidence", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Bukti", level: 1 })).toBeInTheDocument();
         expect(screen.getByText("Sumber bukti dari Backend belum terhubung.")).toBeInTheDocument();
       });
     });
@@ -95,8 +95,8 @@ describe("IT Governance Submodules", () => {
       render(<WorkspaceItGovernanceSubmodulePage params={{ submodule: "uat" }} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "UAT & Gates", level: 1 })).toBeInTheDocument();
-        expect(screen.getByText("Sumber bukti UAT dan gate belum terhubung.")).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "UAT & Gerbang", level: 1 })).toBeInTheDocument();
+        expect(screen.getByText("Sumber bukti UAT dan gerbang belum terhubung.")).toBeInTheDocument();
       });
     });
 
@@ -104,7 +104,7 @@ describe("IT Governance Submodules", () => {
       render(<WorkspaceItGovernanceSubmodulePage params={{ submodule: "decisions" }} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Decisions", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Keputusan", level: 1 })).toBeInTheDocument();
         expect(screen.getByText("Sumber keputusan teknologi dari Backend belum terhubung.")).toBeInTheDocument();
       });
     });

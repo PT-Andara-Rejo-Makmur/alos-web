@@ -17,9 +17,9 @@ export function SkillsWorkspace() {
   return (
     <div className={styles.skillWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS / SKILLS"
+        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS / KAPABILITAS"
         description="Modul kapabilitas teknis, tools agen yang dapat digunakan kembali, dan status siklus kapabilitas."
-        title="Skills"
+        title="Kapabilitas"
       />
 
       {/* Module Readiness */}
@@ -34,12 +34,12 @@ export function SkillsWorkspace() {
       </section>
 
       {/* Skill Registry Source Status */}
-      <section aria-label="Status sumber registri skill">
+      <section aria-label="Status sumber registri kapabilitas">
         <ItStatusRow
           detail="NOT_CONNECTED"
           helper="Integrasi registri skill Backend belum tersedia."
           icon={Blocks}
-          label="Sumber Registri Skill"
+          label="Sumber Registri Kapabilitas"
           status="NOT_CONNECTED"
         />
       </section>
@@ -49,18 +49,18 @@ export function SkillsWorkspace() {
         <ItSectionHeader
           eyebrow="Unit Kapabilitas"
           id="skills-registry-title"
-          subtitle="Definisi skill teknis dan keterkaitannya dengan agen terdaftar"
-          title="Registri Skills"
+          subtitle="Definisi kapabilitas teknis dan keterkaitannya dengan agen terdaftar"
+          title="Registri Kapabilitas"
         />
 
         <ItDataTable
-          ariaLabel="Registri skill teknis"
-          columns={["Skill", "Tujuan", "Siklus", "Agen", "Sumber"]}
+          ariaLabel="Registri kapabilitas teknis"
+          columns={["Kapabilitas", "Tujuan", "Siklus", "Agen", "Sumber"]}
           minWidth={780}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={5}>
-              Sumber registri skill dari Backend belum terhubung.
+              Sumber registri kapabilitas dari Backend belum terhubung.
             </td>
           </tr>
         </ItDataTable>
@@ -76,10 +76,10 @@ export function SkillsWorkspace() {
         />
 
         <ItNotice
-          title="Pemanggilan Skill Terkendali"
+          title="Pemanggilan Kapabilitas Terkendali"
           variant="neutral"
         >
-          Skills merupakan unit eksekusi yang terkait dengan agen. Tanpa koneksi ke registri Backend yang berwenang, ketersediaan skill tidak diasumsikan dan tidak dibuat secara lokal.
+          Kapabilitas merupakan unit eksekusi yang terkait dengan agen. Tanpa koneksi ke registri Backend yang berwenang, ketersediaan kapabilitas tidak diasumsikan dan tidak dibuat secara lokal.
         </ItNotice>
       </section>
     </div>

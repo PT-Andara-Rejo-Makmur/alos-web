@@ -50,7 +50,7 @@ export function ItDashboardHome({ snapshot }: ItDashboardHomeProps) {
             </tr>
           ))}
         </ItDataTable>
-        <p className={styles.tableNote}>Repositori tersedia != runtime sehat.</p>
+        <p className={styles.tableNote}>Keberadaan repositori tidak membuktikan bahwa runtime dalam kondisi sehat.</p>
       </section>
 
       <section aria-labelledby="operations-status-title" className={styles.section}>
@@ -96,11 +96,11 @@ export function ItDashboardHome({ snapshot }: ItDashboardHomeProps) {
           eyebrow="Jadwal Assurance"
           id="control-cadence-title"
           subtitle="Verifikasi backup dan pengujian restore tetap menjadi kontrol terpisah."
-          title="Cadence Kontrol"
+          title="Jadwal Kontrol"
         />
         <ItDataTable
-          ariaLabel="Cadence kontrol IT"
-          columns={["Cadence", "ID Kontrol", "Kontrol", "Bukti", "Status", "Target Kapabilitas"]}
+          ariaLabel="Jadwal kontrol IT"
+          columns={["Frekuensi", "ID Kontrol", "Kontrol", "Bukti", "Status", "Kapabilitas Target"]}
           minWidth={980}
         >
           {snapshot.cadence.map((item) => (
@@ -120,7 +120,7 @@ export function ItDashboardHome({ snapshot }: ItDashboardHomeProps) {
         <ItSectionHeader
           action={
             <Link className={styles.utilityLink} href="/workspace/it/genesis">
-              Buka Control Plane
+              Buka Pusat Kendali
               <ArrowRight aria-hidden={true} size={16} />
             </Link>
           }

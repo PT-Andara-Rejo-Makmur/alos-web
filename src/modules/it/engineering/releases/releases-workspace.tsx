@@ -17,9 +17,9 @@ export function ReleasesWorkspace() {
   return (
     <div className={styles.releaseWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / RELEASES"
+        breadcrumb="ALOS / IT & TEKNOLOGI / RILIS"
         description="Registri rilis perangkat lunak, verifikasi gate rilis, dan bukti rollback deployment."
-        title="Releases"
+        title="Rilis"
       />
 
       {/* Module Readiness */}
@@ -55,7 +55,7 @@ export function ReleasesWorkspace() {
 
         <ItDataTable
           ariaLabel="Registri siklus rilis"
-          columns={["Rilis", "Versi", "Environment", "Status Gate", "Persetujuan", "Bukti"]}
+          columns={["Rilis", "Versi", "Lingkungan", "Status Gerbang", "Persetujuan", "Bukti"]}
           minWidth={840}
         >
           <tr>
@@ -72,11 +72,11 @@ export function ReleasesWorkspace() {
           eyebrow="Tata Kelola & Rollback"
           id="rollback-evidence-title"
           subtitle="Persetujuan promosi dan bukti mekanisme rollback"
-          title="Ringkasan Gate & Bukti Rollback"
+          title="Ringkasan Gerbang & Bukti Rollback"
         />
 
         <ItNotice
-          title="Batas Tata Kelola Gate Rilis"
+          title="Batas Tata Kelola Gerbang Rilis"
           variant="neutral"
         >
           Catatan tata kelola rilis, metrik canary, dan bukti rollback memerlukan sumber siklus rilis dari Backend. Versi, tanggal, dan persetujuan rilis tidak dibuat oleh lapisan presentasi client.

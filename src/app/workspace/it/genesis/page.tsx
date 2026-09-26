@@ -9,7 +9,7 @@ export default function WorkspaceItGenesisPage() {
       activeNavKey="control-plane"
       deniedTitle="Bukan Otoritas IT / GENESIS"
       divisionCodes={["IT", "TECHNOLOGY"]}
-      loadingLabel="Memuat GENESIS Control Plane…"
+      loadingLabel="Memuat Pusat Kendali GENESIS…"
       workspaceKeys={["it", "technology"]}
     >
       {() => <GenesisControlPlaneWorkspace />}

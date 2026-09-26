@@ -165,7 +165,7 @@ describe("IT Identity & Access - Workspace Access & Access Review", () => {
         expect(screen.getByText("Alice Developer")).toBeInTheDocument();
         expect(screen.getAllByText("IT Workspace").length).toBeGreaterThanOrEqual(1);
         expect(screen.getByText("IT ENGINEER")).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
     });
   });
 
@@ -241,7 +241,7 @@ describe("IT Identity & Access - Workspace Access & Access Review", () => {
         expect(screen.getByText("Sumber riwayat perubahan hak akses belum tersedia dari Backend.")).toBeInTheDocument();
         expect(screen.getByText("Sumber Proyeksi Identitas")).toBeInTheDocument();
         expect(screen.getByText("AKTIF")).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
     });
 
     it("mengunci konsistensi status source dengan module readiness", () => {

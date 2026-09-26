@@ -80,7 +80,7 @@ export function AccountManagementPage() {
           return (
             <ItUnavailableSurface
               backHref="/workspace/it"
-              backLabel="← Kembali ke IT Overview"
+              backLabel="← Kembali ke Ringkasan IT"
               description="Hanya IT Admin dengan izin kelola akun yang dapat membuka halaman ini."
               eyebrow="ALOS / IT / IDENTITAS & AKSES"
               readiness={{ availability: "BLOCKED", blockReason: "ACCESS_DENIED" }}
@@ -97,7 +97,7 @@ export function AccountManagementPage() {
               </div>
               <Link className={styles.primaryButton} href="/workspace/it/users/register">
                 <Plus aria-hidden={true} size={16} />
-                Register Akun Baru
+                Daftarkan Akun Baru
               </Link>
             </div>
             <p className={styles.intro}>

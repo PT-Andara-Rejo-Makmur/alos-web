@@ -59,8 +59,8 @@ describe("IT Operations Modules - Incidents, Security, Backup & DR", () => {
     it("renders honest not-connected state and avoids claiming 0 incidents", () => {
       render(renderItWorkspaceModule("incidents"));
 
-      expect(screen.getByRole("heading", { name: "Incidents", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("Sumber incident belum terhubung.")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Insiden", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("Sumber insiden belum terhubung.")).toBeInTheDocument();
       expect(screen.queryByText(/0 incidents/i)).not.toBeInTheDocument();
     });
   });
@@ -69,7 +69,7 @@ describe("IT Operations Modules - Incidents, Security, Backup & DR", () => {
     it("renders honest not-connected state and avoids claiming 100% compliant or secure", () => {
       render(renderItWorkspaceModule("security"));
 
-      expect(screen.getByRole("heading", { name: "Security", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Keamanan", level: 1 })).toBeInTheDocument();
       expect(screen.getByText("Sumber temuan keamanan belum terhubung.")).toBeInTheDocument();
       expect(screen.queryByText(/no vulnerabilities/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/100% compliant/i)).not.toBeInTheDocument();
@@ -81,7 +81,7 @@ describe("IT Operations Modules - Incidents, Security, Backup & DR", () => {
     it("renders honest not-connected state and avoids claiming backup success", () => {
       render(renderItWorkspaceModule("backup"));
 
-      expect(screen.getByRole("heading", { name: "Backup & DR", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Backup & Pemulihan Bencana", level: 1 })).toBeInTheDocument();
       expect(
         screen.getByText("Sumber bukti backup dari Backend belum terhubung."),
       ).toBeInTheDocument();

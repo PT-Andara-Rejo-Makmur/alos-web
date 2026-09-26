@@ -61,9 +61,9 @@ describe("IT Platform Environments & Engineering Modules", () => {
     it("renders honest source-not-connected state and empty table", () => {
       render(renderItWorkspaceModule("environments"));
 
-      expect(screen.getByRole("heading", { name: "Environments", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Lingkungan", level: 1 })).toBeInTheDocument();
       expect(
-        screen.getByText("Sumber inventaris environment dari Backend belum terhubung."),
+        screen.getByText("Sumber inventaris lingkungan dari Backend belum terhubung."),
       ).toBeInTheDocument();
       expect(screen.queryByText(/healthy/i)).not.toBeInTheDocument();
     });
@@ -73,7 +73,7 @@ describe("IT Platform Environments & Engineering Modules", () => {
     it("renders honest source-not-connected state and empty table without fake repos", () => {
       render(renderItWorkspaceModule("repositories"));
 
-      expect(screen.getByRole("heading", { name: "Repositories", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Repositori", level: 1 })).toBeInTheDocument();
       expect(
         screen.getByText("Sumber inventaris repositori dari Backend belum terhubung."),
       ).toBeInTheDocument();
@@ -97,7 +97,7 @@ describe("IT Platform Environments & Engineering Modules", () => {
     it("renders honest release registry empty state without fake releases", () => {
       render(renderItWorkspaceModule("releases"));
 
-      expect(screen.getByRole("heading", { name: "Releases", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Rilis", level: 1 })).toBeInTheDocument();
       expect(
         screen.getByText("Sumber siklus rilis dari Backend belum terhubung."),
       ).toBeInTheDocument();
@@ -109,9 +109,9 @@ describe("IT Platform Environments & Engineering Modules", () => {
     it("renders honest tech debt register empty state without fake items", () => {
       render(renderItWorkspaceModule("tech-debt"));
 
-      expect(screen.getByRole("heading", { name: "Technical Debt", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Utang Teknis", level: 1 })).toBeInTheDocument();
       expect(
-        screen.getByText("Sumber registri technical debt belum terhubung."),
+        screen.getByText("Sumber registri utang teknis belum terhubung."),
       ).toBeInTheDocument();
     });
   });

@@ -17,9 +17,9 @@ export function AgentsWorkspace() {
   return (
     <div className={styles.agentWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS / AGENTS"
+        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS / AGEN"
         description="Registri agen teknis, tahap siklus, batas izin, dan tingkat risiko operasional."
-        title="Agents"
+        title="Agen"
       />
 
       {/* Module Readiness */}
@@ -49,7 +49,7 @@ export function AgentsWorkspace() {
         <ItSectionHeader
           eyebrow="Agen Teknis"
           id="agent-registry-title"
-          subtitle="Agen AI teknis, ringkasan kontrak, dan gate persetujuan"
+          subtitle="Agen AI teknis, ringkasan kontrak, dan gerbang persetujuan"
           title="Registri Agen"
         />
 

@@ -17,9 +17,9 @@ export function EvidenceWorkspace() {
   return (
     <div className={styles.evidenceWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / TATA KELOLA / EVIDENCE"
+        breadcrumb="ALOS / IT & TEKNOLOGI / TATA KELOLA / BUKTI"
         description="Bukti, sumber, waktu, keterkaitan, dan status validasi dari Backend."
-        title="Evidence"
+        title="Bukti"
       />
 
       {/* Module Readiness */}

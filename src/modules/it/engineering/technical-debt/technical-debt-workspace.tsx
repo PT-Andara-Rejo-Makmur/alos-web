@@ -17,9 +17,9 @@ export function TechnicalDebtWorkspace() {
   return (
     <div className={styles.debtWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / TECHNICAL DEBT"
+        breadcrumb="ALOS / IT & TEKNOLOGI / UTANG TEKNIS"
         description="Registri technical debt, item remediasi arsitektur, dan prioritas refactoring."
-        title="Technical Debt"
+        title="Utang Teknis"
       />
 
       {/* Module Readiness */}
@@ -39,7 +39,7 @@ export function TechnicalDebtWorkspace() {
           detail="NOT_CONNECTED"
           helper="Sumber registri technical debt dari Backend belum terhubung."
           icon={Wrench}
-          label="Sumber Registri Technical Debt"
+          label="Sumber Registri Utang Teknis"
           status="NOT_CONNECTED"
         />
       </section>
@@ -50,7 +50,7 @@ export function TechnicalDebtWorkspace() {
           eyebrow="Backlog Remediasi"
           id="debt-registry-title"
           subtitle="Item technical debt, kompromi arsitektur, dan pemilik remediasi"
-          title="Registri Technical Debt"
+          title="Registri Utang Teknis"
         />
 
         <ItDataTable
@@ -60,7 +60,7 @@ export function TechnicalDebtWorkspace() {
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={7}>
-              Sumber registri technical debt belum terhubung.
+              Sumber registri utang teknis belum terhubung.
             </td>
           </tr>
         </ItDataTable>

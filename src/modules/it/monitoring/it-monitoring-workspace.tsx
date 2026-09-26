@@ -22,7 +22,7 @@ const COVERAGE_CATEGORIES = [
   { id: "app", name: "Aplikasi", source: "Telemetri aplikasi", icon: AppWindow },
   { id: "backend", name: "Backend", source: "Telemetri Backend", icon: Server },
   { id: "infra", name: "Infrastruktur", source: "Telemetri infrastruktur", icon: RadioTower },
-  { id: "db", name: "Database", source: "Telemetri database", icon: Database },
+  { id: "db", name: "Basis Data", source: "Telemetri basis data", icon: Database },
   { id: "security", name: "Keamanan", source: "Telemetri keamanan", icon: ShieldCheck },
   { id: "backup", name: "Backup", source: "Laporan backup", icon: DatabaseBackup },
 ] as const;
@@ -33,9 +33,9 @@ export function ItMonitoringWorkspace() {
   return (
     <div className={styles.monitoringWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / MONITORING"
+        breadcrumb="ALOS / IT & TEKNOLOGI / PEMANTAUAN"
         description="Telemetri operasional, kesehatan layanan, sinyal, dan cakupan."
-        title="Monitoring"
+        title="Pemantauan"
       />
 
       <section aria-label="Sumber telemetri">
@@ -57,7 +57,7 @@ export function ItMonitoringWorkspace() {
         />
         <ItDataTable
           ariaLabel="Telemetri kesehatan layanan"
-          columns={["Layanan", "Environment", "Kesehatan", "Sinyal Terakhir", "Sumber"]}
+          columns={["Layanan", "Lingkungan", "Kesehatan", "Sinyal Terakhir", "Sumber"]}
           minWidth={760}
         >
           <tr>
@@ -78,7 +78,7 @@ export function ItMonitoringWorkspace() {
         <ItSectionHeader
           eyebrow="Cakupan Sumber"
           id="monitoring-coverage-title"
-          title="Cakupan Monitoring"
+          title="Cakupan Pemantauan"
         />
         <div className={styles.coverageList}>
           {COVERAGE_CATEGORIES.map((category) => {

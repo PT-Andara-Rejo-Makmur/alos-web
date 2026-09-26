@@ -42,9 +42,9 @@ export function SystemsWorkspace() {
   return (
     <div className={styles.systemsWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / SYSTEMS"
+        breadcrumb="ALOS / IT & TEKNOLOGI / SISTEM"
         description="Komponen platform, bukti runtime, status integrasi, dan cakupan sumber operasional."
-        title="Systems"
+        title="Sistem"
       />
 
       {/* Module Readiness */}
@@ -102,7 +102,7 @@ export function SystemsWorkspace() {
                 <span className={styles.metricValue}>{diagnostic.genesis.service}</span>
               </div>
               <div className={styles.diagnosticMetric}>
-                <span className={styles.metricLabel}>GENESIS Status</span>
+                <span className={styles.metricLabel}>Status GENESIS</span>
                 <span className={styles.metricValue}>{diagnostic.genesis.status}</span>
               </div>
               <div className={styles.diagnosticMetric}>
@@ -192,7 +192,7 @@ export function SystemsWorkspace() {
             <td>
               <strong>GENESIS</strong>
             </td>
-            <td>Control Plane AI</td>
+            <td>Pusat Kendali AI</td>
             <td>
               {isConnected && diagnostic
                 ? diagnostic.genesis.status
@@ -219,7 +219,7 @@ export function SystemsWorkspace() {
           {/* Database / Infrastructure */}
           <tr>
             <td>
-              <strong>Database & Infrastruktur</strong>
+              <strong>Basis Data & Infrastruktur</strong>
             </td>
             <td>Persistensi & Cloud</td>
             <td>Tidak diketahui (tanpa sumber)</td>
@@ -241,7 +241,7 @@ export function SystemsWorkspace() {
         <div className={styles.flowContainer}>
           <div className={styles.flowNode}>
             <AppWindow aria-hidden={true} className={styles.flowNodeIcon} size={22} />
-            <span className={styles.flowNodeName}>Client Web</span>
+            <span className={styles.flowNodeName}>Klien Web</span>
             <span className={styles.flowNodeRole}>Shell presentasi browser</span>
           </div>
 

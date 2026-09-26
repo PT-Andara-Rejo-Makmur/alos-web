@@ -150,7 +150,7 @@ export function AccountRegistrationPage() {
             <div className={styles.registrationHeader}>
               <div>
                 <p className={styles.eyebrow}>IT · IDENTITAS & AKSES</p>
-                <h1 className={styles.title}>Register Akun Baru</h1>
+                <h1 className={styles.title}>Daftarkan Akun Baru</h1>
                 <p className={styles.intro}>Buat akun baru dan tentukan akses awal pengguna.</p>
               </div>
               <Link className={styles.back} href="/workspace/it/users">
@@ -211,7 +211,7 @@ export function AccountRegistrationPage() {
                 <section className={styles.wizardSection}>
                   <h2>Akses Awal</h2>
                   <p className={styles.roleHint}>
-                    Pilih satu atau lebih workspace dan role berdasarkan data yang disediakan
+                    Pilih satu atau lebih workspace dan peran berdasarkan data yang disediakan
                     Backend.
                   </p>
                   <div className={styles.accessGrid}>
@@ -313,7 +313,7 @@ export function AccountRegistrationPage() {
                     type="button"
                     onClick={() => void submit()}
                   >
-                    {submitting ? "Membuat akun…" : "Register Akun"}
+                    {submitting ? "Membuat akun…" : "Daftarkan Akun"}
                   </button>
                 )}
               </div>

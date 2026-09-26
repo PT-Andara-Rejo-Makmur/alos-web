@@ -17,9 +17,9 @@ export function DecisionsWorkspace() {
   return (
     <div className={styles.decisionsWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / TATA KELOLA / DECISIONS"
+        breadcrumb="ALOS / IT & TEKNOLOGI / TATA KELOLA / KEPUTUSAN"
         description="Keputusan teknologi, pihak yang memutuskan, alasan, waktu, dan bukti pendukung."
-        title="Decisions"
+        title="Keputusan"
       />
 
       {/* Module Readiness */}

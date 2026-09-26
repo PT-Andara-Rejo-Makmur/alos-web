@@ -17,9 +17,9 @@ export function SecurityWorkspace() {
   return (
     <div className={styles.securityWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / SECURITY"
+        breadcrumb="ALOS / IT & TEKNOLOGI / KEAMANAN"
         description="Registri temuan keamanan, pelacakan remediasi kerentanan, dan bukti kepatuhan."
-        title="Security"
+        title="Keamanan"
       />
 
       {/* Module Readiness */}

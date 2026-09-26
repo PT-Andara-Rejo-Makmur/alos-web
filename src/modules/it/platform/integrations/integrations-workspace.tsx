@@ -39,9 +39,9 @@ export function IntegrationsWorkspace() {
   return (
     <div className={styles.integrationsWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / INTEGRATIONS"
+        breadcrumb="ALOS / IT & TEKNOLOGI / INTEGRASI"
         description="Diagnostik integrasi Backend, batas otoritas, status antarmuka, dan bukti troubleshooting."
-        title="Integrations"
+        title="Integrasi"
       />
 
       {/* Module Readiness */}
@@ -83,7 +83,7 @@ export function IntegrationsWorkspace() {
           {isConnected && diagnostic ? (
             <div className={styles.diagnosticGrid}>
               <div className={styles.metricCard}>
-                <span className={styles.metricLabel}>Diagnostic</span>
+                <span className={styles.metricLabel}>Diagnostik</span>
                 <span className={styles.metricValue}>TERHUBUNG</span>
               </div>
               <div className={styles.metricCard}>

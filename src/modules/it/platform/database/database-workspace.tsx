@@ -21,7 +21,7 @@ import styles from "./database.module.css";
 const OPERATIONAL_EVIDENCE_CATEGORIES = [
   {
     id: "connectivity",
-    name: "Konektivitas Database",
+    name: "Konektivitas Basis Data",
     source: "Telemetri connection pool dari Backend",
     icon: RadioTower,
   },
@@ -45,9 +45,9 @@ export function DatabaseWorkspace() {
   return (
     <div className={styles.databaseWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / DATABASE"
+        breadcrumb="ALOS / IT & TEKNOLOGI / BASIS DATA"
         description="Inventaris database, bukti konektivitas, operasi skema, dan batas akses terkendali."
-        title="Database"
+        title="Basis Data"
       />
 
       {/* Module Readiness */}
@@ -65,9 +65,9 @@ export function DatabaseWorkspace() {
       <section aria-label="Status sumber database">
         <ItStatusRow
           detail="NO_SOURCE"
-          helper="Sumber inventaris database dari Backend belum terhubung."
+          helper="Sumber inventaris basis data dari Backend belum terhubung."
           icon={Server}
-          label="Sumber Inventaris Database"
+          label="Sumber Inventaris Basis Data"
           status="NOT_CONNECTED"
         />
       </section>
@@ -78,17 +78,17 @@ export function DatabaseWorkspace() {
           eyebrow="Inventaris"
           id="database-registry-title"
           subtitle="Instance database dan topologi koneksi dari sumber berwenang"
-          title="Registri Database"
+          title="Registri Basis Data"
         />
 
         <ItDataTable
           ariaLabel="Registri instance database"
-          columns={["Database", "Environment", "Engine", "Konektivitas", "Bukti Terakhir", "Sumber"]}
+          columns={["Basis Data", "Lingkungan", "Engine", "Konektivitas", "Bukti Terakhir", "Sumber"]}
           minWidth={780}
         >
           <tr>
             <td className={styles.emptyTableRow} colSpan={6}>
-              Sumber inventaris database dari Backend belum terhubung.
+              Sumber inventaris basis data dari Backend belum terhubung.
             </td>
           </tr>
         </ItDataTable>

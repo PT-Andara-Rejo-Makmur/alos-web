@@ -134,19 +134,19 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       const nav = projectWorkspaceNavigation(itIdentity, itActor);
       render(<WorkspaceSidebar activeNavKey="systems" identity={itIdentity} navigation={nav} />);
 
-      const systemsLink = screen.getByRole("link", { name: /^Systems/i });
+      const systemsLink = screen.getByRole("link", { name: /^Sistem/i });
       expect(systemsLink).toHaveAttribute("href", "/workspace/it/systems");
       expect(within(systemsLink).getByText("Belum terhubung")).toBeInTheDocument();
 
-      const integrationsLink = screen.getByRole("link", { name: /^Integrations/i });
+      const integrationsLink = screen.getByRole("link", { name: /^Integrasi/i });
       expect(integrationsLink).toHaveAttribute("href", "/workspace/it/integrations");
       expect(within(integrationsLink).getByText("Belum terhubung")).toBeInTheDocument();
 
-      const dbLink = screen.getByRole("link", { name: /^Database/i });
+      const dbLink = screen.getByRole("link", { name: /^Basis Data/i });
       expect(dbLink).toHaveAttribute("href", "/workspace/it/database");
       expect(within(dbLink).getByText("Belum terhubung")).toBeInTheDocument();
 
-      const envLink = screen.getByRole("link", { name: /^Environments/i });
+      const envLink = screen.getByRole("link", { name: /^Lingkungan/i });
       expect(envLink).toHaveAttribute("href", "/workspace/it/environments");
       expect(within(envLink).getByText("Belum terhubung")).toBeInTheDocument();
     });
@@ -158,7 +158,7 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       const el = renderItWorkspaceModule("systems");
       expect(el).not.toBeNull();
       render(el!);
-      expect(screen.getByRole("heading", { name: "Systems", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Sistem", level: 1 })).toBeInTheDocument();
     });
 
     it("renders dedicated IntegrationsWorkspace for 'integrations'", () => {
@@ -166,22 +166,22 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       const el = renderItWorkspaceModule("integrations");
       expect(el).not.toBeNull();
       render(el!);
-      expect(screen.getByRole("heading", { name: "Integrations", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Integrasi", level: 1 })).toBeInTheDocument();
     });
 
     it("renders dedicated DatabaseWorkspace for 'database'", () => {
       const el = renderItWorkspaceModule("database");
       expect(el).not.toBeNull();
       render(el!);
-      expect(screen.getByRole("heading", { name: "Database", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Basis Data", level: 1 })).toBeInTheDocument();
     });
 
     it("renders dedicated EnvironmentsWorkspace for 'environments'", () => {
       const el = renderItWorkspaceModule("environments");
       expect(el).not.toBeNull();
       render(el!);
-      expect(screen.getByRole("heading", { name: "Environments", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("Sumber inventaris environment dari Backend belum terhubung.")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Lingkungan", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("Sumber inventaris lingkungan dari Backend belum terhubung.")).toBeInTheDocument();
     });
   });
 
@@ -191,8 +191,8 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
 
       render(<SystemsWorkspace />);
 
-      expect(screen.getByText("ALOS / IT & TEKNOLOGI / SYSTEMS")).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Systems", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT & TEKNOLOGI / SISTEM")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Sistem", level: 1 })).toBeInTheDocument();
 
       const readinessSection = screen.getByLabelText("Kesiapan modul");
       expect(within(readinessSection).getByText("TERBLOKIR")).toBeInTheDocument();
@@ -240,9 +240,9 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       expect(within(table).getByText("Web App")).toBeInTheDocument();
       expect(within(table).getByText("ALOS Backend")).toBeInTheDocument();
       expect(within(table).getByText("GENESIS")).toBeInTheDocument();
-      expect(within(table).getByText("Database & Infrastruktur")).toBeInTheDocument();
+      expect(within(table).getByText("Basis Data & Infrastruktur")).toBeInTheDocument();
 
-      expect(screen.getByText("Client Web")).toBeInTheDocument();
+      expect(screen.getByText("Klien Web")).toBeInTheDocument();
       expect(
         screen.getByText(/Browser tidak mengirim permintaan langsung ke GENESIS/i),
       ).toBeInTheDocument();
@@ -260,8 +260,8 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
 
       render(<IntegrationsWorkspace />);
 
-      expect(screen.getByText("ALOS / IT & TEKNOLOGI / INTEGRATIONS")).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Integrations", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT & TEKNOLOGI / INTEGRASI")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Integrasi", level: 1 })).toBeInTheDocument();
 
       const readinessSection = screen.getByLabelText("Kesiapan modul");
       expect(within(readinessSection).getByText("TERBLOKIR")).toBeInTheDocument();
@@ -304,22 +304,22 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
     it("renders Database page header, BLOCKED readiness, and NOT CONNECTED source", () => {
       render(<DatabaseWorkspace />);
 
-      expect(screen.getByText("ALOS / IT & TEKNOLOGI / DATABASE")).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Database", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT & TEKNOLOGI / BASIS DATA")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Basis Data", level: 1 })).toBeInTheDocument();
 
       const readinessSection = screen.getByLabelText("Kesiapan modul");
       expect(within(readinessSection).getByText("TERBLOKIR")).toBeInTheDocument();
 
       const sourceSection = screen.getByLabelText("Status sumber database");
       expect(within(sourceSection).getByText("BELUM TERHUBUNG")).toBeInTheDocument();
-      expect(within(sourceSection).getByText("Sumber inventaris database dari Backend belum terhubung.")).toBeInTheDocument();
+      expect(within(sourceSection).getByText("Sumber inventaris basis data dari Backend belum terhubung.")).toBeInTheDocument();
     });
 
     it("displays honest empty state for Database Registry with zero fake instances", () => {
       const { container } = render(<DatabaseWorkspace />);
 
       const table = screen.getByRole("table", { name: "Registri instance database" });
-      expect(within(table).getByText("Sumber inventaris database dari Backend belum terhubung.")).toBeInTheDocument();
+      expect(within(table).getByText("Sumber inventaris basis data dari Backend belum terhubung.")).toBeInTheDocument();
 
       // Zero fabricated DB instances
       expect(container.innerHTML).not.toContain("production-db");
@@ -331,7 +331,7 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
     it("shows NOT CONNECTED for all operational evidence rows and strict security notice", () => {
       const { container } = render(<DatabaseWorkspace />);
 
-      expect(screen.getByText("Konektivitas Database")).toBeInTheDocument();
+      expect(screen.getByText("Konektivitas Basis Data")).toBeInTheDocument();
       expect(screen.getByText("Skema & Migrasi")).toBeInTheDocument();
       expect(screen.getByText("Sinyal Kesehatan Engine")).toBeInTheDocument();
 
@@ -365,7 +365,7 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       render(page);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Systems", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Sistem", level: 1 })).toBeInTheDocument();
       });
     });
 
@@ -387,7 +387,7 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       render(page);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Integrations", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Integrasi", level: 1 })).toBeInTheDocument();
       });
     });
 
@@ -408,7 +408,7 @@ describe("ALOS Platform Modules — Systems, Integrations, Database", () => {
       render(page);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Database", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Basis Data", level: 1 })).toBeInTheDocument();
       });
     });
   });

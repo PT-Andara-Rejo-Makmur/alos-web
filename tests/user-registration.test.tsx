@@ -46,10 +46,10 @@ describe("UserRegistrationPage canonical identity payload", () => {
     await screen.findByText("Finance Workspace");
     fireEvent.click(screen.getByLabelText("Finance Workspace"));
     fireEvent.click(screen.getByLabelText("HR & People Workspace"));
-    fireEvent.click(screen.getByText("Tambah Role"));
+    fireEvent.click(screen.getByText("Tambah Peran"));
     fireEvent.click(screen.getByLabelText("WORKSPACE MEMBER"));
     fireEvent.click(screen.getByRole("button", { name: "Lanjutkan" }));
-    fireEvent.click(screen.getByRole("button", { name: "Register Akun" }));
+    fireEvent.click(screen.getByRole("button", { name: "Daftarkan Akun" }));
 
     await waitFor(() => {
       expect(api.authenticatedApiRequest).toHaveBeenCalledWith(

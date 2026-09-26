@@ -86,8 +86,8 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       const strip = screen.getByRole("heading", { name: "Cakupan Sumber Operasional", level: 2 }).parentElement!;
       expect(within(strip).getByText("GENESIS")).toBeInTheDocument();
       expect(within(strip).getByText("Tata Kelola")).toBeInTheDocument();
-      expect(within(strip).getByText("Monitoring")).toBeInTheDocument();
-      expect(within(strip).getByText("Backup")).toBeInTheDocument();
+      expect(within(strip).getByText("Pemantauan")).toBeInTheDocument();
+      expect(within(strip).getByText("Backup & Pemulihan Bencana")).toBeInTheDocument();
       expect(within(strip).getByText("Keamanan")).toBeInTheDocument();
 
       expect(within(strip).getAllByText("SEBAGIAN").length).toBe(2);
@@ -117,7 +117,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(screen.getByText("Backend API")).toBeInTheDocument();
       expect(screen.getByText("Contracts")).toBeInTheDocument();
       expect(screen.getByText("Infrastruktur")).toBeInTheDocument();
-      expect(screen.getByText("Repositori tersedia != runtime sehat.")).toBeInTheDocument();
+      expect(screen.getByText("Keberadaan repositori tidak membuktikan bahwa runtime dalam kondisi sehat.")).toBeInTheDocument();
     });
 
     it("renders dense technical Control Cadence table with 6 rows and monospace control IDs", async () => {
@@ -136,7 +136,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       render(<ItDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Cadence Kontrol", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Jadwal Kontrol", level: 2 })).toBeInTheDocument();
       });
 
       expect(screen.getByText("IT-D-01")).toBeInTheDocument();
@@ -146,7 +146,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(screen.getByText("IT-M-01/02/03")).toBeInTheDocument();
       expect(screen.getByText("IT-M-04")).toBeInTheDocument();
 
-      const rows = within(screen.getByRole("table", { name: "Cadence kontrol IT" })).getAllByRole("row");
+      const rows = within(screen.getByRole("table", { name: "Jadwal kontrol IT" })).getAllByRole("row");
       expect(rows.length).toBe(7); // 1 header + 6 data rows
     });
 
@@ -169,7 +169,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
         expect(screen.getByRole("heading", { name: "Ringkasan GENESIS", level: 2 })).toBeInTheDocument();
       });
 
-      const ctaLink = screen.getByRole("link", { name: /Buka Control Plane/i });
+      const ctaLink = screen.getByRole("link", { name: /Buka Pusat Kendali/i });
       expect(ctaLink).toHaveAttribute("href", "/workspace/it/genesis");
 
       const agentLink = screen.getByRole("link", { name: "/workspace/it/genesis/agents" });
@@ -181,8 +181,8 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
     it("renders dedicated monitoring workspace with NOT CONNECTED telemetry source", () => {
       render(<ItMonitoringWorkspace />);
 
-      expect(screen.getByRole("heading", { name: "Monitoring", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("ALOS / IT & TEKNOLOGI / MONITORING")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Pemantauan", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT & TEKNOLOGI / PEMANTAUAN")).toBeInTheDocument();
       expect(screen.getByText("Telemetri operasional, kesehatan layanan, sinyal, dan cakupan.")).toBeInTheDocument();
 
       const sourceRegion = screen.getByRole("region", { name: "Sumber telemetri" });
@@ -211,11 +211,11 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
     it("renders 6 coverage categories with NOT CONNECTED status", () => {
       render(<ItMonitoringWorkspace />);
 
-      expect(screen.getByText("Cakupan Monitoring")).toBeInTheDocument();
+      expect(screen.getByText("Cakupan Pemantauan")).toBeInTheDocument();
       expect(screen.getByText("Aplikasi")).toBeInTheDocument();
       expect(screen.getByText("Backend")).toBeInTheDocument();
       expect(screen.getByText("Infrastruktur")).toBeInTheDocument();
-      expect(screen.getByText("Database")).toBeInTheDocument();
+      expect(screen.getByText("Basis Data")).toBeInTheDocument();
       expect(screen.getByText("Keamanan")).toBeInTheDocument();
       expect(screen.getByText("Backup")).toBeInTheDocument();
 
@@ -254,7 +254,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       render(pageResult);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Monitoring", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Pemantauan", level: 1 })).toBeInTheDocument();
       });
       const sourceRegion = screen.getByRole("region", { name: "Sumber telemetri" });
       expect(within(sourceRegion).getByText("BELUM TERHUBUNG")).toBeInTheDocument();
@@ -266,15 +266,15 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       render(<GenesisControlPlaneWorkspace />);
 
       expect(
-        screen.getByRole("heading", { name: "GENESIS Control Plane", level: 1 }),
+        screen.getByRole("heading", { name: "Pusat Kendali GENESIS", level: 1 }),
       ).toBeInTheDocument();
-      expect(screen.getByText("ALOS / IT / GENESIS")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT & TEKNOLOGI / GENESIS")).toBeInTheDocument();
       expect(
         screen.getByText("Operasi AI teknis, registri agen, kontrol kapabilitas, riset, model, tools, dan tata kelola."),
       ).toBeInTheDocument();
 
-      const statusRegion = screen.getByRole("region", { name: "Status Control Plane" });
-      expect(within(statusRegion).getByText("Status Control Plane")).toBeInTheDocument();
+      const statusRegion = screen.getByRole("region", { name: "Status Pusat Kendali" });
+      expect(within(statusRegion).getByText("Status Pusat Kendali")).toBeInTheDocument();
       expect(within(statusRegion).getByText("TERBLOKIR")).toBeInTheDocument();
       expect(
         screen.getByText(/Permukaan kontrol frontend tersedia\. Integrasi operasional Backend belum terhubung\./i),
@@ -354,9 +354,9 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       render(<WorkspaceItGenesisPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "GENESIS Control Plane", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Pusat Kendali GENESIS", level: 1 })).toBeInTheDocument();
       });
-      expect(screen.getByText("ALOS / IT / GENESIS")).toBeInTheDocument();
+      expect(screen.getByText("ALOS / IT & TEKNOLOGI / GENESIS")).toBeInTheDocument();
     });
   });
 
@@ -388,7 +388,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(monitoringItem?.href).toBe("/workspace/it/monitoring");
 
       render(<WorkspaceSidebar identity={itIdentity} navigation={nav} activeNavKey="overview" />);
-      const monitoringLink = screen.getByRole("link", { name: /Monitoring/i });
+      const monitoringLink = screen.getByRole("link", { name: /Pemantauan/i });
       expect(monitoringLink).toBeInTheDocument();
       expect(monitoringLink).toHaveAttribute("href", "/workspace/it/monitoring");
       expect(within(monitoringLink).getByText("Belum terhubung")).toBeInTheDocument();
@@ -404,7 +404,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(cpItem?.href).toBe("/workspace/it/genesis");
 
       render(<WorkspaceSidebar identity={itIdentity} navigation={nav} activeNavKey="overview" />);
-      const cpLink = screen.getByRole("link", { name: /Control Plane/i });
+      const cpLink = screen.getByRole("link", { name: /Pusat Kendali/i });
       expect(cpLink).toBeInTheDocument();
       expect(cpLink).toHaveAttribute("href", "/workspace/it/genesis");
     });
@@ -431,7 +431,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(dbItem?.href).toBe("/workspace/it/database");
 
       render(<WorkspaceSidebar identity={itIdentity} navigation={nav} activeNavKey="overview" />);
-      const systemsLink = screen.getByRole("link", { name: /^Systems/i });
+      const systemsLink = screen.getByRole("link", { name: /^Sistem/i });
       expect(systemsLink).toBeInTheDocument();
       expect(systemsLink).toHaveAttribute("href", "/workspace/it/systems");
       expect(within(systemsLink).getByText("Belum terhubung")).toBeInTheDocument();
@@ -447,7 +447,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(envItem?.href).toBe("/workspace/it/environments");
 
       render(<WorkspaceSidebar identity={itIdentity} navigation={nav} activeNavKey="overview" />);
-      const envLink = screen.getByRole("link", { name: /^Environments/i });
+      const envLink = screen.getByRole("link", { name: /^Lingkungan/i });
       expect(envLink).toBeInTheDocument();
       expect(envLink).toHaveAttribute("href", "/workspace/it/environments");
 

@@ -37,7 +37,7 @@ export function RolePicker({
           <span className={styles.roleChip} key={role}>
             {displayRole(role)}
             <button
-              aria-label={`Hapus role ${displayRole(role)}`}
+              aria-label={`Hapus peran ${displayRole(role)}`}
               type="button"
               onClick={() => toggleRole(role)}
             >
@@ -49,12 +49,12 @@ export function RolePicker({
       <details className={styles.roleMenu}>
         <summary>
           <Plus aria-hidden={true} size={14} />
-          Tambah Role
+          Tambah Peran
         </summary>
         <div className={styles.roleMenuPanel}>
           <input
-            aria-label="Cari role"
-            placeholder="Cari role..."
+            aria-label="Cari peran"
+            placeholder="Cari peran..."
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />

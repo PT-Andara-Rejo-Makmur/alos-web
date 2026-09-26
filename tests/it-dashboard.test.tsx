@@ -41,8 +41,8 @@ describe("IT visual foundation", () => {
       const readiness = screen.getByRole("heading", { level: 2, name: "Cakupan Sumber Operasional" }).parentElement!;
       expect(within(readiness).getByText("GENESIS")).toBeInTheDocument();
       expect(within(readiness).getByText("Tata Kelola")).toBeInTheDocument();
-      expect(within(readiness).getByText("Monitoring")).toBeInTheDocument();
-      expect(within(readiness).getByText("Backup")).toBeInTheDocument();
+      expect(within(readiness).getByText("Pemantauan")).toBeInTheDocument();
+      expect(within(readiness).getByText("Backup & Pemulihan Bencana")).toBeInTheDocument();
       expect(within(readiness).getByText("Keamanan")).toBeInTheDocument();
     });
 
@@ -58,13 +58,13 @@ describe("IT visual foundation", () => {
       const webRow = within(table).getByText("Web App").closest("tr")!;
       expect(within(webRow).getByText("Repositori saat ini")).toBeInTheDocument();
       expect(within(webRow).getByText("Tidak diketahui")).toBeInTheDocument();
-      expect(screen.getByText("Repositori tersedia != runtime sehat.")).toBeInTheDocument();
+      expect(screen.getByText("Keberadaan repositori tidak membuktikan bahwa runtime dalam kondisi sehat.")).toBeInTheDocument();
     });
 
     it("reports Monitoring, Backup, and Security as NOT CONNECTED", () => {
       render(<ItDashboardHome snapshot={snapshot} />);
       const table = screen.getByRole("table", { name: "Status sumber operasi" });
-      for (const label of ["Monitoring", "Backup", "Security"]) {
+      for (const label of ["Pemantauan", "Backup & Pemulihan Bencana", "Keamanan"]) {
         const row = within(table).getByText(label).closest("tr")!;
         expect(within(row).getByText("BELUM TERHUBUNG")).toBeInTheDocument();
       }
@@ -72,7 +72,7 @@ describe("IT visual foundation", () => {
 
     it("uses a technical Control Cadence table with monospace control IDs", () => {
       render(<ItDashboardHome snapshot={snapshot} />);
-      const table = screen.getByRole("table", { name: "Cadence kontrol IT" });
+      const table = screen.getByRole("table", { name: "Jadwal kontrol IT" });
       expect(within(table).getAllByRole("row")).toHaveLength(7);
       expect(within(table).getByText("IT-D-01").tagName).toBe("CODE");
       expect(within(table).getByText("Keberhasilan backup")).toBeInTheDocument();
@@ -81,14 +81,14 @@ describe("IT visual foundation", () => {
 
     it("links the GENESIS utility CTA to its canonical route", () => {
       render(<ItDashboardHome snapshot={snapshot} />);
-      expect(screen.getByRole("link", { name: /Buka Control Plane/i })).toHaveAttribute("href", "/workspace/it/genesis");
+      expect(screen.getByRole("link", { name: /Buka Pusat Kendali/i })).toHaveAttribute("href", "/workspace/it/genesis");
     });
   });
 
   describe("Monitoring", () => {
     it("preserves centralized BLOCKED readiness and telemetry NOT CONNECTED state", () => {
       render(<ItMonitoringWorkspace />);
-      expect(screen.getByRole("heading", { level: 1, name: "Monitoring" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 1, name: "Pemantauan" })).toBeInTheDocument();
       expect(getModuleReadiness("monitoring")).toEqual({ availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" });
       expect(screen.getByText("BACKEND_NOT_CONNECTED")).toBeInTheDocument();
       const sourceRegion = screen.getByRole("region", { name: "Sumber telemetri" });
@@ -106,7 +106,7 @@ describe("IT visual foundation", () => {
 
     it("shows all six coverage rows without a card grid", () => {
       const { container } = render(<ItMonitoringWorkspace />);
-      for (const label of ["Aplikasi", "Backend", "Infrastruktur", "Database", "Keamanan", "Backup"]) {
+      for (const label of ["Aplikasi", "Backend", "Infrastruktur", "Basis Data", "Keamanan", "Backup"]) {
         expect(screen.getByText(label)).toBeInTheDocument();
       }
       expect(container.querySelector('[class*="coverageCard"]')).toBeNull();
@@ -121,7 +121,7 @@ describe("IT visual foundation", () => {
   describe("GENESIS Control Plane", () => {
     it("renders centralized control-plane status without a health claim", () => {
       render(<GenesisControlPlaneWorkspace />);
-      expect(screen.getByRole("heading", { level: 1, name: "GENESIS Control Plane" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 1, name: "Pusat Kendali GENESIS" })).toBeInTheDocument();
       expect(getModuleReadiness("control-plane")).toEqual({ availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" });
       expect(screen.getByText("Permukaan kontrol frontend tersedia. Integrasi operasional Backend belum terhubung.")).toBeInTheDocument();
       expect(document.body.textContent).not.toMatch(/healthy|online|27 agents|AI score/i);
@@ -130,8 +130,8 @@ describe("IT visual foundation", () => {
     it("resolves every technical registry readiness from the centralized matrix", () => {
       render(<GenesisControlPlaneWorkspace />);
       const table = screen.getByRole("table", { name: "Registri teknis GENESIS" });
-      for (const [label, key] of [["Agents", "agents"], ["Skills", "skills"], ["Research", "research"], ["Models & Tools", "models-tools"]] as const) {
-        const row = within(table).getByText(label).closest("tr")!;
+      for (const [label, key] of [["Agen", "agents"], ["Kapabilitas", "skills"], ["Riset", "research"], ["Model & Tools", "models-tools"]] as const) {
+        const row = within(table).getByRole("cell", { name: label }).closest("tr")!;
         expect(within(row).getByText("TERBLOKIR")).toBeInTheDocument();
         expect(within(row).getByText(getModuleReadiness(key).blockReason!)).toBeInTheDocument();
       }

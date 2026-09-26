@@ -73,18 +73,18 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const bottomNav = screen.getByRole("navigation", { name: "Navigasi Bawah Ringkas" });
 
       // Clickable shortcuts must be in bottom nav
-      const monitoringLink = within(bottomNav).getByRole("link", { name: /Monitoring/i });
+      const monitoringLink = within(bottomNav).getByRole("link", { name: /Pemantauan/i });
       expect(monitoringLink).toHaveAttribute("href", "/workspace/it/monitoring");
 
-      const controlPlaneLink = within(bottomNav).getByRole("link", { name: /Control Plane/i });
+      const controlPlaneLink = within(bottomNav).getByRole("link", { name: /Pusat Kendali/i });
       expect(controlPlaneLink).toHaveAttribute("href", "/workspace/it/genesis");
 
-      const overviewLink = within(bottomNav).getByRole("link", { name: /Overview/i });
+      const overviewLink = within(bottomNav).getByRole("link", { name: /Ringkasan/i });
       expect(overviewLink).toHaveAttribute("href", "/workspace/it");
 
       // Non-navigable modules Systems and Security must NOT appear in bottom navigation shortcuts
-      expect(within(bottomNav).queryByRole("link", { name: /Systems/i })).not.toBeInTheDocument();
-      expect(within(bottomNav).queryByRole("link", { name: /Security/i })).not.toBeInTheDocument();
+      expect(within(bottomNav).queryByRole("link", { name: /Sistem/i })).not.toBeInTheDocument();
+      expect(within(bottomNav).queryByRole("link", { name: /Keamanan/i })).not.toBeInTheDocument();
     });
 
     it("does NOT use letter-circle icons (O/S/G/X/M/AI) for IT mobile bottom shortcuts", () => {
@@ -125,7 +125,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       render(<WorkspaceItGovernancePage />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "IT Governance", level: 2 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Tata Kelola IT", level: 2 })).toBeInTheDocument();
       });
 
       // Legacy presentation content must NOT exist
@@ -134,7 +134,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       expect(screen.queryByText(/AI recommendation ditampilkan sebagai assurance input/i)).not.toBeInTheDocument();
 
       // Honest unavailable state
-      expect(screen.getByText(/Backend operational integration belum terhubung/i)).toBeInTheDocument();
+      expect(screen.getByText(/Integrasi operasional Backend belum terhubung/i)).toBeInTheDocument();
       expect(screen.getByText("TERBLOKIR · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
     });
 
@@ -161,7 +161,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("heading", { name: "Evidence", level: 1 }),
+          screen.getByRole("heading", { name: "Bukti", level: 1 }),
         ).toBeInTheDocument();
       });
 
@@ -193,7 +193,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("heading", { name: "Decisions", level: 1 }),
+          screen.getByRole("heading", { name: "Keputusan", level: 1 }),
         ).toBeInTheDocument();
       });
 
@@ -226,7 +226,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("heading", { name: "Research", level: 1 }),
+          screen.getByRole("heading", { name: "Riset", level: 1 }),
         ).toBeInTheDocument();
       });
 
@@ -248,8 +248,8 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const readiness = getModuleReadiness("control-plane");
       expect(readiness.availability).toBe("BLOCKED");
 
-      const statusRegion = screen.getByRole("region", { name: "Status Control Plane" });
-      expect(within(statusRegion).getByText("Status Control Plane")).toBeInTheDocument();
+      const statusRegion = screen.getByRole("region", { name: "Status Pusat Kendali" });
+      expect(within(statusRegion).getByText("Status Pusat Kendali")).toBeInTheDocument();
       expect(within(statusRegion).getByText("TERBLOKIR")).toBeInTheDocument();
       expect(
         screen.getByText("Permukaan kontrol frontend tersedia. Integrasi operasional Backend belum terhubung."),
@@ -334,7 +334,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       render(<WorkspaceItUsersRegisterPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Register Akun Baru", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Daftarkan Akun Baru", level: 1 })).toBeInTheDocument();
       });
     });
   });
@@ -344,7 +344,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const result = renderItWorkspaceModule("monitoring");
       expect(result).not.toBeNull();
       render(result);
-      expect(screen.getByRole("heading", { name: "Monitoring", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Pemantauan", level: 1 })).toBeInTheDocument();
       const telemetryRegion = screen.getByRole("region", { name: "Sumber telemetri" });
       expect(within(telemetryRegion).getByText("Sumber Telemetri")).toBeInTheDocument();
       expect(within(telemetryRegion).getByText("BELUM TERHUBUNG")).toBeInTheDocument();
@@ -354,15 +354,15 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const result = renderItWorkspaceModule("environments");
       expect(result).not.toBeNull();
       render(result);
-      expect(screen.getByRole("heading", { name: "Environments", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("Sumber inventaris environment dari Backend belum terhubung.")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Lingkungan", level: 1 })).toBeInTheDocument();
+      expect(screen.getByText("Sumber inventaris lingkungan dari Backend belum terhubung.")).toBeInTheDocument();
     });
 
     it("renders dedicated SecurityWorkspace for security", () => {
       const result = renderItWorkspaceModule("security");
       expect(result).not.toBeNull();
       render(result);
-      expect(screen.getByRole("heading", { name: "Security", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Keamanan", level: 1 })).toBeInTheDocument();
       expect(screen.getByText("Sumber temuan keamanan belum terhubung.")).toBeInTheDocument();
     });
 
@@ -370,7 +370,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const result = renderItWorkspaceModule("repositories");
       expect(result).not.toBeNull();
       render(result);
-      expect(screen.getByRole("heading", { name: "Repositories", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Repositori", level: 1 })).toBeInTheDocument();
       expect(screen.getByText("Sumber inventaris repositori dari Backend belum terhubung.")).toBeInTheDocument();
     });
 
@@ -378,7 +378,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const result = renderItWorkspaceModule("infrastructure");
       expect(result).not.toBeNull();
       render(result);
-      expect(screen.getByRole("heading", { name: "Infrastructure", level: 2 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Infrastruktur", level: 2 })).toBeInTheDocument();
       expect(screen.getByText("TERBLOKIR · BACKEND_NOT_CONNECTED")).toBeInTheDocument();
       expect(screen.getByText("ALOS / IT / INFRASTRUCTURE")).toBeInTheDocument();
     });
@@ -423,10 +423,10 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const { container } = render(pageResult);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Environments", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Lingkungan", level: 1 })).toBeInTheDocument();
       });
 
-      expect(screen.getByText("Sumber inventaris environment dari Backend belum terhubung.")).toBeInTheDocument();
+      expect(screen.getByText("Sumber inventaris lingkungan dari Backend belum terhubung.")).toBeInTheDocument();
       expect(container.querySelector(".workspace-panel")).toBeNull();
     });
 
@@ -447,7 +447,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const { container } = render(pageResult);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Security", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Keamanan", level: 1 })).toBeInTheDocument();
       });
 
       expect(screen.getByText("Sumber temuan keamanan belum terhubung.")).toBeInTheDocument();
@@ -471,7 +471,7 @@ describe("IT Structure Normalization and Legacy Purge", () => {
       const { container } = render(pageResult);
 
       await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Repositories", level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Repositori", level: 1 })).toBeInTheDocument();
       });
 
       expect(screen.getByText("Sumber inventaris repositori dari Backend belum terhubung.")).toBeInTheDocument();

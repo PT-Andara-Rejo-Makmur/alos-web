@@ -17,9 +17,9 @@ export function BackupDrWorkspace() {
   return (
     <div className={styles.backupWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / BACKUP & DR"
+        breadcrumb="ALOS / IT & TEKNOLOGI / BACKUP & PEMULIHAN BENCANA"
         description="Jadwal perlindungan data, bukti backup, dan pengujian restore disaster recovery."
-        title="Backup & DR"
+        title="Backup & Pemulihan Bencana"
       />
 
       {/* Module Readiness */}
@@ -77,7 +77,7 @@ export function BackupDrWorkspace() {
 
         <ItDataTable
           ariaLabel="Catatan pengujian restore disaster recovery"
-          columns={["Pengujian Restore", "Environment", "Bukti", "Hasil", "Sumber"]}
+          columns={["Pengujian Restore", "Lingkungan", "Bukti", "Hasil", "Sumber"]}
           minWidth={780}
         >
           <tr>
@@ -94,7 +94,7 @@ export function BackupDrWorkspace() {
           eyebrow="Batas Verifikasi"
           id="dr-readiness-title"
           subtitle="Bukti kemampuan pemulihan dari sumber operasional"
-          title="Kesiapan Disaster Recovery"
+          title="Kesiapan Pemulihan Bencana"
         />
 
         <ItNotice

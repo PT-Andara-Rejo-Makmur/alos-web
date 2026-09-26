@@ -69,17 +69,17 @@ export function CicdWorkspace() {
       {/* Quality Gates & Deployment Proof */}
       <section aria-labelledby="quality-gates-title" className={styles.section}>
         <ItSectionHeader
-          eyebrow="Gate Verifikasi"
+          eyebrow="Gerbang Verifikasi"
           id="quality-gates-title"
-          subtitle="Gate otomatis untuk lint, unit test, pemindaian keamanan, dan verifikasi build"
-          title="Quality Gate & Bukti Deployment"
+          subtitle="Gerbang otomatis untuk lint, unit test, pemindaian keamanan, dan verifikasi build"
+          title="Gerbang Kualitas & Bukti Deployment"
         />
 
         <ItNotice
           title="Batas Verifikasi Build"
           variant="neutral"
         >
-          Hasil quality gate dan bukti deployment memerlukan koneksi ke sumber build yang berwenang. Nomor build dan hasil test tidak dibuat oleh lapisan presentasi.
+          Hasil gerbang kualitas dan bukti deployment memerlukan koneksi ke sumber build yang berwenang. Nomor build dan hasil test tidak dibuat oleh lapisan presentasi.
         </ItNotice>
       </section>
     </div>

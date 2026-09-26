@@ -31,16 +31,16 @@ interface RegistryItem {
 }
 
 const TECHNICAL_REGISTRY: readonly RegistryItem[] = [
-  { id: "agents", title: "Agents", description: "Registri agen dan batas eksekusi", route: "/workspace/it/genesis/agents", icon: Bot },
-  { id: "skills", title: "Skills", description: "Definisi kapabilitas dan akses tools terkendali", route: "/workspace/it/genesis/skills", icon: Blocks },
-  { id: "research", title: "Research", description: "Sumber riset, batas tinjauan, dan bukti", route: "/workspace/it/genesis/research", icon: SearchCheck },
-  { id: "models-tools", title: "Models & Tools", description: "Route model dan antarmuka integrasi", route: "/workspace/it/genesis/models-tools", icon: BrainCircuit },
+  { id: "agents", title: "Agen", description: "Registri agen dan batas eksekusi", route: "/workspace/it/genesis/agents", icon: Bot },
+  { id: "skills", title: "Kapabilitas", description: "Definisi kapabilitas dan akses tools terkendali", route: "/workspace/it/genesis/skills", icon: Blocks },
+  { id: "research", title: "Riset", description: "Sumber riset, batas tinjauan, dan bukti", route: "/workspace/it/genesis/research", icon: SearchCheck },
+  { id: "models-tools", title: "Model & Tools", description: "Route model dan antarmuka integrasi", route: "/workspace/it/genesis/models-tools", icon: BrainCircuit },
 ];
 
 const GOVERNANCE_REFERENCES: readonly RegistryItem[] = [
-  { id: "evidence", title: "Evidence", description: "Rangkaian bukti dan jejak audit", route: "/workspace/it/governance/evidence", icon: Fingerprint },
-  { id: "uat", title: "UAT & Gates", description: "Gate verifikasi dan pemeriksaan rilis", route: "/workspace/it/governance/uat", icon: FlaskConical },
-  { id: "decisions", title: "Decisions", description: "Persetujuan dan keputusan sistem", route: "/workspace/it/governance/decisions", icon: BadgeCheck },
+  { id: "evidence", title: "Bukti", description: "Rangkaian bukti dan jejak audit", route: "/workspace/it/governance/evidence", icon: Fingerprint },
+  { id: "uat", title: "UAT & Gerbang", description: "Gate verifikasi dan pemeriksaan rilis", route: "/workspace/it/governance/uat", icon: FlaskConical },
+  { id: "decisions", title: "Keputusan", description: "Persetujuan dan keputusan sistem", route: "/workspace/it/governance/decisions", icon: BadgeCheck },
 ];
 
 function RegistryRows({ items }: { readonly items: readonly RegistryItem[] }) {
@@ -74,17 +74,17 @@ export function GenesisControlPlaneWorkspace() {
   return (
     <div className={styles.genesisWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT / GENESIS"
+        breadcrumb="ALOS / IT & TEKNOLOGI / GENESIS"
         description="Operasi AI teknis, registri agen, kontrol kapabilitas, riset, model, tools, dan tata kelola."
-        title="GENESIS Control Plane"
+        title="Pusat Kendali GENESIS"
       />
 
-      <section aria-label="Status Control Plane">
+      <section aria-label="Status Pusat Kendali">
         <ItStatusRow
           detail={controlPlaneReadiness.blockReason}
           helper="Permukaan kontrol frontend tersedia. Integrasi operasional Backend belum terhubung."
           icon={ShieldCheck}
-          label="Status Control Plane"
+          label="Status Pusat Kendali"
           status={controlPlaneReadiness.availability}
         />
       </section>

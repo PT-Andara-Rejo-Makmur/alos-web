@@ -17,9 +17,9 @@ export function RepositoriesWorkspace() {
   return (
     <div className={styles.repoWrapper}>
       <ItPageHeader
-        breadcrumb="ALOS / IT & TEKNOLOGI / REPOSITORIES"
+        breadcrumb="ALOS / IT & TEKNOLOGI / REPOSITORI"
         description="Inventaris repositori, referensi version control source code, dan tata kelola kebijakan branch."
-        title="Repositories"
+        title="Repositori"
       />
 
       {/* Kesiapan Modul */}

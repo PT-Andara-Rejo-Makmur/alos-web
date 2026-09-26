@@ -10,19 +10,19 @@ export default function WorkspaceItGovernancePage() {
   return (
     <ProtectedDomainWorkspace
       activeNavKey="governance"
-      deniedTitle="Bukan Otoritas IT / Governance"
+      deniedTitle="Bukan Otoritas IT / Tata Kelola"
       divisionCodes={["IT", "TECHNOLOGY"]}
-      loadingLabel="Memuat IT Governance Workspace…"
+      loadingLabel="Memuat Tata Kelola IT…"
       workspaceKeys={["it", "technology"]}
     >
       {() => (
         <ItUnavailableSurface
           backHref="/workspace/it"
-          backLabel="← Kembali ke IT Overview"
-          description={`Backend operational integration belum terhubung (${readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}). Modul tata kelola IT belum memiliki konektor operasional aktif.`}
-          eyebrow="ALOS / IT / GOVERNANCE"
+          backLabel="← Kembali ke Ringkasan IT"
+          description={`Integrasi operasional Backend belum terhubung (${readiness.blockReason ?? "BACKEND_NOT_CONNECTED"}). Modul tata kelola IT belum memiliki konektor operasional aktif.`}
+          eyebrow="ALOS / IT / TATA KELOLA"
           readiness={readiness}
-          title="IT Governance"
+          title="Tata Kelola IT"
         />
       )}
     </ProtectedDomainWorkspace>
