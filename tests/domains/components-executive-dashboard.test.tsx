@@ -5,8 +5,8 @@ import {
   ExecutiveHomeDashboard,
   formatJakartaDate,
   formatJakartaTime,
-} from "@/features/executive-dashboard/workspace-dashboard";
-import type { ExecutiveDashboardSnapshot } from "@/features/executive-dashboard/legacy-projection";
+  type ExecutiveDashboardSnapshot,
+} from "@/features/executive-dashboard";
 
 const snapshot: ExecutiveDashboardSnapshot = {
   generated_at: "2026-09-08T03:24:00Z",
@@ -104,7 +104,7 @@ describe("ExecutiveHomeDashboard", () => {
     expect(html).toContain("Kinerja Perusahaan");
     expect(html).toContain("Approval Pending");
     expect(html).toContain("Analisis Genesis");
-    expect(html).toContain("Ringkasan Per Divisi");
+    expect(html).toContain("Status Operasional Divisi");
     expect(html).toContain("Sumber proyek belum terhubung");
     expect(html).not.toContain(">12<");
   });

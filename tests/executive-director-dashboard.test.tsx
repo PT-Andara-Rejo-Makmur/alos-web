@@ -7,6 +7,9 @@ import {
   DivisionHealthPanel,
   ExecutiveAIGovernancePanel,
   ExecutiveBriefStrip,
+  ExecutiveBriefPage,
+  ExecutiveDivisionsPage,
+  ExecutiveApprovalsWorkspace,
   ExecutiveDashboardHome,
   ExecutiveDashboardPage,
   ExecutiveMetricGrid,
@@ -414,30 +417,268 @@ describe("Executive / Director Dashboard ALOS", () => {
     expect(screen.getByRole("link", { name: /Kembali ke Ruang Kerja Saya/i })).toBeInTheDocument();
   });
 
-  // 14. Full Page Integration: Renders all core sections in IA order
-  it("merender seluruh komponen utama dalam ExecutiveDashboardHome sesuai Information Architecture", () => {
+  // 14. Full Page Integration: Renders all 8 core sections in exact canonical order
+  it("merender seluruh komponen utama dalam ExecutiveDashboardHome sesuai 8 urutan kanonis Pusat Kendali Eksekutif", () => {
     render(<ExecutiveDashboardHome snapshot={MOCK_SNAPSHOT} />);
 
-    // 1. Breadcrumb & Title
-    expect(screen.getByText("EXECUTIVE COMMAND CENTER")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Executive Command Center", level: 1 })).toBeInTheDocument();
+    // Header & Title
+    expect(screen.getByText("PUSAT KENDALI EKSEKUTIF")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Pusat Kendali Eksekutif", level: 1 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Ringkasan strategis, kondisi operasional, keputusan, dan perhatian lintas divisi PT Andara Rejo Makmur/i),
+    ).toBeInTheDocument();
 
-    // 2. 07.45 Brief Strip
-    expect(screen.getByLabelText("Brief Pagi 07.45")).toBeInTheDocument();
+    // 1. Waktu pembaruan data
+    expect(screen.getByLabelText("Waktu Pembaruan Data")).toBeInTheDocument();
 
-    // 3. 4 Health Metric Cards
-    expect(screen.getByLabelText("Metrik Kesehatan Perusahaan")).toBeInTheDocument();
+    // 2. Strategi & Kinerja Perusahaan
+    expect(screen.getByLabelText("Strategi & Kinerja Perusahaan")).toBeInTheDocument();
+    expect(screen.getByText("Sumber KPI dan sasaran perusahaan belum tersedia.")).toBeInTheDocument();
 
-    // 4. Middle Split
+    // 3. Ringkasan Operasional
+    expect(screen.getByLabelText("Ringkasan Operasional")).toBeInTheDocument();
+
+    // 4. Keputusan yang Membutuhkan Perhatian
+    expect(screen.getByLabelText("Keputusan yang Membutuhkan Perhatian")).toBeInTheDocument();
+
+    // 5. Status Operasional Divisi
+    expect(screen.getByLabelText("Status Operasional Divisi")).toBeInTheDocument();
+
+    // 6. Peringatan Dini
+    expect(screen.getByLabelText("Peringatan Dini")).toBeInTheDocument();
+
+    // 7. Portofolio Pekerjaan
+    expect(screen.getByLabelText("Portofolio Pekerjaan")).toBeInTheDocument();
+
+    // 8. Bantuan ARA
+    expect(screen.getByLabelText("Bantuan ARA")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Buka ARA/i })).toBeInTheDocument();
+  });
+
+  // 15. Kebijakan Kinerja: Kemajuan proyek tidak disebut sebagai KPI dan sasaran
+  it("membedakan kemajuan pekerjaan dengan capaian KPI & sasaran secara tegas dan jujur", () => {
+    render(<ExecutiveDashboardHome snapshot={MOCK_SNAPSHOT} />);
+
+    // Kemajuan Pekerjaan shows progress (81,5%)
+    expect(screen.getByText("Kemajuan Pekerjaan")).toBeInTheDocument();
+    expect(screen.getAllByText("81,5%").length).toBeGreaterThanOrEqual(1);
+
+    // Capaian KPI and Capaian Sasaran explicitly show em-dash '—'
+    expect(screen.getByText("Capaian KPI")).toBeInTheDocument();
+    expect(screen.getByText("Capaian Sasaran")).toBeInTheDocument();
+    expect(
+      screen.getByText("Sumber KPI dan sasaran perusahaan belum tersedia."),
+    ).toBeInTheDocument();
+  });
+
+  // 16. Kesalahan memuat data tidak disamarkan sebagai data kosong
+  it("menampilkan pesan error manusiawi dan TIDAK menyamarkan kegagalan memuat sebagai data kosong", async () => {
+    const { canonicalPrincipal } = await import("./helpers/canonical-session");
+    const principal = canonicalPrincipal({
+      actorId: "usr_dir_01",
+      divisionCode: "EXEC",
+      workspaceId: "ws_exec_01",
+      workspaceKey: "executive",
+      workspaceName: "Executive Workspace",
+      roles: ["EXECUTIVE"],
+    });
+
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
+      authenticated: true,
+      principal,
+    });
+
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (url: string) => {
+      if (url === "/api/v1/executive-dashboard") {
+        throw new Error("Network connection lost");
+      }
+      return [] as never;
+    });
+
+    render(<ExecutiveDashboardPage />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Ringkasan eksekutif belum dapat dimuat. Silakan coba lagi beberapa saat."),
+      ).toBeInTheDocument();
+    });
+
+    // Verify Muat Ulang button is provided
+    expect(screen.getByRole("button", { name: /Muat Ulang/i })).toBeInTheDocument();
+  });
+
+  // 17. Halaman Brief Eksekutif: 5 bagian utama dan status BELUM TERHUBUNG
+  it("merender Halaman Brief Eksekutif dengan 5 area fokus dan penandaan BELUM TERHUBUNG yang jujur", async () => {
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (url: string) => {
+      if (url === "/api/v1/executive-dashboard") return MOCK_SNAPSHOT;
+      return {} as never;
+    });
+
+    render(<ExecutiveBriefPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Brief Eksekutif", level: 1 })).toBeInTheDocument();
+    });
+
+    // 1. Kondisi Operasional
+    expect(screen.getByLabelText("Kondisi Operasional")).toBeInTheDocument();
+
+    // 2. Antrean Keputusan
     expect(screen.getByLabelText("Antrean Keputusan")).toBeInTheDocument();
-    expect(screen.getByLabelText("Kesehatan Organisasi & Divisi")).toBeInTheDocument();
 
-    // 5. Bottom Grid
-    expect(screen.getByLabelText("Tren Kinerja Perusahaan")).toBeInTheDocument();
-    expect(screen.getByLabelText("Distribusi Portofolio Proyek")).toBeInTheDocument();
-    expect(screen.getByLabelText("Konteks AI dan Tata Kelola")).toBeInTheDocument();
+    // 3. Peringatan Dini
+    expect(screen.getByLabelText("Peringatan Dini")).toBeInTheDocument();
 
-    // 6. Early Warning Projects
-    expect(screen.getByLabelText("Proyek yang Membutuhkan Perhatian")).toBeInTheDocument();
+    // 4. Posisi Kas & Likuiditas (BELUM TERHUBUNG)
+    expect(screen.getByLabelText("Posisi Kas & Likuiditas")).toBeInTheDocument();
+    expect(screen.getAllByText("BELUM TERHUBUNG").length).toBeGreaterThanOrEqual(1);
+
+    // 5. Aktivitas GENESIS
+    expect(screen.getByLabelText("Aktivitas GENESIS")).toBeInTheDocument();
+  });
+
+  // 18. Halaman Divisi: 5 bagian utama tanpa skor buatan
+  it("merender Halaman Divisi dengan status operasional lintas divisi tanpa skor buatan", async () => {
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (url: string) => {
+      if (url === "/api/v1/executive-dashboard") return MOCK_SNAPSHOT;
+      return {} as never;
+    });
+
+    render(<ExecutiveDivisionsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Status Divisi", level: 1 })).toBeInTheDocument();
+    });
+
+    // 1. Ringkasan Divisi
+    expect(screen.getByLabelText("Ringkasan Divisi")).toBeInTheDocument();
+
+    // 2. Divisi yang Membutuhkan Perhatian
+    expect(screen.getByLabelText("Divisi yang Membutuhkan Perhatian")).toBeInTheDocument();
+
+    // 3. Persetujuan Menunggu
+    expect(screen.getByLabelText("Persetujuan Menunggu Lintas Divisi")).toBeInTheDocument();
+
+    // 4. Aktivitas GENESIS
+    expect(screen.getByLabelText("Aktivitas GENESIS Lintas Divisi")).toBeInTheDocument();
+
+    // 5. Status Ketersediaan Data
+    expect(screen.getByLabelText("Status Ketersediaan Data")).toBeInTheDocument();
+
+    // Verify no fake scores
+    expect(screen.queryByText(/skor kesehatan/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/skor risiko/i)).not.toBeInTheDocument();
+  });
+
+  // 19. Persetujuan Rilis GENESIS untuk Director: 4 opsi keputusan & validasi alasan
+  it("merender Persetujuan Rilis GENESIS untuk Direktur dengan 4 opsi keputusan dan validasi alasan", async () => {
+    const { fireEvent } = await import("@testing-library/react");
+
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (url: string) => {
+      if (url === "/api/v1/executive-dashboard") {
+        return MOCK_SNAPSHOT;
+      }
+      if (url.includes("/api/v1/releases/")) {
+        return {
+          release_id: "appr_duesoon",
+          review_id: "rev_001",
+          subject_id: "Risk Analysis Capability",
+          subject_version: "v1.2.0",
+          state: "READY_FOR_DIRECTOR",
+          correlation_id: "corr_01",
+          kill_switch_active: false,
+          rollback_target_release_id: null,
+          ever_released: false,
+          materiality: "MATERIAL",
+        };
+      }
+      if (url === "/api/v1/dashboard/operational") {
+        return { approvals: [] };
+      }
+      if (url === "/api/v1/proposed-actions") {
+        return [];
+      }
+      return {};
+    });
+
+    render(
+      <ExecutiveApprovalsWorkspace
+        activeWorkspace={{
+          workspaceId: "ws_exec",
+          workspaceKey: "executive",
+          workspaceLabel: "Executive Workspace",
+          divisionCode: "EXECUTIVE",
+        }}
+      />,
+    );
+
+    // Switch to GENESIS tab
+    const genesisTab = screen.getByRole("tab", { name: /Persetujuan Rilis GENESIS/i });
+    fireEvent.click(genesisTab);
+
+    await waitFor(() => {
+      expect(screen.getByText("Rilis Agent Risk v1")).toBeInTheDocument();
+    });
+
+    // Check 4 Decision radio options are present
+    expect(screen.getByText("Setujui")).toBeInTheDocument();
+    expect(screen.getByText("Kembalikan untuk Perbaikan")).toBeInTheDocument();
+    expect(screen.getByText("Tolak")).toBeInTheDocument();
+    expect(screen.getByText("Tahan")).toBeInTheDocument();
+
+    // Submit without selecting decision -> validation message
+    const submitBtn = screen.getByRole("button", { name: /Simpan Keputusan/i });
+    fireEvent.click(submitBtn);
+
+    expect(screen.getByText("Pilih keputusan terlebih dahulu.")).toBeInTheDocument();
+
+    // Select 'Setujui' but leave rationale empty -> validation message
+    const setujuiRadio = screen.getByLabelText("Setujui");
+    fireEvent.click(setujuiRadio);
+    fireEvent.click(submitBtn);
+
+    expect(
+      screen.getByText("Tambahkan alasan keputusan sebelum melanjutkan."),
+    ).toBeInTheDocument();
+  });
+
+  // 20. Navigasi Executive tidak memiliki menu teknis GENESIS
+  it("tidak menampilkan menu teknis GENESIS pada navigasi Executive", async () => {
+    const { projectWorkspaceNavigation } = await import(
+      "@/features/workspace-shell/workspace-navigation"
+    );
+    const mockActor = {
+      user_id: "usr_exec_01",
+      organization_id: "org_andara",
+      roles: ["EXECUTIVE"],
+      division_codes: ["EXECUTIVE"],
+      workspace_ids: ["ws_exec"],
+      issued_at: "2026-09-24T00:00:00Z",
+      expires_at: "2026-09-25T00:00:00Z",
+    };
+
+    const nav = projectWorkspaceNavigation(
+      {
+        workspaceId: "ws_exec",
+        workspaceKey: "executive",
+        workspaceLabel: "Executive Workspace",
+        divisionCode: "EXECUTIVE",
+        roleLabel: "Direktur",
+      },
+      mockActor,
+    );
+
+    const genesisItem = nav.find(
+      (item) => item.key === "genesis" || item.label.toUpperCase() === "GENESIS",
+    );
+    expect(genesisItem).toBeUndefined();
+
+    // Verify ARA is present under AI
+    const araItem = nav.find((item) => item.key === "ara");
+    expect(araItem).toBeDefined();
+    expect(araItem?.group).toBe("AI");
   });
 });
+

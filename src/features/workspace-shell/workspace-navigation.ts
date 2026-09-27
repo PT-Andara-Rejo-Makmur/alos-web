@@ -288,10 +288,10 @@ export function projectWorkspaceNavigation(
   // Executive IA is structured into COMMAND CENTER, ORGANIZATION, DECISIONS, INFORMATION & AI
   if (isExecutive) {
     items.push(
-      // Group: COMMAND_CENTER
+      // Group: COMMAND_CENTER (PUSAT KENDALI)
       {
         key: "overview",
-        label: "Overview",
+        label: "Ringkasan",
         href: getWorkspaceRoot("executive"),
         icon: "LayoutDashboard",
         group: "COMMAND_CENTER",
@@ -299,7 +299,7 @@ export function projectWorkspaceNavigation(
       },
       {
         key: "brief",
-        label: "Executive Brief",
+        label: "Brief Eksekutif",
         href: "/workspace/executive/brief",
         icon: "Newspaper",
         group: "COMMAND_CENTER",
@@ -351,7 +351,7 @@ export function projectWorkspaceNavigation(
         available: false,
         navigable: true,
       },
-      // Group: ORGANIZATION
+      // Group: ORGANIZATION (ORGANISASI)
       {
         key: "divisions",
         label: "Divisi",
@@ -360,12 +360,13 @@ export function projectWorkspaceNavigation(
         group: "ORGANIZATION",
         available: true,
       },
+      // Group: PEKERJAAN
       {
         key: "projects",
         label: "Proyek",
         href: getWorkspaceModuleRoute("executive", "projects"),
         icon: "BriefcaseBusiness",
-        group: "ORGANIZATION",
+        group: "PEKERJAAN",
         available: false,
         navigable: true,
       },
@@ -374,36 +375,25 @@ export function projectWorkspaceNavigation(
         label: "Tugas",
         href: getWorkspaceModuleRoute("executive", "tasks"),
         icon: "ListChecks",
-        group: "ORGANIZATION",
+        group: "PEKERJAAN",
         available: false,
         navigable: true,
       },
-      // Group: DECISIONS
       {
         key: "approvals",
         label: "Persetujuan",
         href: getWorkspaceModuleRoute("executive", "approvals"),
         icon: "BadgeCheck",
-        group: "DECISIONS",
+        group: "PEKERJAAN",
         available: false,
         navigable: true,
       },
-      {
-        key: "findings",
-        label: "Temuan",
-        href: getWorkspaceModuleRoute("executive", "findings"),
-        icon: "TriangleAlert",
-        group: "DECISIONS",
-        available: false,
-        navigable: true,
-      },
-      // Group: INFORMATION
       {
         key: "documents",
         label: "Dokumen",
         href: getWorkspaceModuleRoute("executive", "documents"),
         icon: "Files",
-        group: "INFORMATION",
+        group: "PEKERJAAN",
         available: false,
         navigable: true,
       },
@@ -412,7 +402,16 @@ export function projectWorkspaceNavigation(
         label: "Laporan",
         href: getWorkspaceModuleRoute("executive", "reports"),
         icon: "ChartColumn",
-        group: "INFORMATION",
+        group: "PEKERJAAN",
+        available: false,
+        navigable: true,
+      },
+      {
+        key: "findings",
+        label: "Temuan",
+        href: getWorkspaceModuleRoute("executive", "findings"),
+        icon: "TriangleAlert",
+        group: "PEKERJAAN",
         available: false,
         navigable: true,
       },

@@ -73,6 +73,25 @@ function getGroupLabel(
     }
   }
 
+  const isExecutive = workspaceKey === "executive" || divisionCode === "EXEC" || divisionCode === "EXECUTIVE";
+  if (isExecutive) {
+    switch (group) {
+      case "COMMAND_CENTER":
+        return "PUSAT KENDALI";
+      case "STRATEGI_KINERJA":
+        return "STRATEGI & KINERJA";
+      case "ORGANIZATION":
+        return "ORGANISASI";
+      case "PEKERJAAN":
+      case "WORK":
+        return "PEKERJAAN";
+      case "AI":
+        return "AI";
+      default:
+        break;
+    }
+  }
+
   switch (group) {
     case "COMMAND_CENTER":
       return "COMMAND CENTER";

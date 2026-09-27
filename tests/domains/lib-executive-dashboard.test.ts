@@ -6,7 +6,7 @@ import {
   executiveFirstName,
   executiveGreeting,
   formatExecutiveMetric,
-} from "@/features/executive-dashboard/legacy-projection";
+} from "@/features/executive-dashboard";
 
 describe("executive dashboard presentation", () => {
   it("formats live and unavailable metrics without inventing data", () => {

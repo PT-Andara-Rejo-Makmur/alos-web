@@ -10,3 +10,6 @@ export * from "./attention-panel";
 export * from "./executive-ai-governance-panel";
 export * from "./executive-dashboard-home";
 export * from "./executive-dashboard-page";
+export * from "./executive-brief-page";
+export * from "./executive-divisions-page";
+export * from "./executive-approvals-workspace";

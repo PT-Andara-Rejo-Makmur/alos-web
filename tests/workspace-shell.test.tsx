@@ -228,6 +228,7 @@ describe("WorkspaceShell Reusable Component", () => {
     expect(screen.getAllByText("Receivables").length).toBeGreaterThanOrEqual(1);
 
     // Must NOT display Executive-specific main menu items
+    expect(screen.queryByText("Brief Eksekutif")).not.toBeInTheDocument();
     expect(screen.queryByText("Executive Brief")).not.toBeInTheDocument();
     expect(screen.queryByText("Divisi")).not.toBeInTheDocument();
   });
@@ -249,7 +250,7 @@ describe("WorkspaceShell Reusable Component", () => {
       </WorkspaceShell>,
     );
 
-    expect(screen.getAllByText("Executive Brief").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Brief Eksekutif").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Divisi").length).toBeGreaterThanOrEqual(1);
   });
 
@@ -280,6 +281,7 @@ describe("WorkspaceShell Reusable Component", () => {
 
     expect(screen.getAllByText("Employees").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Attendance").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("Brief Eksekutif")).not.toBeInTheDocument();
     expect(screen.queryByText("Executive Brief")).not.toBeInTheDocument();
     expect(screen.queryByText("Divisi")).not.toBeInTheDocument();
   });
@@ -330,6 +332,7 @@ describe("WorkspaceShell Reusable Component", () => {
       </WorkspaceShell>,
     );
 
+    expect(screen.queryByText("Brief Eksekutif")).not.toBeInTheDocument();
     expect(screen.queryByText("Executive Brief")).not.toBeInTheDocument();
     expect(screen.queryByText("Divisi")).not.toBeInTheDocument();
     expect(screen.queryByText("Cash & Bank")).not.toBeInTheDocument();

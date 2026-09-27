@@ -16,7 +16,11 @@ import {
 import { StrategyOverviewWorkspace } from "@/modules/strategy";
 import { AraWorkspace, createAraRouteAdapter } from "@/features/ara-workspace";
 import { AgentWorkforce } from "@/features/agent-workforce";
-import { ExecutiveDashboard } from "@/features/executive-dashboard/workspace-dashboard";
+import {
+  ExecutiveApprovalsWorkspace,
+  ExecutiveBriefPage,
+  ExecutiveDivisionsPage,
+} from "@/features/executive-dashboard";
 import { renderItWorkspaceModule } from "@/modules/it";
 import { ItUnavailableSurface } from "@/modules/it/ui";
 import {
@@ -172,6 +176,14 @@ export function ContextualWorkspaceModulePage({
 
         // 7. Shared Work Contextual: Approvals
         if (canonicalModule === "approvals") {
+          if (workspaceKey === "executive") {
+            return (
+              <ExecutiveApprovalsWorkspace
+                activeWorkspace={identity}
+                actor={actor}
+              />
+            );
+          }
           return (
             <ApprovalsWorkspace
               activeWorkspace={identity}
@@ -200,14 +212,14 @@ export function ContextualWorkspaceModulePage({
           );
         }
 
-        // 6. Executive specific: divisions
+        // Executive specific: divisions
         if (workspaceKey === "executive" && canonicalModule === "divisions") {
-          return <ExecutiveDashboard module="divisions" />;
+          return <ExecutiveDivisionsPage />;
         }
 
-        // 7. Executive specific: brief
+        // Executive specific: brief
         if (workspaceKey === "executive" && canonicalModule === "brief") {
-          return <ExecutiveDashboard />;
+          return <ExecutiveBriefPage />;
         }
 
         // 8. IT specific module delegation (presentation boundary)
