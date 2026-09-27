@@ -1,0 +1,92 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-4);
+  width: 100%;
+}
+
+.noticeContainer {
+  margin-bottom: var(--alos-space-2);
+}
+
+.tabsContainer {
+  margin-bottom: var(--alos-space-2);
+  overflow: hidden;
+}
+
+.toolbarContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--alos-space-3);
+  flex-wrap: wrap;
+}
+
+.taskTitleCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.taskTitleText {
+  font-weight: 600;
+  color: var(--alos-text-primary);
+}
+
+.taskDescText {
+  font-size: 12px;
+  color: var(--alos-text-muted);
+  max-width: 340px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overdueDate {
+  color: var(--alos-danger, #d93025);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.normalDate {
+  color: var(--alos-text-primary);
+}
+
+.dependencySection {
+  margin-top: var(--alos-space-3);
+}
+
+.dependencyList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-2);
+  margin-top: var(--alos-space-1);
+}
+
+.dependencyItem {
+  display: flex;
+  align-items: center;
+  gap: var(--alos-space-2);
+  font-size: 13px;
+  color: var(--alos-text-primary);
+  background: var(--alos-surface-alt);
+  padding: 4px 8px;
+  border-radius: var(--alos-radius-badge);
+  border: 1px solid var(--alos-border);
+}
+
+.drawerFooterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--alos-space-3);
+  width: 100%;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--alos-space-2);
+  flex-wrap: wrap;
+}

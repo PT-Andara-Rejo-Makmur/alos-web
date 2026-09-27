@@ -14,9 +14,12 @@ export interface FilterOption {
 
 export interface WorkToolbarProps {
   readonly actions?: ReactNode;
+  readonly onPriorityChange?: (value: string) => void;
   readonly onSearchChange: (value: string) => void;
   readonly onStatusChange?: (value: string) => void;
   readonly onWorkspaceChange?: (value: string) => void;
+  readonly priorityOptions?: readonly FilterOption[];
+  readonly priorityValue?: string;
   readonly searchPlaceholder?: string;
   readonly searchValue: string;
   readonly statusOptions?: readonly FilterOption[];
@@ -27,9 +30,12 @@ export interface WorkToolbarProps {
 
 export function WorkToolbar({
   actions,
+  onPriorityChange,
   onSearchChange,
   onStatusChange,
   onWorkspaceChange,
+  priorityOptions,
+  priorityValue = "ALL",
   searchPlaceholder = "Cari…",
   searchValue,
   statusOptions,
@@ -72,6 +78,22 @@ export function WorkToolbar({
         >
           <option value="ALL">Semua Status</option>
           {statusOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      ) : null}
+
+      {priorityOptions && priorityOptions.length > 0 && onPriorityChange ? (
+        <select
+          aria-label="Filter prioritas"
+          className={styles.filterSelect}
+          onChange={(event) => onPriorityChange(event.target.value)}
+          value={priorityValue}
+        >
+          <option value="ALL">Semua Prioritas</option>
+          {priorityOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>

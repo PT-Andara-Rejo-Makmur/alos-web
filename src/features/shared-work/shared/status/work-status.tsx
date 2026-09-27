@@ -3,7 +3,6 @@ import { Status, type StatusVariant } from "@/components/ui";
 import type {
   CanonicalDataClassification,
   CanonicalFindingSeverity,
-  CanonicalTaskPriority,
 } from "../types";
 
 export function DataClassificationBadge({
@@ -24,27 +23,6 @@ export function DataClassificationBadge({
       return <Status label="Sangat Terbatas" variant="danger" />;
     default:
       return <Status label={classification} variant="neutral" />;
-  }
-}
-
-export function TaskPriorityBadge({
-  priority,
-}: {
-  readonly priority: CanonicalTaskPriority | string | null | undefined;
-}) {
-  if (!priority) return <Status label="—" variant="neutral" />;
-
-  switch (priority.toUpperCase()) {
-    case "LOW":
-      return <Status label="Rendah" variant="neutral" />;
-    case "NORMAL":
-      return <Status label="Normal" variant="info" />;
-    case "HIGH":
-      return <Status label="Tinggi" variant="warning" />;
-    case "CRITICAL":
-      return <Status label="Kritis" variant="danger" />;
-    default:
-      return <Status label={priority} variant="neutral" />;
   }
 }
 

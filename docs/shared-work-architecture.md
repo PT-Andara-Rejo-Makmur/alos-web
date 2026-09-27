@@ -314,31 +314,33 @@ Sesuai `src/alos/documents/models.py`:
 ```
 /workspace
 /workspace/executive
+/workspace/projects
+/workspace/tasks
 /workspace/[workspaceKey]/projects
 /workspace/[workspaceKey]/projects/[projectId]
 /workspace/[workspaceKey]/tasks
+/workspace/[workspaceKey]/tasks/[taskId]
 /workspace/[workspaceKey]/approvals
 /workspace/[workspaceKey]/documents
 /workspace/[workspaceKey]/reports
 /workspace/[workspaceKey]/findings
 ```
 
-*Catatan: Tersedia juga alias fallback `/workspace/projects` yang secara otomatis mengidentifikasi active workspace pengguna dan merender halaman proyek yang relevan.*
+*Catatan: Tersedia alias fallback `/workspace/projects` dan `/workspace/tasks` yang secara otomatis mengidentifikasi active workspace pengguna dan merender halaman terkait.*
 
 ---
 
 ## 14. Data Requirements & Schemas for Backend Completion
 
 Untuk melengkapi integrasi Backend di masa depan, dibutuhkan:
-1. **Pydantic Models** di `alos-backend/src/alos/projects/models.py`:
+1. **Pydantic Models** di `alos-backend/src/alos/projects/models.py` dan `alos-backend/src/alos/tasks/models.py`:
    - `ProjectProjection`: id, code, name, description, status, owner, workspace_ids, start_date, target_end_date, created_at, updated_at.
-   - `ProjectCreateRequest`, `ProjectUpdateRequest`.
-2. **Contracts Schema** di `alos-contracts/schemas/work/project-projection.schema.json`.
+   - `TaskProjection`: id, title, description, status, priority, project_id, owner_actor_id, created_by, due_at, workspace_ids, created_at, updated_at.
+   - `ProjectCreateRequest`, `TaskCreateRequest`, `TaskUpdateRequest`.
+2. **Contracts Schema** di `alos-contracts/schemas/work/project-projection.schema.json` dan `task-projection.schema.json`.
 3. **Public API Routes** di `alos-backend/src/alos/api/public/work_routes.py`:
-   - `GET /api/v1/projects`
-   - `POST /api/v1/projects`
-   - `GET /api/v1/projects/{project_id}`
-   - `PATCH /api/v1/projects/{project_id}`
+   - `GET /api/v1/projects`, `GET /api/v1/projects/{project_id}`
+   - `GET /api/v1/tasks`, `GET /api/v1/tasks/{task_id}`
 
 ---
 
@@ -368,8 +370,9 @@ Pengujian frontend Shared Work wajib mencakup:
 - [x] Shared implementation tunggal lintas seluruh workspace (tidak ada duplikasi kode per divisi).
 - [x] Sidebar `PEKERJAAN` yang bersih tanpa submenu atau filter internal.
 - [x] Otoritas Backend: Tindakan create/mutate disembunyikan jika izin tidak ada di session.
+- [x] Larangan role-based permission synthesis (peran `WORKSPACE_LEAD` tidak otomatis memberikan hak create).
 - [x] Source honesty: Menampilkan "Belum Terhubung" dan status "—", tidak menampilkan angka 0 atau persentase palsu.
-- [x] Error handling yang ramah pengguna dalam Bahasa Indonesia (401, 403, 404, 409).
+- [x] Error handling yang ramah pengguna dalam Bahasa Indonesia tanpa membocorkan istilah teknis backend.
 - [x] Aksesibilitas: Keyboard navigation, ARIA roles, focus management pada drawer.
 
 ---
@@ -378,45 +381,48 @@ Pengujian frontend Shared Work wajib mencakup:
 
 1. **FASE A — Audit**: Audit realitas database, services, contracts, public routes, dan permissions (*Selesai*).
 2. **FASE B — Gap Analysis & Architecture**: Dokumentasi menyeluruh dan identifikasi kebutuhan (*Selesai*).
-3. **FASE C — Shared Work Foundation**: Pembangunan modul reusable di `src/features/shared-work/shared/` (*Sedang Berjalan*).
-4. **FASE D1 — Proyek**: Implementasi modul Proyek secara lengkap hingga lolos quality gates (*Sedang Berjalan*).
-5. **STOP**: Evaluasi hasil FASE D1 sebelum melangkah ke Tugas, Persetujuan, Dokumen, Laporan, dan Temuan.
+3. **FASE C — Shared Work Foundation**: Pembangunan modul reusable di `src/features/shared-work/shared/` (*Selesai*).
+4. **FASE D1 — Proyek**: Implementasi modul Proyek secara lengkap, visual review approval, tab scroller removal, centering empty state (*Selesai & Disetujui*).
+5. **FASE D2 — Tugas**: Implementasi modul Tugas universal lintas workspace, filter status & prioritas, TaskDrawer, full detail view, fail-closed authority, pembersihan pesan teknis (*Selesai*).
+6. **STOP**: Evaluasi hasil FASE D2 sebelum melangkah ke Persetujuan, Dokumen, Laporan, dan Temuan.
 
 ---
 
 ## 19. Known Gaps & NEEDS DECISION
 
-### Gaps:
-- Modul database `core.projects`, `core.tasks`, `core.work_approvals`, `core.work_reports`, `core.work_findings` ada di migrasi `0013`, namun belum memiliki ORM models di `src/alos/persistence/models.py`.
-- Belum ada public router FastAPI untuk CRUD Shared Work di `alos-backend`.
-- `alos-contracts` belum memuat JSON Schema untuk Shared Work.
+### Gaps Aktual (Audit Modul Tugas):
+- Database `core.tasks` dan `core.task_workspaces` siap di migrasi `0013` dengan kolom `task_id`, `project_id`, `title`, `description`, `status` (server_default="OPEN"), `priority` (server_default="NORMAL"), `owner_actor_id`, `created_by`, `due_at`.
+- Belum ada model ORM SQLAlchemy di `alos-backend/src/alos/persistence/models.py`.
+- Belum ada service logika bisnis atau public router FastAPI `/api/v1/tasks` di `alos-backend`.
+- Belum ada JSON Schema atau tipe TypeScript untuk `tasks` di `alos-contracts`.
+- Belum ada permission `task.create` terdaftar di permission registry backend.
 
 ### Item NEEDS DECISION:
 1. **Task Lifecycle Canonical Values**:
-   - *Option A*: `["OPEN", "IN_PROGRESS", "BLOCKED", "UNDER_REVIEW", "COMPLETED", "CANCELLED"]`
-   - *Option B*: Minimalis `["OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"]`
-   - *Dampak*: Mempengaruhi kelengkapan tab dan filter status di modul Tugas.
-2. **Approval Subject Types**:
-   - *Option A*: String bebas (`subject_type: str`)
-   - *Option B*: Strict canonical enum `["DOCUMENT", "BUDGET", "PROJECT_CHANGE", "STRATEGY_TARGET", "RELEASE"]`
-   - *Dampak*: Menentukan interoperabilitas modul Persetujuan dengan dokumen dan strategi.
-3. **Data Scope Evaluation & Role Granularity**:
-   - *Option A*: Evaluasi otomatis berbasis keanggotaan workspace (`core.project_workspaces`).
-   - *Option B*: Evaluasi granular berbasis ACL per proyek.
-   - *Dampak*: Kompleksitas query SQL dan latency listing proyek.
+   - Database migrasi `0013` hanya menetapkan default string `"OPEN"` tanpa CHECK constraint enum.
+   - Status presentation yang disiapkan: `OPEN` (Belum Dimulai), `IN_PROGRESS` (Dalam Proses), `BLOCKED` (Terhambat), `UNDER_REVIEW` (Menunggu Review), `COMPLETED` (Selesai), `CANCELLED` (Dibatalkan).
+   - Seluruh nilai di luar `OPEN` berstatus **PROVISIONAL / NEEDS DECISION** dan tidak di-lock sebagai kontrak resmi.
+2. **Task Priority Canonical Values**:
+   - Database migrasi `0013` hanya menetapkan default string `"NORMAL"` tanpa CHECK constraint enum.
+   - Nilai prioritas presentation: `LOW` (Rendah), `NORMAL` (Normal), `HIGH` (Tinggi), `CRITICAL` (Kritis).
+   - Nilai di luar `NORMAL` berstatus **PROVISIONAL / NEEDS DECISION**.
+3. **Checklist & Dependency Schema**:
+   - Relasi `blocked_by` saat ini diakomodasi via array presentation, menunggu canonical model di backend.
+   - Fitur checklist menampilkan state jujur "Checklist belum tersedia" tanpa mock runtime / localStorage.
 
 ---
 
-## 20. Definition of Done (Proyek Stage)
+## 20. Definition of Done (Tugas Stage)
 
-Tahap FASE D1 (Proyek) dinyatakan **PASS** apabila:
-1. Seluruh arsitektur Shared Work terpusat di `src/features/shared-work/`.
-2. Sidebar menampilkan menu `PEKERJAAN` dengan 6 instrumen standar.
-3. Halaman Proyek (`/workspace/[workspaceKey]/projects`) menampilkan tabel, filter, quick-view drawer, dan detail shell yang jujur terhadap ketersediaan backend.
-4. Tidak ada mock data palsu pada runtime produksi.
-5. Pesan error dan status disajikan dalam Bahasa Indonesia yang beradab.
+Tahap FASE D2 (Tugas) dinyatakan **PASS** apabila:
+1. Seluruh kode modul Tugas terpusat di `src/features/shared-work/tasks/` tanpa cabang per workspace.
+2. Rute universal `/workspace/[workspaceKey]/tasks` dan `/workspace/[workspaceKey]/tasks/[taskId]` aktif dan terhubung.
+3. Sidebar navigasi `PEKERJAAN` menandai `Tugas` sebagai item aktif saat berada di rute tugas.
+4. Tombol aksi `Tambah Tugas` hanya tampil jika session memiliki `task.create`. Peran `WORKSPACE_LEAD` tanpa izin eksplisit tidak diizinkan menciptakan tugas.
+5. Pesan pengguna bebas dari istilah teknis ("Layanan Backend ALOS", "endpoint /api/v1", "migrasi 0013", dsb.) dan menggunakan bahasa non-teknis yang sopan.
 6. Lolos seluruh pengujian:
    - `pnpm lint` $\rightarrow$ 0 error, 0 warning.
    - `pnpm typecheck` $\rightarrow$ 0 type error.
-   - `pnpm test` $\rightarrow$ 100% lulus.
+   - `pnpm test` $\rightarrow$ 100% lulus (71 tests across 13 files).
    - `pnpm build` $\rightarrow$ Berhasil build Next.js.
+

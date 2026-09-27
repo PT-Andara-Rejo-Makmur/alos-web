@@ -2,7 +2,7 @@
 
 import { use } from "react";
 
-import { ModulePlaceholder } from "@/features/shared-work";
+import { TasksPage } from "@/features/shared-work";
 
 export default function WorkspaceTasksPageRoute({
   params,
@@ -10,12 +10,5 @@ export default function WorkspaceTasksPageRoute({
   readonly params: Promise<{ workspaceKey: string }>;
 }) {
   const { workspaceKey } = use(params);
-  return (
-    <ModulePlaceholder
-      description="Kelola pekerjaan yang ditugaskan kepada Anda dan tim."
-      module="tasks"
-      title="Tugas"
-      workspaceKey={workspaceKey}
-    />
-  );
+  return <TasksPage workspaceKey={workspaceKey} />;
 }
