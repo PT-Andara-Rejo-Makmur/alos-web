@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
+  AlertTriangle,
   BadgeCheck,
   Blocks,
   Bot,
@@ -12,6 +13,7 @@ import {
   Clock,
   Fingerprint,
   FlaskConical,
+  Minus,
   Play,
   RotateCcw,
   SearchCheck,
@@ -28,13 +30,13 @@ import {
 import {
   backendReleaseAdapter,
   formatCanonicalReleaseState,
-  getActiveLifecycleStage,
   getAllowedReleaseActions,
+  projectLifecycleStages,
   CANONICAL_LIFECYCLE_STAGES,
   type CanonicalReleaseAction,
   type DecisionOutcome,
   type GovernedReleaseProjection,
-  type LifecycleStageKey,
+  type LifecycleProjection,
 } from "@/features/releases";
 import type { SessionActor } from "@/features/session";
 import {
@@ -103,7 +105,11 @@ function RegistryRows({ items }: { readonly items: readonly RegistryItem[] }) {
             {readiness.blockReason && <code>{readiness.blockReason}</code>}
           </div>
         </td>
-        <td><Link className={styles.routeLink} href={item.route}>{item.route}</Link></td>
+        <td>
+          <Link className={styles.routeLink} href={item.route}>
+            {item.route}
+          </Link>
+        </td>
       </tr>
     );
   });
@@ -116,9 +122,9 @@ interface GenesisControlPlaneWorkspaceProps {
 export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorkspaceProps) {
   const controlPlaneReadiness = getModuleReadiness("control-plane");
 
-  // Factory requirement state
+  // Factory requirement form state
   const [statement, setStatement] = useState("");
-  const [preferredType, setPreferredType] = useState<string>("AGENT");
+  const [preferredType, setPreferredType] = useState<string>("SKILL");
   const [factorySubmitting, setFactorySubmitting] = useState(false);
   const [factoryResult, setFactoryResult] = useState<FactoryAnalysisProjection | null>(null);
   const [factoryError, setFactoryError] = useState("");
@@ -134,14 +140,33 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
   const [actionTargetReleaseId, setActionTargetReleaseId] = useState("");
   const [actionProcessing, setActionProcessing] = useState(false);
 
-  // Active stage
-  const activeStageKey: LifecycleStageKey = currentRelease
-    ? getActiveLifecycleStage(currentRelease.state, currentRelease.materiality ?? "NON_MATERIAL")
-    : factoryResult
-      ? "FACTORY"
-      : "REQUIREMENT";
+  // Authoritative Lifecycle Projection
+  const lifecycleProjection: LifecycleProjection = currentRelease
+    ? projectLifecycleStages(
+        currentRelease.state,
+        currentRelease.materiality,
+        currentRelease.kill_switch_active,
+      )
+    : {
+        activeStageKey: factoryResult ? "DRAFT" : "REQUIREMENT",
+        activeStageLabel: factoryResult
+          ? "Draf Terdaftar (Factory Selesai)"
+          : "Requirement (Masukan Kebutuhan)",
+        stageStatuses: {
+          REQUIREMENT: factoryResult ? "COMPLETED" : "CURRENT",
+          FACTORY: factoryResult ? "COMPLETED" : "PENDING",
+          DRAFT: factoryResult ? "CURRENT" : "PENDING",
+          AUTOMATED_QA: "PENDING",
+          GENESIS_REVIEW: "PENDING",
+          IT_DECISION: "PENDING",
+          DIRECTOR_DECISION: "PENDING",
+          RELEASE: "PENDING",
+          ACTIVE: "PENDING",
+        },
+        isTerminalOrDeviation: false,
+      };
 
-  // Allowed actions based strictly on Backend authority
+  // Allowed actions based strictly on Backend authority (role AND permission)
   const allowedActions = currentRelease
     ? getAllowedReleaseActions(currentRelease, {
         roles: actor?.roles ?? [],
@@ -201,19 +226,22 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
 
       let payload: Record<string, unknown> = {};
 
+      const generateDecisionId = () =>
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `dec_${Date.now()}`;
+
       if (action === "it-decision" && outcome) {
         payload = {
-          decision_id: `dec_${Date.now()}`,
+          decision_id: generateDecisionId(),
           outcome,
           rationale: actionReason.trim() || `Keputusan IT: ${outcome}`,
-          authority_level: "IT",
         };
       } else if (action === "director-decision" && outcome) {
         payload = {
-          decision_id: `dec_dir_${Date.now()}`,
+          decision_id: generateDecisionId(),
           outcome,
           rationale: actionReason.trim() || `Keputusan Direktur: ${outcome}`,
-          authority_level: "DIRECTOR_APPROVER",
         };
       } else if (action === "suspend" || action === "kill" || action === "clear-kill") {
         if (!actionReason.trim()) {
@@ -267,70 +295,21 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
         title="Pusat Kendali GENESIS"
       />
 
-      {/* Module Readiness */}
+      {/* 1. Status Integrasi */}
       <section aria-label="Status Pusat Kendali">
         <ItStatusRow
           detail={controlPlaneReadiness.blockReason}
-          helper="Permukaan kontrol frontend tersedia. Integrasi operasional Backend belum terhubung."
+          helper="Factory dan sebagian lifecycle rilis telah terhubung. Projection materialitas dan transisi publik menuju persetujuan Direktur belum lengkap."
           icon={ShieldCheck}
           label="Status Pusat Kendali"
           status={controlPlaneReadiness.availability}
         />
+        <p className={styles.fieldHint} style={{ margin: "4px 0 0", paddingLeft: "4px" }}>
+          Permukaan kontrol frontend tersedia. Integrasi operasional Backend belum terhubung.
+        </p>
       </section>
 
-      {/* Canonical Lifecycle Progression */}
-      <section aria-labelledby="lifecycle-stepper-title" className={styles.section}>
-        <div className={styles.stepperContainer}>
-          <div className={styles.stepperHeader}>
-            <span id="lifecycle-stepper-title">ALUR SIKLUS HIDUP KANONIS (STAGE PROGRESSION)</span>
-            <span>
-              Stage Aktif:{" "}
-              <strong>
-                {CANONICAL_LIFECYCLE_STAGES.find((s) => s.key === activeStageKey)?.label ?? "Draf"}
-              </strong>
-            </span>
-          </div>
-
-          <div className={styles.stepperTrack} role="list">
-            {CANONICAL_LIFECYCLE_STAGES.map((stage, idx) => {
-              const activeIndex = CANONICAL_LIFECYCLE_STAGES.findIndex((s) => s.key === activeStageKey);
-              const isCurrent = stage.key === activeStageKey;
-              const isCompleted = idx < activeIndex;
-              const isDirectorSkipped =
-                stage.key === "DIRECTOR_DECISION" &&
-                currentRelease?.materiality === "NON_MATERIAL";
-
-              return (
-                <div key={stage.key} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <div
-                    className={`${styles.stepNode} ${isCurrent ? styles.current : ""} ${
-                      isCompleted ? styles.completed : ""
-                    } ${isDirectorSkipped ? styles.skipped : ""}`}
-                    role="listitem"
-                  >
-                    {isCompleted ? (
-                      <CheckCircle2 aria-hidden={true} size={14} />
-                    ) : isCurrent ? (
-                      <Clock aria-hidden={true} size={14} />
-                    ) : (
-                      <span>{stage.order}.</span>
-                    )}
-                    <span>{stage.label}</span>
-                    {isDirectorSkipped ? <small>(Non-material)</small> : null}
-                  </div>
-                  {idx < CANONICAL_LIFECYCLE_STAGES.length - 1 ? (
-                    <span aria-hidden={true} className={styles.stepDivider}>
-                      →
-                    </span>
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Factory Requirement Stage Panel */}
+      {/* 2. Requirement & Factory */}
       <section aria-labelledby="factory-requirement-title" className={styles.section}>
         <ItSectionHeader
           eyebrow="Stage 1 & 2 · Pabrikasi"
@@ -348,20 +327,19 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
                   id="requirement-statement"
                   minLength={20}
                   onChange={(e) => setStatement(e.target.value)}
-                  placeholder="Contoh: Otomasi rekonsiliasi pembayaran sewa properti terhadap mutasi rekening koran harian…"
-                  required
+                  placeholder="Deskripsikan kebutuhan otomatisasi bisnis atau tugas operasional secara spesifik…"
                   rows={3}
                   value={statement}
                 />
                 <p className={styles.fieldHint}>
-                  Pernyataan akan dianalisis secara semantik oleh GENESIS dan Backend tanpa wewenang rilis langsung.
+                  Pernyataan kebutuhan dianalisis oleh Factory Backend untuk mencocokkan katalog eksisting atau mendaftarkan draf baru.
                 </p>
               </div>
 
               <div className={styles.fieldGroup}>
-                <label htmlFor="capability-type-select">Preferensi Tipe Kapabilitas</label>
+                <label htmlFor="preferred-type-select">Preferensi Jenis Kapabilitas</label>
                 <select
-                  id="capability-type-select"
+                  id="preferred-type-select"
                   onChange={(e) => setPreferredType(e.target.value)}
                   value={preferredType}
                 >
@@ -392,6 +370,7 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
             </ItNotice>
           ) : null}
 
+          {/* 3. Hasil Factory */}
           {factoryResult ? (
             <div className={styles.factoryResultBox}>
               <div className={styles.factoryResultHeader}>
@@ -482,7 +461,7 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
         </div>
       </section>
 
-      {/* Governed Release Inspector & Action Console */}
+      {/* 4. Inspeksi Rilis & 5. Siklus Hidup Rilis & 6. Aksi yang Diizinkan */}
       <section aria-labelledby="release-governance-title" className={styles.section}>
         <ItSectionHeader
           eyebrow="Stage 3 – 9 · Tata Kelola Rilis"
@@ -526,6 +505,86 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
             </ItNotice>
           ) : null}
 
+          {/* 5. Siklus Hidup Rilis (Stepper Kanonis) */}
+          <div className={styles.stepperContainer}>
+            <div className={styles.stepperHeader}>
+              <span id="lifecycle-stepper-title">ALUR SIKLUS HIDUP KANONIS (STAGE PROGRESSION)</span>
+              <span>
+                Stage Aktif: <strong>{lifecycleProjection.activeStageLabel}</strong>
+              </span>
+            </div>
+
+            <div className={styles.stepperTrack} role="list">
+              {CANONICAL_LIFECYCLE_STAGES.map((stage, idx) => {
+                const status = lifecycleProjection.stageStatuses[stage.key];
+                const isCurrent = status === "CURRENT";
+                const isCompleted = status === "COMPLETED";
+                const isSkipped = status === "SKIPPED";
+                const isDeviation = status === "DEVIATION";
+                const isRejected = status === "REJECTED";
+                const isOnHold = status === "ON_HOLD";
+                const isBlocked = status === "BLOCKED";
+                const isSuspended = status === "SUSPENDED";
+                const isRolledBack = status === "ROLLED_BACK";
+                const isUnknown = status === "UNKNOWN";
+
+                const statusClass = isCurrent
+                  ? styles.current
+                  : isCompleted
+                    ? styles.completed
+                    : isSkipped
+                      ? styles.skipped
+                      : isDeviation
+                        ? styles.deviation
+                        : isRejected
+                          ? styles.rejected
+                          : isOnHold
+                            ? styles.onHold
+                            : isBlocked
+                              ? styles.blocked
+                              : isSuspended
+                                ? styles.suspended
+                                : isRolledBack
+                                  ? styles.rolledBack
+                                  : isUnknown
+                                    ? styles.unknown
+                                    : "";
+
+                return (
+                  <div key={stage.key} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <div className={`${styles.stepNode} ${statusClass}`} role="listitem">
+                      {isCompleted ? (
+                        <CheckCircle2 aria-hidden={true} size={14} />
+                      ) : isCurrent ? (
+                        <Clock aria-hidden={true} size={14} />
+                      ) : isDeviation || isRejected || isBlocked ? (
+                        <AlertTriangle aria-hidden={true} size={14} />
+                      ) : isSkipped ? (
+                        <Minus aria-hidden={true} size={14} />
+                      ) : (
+                        <span>{stage.order}.</span>
+                      )}
+                      <span>{stage.label}</span>
+                      {isSkipped ? <small>(Dilewati)</small> : null}
+                      {isUnknown ? <small>(Belum Pasti)</small> : null}
+                    </div>
+                    {idx < CANONICAL_LIFECYCLE_STAGES.length - 1 ? (
+                      <span aria-hidden={true} className={styles.stepDivider}>
+                        →
+                      </span>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+
+            {lifecycleProjection.deviationNotice ? (
+              <ItNotice title="Catatan Status Siklus Hidup" variant="neutral">
+                {lifecycleProjection.deviationNotice}
+              </ItNotice>
+            ) : null}
+          </div>
+
           {currentRelease ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <div className={styles.detailGrid}>
@@ -558,11 +617,18 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
                 </div>
                 <div className={styles.detailItem}>
                   <span>Materialitas (Authority Gate)</span>
-                  <strong>
-                    {currentRelease.materiality === "MATERIAL"
-                      ? "MATERIAL (Wajib Persetujuan Direktur)"
-                      : "NON_MATERIAL (Cukup Otoritas IT)"}
-                  </strong>
+                  {currentRelease.materiality === "MATERIAL" ? (
+                    <strong>MATERIAL (Wajib Persetujuan Direktur)</strong>
+                  ) : currentRelease.materiality === "NON_MATERIAL" ? (
+                    <strong>NON_MATERIAL (Cukup Otoritas IT)</strong>
+                  ) : (
+                    <div>
+                      <strong>BELUM TERSEDIA</strong>
+                      <p className={styles.fieldHint} style={{ margin: "2px 0 0" }}>
+                        Materialitas rilis tidak disertakan pada projection Backend saat ini.
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <div className={styles.detailItem}>
                   <span>Kill Switch Aktif</span>
@@ -579,12 +645,21 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
                   <code className={styles.codeRef}>{currentRelease.correlation_id}</code>
                 </div>
                 <div className={styles.detailItem}>
+                  <span>Review ID</span>
+                  <code className={styles.codeRef}>{currentRelease.review_id || "—"}</code>
+                </div>
+                <div className={styles.detailItem}>
                   <span>Bukti Review Paket</span>
-                  <code className={styles.codeRef}>urn:alos:review-package:{currentRelease.review_id}</code>
+                  <div>
+                    <strong>BELUM TERSEDIA</strong>
+                    <p className={styles.fieldHint} style={{ margin: "2px 0 0" }}>
+                      Referensi bukti review tidak tersedia pada projection rilis Backend.
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Action Controls */}
+              {/* 6. Aksi yang Diizinkan Backend */}
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <div className={styles.cardHeader}>
                   <h3 style={{ fontSize: "0.85rem" }}>Aksi Otoritatif yang Diizinkan Backend</h3>
@@ -648,14 +723,6 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
                             <span>Kembalikan (Perlu Revisi)</span>
                           </button>
                           <button
-                            className={styles.btnSecondary}
-                            disabled={actionProcessing}
-                            onClick={() => void handleExecuteAction("it-decision", "HOLD")}
-                            type="button"
-                          >
-                            <span>Tahan (HOLD)</span>
-                          </button>
-                          <button
                             className={styles.btnDanger}
                             disabled={actionProcessing}
                             onClick={() => void handleExecuteAction("it-decision", "REJECTED")}
@@ -684,14 +751,6 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
                             type="button"
                           >
                             <span>Kembalikan Direktur</span>
-                          </button>
-                          <button
-                            className={styles.btnSecondary}
-                            disabled={actionProcessing}
-                            onClick={() => void handleExecuteAction("director-decision", "HOLD")}
-                            type="button"
-                          >
-                            <span>Tahan Direktur</span>
                           </button>
                           <button
                             className={styles.btnDanger}
@@ -777,9 +836,16 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
                     </div>
                   </div>
                 ) : (
-                  <p className={styles.noActionNote}>
-                    Status: {formatCanonicalReleaseState(currentRelease.state)}. Tidak ada aksi manusia yang diizinkan untuk peran Anda saat ini.
-                  </p>
+                  <div>
+                    {currentRelease.state === "IT_APPROVED" && !currentRelease.materiality ? (
+                      <ItNotice title="Menunggu Informasi Otoritas" variant="neutral">
+                        Action lanjutan tidak dapat ditentukan secara aman karena materialitas rilis belum tersedia dari Backend. Tahap lanjutan menunggu projection materialitas atau transisi Director dari Backend.
+                      </ItNotice>
+                    ) : null}
+                    <p className={styles.noActionNote}>
+                      Status: {formatCanonicalReleaseState(currentRelease.state)}. Tidak ada aksi manusia yang diizinkan untuk peran Anda saat ini.
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -792,7 +858,7 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
         </div>
       </section>
 
-      {/* Submodules Technical Registry */}
+      {/* 7. Submodules Technical Registry */}
       <section aria-labelledby="technical-registry-title" className={styles.section}>
         <ItSectionHeader
           eyebrow="Kapabilitas"
@@ -809,7 +875,7 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
         </ItDataTable>
       </section>
 
-      {/* Governance Reference Modules */}
+      {/* 8. Governance Reference Modules */}
       <section aria-labelledby="governance-references-title" className={styles.section}>
         <ItSectionHeader
           eyebrow="Kontrol"
