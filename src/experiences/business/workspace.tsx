@@ -1,6 +1,5 @@
 "use client";
 
-import type { DashboardModuleKey } from "@/features/workspace-routing/dashboard-modules";
 import {
   ExecutiveDashboardPage,
   ExecutiveDivisionsPage,
