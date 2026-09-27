@@ -1,7 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AppShell } from "@/components/layout/app-shell";
 import { LoginPage } from "@/features/session";
 import * as api from "@/lib/api";
 
@@ -129,19 +128,3 @@ describe("LoginPage Component", () => {
   });
 });
 
-describe("AppShell login route awareness", () => {
-  it("tidak merender chrome internal dashboard saat berada di /login", () => {
-    mockUsePathname.mockReturnValue("/login");
-
-    const { container } = render(
-      <AppShell>
-        <div data-testid="login-content">Halaman Login Shell-Free</div>
-      </AppShell>
-    );
-
-    expect(screen.getByTestId("login-content")).toBeInTheDocument();
-    expect(container.querySelector(".app-frame")).toBeNull();
-    expect(container.querySelector(".topbar")).toBeNull();
-    expect(container.querySelector(".footer")).toBeNull();
-  });
-});

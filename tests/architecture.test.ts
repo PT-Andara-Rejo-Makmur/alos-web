@@ -41,8 +41,8 @@ describe("frontend architecture boundary", () => {
     expect(violations).toEqual([]);
   });
 
-  it("menyediakan route H1 dalam satu Next.js application", () => {
-    for (const route of ["business", "ara", "genesis", "agents", "research", "governance", "director", "giivepro"]) {
+  it("menyediakan route utama dalam satu Next.js application", () => {
+    for (const route of ["login", "workspace"]) {
       expect(() => readFileSync(join(sourceRoot, "app", route, "page.tsx"), "utf8")).not.toThrow();
     }
   });

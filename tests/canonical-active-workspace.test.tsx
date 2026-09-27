@@ -1,26 +1,11 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { createElement } from "react";
+import { cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { projectSessionContext } from "@/features/session";
-import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
-import * as api from "@/lib/api";
 import type {
   AuthenticatedPrincipalProjection,
   WorkspaceAccessProjection,
 } from "@/lib/contracts";
-
-const replace = vi.fn();
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace }),
-  usePathname: () => "/workspace/property",
-}));
-
-vi.mock("next/link", () => ({
-  default: ({ children, href }: { children: React.ReactNode; href: string }) =>
-    createElement("a", { href }, children),
-}));
 
 function access(
   workspaceId: string,
@@ -88,37 +73,19 @@ describe("canonical active workspace authority", () => {
     expect(context.actor.roles).toEqual(["WORKSPACE_LEAD"]);
     expect(context.actor.scopes).toEqual(["workspace_property_beta"]);
     expect(context.activeWorkspace?.workspace_id).toBe("workspace_property_beta");
+    expect(context.activeWorkspace?.name).toBe("Property Beta");
   });
 
-  it("renders Property Beta without searching the authorized workspace array", async () => {
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
-      authenticated: true,
-      principal,
-    });
-    const workspaceList = vi.spyOn(api, "authenticatedApiRequest");
+  it("fails closed when active workspace is not set by Backend", () => {
+    const unselectedPrincipal: AuthenticatedPrincipalProjection = {
+      ...principal,
+      active_workspace: null,
+    };
+    const context = projectSessionContext(unselectedPrincipal);
 
-    render(
-      <ProtectedDomainWorkspace
-        divisionCodes={["PROPERTY"]}
-        loadingLabel="Memuat Property…"
-        workspaceKeys={["property"]}
-      >
-        {({ actor, identity }) => (
-          <div>
-            <span>{identity.workspaceLabel}</span>
-            <span>{identity.roleLabel}</span>
-            <span>{actor.roles.join(",")}</span>
-          </div>
-        )}
-      </ProtectedDomainWorkspace>,
-    );
-
-    expect(await screen.findAllByText("Property Beta")).not.toHaveLength(0);
-    expect(screen.queryByText("Property Alpha")).not.toBeInTheDocument();
-    expect(screen.getAllByText("Penanggung Jawab Workspace")).not.toHaveLength(0);
-    expect(screen.getByText("WORKSPACE_LEAD")).toBeInTheDocument();
-    expect(
-      workspaceList.mock.calls.some(([path]) => path === "/api/v1/workspaces"),
-    ).toBe(false);
+    expect(context.activeWorkspace).toBeNull();
+    expect(context.actor.roles).toEqual([]);
+    expect(context.actor.scopes).toEqual([]);
   });
 });
+

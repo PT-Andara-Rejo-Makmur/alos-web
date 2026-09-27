@@ -127,8 +127,10 @@ describe("Canonical Contract & Architecture Boundary Integration", () => {
   });
 
   it("tidak menghitung research authority dari raw actor scope di frontend", () => {
-    const researchRoot = join(sourceRoot, "features", "research");
-    const violations = getSourceFiles(researchRoot).flatMap((path) => {
+    const clientFiles = getSourceFiles(sourceRoot).filter(
+      (path) => !path.includes("server-boundary.ts"),
+    );
+    const violations = clientFiles.flatMap((path) => {
       const content = readFileSync(path, "utf8");
       return [/\/api\/v1\/auth\/whoami/, /evaluateBackendDomainPermissions/].some(
         (pattern) => pattern.test(content),

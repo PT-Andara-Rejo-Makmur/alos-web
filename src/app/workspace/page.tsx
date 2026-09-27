@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { sessionApiRequest } from "@/lib/api";
 import type { SessionProjection } from "@/features/session";
@@ -11,24 +11,37 @@ type PageState = "loading" | "ready" | "no_access" | "error";
 export default function WorkspacePage() {
   const router = useRouter();
   const [state, setState] = useState<PageState>("loading");
-
-  const checkSession = useCallback(async () => {
-    setState("loading");
-    try {
-      const session = await sessionApiRequest<SessionProjection>("/");
-      if (!session.authenticated || !session.principal) {
-        setState("no_access");
-      } else {
-        setState("ready");
-      }
-    } catch {
-      setState("error");
-    }
-  }, []);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    void checkSession();
-  }, [checkSession]);
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const session = await sessionApiRequest<SessionProjection>("/");
+        if (cancelled) return;
+        if (!session.authenticated || !session.principal) {
+          setState("no_access");
+        } else {
+          setState("ready");
+        }
+      } catch {
+        if (!cancelled) {
+          setState("error");
+        }
+      }
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [retryCount]);
+
+  const handleRetry = () => {
+    setState("loading");
+    setRetryCount((c) => c + 1);
+  };
 
   const handleLogout = async () => {
     try {
@@ -95,7 +108,7 @@ export default function WorkspacePage() {
             <div className={styles.actions}>
               <button
                 className={`${styles.button} ${styles.buttonPrimary}`}
-                onClick={() => void checkSession()}
+                onClick={handleRetry}
                 type="button"
               >
                 Coba lagi
