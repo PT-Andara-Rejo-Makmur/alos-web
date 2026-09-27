@@ -58,4 +58,16 @@ describe("production architecture hygiene", () => {
     });
     expect(offenders.map((path) => relative(process.cwd(), path))).toEqual([]);
   });
+
+  it("uses semantic Executive feature names without delivery namespaces", () => {
+    const executiveRoot = join(sourceRoot, "features", "executive");
+    const offenders = productionFiles(executiveRoot).filter((path) => /(?:mvp|stage|phase|golden|prototype)/i.test(relative(executiveRoot, path)));
+    expect(offenders.map((path) => relative(process.cwd(), path))).toEqual([]);
+  });
+
+  it("does not synthesize an Executive title or refresh action", () => {
+    const executiveFiles = productionFiles(join(sourceRoot, "features", "executive"));
+    const content = executiveFiles.map((path) => readFileSync(path, "utf8")).join("\n");
+    expect(content).not.toMatch(/Direktur Utama|Direktur|\bCEO\b|Segarkan Data|Refresh Data/);
+  });
 });

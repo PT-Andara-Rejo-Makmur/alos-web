@@ -9,7 +9,7 @@ import { strategyApi } from "@/modules/strategy";
 const replace = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/workspace/executive",
+  usePathname: () => "/workspace/executive/summary",
   useRouter: () => ({ replace, push: vi.fn(), refresh: vi.fn() }),
 }));
 
@@ -127,6 +127,8 @@ function authenticatedSession(principal = executivePrincipal) {
 describe("Executive Golden Dashboard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(strategyApi, "listAssumptions").mockResolvedValue([]);
+    vi.spyOn(strategyApi, "getAuthority").mockResolvedValue({ authorized_actions: [] });
   });
 
   afterEach(() => {
@@ -148,8 +150,11 @@ describe("Executive Golden Dashboard", () => {
     render(<ExecutiveDashboardPage />);
 
     expect(await screen.findByRole("heading", { name: "Pusat Kendali Eksekutif" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Pusat Kendali" })).toHaveAttribute("aria-current", "page");
-    expect(screen.getByText("Sasaran Perusahaan")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ringkasan" })).toHaveAttribute("aria-current", "page");
+    for (const label of ["Brief Eksekutif", "Rencana & Target", "Kinerja", "Inisiatif Strategis", "Review & Revisi", "Divisi", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA"]) {
+      expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
+    }
+    expect(await screen.findByText("Sasaran Perusahaan")).toBeInTheDocument();
     expect(screen.getByText("Perlu Perhatian")).toBeInTheDocument();
     expect(screen.queryByText("Sasaran Divisi")).not.toBeInTheDocument();
     expect(screen.getAllByText("—").length).toBeGreaterThan(1);
@@ -197,8 +202,8 @@ describe("Executive Golden Dashboard", () => {
 
     render(<ExecutiveDashboardPage />);
 
-    expect(await screen.findByText("Target perusahaan belum dapat dimuat.")).toBeInTheDocument();
-    expect(screen.getByText("Silakan coba kembali.")).toBeInTheDocument();
+    expect(await screen.findByText("Data belum dapat dimuat.")).toBeInTheDocument();
+    expect(screen.getByText("Data strategi belum dapat dimuat. Silakan coba kembali beberapa saat lagi.")).toBeInTheDocument();
     expect(screen.queryByText("Failed to fetch")).not.toBeInTheDocument();
     expect(screen.queryByText("Request failed")).not.toBeInTheDocument();
 

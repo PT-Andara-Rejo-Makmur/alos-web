@@ -2,7 +2,6 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import WorkspacePage from "@/app/workspace/page";
-import { getAppShellProfile } from "@/components/app-shell/app-shell";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import { ApiError } from "@/lib/api";
 import * as api from "@/lib/api";
@@ -111,32 +110,6 @@ describe("WorkspacePage and ALOS App Shell", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Buka sidebar" }));
     expect(screen.getByRole("button", { name: "Tutup sidebar" })).toBeInTheDocument();
-  });
-
-  it("membetulkan typo nama tampilan tanpa mengubah sumber identity", () => {
-    const profile = getAppShellProfile(authenticatedSession({
-      ...makePrincipal(),
-      actor: { ...makePrincipal().actor, display_name: "Direcur" },
-      active_workspace: {
-        active: true,
-        data_scope: "COMPANY",
-        permission_refs: [],
-        role_refs: [],
-        scope_refs: [],
-        workspace: {
-          active: true,
-          division_code: null,
-          organization_id: "org_1",
-          workspace_id: "workspace_exec",
-          workspace_key: "executive",
-          workspace_name: "Direcur",
-          workspace_type: "EXECUTIVE",
-        },
-      },
-    }));
-
-    expect(profile.displayName).toBe("Direktur");
-    expect(profile.workspaceName).toBe("Direktur");
   });
 
   it("menampilkan status netral ketika Backend belum memilih workspace", async () => {
