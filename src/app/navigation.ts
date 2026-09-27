@@ -10,11 +10,13 @@ import {
 } from "lucide-react";
 
 import type { AppNavigationSection } from "@/components/app-shell/app-shell";
+import { executiveNavigation } from "@/features/executive/navigation";
 
 export function navigationForSession(
   includeExecutive: boolean,
   workspaceKey?: string | null,
 ): readonly AppNavigationSection[] {
+  if (includeExecutive && workspaceKey === "executive") return executiveNavigation;
   const base = workspaceKey ? `/workspace/${workspaceKey}` : "/workspace";
 
   return [

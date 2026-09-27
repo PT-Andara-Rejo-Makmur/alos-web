@@ -41,12 +41,6 @@ function initialsFor(displayName: string | null): string {
   return `${parts[0][0]}${parts.at(-1)?.[0] ?? ""}`.toUpperCase();
 }
 
-function correctDisplayTypo(value: string | null | undefined): string | null {
-  const trimmed = value?.trim();
-  if (!trimmed) return null;
-  return trimmed.toLocaleLowerCase() === "direcur" ? "Direktur" : trimmed;
-}
-
 export function getAppShellProfile(session: SessionProjection): AppShellProfile {
   const principal = session.principal;
   if (!principal) {
@@ -54,8 +48,8 @@ export function getAppShellProfile(session: SessionProjection): AppShellProfile 
   }
 
   if ("actor" in principal) {
-    const displayName = correctDisplayTypo(principal.actor.display_name);
-    const workspaceName = correctDisplayTypo(principal.active_workspace?.workspace.workspace_name);
+    const displayName = principal.actor.display_name.trim() || null;
+    const workspaceName = principal.active_workspace?.workspace.workspace_name ?? null;
     return {
       displayName,
       email: principal.email || null,
@@ -68,7 +62,7 @@ export function getAppShellProfile(session: SessionProjection): AppShellProfile 
     readonly display_name?: string;
     readonly email?: string;
   };
-  const displayName = correctDisplayTypo(legacy.display_name);
+  const displayName = legacy.display_name?.trim() || null;
   return {
     displayName,
     email: legacy.email || null,

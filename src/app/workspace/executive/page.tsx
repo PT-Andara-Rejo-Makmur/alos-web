@@ -1,5 +1,5 @@
-import { ExecutiveDashboardPage } from "@/features/executive";
+import { redirect } from "next/navigation";
 
-export default function ExecutivePage() {
-  return <ExecutiveDashboardPage />;
+export default function ExecutiveWorkspaceRoute() {
+  redirect("/workspace/executive/summary");
 }
