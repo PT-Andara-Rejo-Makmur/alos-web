@@ -1,15 +1,18 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useRef, type RefObject } from "react";
+import { useRef, type RefObject } from "react";
 
-import type { AppShellProfile } from "./app-shell";
+import { useOverlayFocus } from "@/components/ui/overlay-focus";
+
+import type { AppNavigationSection, AppShellProfile } from "./app-shell";
 import { AppSidebar } from "./app-sidebar";
 import styles from "./app-shell.module.css";
 
 interface MobileNavigationProps {
   readonly loggingOut: boolean;
   readonly menuButtonRef: RefObject<HTMLButtonElement | null>;
+  readonly navigationSections: readonly AppNavigationSection[];
   readonly onClose: () => void;
   readonly onLogout: () => void;
   readonly open: boolean;
@@ -19,46 +22,21 @@ interface MobileNavigationProps {
 export function MobileNavigation({
   loggingOut,
   menuButtonRef,
+  navigationSections,
   onClose,
   onLogout,
   open,
   profile,
 }: MobileNavigationProps) {
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const wasOpen = useRef(false);
-  const previousOverflow = useRef("");
-
-  useEffect(() => {
-    if (!open) {
-      if (wasOpen.current) menuButtonRef.current?.focus();
-      wasOpen.current = false;
-      return;
-    }
-
-    wasOpen.current = true;
-    previousOverflow.current = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    closeButtonRef.current?.focus();
-
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-      }
-    }
-
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("keydown", closeOnEscape);
-      document.body.style.overflow = previousOverflow.current;
-    };
-  }, [menuButtonRef, onClose, open]);
+  const drawerRef = useRef<HTMLDivElement>(null);
+  useOverlayFocus({ dialogRef: drawerRef, onClose, open, triggerRef: menuButtonRef });
 
   if (!open) return null;
 
   return (
     <div className={styles.mobileNavigationLayer} role="presentation">
       <button
+        aria-hidden="true"
         aria-label="Tutup navigasi"
         className={styles.mobileNavigationBackdrop}
         onClick={onClose}
@@ -68,6 +46,7 @@ export function MobileNavigation({
         aria-label="Navigasi mobile"
         aria-modal="true"
         className={styles.mobileNavigationDrawer}
+        ref={drawerRef}
         role="dialog"
       >
         <div className={styles.mobileNavigationHeader}>
@@ -76,7 +55,6 @@ export function MobileNavigation({
             aria-label="Tutup navigasi"
             className={styles.closeButton}
             onClick={onClose}
-            ref={closeButtonRef}
             type="button"
           >
             <X aria-hidden="true" size={20} strokeWidth={1.9} />
@@ -85,6 +63,7 @@ export function MobileNavigation({
         <AppSidebar
           loggingOut={loggingOut}
           mobile
+          navigationSections={navigationSections}
           onLogout={onLogout}
           onNavigate={onClose}
           profile={profile}

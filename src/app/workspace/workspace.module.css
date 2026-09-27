@@ -1,124 +1,16 @@
-.page {
+.landing {
   display: flex;
   flex-direction: column;
   gap: var(--alos-space-8);
-  max-width: 820px;
-}
-
-.preview {
-  display: flex;
-  flex-direction: column;
-  gap: var(--alos-space-6);
   max-width: 1200px;
   width: 100%;
 }
 
-.previewRow,
-.previewMetricGrid,
-.previewFieldGrid {
+.landingStatus {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: var(--alos-space-3);
-}
-
-.previewMetricGrid > * {
-  flex: 1 1 220px;
-}
-
-.previewFieldGrid {
-  align-items: flex-start;
-  margin-top: var(--alos-space-5);
-}
-
-.previewFieldGrid > * {
-  flex: 1 1 240px;
-}
-
-.previewTable {
-  margin-top: var(--alos-space-4);
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.previewStack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--alos-space-4);
-}
-
-.previewText {
-  color: var(--alos-text-secondary);
-  margin: 0;
-}
-
-.pageHeader {
-  display: flex;
-  flex-direction: column;
-  gap: var(--alos-space-2);
-}
-
-.eyebrow {
-  color: var(--alos-primary);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  line-height: 18px;
-  margin: 0;
-}
-
-.pageTitle {
-  color: var(--alos-text-primary);
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 36px;
-  margin: 0;
-}
-
-.pageDescription {
-  color: var(--alos-text-secondary);
-  font-size: 16px;
-  line-height: 24px;
-  margin: var(--alos-space-2) 0 0;
-}
-
-.statusPanel {
-  align-items: flex-start;
-  background: var(--alos-surface);
-  border: 1px solid var(--alos-border);
-  border-radius: var(--alos-radius-panel);
-  display: flex;
-  gap: var(--alos-space-3);
-  max-width: 600px;
-  padding: var(--alos-space-5);
-}
-
-.statusIcon {
-  align-items: center;
-  background: var(--alos-status-success-background);
-  border: 1px solid var(--alos-status-success-border);
-  border-radius: 50%;
-  color: var(--alos-status-success-text);
-  display: inline-flex;
-  flex: 0 0 auto;
-  height: 32px;
-  justify-content: center;
-  width: 32px;
-}
-
-.statusTitle {
-  color: var(--alos-text-primary);
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 22px;
-  margin: 0 0 var(--alos-space-1);
-}
-
-.statusDescription {
-  color: var(--alos-text-secondary);
-  font-size: 14px;
-  line-height: 21px;
-  margin: 0;
 }
 
 .stateContainer {
@@ -204,25 +96,8 @@
 }
 
 @media (max-width: 639px) {
-  .preview {
-    gap: var(--alos-space-5);
-  }
-
-  .previewRow {
-    align-items: stretch;
-  }
-
-  .page {
+  .landing {
     gap: var(--alos-space-6);
-  }
-
-  .pageTitle {
-    font-size: 24px;
-    line-height: 32px;
-  }
-
-  .statusPanel {
-    padding: var(--alos-space-4);
   }
 
   .stateContainer {

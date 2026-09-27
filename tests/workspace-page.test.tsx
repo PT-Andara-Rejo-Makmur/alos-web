@@ -9,6 +9,7 @@ import * as api from "@/lib/api";
 const mockReplace = vi.fn();
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/workspace",
   useRouter: () => ({
     refresh: vi.fn(),
     replace: mockReplace,
@@ -49,7 +50,7 @@ describe("WorkspacePage and ALOS App Shell", () => {
     vi.restoreAllMocks();
   });
 
-  it("menampilkan App Shell, identitas session, dan temporary landing", async () => {
+  it("menampilkan App Shell, identitas session, dan landing ruang kerja", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(
       authenticatedSession(
         makePrincipal({
@@ -77,15 +78,33 @@ describe("WorkspacePage and ALOS App Shell", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("complementary", { name: "Navigasi utama" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Pratinjau Komponen ALOS", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "ALOS", level: 1 })).toBeInTheDocument();
     });
 
     expect(screen.getByRole("link", { name: "Beranda" })).toHaveAttribute("aria-current", "page");
     expect(screen.getAllByText("Rani Andara").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Property").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Halaman ini digunakan sementara untuk meninjau standar antarmuka sebelum modul bisnis dibangun.").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("CONTOH TAMPILAN").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Ruang kerja Anda siap digunakan.")).toBeInTheDocument();
+    expect(screen.getByText("Fondasi sistem aktif")).toBeInTheDocument();
     expect(screen.queryByText(/KPI|Executive|Sales|Finance|Property Dashboard|GENESIS/)).not.toBeInTheDocument();
+  });
+
+  it("dapat mengubah sidebar desktop dari expanded ke collapsed", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
+
+    render(<WorkspacePage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Tutup sidebar" })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Tutup sidebar" }));
+    expect(screen.getByRole("button", { name: "Buka sidebar" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Beranda" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Keluar" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Buka sidebar" }));
+    expect(screen.getByRole("button", { name: "Tutup sidebar" })).toBeInTheDocument();
   });
 
   it("menampilkan status netral ketika Backend belum memilih workspace", async () => {

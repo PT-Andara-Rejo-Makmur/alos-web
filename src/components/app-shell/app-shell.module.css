@@ -1,5 +1,6 @@
 .shell {
-  min-height: 100vh;
+  align-items: flex-start;
+  min-height: 100dvh;
   background: var(--alos-app-background);
   color: var(--alos-text-primary);
   display: flex;
@@ -13,12 +14,16 @@
 }
 
 .sidebar {
+  align-self: flex-start;
   background: var(--alos-primary-dark);
   color: white;
   display: flex;
   flex: 0 0 248px;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  position: sticky;
+  top: 0;
   padding: var(--alos-space-6) var(--alos-space-4) var(--alos-space-4);
   width: 248px;
 }
@@ -47,6 +52,12 @@
 
 .navigation {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.navigationSection + .navigationSection {
+  margin-top: var(--alos-space-5);
 }
 
 .sectionLabel {
@@ -59,11 +70,10 @@
   padding: 0 var(--alos-space-3);
 }
 
-.navigationItemActive {
+.navigationItem {
   align-items: center;
-  background: rgb(255 255 255 / 12%);
   border-radius: var(--alos-radius-button);
-  color: white;
+  color: rgb(255 255 255 / 72%);
   display: flex;
   font-size: 14px;
   font-weight: 500;
@@ -72,8 +82,26 @@
   padding: 0 var(--alos-space-3);
 }
 
+.navigationItem:hover {
+  background: rgb(255 255 255 / 8%);
+  color: white;
+}
+
+.navigationItemActive {
+  background: rgb(255 255 255 / 12%);
+  color: white;
+}
+
 .navigationItemActive:hover {
   background: rgb(255 255 255 / 17%);
+  color: white;
+}
+
+.navigationItemLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sidebarFooter {
@@ -87,22 +115,6 @@
   gap: var(--alos-space-3);
   min-width: 0;
   padding: 0 var(--alos-space-2) var(--alos-space-4);
-}
-
-.avatar,
-.avatarTopbar {
-  align-items: center;
-  background: var(--alos-accent-gold);
-  border-radius: 50%;
-  color: var(--alos-primary-dark);
-  display: inline-flex;
-  flex: 0 0 auto;
-  font-size: 12px;
-  font-weight: 700;
-  height: 32px;
-  justify-content: center;
-  letter-spacing: 0.02em;
-  width: 32px;
 }
 
 .profileDetails {
@@ -165,7 +177,8 @@
   height: 64px;
   justify-content: space-between;
   padding: 0 var(--alos-space-8);
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 2;
 }
 
@@ -181,6 +194,26 @@
   justify-content: center;
   padding: 0;
   width: 36px;
+}
+
+.sidebarToggle {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--alos-radius-button);
+  color: var(--alos-text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  height: 36px;
+  justify-content: center;
+  margin-right: var(--alos-space-3);
+  padding: 0;
+  width: 36px;
+}
+
+.sidebarToggle:hover {
+  background: var(--alos-primary-very-soft);
+  color: var(--alos-primary);
 }
 
 .menuButton:hover {
@@ -229,11 +262,6 @@
 
 .profileTrigger:hover {
   background: var(--alos-primary-very-soft);
-}
-
-.avatarTopbar {
-  height: 28px;
-  width: 28px;
 }
 
 .profileTriggerName {
@@ -380,9 +408,66 @@
 
 .mobileSidebar {
   display: flex;
+  height: auto;
   min-height: auto;
+  position: static;
+  top: auto;
   padding-top: var(--alos-space-2);
   width: 100%;
+}
+
+.sidebarCollapsed {
+  flex-basis: 72px;
+  padding-left: var(--alos-space-2);
+  padding-right: var(--alos-space-2);
+  width: 72px;
+}
+
+.sidebarCollapsed .sidebarHeader {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.sidebarCollapsed .logoLink,
+.sidebarCollapsed .navigationItem,
+.sidebarCollapsed .profileSummary,
+.sidebarCollapsed .logoutButton {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.sidebarCollapsed .logoName,
+.sidebarCollapsed .sectionLabel,
+.sidebarCollapsed .navigationItemLabel,
+.sidebarCollapsed .profileDetails,
+.sidebarCollapsed .logoutButton span {
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.sidebarCollapsed .navigationItem {
+  gap: 0;
+}
+
+.sidebarCollapsed .profileSummary {
+  gap: 0;
+}
+
+.sidebarCollapsed .sidebarFooter {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarCollapsed .logoutButton {
+  width: 40px;
 }
 
 @media (max-width: 1023px) {
@@ -392,6 +477,10 @@
 
   .menuButton {
     display: inline-flex;
+  }
+
+  .sidebarToggle {
+    display: none;
   }
 
   .topbar {

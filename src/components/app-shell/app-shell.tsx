@@ -1,5 +1,6 @@
 "use client";
 
+import { House, type LucideIcon } from "lucide-react";
 import { useCallback, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
@@ -17,6 +18,21 @@ export interface AppShellProfile {
   readonly workspaceName: string | null;
   readonly initials: string;
 }
+
+export interface AppNavigationItem {
+  readonly href: string;
+  readonly icon: LucideIcon;
+  readonly label: string;
+}
+
+export interface AppNavigationSection {
+  readonly items: readonly AppNavigationItem[];
+  readonly label: string;
+}
+
+const defaultNavigation: readonly AppNavigationSection[] = [
+  { items: [{ href: "/workspace", icon: House, label: "Beranda" }], label: "UTAMA" },
+];
 
 function initialsFor(displayName: string | null): string {
   if (!displayName?.trim()) return "?";
@@ -56,10 +72,16 @@ export function getAppShellProfile(session: SessionProjection): AppShellProfile 
 
 export function AppShell({
   children,
+  navigationSections = defaultNavigation,
   session,
-}: Readonly<{ children: ReactNode; session: SessionProjection }>) {
+}: Readonly<{
+  children: ReactNode;
+  navigationSections?: readonly AppNavigationSection[];
+  session: SessionProjection;
+}>) {
   const router = useRouter();
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const profile = getAppShellProfile(session);
@@ -78,7 +100,9 @@ export function AppShell({
   return (
     <div className={styles.shell}>
       <AppSidebar
+        collapsed={sidebarCollapsed}
         loggingOut={loggingOut}
+        navigationSections={navigationSections}
         onLogout={() => void logout()}
         profile={profile}
       />
@@ -88,9 +112,11 @@ export function AppShell({
           loggingOut={loggingOut}
           menuButtonRef={menuButtonRef}
           mobileNavigationOpen={mobileNavigationOpen}
+          onToggleSidebar={() => setSidebarCollapsed((collapsed) => !collapsed)}
           onLogout={() => void logout()}
           onOpenMenu={() => setMobileNavigationOpen(true)}
           profile={profile}
+          sidebarCollapsed={sidebarCollapsed}
         />
         <main className={styles.main}>
           <div className={styles.content}>{children}</div>
@@ -101,6 +127,7 @@ export function AppShell({
         loggingOut={loggingOut}
         onClose={() => setMobileNavigationOpen(false)}
         onLogout={() => void logout()}
+        navigationSections={navigationSections}
         open={mobileNavigationOpen}
         menuButtonRef={menuButtonRef}
         profile={profile}

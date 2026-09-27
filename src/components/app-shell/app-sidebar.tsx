@@ -1,34 +1,46 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { House, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 import { Avatar } from "@/components/ui";
 
-import type { AppShellProfile } from "./app-shell";
+import type { AppNavigationSection, AppShellProfile } from "./app-shell";
 import styles from "./app-shell.module.css";
 
 interface AppSidebarProps {
+  readonly collapsed?: boolean;
   readonly loggingOut: boolean;
   readonly mobile?: boolean;
+  readonly navigationSections: readonly AppNavigationSection[];
   readonly onLogout: () => void;
   readonly onNavigate?: () => void;
   readonly profile: AppShellProfile;
 }
 
 export function AppSidebar({
+  collapsed = false,
   loggingOut,
   mobile = false,
+  navigationSections,
   onLogout,
   onNavigate,
   profile,
 }: AppSidebarProps) {
+  const pathname = usePathname() ?? "";
+  const visuallyCollapsed = collapsed && !mobile;
+
   return (
     <aside
       aria-label="Navigasi utama"
-      className={`${styles.sidebar} ${mobile ? styles.mobileSidebar : ""}`}
+      className={[styles.sidebar, mobile ? styles.mobileSidebar : "", visuallyCollapsed ? styles.sidebarCollapsed : ""]
+        .filter(Boolean)
+        .join(" ")}
     >
       <div className={styles.sidebarHeader}>
-        <Link className={styles.logoLink} href="/workspace" onClick={onNavigate}>
+        <Link aria-label="ALOS" className={styles.logoLink} href="/workspace" onClick={onNavigate}>
           <Image
             alt=""
             className={styles.logoMark}
@@ -42,16 +54,29 @@ export function AppSidebar({
       </div>
 
       <nav aria-label="Menu aplikasi" className={styles.navigation}>
-        <p className={styles.sectionLabel}>UTAMA</p>
-        <Link
-          aria-current="page"
-          className={styles.navigationItemActive}
-          href="/workspace"
-          onClick={onNavigate}
-        >
-          <House aria-hidden="true" size={18} strokeWidth={1.9} />
-          <span>Beranda</span>
-        </Link>
+        {navigationSections.map((section) => (
+          <div className={styles.navigationSection} key={section.label}>
+            <p className={styles.sectionLabel}>{section.label}</p>
+            {section.items.map((item) => {
+              const active = pathname === item.href || (item.href !== "/workspace" && pathname.startsWith(`${item.href}/`));
+              const Icon = item.icon;
+              return (
+                <Link
+                  aria-current={active ? "page" : undefined}
+                  aria-label={item.label}
+                  className={[styles.navigationItem, active ? styles.navigationItemActive : ""].filter(Boolean).join(" ")}
+                  href={item.href}
+                  key={item.href}
+                  onClick={onNavigate}
+                  title={visuallyCollapsed ? item.label : undefined}
+                >
+                  <Icon aria-hidden="true" size={18} strokeWidth={1.9} />
+                  <span className={styles.navigationItemLabel}>{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       <div className={styles.sidebarFooter}>
@@ -67,6 +92,7 @@ export function AppSidebar({
           </span>
         </div>
         <button
+          aria-label={loggingOut ? "Keluar…" : "Keluar"}
           className={styles.logoutButton}
           disabled={loggingOut}
           onClick={onLogout}

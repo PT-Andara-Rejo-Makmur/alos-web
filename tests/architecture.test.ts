@@ -42,9 +42,17 @@ describe("frontend architecture boundary", () => {
   });
 
   it("menyediakan route utama dalam satu Next.js application", () => {
-    for (const route of ["login", "workspace"]) {
+    for (const route of ["login", "workspace", join("workspace", "executive")]) {
       expect(() => readFileSync(join(sourceRoot, "app", route, "page.tsx"), "utf8")).not.toThrow();
     }
+  });
+
+  it("keeps desktop sidebar bound to the viewport with internal navigation scroll", () => {
+    const shellCss = readFileSync(join(sourceRoot, "components", "app-shell", "app-shell.module.css"), "utf8");
+    expect(shellCss).toMatch(/height:\s*100dvh/);
+    expect(shellCss).toMatch(/position:\s*sticky/);
+    expect(shellCss).toMatch(/top:\s*0/);
+    expect(shellCss).toMatch(/\.navigation\s*\{[\s\S]*overflow-y:\s*auto/);
   });
 
   it("tidak mendeklarasikan public secret environment", () => {
