@@ -269,12 +269,48 @@ Sesuai `src/alos/documents/models.py`:
   - `APPROVED` $\rightarrow$ **Disetujui**
   - `REJECTED` $\rightarrow$ **Ditolak**
   - `RETIRED` $\rightarrow$ **Tidak Berlaku**
+- Data Classification:
+  - `PUBLIC` $\rightarrow$ **Publik**
+  - `INTERNAL` $\rightarrow$ **Internal**
+  - `CONFIDENTIAL` $\rightarrow$ **Rahasia**
+  - `RESTRICTED` $\rightarrow$ **Sangat Terbatas**
+
+### Laporan
+- Target presentation:
+  - `DRAFT` $\rightarrow$ **Draf**
+  - `IN_REVIEW` $\rightarrow$ **Dalam Review**
+  - `APPROVED` $\rightarrow$ **Disetujui**
+  - `PUBLISHED` $\rightarrow$ **Diterbitkan**
+  - `ARCHIVED` $\rightarrow$ **Diarsipkan**
+- Frequency presentation:
+  - `DAILY` $\rightarrow$ **Harian**
+  - `WEEKLY` $\rightarrow$ **Mingguan**
+  - `MONTHLY` $\rightarrow$ **Bulanan**
+  - `QUARTERLY` $\rightarrow$ **Kuartalan**
+  - `ON_DEMAND` $\rightarrow$ **Sesuai Permintaan**
+
+### Temuan
+- Severity presentation:
+  - `LOW` $\rightarrow$ **Rendah**
+  - `MEDIUM` $\rightarrow$ **Sedang**
+  - `HIGH` $\rightarrow$ **Tinggi**
+  - `CRITICAL` $\rightarrow$ **Kritis**
+- Status presentation:
+  - `OPEN` $\rightarrow$ **Terbuka**
+  - `IN_REVIEW` $\rightarrow$ **Dalam Peninjauan**
+  - `ASSIGNED` $\rightarrow$ **Ditugaskan**
+  - `IN_PROGRESS` $\rightarrow$ **Dalam Perbaikan**
+  - `PENDING_VERIFICATION` $\rightarrow$ **Menunggu Verifikasi**
+  - `VERIFIED` $\rightarrow$ **Terverifikasi**
+  - `CLOSED` $\rightarrow$ **Ditutup**
+  - `CANCELLED` $\rightarrow$ **Dibatalkan**
+  - `DUPLICATE` $\rightarrow$ **Duplikat**
 
 ---
 
 ## 11. API Gap Analysis (Hasil Audit Realitas)
 
-| Fitur | Database (0013) | Backend Service | Contracts Schema | Public API Route | Backend Permission | Status Kesiapan |
+| Fitur | Database (0013 / 0005) | Backend Service | Contracts Schema | Public API Route | Backend Permission | Status Kesiapan |
 |---|---|---|---|---|---|---|
 | **Proyek** | `core.projects`, `core.project_workspaces` | **Belum Ada** | **Belum Ada** | **Belum Ada** | **Belum Ada** | *DB Siap, API Belum Terhubung* |
 | **Tugas** | `core.tasks`, `core.task_workspaces` | **Belum Ada** | **Belum Ada** | **Belum Ada** | **Belum Ada** | *DB Siap, API Belum Terhubung* |
@@ -283,7 +319,7 @@ Sesuai `src/alos/documents/models.py`:
 | **Laporan** | `core.work_reports`, `core.work_report_workspaces` | **Belum Ada** | **Belum Ada** | **Belum Ada** | **Belum Ada** | *DB Siap, API Belum Terhubung* |
 | **Temuan** | `core.work_findings`, `core.work_finding_workspaces` | **Belum Ada** | **Belum Ada** | **Belum Ada** | **Belum Ada** | *DB Siap, API Belum Terhubung* |
 
-> **Konsekuensi Frontend**: Sesuai mandat, frontend **TIDAK MEMBUAT MOCK RUNTIME** atau rute palsu. Frontend menampilkan UI riil terhubung ke endpoint `/api/v1/projects` (melalui proxy `/api/backend/api/v1/projects`), dan ketika backend mengembalikan status 404/501 (karena route belum didaftarkan di backend), antarmuka menampilkan status **"Belum Terhubung"** secara elegan dan informatif.
+> **Konsekuensi Frontend**: Sesuai mandat, frontend **TIDAK MEMBUAT MOCK RUNTIME** atau rute palsu. Ketika backend mengembalikan status 404/501 (karena route belum didaftarkan di backend), antarmuka menampilkan status **"Belum Terhubung"** secara elegan dan informatif.
 
 ---
 
@@ -291,13 +327,13 @@ Sesuai `src/alos/documents/models.py`:
 
 - **Page Header**:
   - Eyebrow: `PEKERJAAN`
-  - Title: Judul Modul (mis. `Proyek`)
+  - Title: Judul Modul (mis. `Persetujuan`, `Dokumen`, `Laporan`, `Temuan`)
   - Description: Teks penjelas ringkas
-  - Actions: Tombol aksi utama (mis. `Tambah Proyek`), hanya dimunculkan jika aktor memiliki hak `create`.
+  - Actions: Tombol aksi utama (hanya dimunculkan jika aktor memiliki hak authoritative terkait).
 - **Tabs / View**: Filter kategori primer yang beroperasi di atas data terotentikasi.
 - **Toolbar**:
   - Kolom pencarian kontekstual (lebar 280–360px).
-  - Filter horizontal ringkas (Status, Workspace, Pemilik, Periode).
+  - Filter horizontal ringkas.
 - **Tabel Data**:
   - Memanfaatkan primitive `DataTable`.
   - Tinggi baris 48–52px yang rapi dan terukur.
@@ -314,115 +350,76 @@ Sesuai `src/alos/documents/models.py`:
 ```
 /workspace
 /workspace/executive
+
+# Proyek
 /workspace/projects
-/workspace/tasks
+/workspace/projects/[projectId]
 /workspace/[workspaceKey]/projects
 /workspace/[workspaceKey]/projects/[projectId]
+
+# Tugas
+/workspace/tasks
+/workspace/tasks/[taskId]
 /workspace/[workspaceKey]/tasks
 /workspace/[workspaceKey]/tasks/[taskId]
+
+# Persetujuan
+/workspace/approvals
+/workspace/approvals/[approvalId]
 /workspace/[workspaceKey]/approvals
+/workspace/[workspaceKey]/approvals/[approvalId]
+
+# Dokumen
+/workspace/documents
+/workspace/documents/[documentId]
 /workspace/[workspaceKey]/documents
+/workspace/[workspaceKey]/documents/[documentId]
+
+# Laporan
+/workspace/reports
+/workspace/reports/[reportId]
 /workspace/[workspaceKey]/reports
+/workspace/[workspaceKey]/reports/[reportId]
+
+# Temuan
+/workspace/findings
+/workspace/findings/[findingId]
 /workspace/[workspaceKey]/findings
+/workspace/[workspaceKey]/findings/[findingId]
 ```
 
-*Catatan: Tersedia alias fallback `/workspace/projects` dan `/workspace/tasks` yang secara otomatis mengidentifikasi active workspace pengguna dan merender halaman terkait.*
-
 ---
 
-## 14. Data Requirements & Schemas for Backend Completion
-
-Untuk melengkapi integrasi Backend di masa depan, dibutuhkan:
-1. **Pydantic Models** di `alos-backend/src/alos/projects/models.py` dan `alos-backend/src/alos/tasks/models.py`:
-   - `ProjectProjection`: id, code, name, description, status, owner, workspace_ids, start_date, target_end_date, created_at, updated_at.
-   - `TaskProjection`: id, title, description, status, priority, project_id, owner_actor_id, created_by, due_at, workspace_ids, created_at, updated_at.
-   - `ProjectCreateRequest`, `TaskCreateRequest`, `TaskUpdateRequest`.
-2. **Contracts Schema** di `alos-contracts/schemas/work/project-projection.schema.json` dan `task-projection.schema.json`.
-3. **Public API Routes** di `alos-backend/src/alos/api/public/work_routes.py`:
-   - `GET /api/v1/projects`, `GET /api/v1/projects/{project_id}`
-   - `GET /api/v1/tasks`, `GET /api/v1/tasks/{task_id}`
-
----
-
-## 15. Evidence & Audit History Pattern
-
-- **Bukti (Evidence)**: Tidak dibuat sebagai menu tersendiri di sidebar, melainkan komponen pendukung di dalam detail objek (proyek, tugas, temuan, persetujuan).
-- **Aktivitas (Audit Trail)**:
-  - Ditampilkan dalam format timeline vertikal yang ramah manusia (`Hari, Tanggal · Waktu`, Aktor, Deskripsi perubahan).
-  - ID teknis korelasi (`correlation_id`) disembunyikan dalam expandable "Detail teknis".
-
----
-
-## 16. GENESIS & ARA Boundaries
-
-- **GENESIS (AI Engine)**:
-  - Berfungsi menyusun analisis prediktif, draf temuan (*candidate findings*), dan rekomendasi tugas.
-  - **Dilarang keras**: Mengesahkan keputusan, menyetujui anggaran, menutup temuan, atau mengubah hak akses.
-- **ARA (Assistant)**:
-  - Menyajikan pencarian cerdas berbasis izin pengguna.
-  - ARA tidak pernah melihat data di luar scope pengguna yang bertanya.
-
----
-
-## 17. Testing Requirements
-
-Pengujian frontend Shared Work wajib mencakup:
-- [x] Shared implementation tunggal lintas seluruh workspace (tidak ada duplikasi kode per divisi).
-- [x] Sidebar `PEKERJAAN` yang bersih tanpa submenu atau filter internal.
-- [x] Otoritas Backend: Tindakan create/mutate disembunyikan jika izin tidak ada di session.
-- [x] Larangan role-based permission synthesis (peran `WORKSPACE_LEAD` tidak otomatis memberikan hak create).
-- [x] Source honesty: Menampilkan "Belum Terhubung" dan status "—", tidak menampilkan angka 0 atau persentase palsu.
-- [x] Error handling yang ramah pengguna dalam Bahasa Indonesia tanpa membocorkan istilah teknis backend.
-- [x] Aksesibilitas: Keyboard navigation, ARIA roles, focus management pada drawer.
-
----
-
-## 18. Implementation Sequence
+## 14. Implementation Sequence
 
 1. **FASE A — Audit**: Audit realitas database, services, contracts, public routes, dan permissions (*Selesai*).
 2. **FASE B — Gap Analysis & Architecture**: Dokumentasi menyeluruh dan identifikasi kebutuhan (*Selesai*).
 3. **FASE C — Shared Work Foundation**: Pembangunan modul reusable di `src/features/shared-work/shared/` (*Selesai*).
 4. **FASE D1 — Proyek**: Implementasi modul Proyek secara lengkap, visual review approval, tab scroller removal, centering empty state (*Selesai & Disetujui*).
-5. **FASE D2 — Tugas**: Implementasi modul Tugas universal lintas workspace, filter status & prioritas, TaskDrawer, full detail view, fail-closed authority, pembersihan pesan teknis (*Selesai*).
-6. **STOP**: Evaluasi hasil FASE D2 sebelum melangkah ke Persetujuan, Dokumen, Laporan, dan Temuan.
+5. **FASE D2 — Tugas**: Implementasi modul Tugas universal lintas workspace, filter status & prioritas, TaskDrawer, full detail view, fail-closed authority (*Selesai & Disetujui*).
+6. **FASE D3 — Persetujuan**: Universal approval surface, pemisahan peran Pengusul $\rightarrow$ Reviewer $\rightarrow$ Approver, decision drawer & detail view, fail-closed actions (*Selesai*).
+7. **FASE D4 — Dokumen**: Business context documents, klasifikasi data (`PUBLIC` s/d `RESTRICTED`), versi immutable (tanpa "Edit Versi"), detail view (*Selesai*).
+8. **FASE D5 — Laporan**: Pemisahan tegas Hasil Laporan dan Definisi Laporan, frequency badge, tidak ada fake export PDF/DOCX, detail view (*Selesai*).
+9. **FASE D6 — Temuan**: Pelacakan deviasi/masalah operasional, severity mapping, relasi corrective action ke Tugas, tidak ada otoritas otomatis GENESIS (*Selesai*).
+10. **STOP**: Tunggu review menyeluruh dari pengguna.
 
 ---
 
-## 19. Known Gaps & NEEDS DECISION
+## 15. Known Gaps & NEEDS DECISION
 
-### Gaps Aktual (Audit Modul Tugas):
-- Database `core.tasks` dan `core.task_workspaces` siap di migrasi `0013` dengan kolom `task_id`, `project_id`, `title`, `description`, `status` (server_default="OPEN"), `priority` (server_default="NORMAL"), `owner_actor_id`, `created_by`, `due_at`.
-- Belum ada model ORM SQLAlchemy di `alos-backend/src/alos/persistence/models.py`.
-- Belum ada service logika bisnis atau public router FastAPI `/api/v1/tasks` di `alos-backend`.
-- Belum ada JSON Schema atau tipe TypeScript untuk `tasks` di `alos-contracts`.
-- Belum ada permission `task.create` terdaftar di permission registry backend.
+### Gaps Aktual (Audit 4 Modul Terkini):
+- **Persetujuan**: Database `core.work_approvals` siap di `0013` dengan kolom `approval_id`, `subject_type`, `subject_id`, `requested_by`, `approver_actor_id`, `status` (server_default="PENDING"), `decision`, `reason`. Belum ada mutation endpoint di backend. Frontend menyajikan alur SoD secara read-only jujur tanpa tombol no-op.
+- **Dokumen**: Backend memiliki model `DocumentMetadata` dan `DocumentVersion` di `0005` & `persistence/models.py`. Public REST route `/api/v1/documents` belum didaftarkan. UI menyajikan versi immutable dan proteksi klasifikasi fail-closed.
+- **Laporan**: Database `core.work_reports` di `0013` memiliki `report_id`, `title`, `report_type`, `status` (server_default="DRAFT"), `owner_actor_id`. Pemisahan hasil laporan dan definisi laporan diimplementasikan di frontend. Export engine (PDF/DOCX) belum ada dan tidak dibuat tiruan tombolnya.
+- **Temuan**: Database `core.work_findings` di `0013` memiliki `finding_id`, `title`, `description`, `severity`, `status`, `source_type`. Relasi corrective action dipetakan ke Tugas. Belum ada API backend publik.
 
 ### Item NEEDS DECISION:
-1. **Task Lifecycle Canonical Values**:
-   - Database migrasi `0013` hanya menetapkan default string `"OPEN"` tanpa CHECK constraint enum.
-   - Status presentation yang disiapkan: `OPEN` (Belum Dimulai), `IN_PROGRESS` (Dalam Proses), `BLOCKED` (Terhambat), `UNDER_REVIEW` (Menunggu Review), `COMPLETED` (Selesai), `CANCELLED` (Dibatalkan).
-   - Seluruh nilai di luar `OPEN` berstatus **PROVISIONAL / NEEDS DECISION** dan tidak di-lock sebagai kontrak resmi.
-2. **Task Priority Canonical Values**:
-   - Database migrasi `0013` hanya menetapkan default string `"NORMAL"` tanpa CHECK constraint enum.
-   - Nilai prioritas presentation: `LOW` (Rendah), `NORMAL` (Normal), `HIGH` (Tinggi), `CRITICAL` (Kritis).
-   - Nilai di luar `NORMAL` berstatus **PROVISIONAL / NEEDS DECISION**.
-3. **Checklist & Dependency Schema**:
-   - Relasi `blocked_by` saat ini diakomodasi via array presentation, menunggu canonical model di backend.
-   - Fitur checklist menampilkan state jujur "Checklist belum tersedia" tanpa mock runtime / localStorage.
-
----
-
-## 20. Definition of Done (Tugas Stage)
-
-Tahap FASE D2 (Tugas) dinyatakan **PASS** apabila:
-1. Seluruh kode modul Tugas terpusat di `src/features/shared-work/tasks/` tanpa cabang per workspace.
-2. Rute universal `/workspace/[workspaceKey]/tasks` dan `/workspace/[workspaceKey]/tasks/[taskId]` aktif dan terhubung.
-3. Sidebar navigasi `PEKERJAAN` menandai `Tugas` sebagai item aktif saat berada di rute tugas.
-4. Tombol aksi `Tambah Tugas` hanya tampil jika session memiliki `task.create`. Peran `WORKSPACE_LEAD` tanpa izin eksplisit tidak diizinkan menciptakan tugas.
-5. Pesan pengguna bebas dari istilah teknis ("Layanan Backend ALOS", "endpoint /api/v1", "migrasi 0013", dsb.) dan menggunakan bahasa non-teknis yang sopan.
-6. Lolos seluruh pengujian:
-   - `pnpm lint` $\rightarrow$ 0 error, 0 warning.
-   - `pnpm typecheck` $\rightarrow$ 0 type error.
-   - `pnpm test` $\rightarrow$ 100% lulus (71 tests across 13 files).
-   - `pnpm build` $\rightarrow$ Berhasil build Next.js.
+1. **Persetujuan Canonical Subject Types**:
+   - Nilai subjek yang diakomodasi: `PROJECT`, `TASK`, `DOCUMENT`, `REPORT`, `FINDING`, serta domain material (`PAYMENT`, `CONTRACT`, dsb.). Belum ada validasi CHECK constraint di DB.
+2. **Dokumen Storage Adapter & File Upload API**:
+   - Menunggu backend mengimplementasikan adapter storage S3/MinIO atau local file system untuk attachment.
+3. **Laporan Template Definition & Aggregation Engine**:
+   - Menunggu service backend untuk query generator lintas workspace.
+4. **Temuan Workflow Transitions & GENESIS Candidate Integration**:
+   - Menunggu validasi flow human-in-the-loop untuk promosi kandidat temuan AI menjadi temuan resmi.
 
