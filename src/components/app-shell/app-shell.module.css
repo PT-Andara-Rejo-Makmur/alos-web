@@ -1,0 +1,448 @@
+.shell {
+  min-height: 100vh;
+  background: var(--alos-app-background);
+  color: var(--alos-text-primary);
+  display: flex;
+}
+
+.body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar {
+  background: var(--alos-primary-dark);
+  color: white;
+  display: flex;
+  flex: 0 0 248px;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: var(--alos-space-6) var(--alos-space-4) var(--alos-space-4);
+  width: 248px;
+}
+
+.sidebarHeader {
+  padding: 0 var(--alos-space-2) var(--alos-space-8);
+}
+
+.logoLink {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--alos-space-3);
+}
+
+.logoMark {
+  height: 32px;
+  object-fit: contain;
+  width: 32px;
+}
+
+.logoName {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.navigation {
+  flex: 1;
+}
+
+.sectionLabel {
+  color: rgb(255 255 255 / 45%);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 18px;
+  margin: 0 0 var(--alos-space-2);
+  padding: 0 var(--alos-space-3);
+}
+
+.navigationItemActive {
+  align-items: center;
+  background: rgb(255 255 255 / 12%);
+  border-radius: var(--alos-radius-button);
+  color: white;
+  display: flex;
+  font-size: 14px;
+  font-weight: 500;
+  gap: var(--alos-space-3);
+  height: 40px;
+  padding: 0 var(--alos-space-3);
+}
+
+.navigationItemActive:hover {
+  background: rgb(255 255 255 / 17%);
+}
+
+.sidebarFooter {
+  border-top: 1px solid rgb(255 255 255 / 13%);
+  padding-top: var(--alos-space-4);
+}
+
+.profileSummary {
+  align-items: center;
+  display: flex;
+  gap: var(--alos-space-3);
+  min-width: 0;
+  padding: 0 var(--alos-space-2) var(--alos-space-4);
+}
+
+.avatar,
+.avatarTopbar {
+  align-items: center;
+  background: var(--alos-accent-gold);
+  border-radius: 50%;
+  color: var(--alos-primary-dark);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 700;
+  height: 32px;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  width: 32px;
+}
+
+.profileDetails {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.profileName,
+.profileEmail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileName {
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.profileEmail {
+  color: rgb(255 255 255 / 58%);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.logoutButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: var(--alos-radius-button);
+  color: rgb(255 255 255 / 72%);
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  gap: var(--alos-space-3);
+  min-height: 40px;
+  padding: 0 var(--alos-space-3);
+  text-align: left;
+  width: 100%;
+}
+
+.logoutButton:hover:not(:disabled) {
+  background: rgb(255 255 255 / 8%);
+  color: white;
+}
+
+.logoutButton:disabled {
+  color: rgb(255 255 255 / 45%);
+  cursor: wait;
+}
+
+.topbar {
+  align-items: center;
+  background: var(--alos-surface);
+  border-bottom: 1px solid var(--alos-border);
+  display: flex;
+  height: 64px;
+  justify-content: space-between;
+  padding: 0 var(--alos-space-8);
+  position: relative;
+  z-index: 2;
+}
+
+.menuButton {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--alos-radius-button);
+  color: var(--alos-text-secondary);
+  cursor: pointer;
+  display: none;
+  height: 36px;
+  justify-content: center;
+  padding: 0;
+  width: 36px;
+}
+
+.menuButton:hover {
+  background: var(--alos-primary-very-soft);
+  color: var(--alos-primary);
+}
+
+.workspaceContext {
+  align-items: baseline;
+  display: flex;
+  gap: var(--alos-space-2);
+  min-width: 0;
+}
+
+.workspaceLabel {
+  color: var(--alos-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.workspaceName {
+  color: var(--alos-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileMenuWrapper {
+  position: relative;
+}
+
+.profileTrigger {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--alos-radius-button);
+  color: var(--alos-text-primary);
+  cursor: pointer;
+  display: flex;
+  gap: var(--alos-space-2);
+  min-height: 40px;
+  padding: var(--alos-space-1) var(--alos-space-2);
+}
+
+.profileTrigger:hover {
+  background: var(--alos-primary-very-soft);
+}
+
+.avatarTopbar {
+  height: 28px;
+  width: 28px;
+}
+
+.profileTriggerName {
+  font-size: 13px;
+  font-weight: 500;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileMenu {
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border-strong);
+  border-radius: var(--alos-radius-panel);
+  box-shadow: 0 12px 28px rgb(23 33 29 / 13%);
+  min-width: 216px;
+  padding: var(--alos-space-2);
+  position: absolute;
+  right: 0;
+  top: calc(100% + var(--alos-space-2));
+}
+
+.profileMenuSummary {
+  border-bottom: 1px solid var(--alos-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-1);
+  padding: var(--alos-space-2) var(--alos-space-3) var(--alos-space-3);
+}
+
+.profileMenuName {
+  color: var(--alos-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.profileMenuEmail {
+  color: var(--alos-text-muted);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileMenuLogout {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: var(--alos-radius-button);
+  color: var(--alos-text-secondary);
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  gap: var(--alos-space-2);
+  margin-top: var(--alos-space-2);
+  min-height: 36px;
+  padding: 0 var(--alos-space-3);
+  text-align: left;
+  width: 100%;
+}
+
+.profileMenuLogout:hover:not(:disabled) {
+  background: var(--alos-primary-very-soft);
+  color: var(--alos-primary-dark);
+}
+
+.profileMenuLogout:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.main {
+  background: var(--alos-app-background);
+  flex: 1;
+  min-height: calc(100vh - 64px);
+}
+
+.content {
+  margin: 0 auto;
+  max-width: 1600px;
+  padding: 28px 32px;
+  width: 100%;
+}
+
+.mobileNavigationLayer {
+  inset: 0;
+  position: fixed;
+  z-index: 10;
+}
+
+.mobileNavigationBackdrop {
+  background: rgb(23 33 29 / 36%);
+  border: 0;
+  cursor: default;
+  inset: 0;
+  padding: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.mobileNavigationDrawer {
+  background: var(--alos-primary-dark);
+  border-radius: 0 var(--alos-radius-drawer) var(--alos-radius-drawer) 0;
+  box-shadow: 0 16px 40px rgb(23 33 29 / 22%);
+  color: white;
+  height: 100%;
+  max-width: 320px;
+  overflow-y: auto;
+  position: relative;
+  width: min(82vw, 320px);
+}
+
+.mobileNavigationHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: var(--alos-space-5) var(--alos-space-4) var(--alos-space-2);
+}
+
+.mobileNavigationTitle {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.closeButton {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--alos-radius-button);
+  color: rgb(255 255 255 / 76%);
+  cursor: pointer;
+  display: inline-flex;
+  height: 36px;
+  justify-content: center;
+  padding: 0;
+  width: 36px;
+}
+
+.closeButton:hover {
+  background: rgb(255 255 255 / 10%);
+  color: white;
+}
+
+.mobileSidebar {
+  display: flex;
+  min-height: auto;
+  padding-top: var(--alos-space-2);
+  width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .sidebar {
+    display: none;
+  }
+
+  .menuButton {
+    display: inline-flex;
+  }
+
+  .topbar {
+    padding: 0 var(--alos-space-4);
+  }
+
+  .workspaceContext {
+    margin-right: auto;
+    padding-left: var(--alos-space-3);
+  }
+
+  .profileTriggerName {
+    display: none;
+  }
+
+  .content {
+    padding: 28px 16px;
+  }
+}
+
+@media (max-width: 639px) {
+  .topbar {
+    height: 56px;
+  }
+
+  .main {
+    min-height: calc(100vh - 56px);
+  }
+
+  .workspaceContext {
+    display: block;
+    padding-left: var(--alos-space-2);
+  }
+
+  .workspaceLabel {
+    display: block;
+    font-size: 11px;
+    line-height: 15px;
+  }
+
+  .workspaceName {
+    display: block;
+    font-size: 13px;
+    line-height: 18px;
+    max-width: 190px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobileNavigationDrawer,
+  .profileMenu {
+    scroll-behavior: auto;
+  }
+}

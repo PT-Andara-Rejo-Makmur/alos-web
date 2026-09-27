@@ -124,7 +124,7 @@
 }
 
 .visualHeadline {
-  font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
+  font-family: var(--font-sans);
   font-size: clamp(2.3rem, 3.4vw, 3.6rem);
   font-weight: 700;
   line-height: 1.05;
@@ -216,7 +216,7 @@
 }
 
 .formHeading {
-  font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
+  font-family: var(--font-sans);
   font-size: clamp(2rem, 2.5vw, 2.8rem);
   font-weight: 700;
   color: #ffffff;
@@ -501,7 +501,7 @@
   }
 
   .mobileBannerHeadline {
-    font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
+    font-family: var(--font-sans);
     font-size: 1.55rem;
     font-weight: 700;
     color: #ffffff;

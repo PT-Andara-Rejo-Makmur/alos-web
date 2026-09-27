@@ -1,23 +1,56 @@
 :root {
-  --font-sans: "Segoe UI", "Trebuchet MS", sans-serif;
-  --font-display: Georgia, "Times New Roman", serif;
-  --font-manrope: var(--font-sans);
-  --font-cormorant: var(--font-display);
-  --font-cormorant-garamond: var(--font-display);
-  --ink: #10222d;
-  --muted: #5d6b73;
-  --line: #d9e0df;
-  --surface: #ffffff;
-  --canvas: #f2f5f3;
-  --brand: #0c655a;
-  --brand-dark: #074a43;
-  --blue: #315fbd;
-  --violet: #7757c6;
-  --cyan: #16798a;
-  --amber: #a56419;
-  --green: #35734d;
-  --shadow: 0 20px 55px rgb(17 35 43 / 8%);
-  --radius: 22px;
+  --font-sans: var(--font-inter), "Segoe UI", sans-serif;
+
+  --alos-primary-dark: #123c32;
+  --alos-primary: #17624f;
+  --alos-primary-hover: #12513f;
+  --alos-primary-soft: #e8f2ee;
+  --alos-primary-very-soft: #f3f8f6;
+  --alos-app-background: #f5f7f6;
+  --alos-surface: #ffffff;
+  --alos-surface-alt: #fafbfa;
+  --alos-border: #dfe5e1;
+  --alos-border-strong: #c9d2cd;
+  --alos-text-primary: #17211d;
+  --alos-text-secondary: #52615a;
+  --alos-text-muted: #78847e;
+  --alos-disabled: #aeb8b3;
+  --alos-accent-gold: #b28a45;
+  --alos-accent-gold-soft: #f7f1e7;
+
+  --alos-status-success-text: #166534;
+  --alos-status-success-background: #ecfdf3;
+  --alos-status-success-border: #bbe7c8;
+  --alos-status-warning-text: #92400e;
+  --alos-status-warning-background: #fff8e6;
+  --alos-status-warning-border: #f4d7a1;
+  --alos-status-danger-text: #b42318;
+  --alos-status-danger-background: #fff1f0;
+  --alos-status-danger-border: #f5c4bf;
+  --alos-status-info-text: #175cd3;
+  --alos-status-info-background: #eff6ff;
+  --alos-status-info-border: #bfdbfe;
+  --alos-status-neutral-text: #5f6b65;
+  --alos-status-neutral-background: #f2f4f3;
+  --alos-status-neutral-border: #dce2df;
+
+  --alos-space-1: 4px;
+  --alos-space-2: 8px;
+  --alos-space-3: 12px;
+  --alos-space-4: 16px;
+  --alos-space-5: 20px;
+  --alos-space-6: 24px;
+  --alos-space-8: 32px;
+  --alos-space-10: 40px;
+  --alos-space-12: 48px;
+  --alos-space-16: 64px;
+
+  --alos-radius-input: 7px;
+  --alos-radius-button: 7px;
+  --alos-radius-badge: 6px;
+  --alos-radius-panel: 10px;
+  --alos-radius-drawer: 12px;
+  --alos-radius-modal: 12px;
 }
 
 * {
@@ -25,14 +58,15 @@
 }
 
 html {
-  background: #0b0c0e;
+  background: var(--alos-app-background);
 }
 
 body {
   margin: 0;
-  color: #f7f5f0;
-  background: #0b0c0e;
+  color: var(--alos-text-primary);
+  background: var(--alos-app-background);
   font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -46,4 +80,14 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--alos-primary);
+  outline-offset: 3px;
 }
