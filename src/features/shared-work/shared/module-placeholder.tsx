@@ -65,7 +65,7 @@ export function ModulePlaceholder({
         <PageHeader description={description} eyebrow={eyebrow} title={title} />
         <Alert
           icon={<AlertCircle size={18} strokeWidth={2} />}
-          message={`Modul ${title} saat ini berstatus "Belum Terhubung". Tabel database telah disiapkan pada migrasi 0013, namun public API Backend sedang dalam tahap perencanaan setelah review modul Proyek.`}
+          message={`Modul ${title} belum terhubung ke sumber data. Fitur ini sedang disiapkan dan akan aktif setelah integrasi data selesai.`}
           title={`Modul ${title} — Belum Terhubung`}
           variant="neutral"
         />

@@ -247,9 +247,9 @@ export function ProjectsPage({ workspaceKey }: ProjectsPageProps) {
               icon={<AlertCircle size={18} strokeWidth={2} />}
               message={
                 backendMessage ??
-                "Layanan Backend ALOS saat ini belum mengekspos public API untuk core.projects. Tabel database telah tersedia pada migrasi 0013. Halaman beroperasi dalam mode source-honest dan siap menerima data saat endpoint resmi terpasang."
+                "Data proyek belum terhubung. Daftar proyek akan ditampilkan setelah sumber data tersedia."
               }
-              title="Belum Terhubung ke Layanan Proyek"
+              title="Data Proyek Belum Terhubung"
               variant="neutral"
             />
           </div>

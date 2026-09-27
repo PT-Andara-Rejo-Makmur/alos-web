@@ -12,11 +12,7 @@ export function hasWorkPermission(
 
   // If passed SessionContext
   if ("actor" in session) {
-    if (session.actor.permissions?.includes(requiredPermission)) return true;
-    // Special authority grants if granted by role
-    const roles = session.actor.roles ?? [];
-    if (roles.includes("WORKSPACE_LEAD") && requiredPermission.startsWith("project.create")) return true;
-    return false;
+    return Boolean(session.actor.permissions?.includes(requiredPermission));
   }
 
   // If passed SessionProjection
@@ -26,10 +22,7 @@ export function hasWorkPermission(
   if ("actor" in principal) {
     const membership = principal.active_workspace;
     const permissions = membership?.permission_refs ?? [];
-    if (permissions.includes(requiredPermission)) return true;
-    const roles = membership?.role_refs ?? [];
-    if (roles.includes("WORKSPACE_LEAD") && requiredPermission.startsWith("project.create")) return true;
-    return false;
+    return permissions.includes(requiredPermission);
   }
 
   // Legacy fallback: fail closed

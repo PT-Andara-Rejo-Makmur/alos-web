@@ -34,7 +34,7 @@ export async function fetchProjects(
       connected: false,
       data: [],
       message:
-        "Layanan proyek Backend belum terhubung. Endpoint /api/v1/projects belum didaftarkan di alos-backend.",
+        "Data proyek belum terhubung. Daftar proyek akan ditampilkan setelah sumber data tersedia.",
     };
   }
 }
@@ -60,7 +60,7 @@ export async function fetchProjectDetail(
       connected: false,
       data: null,
       message:
-        "Detail proyek belum dapat dimuat dari Backend. Endpoint /api/v1/projects/:id belum tersedia.",
+        "Data detail proyek belum dapat dimuat. Informasi akan ditampilkan setelah sumber data tersedia.",
     };
   }
 }

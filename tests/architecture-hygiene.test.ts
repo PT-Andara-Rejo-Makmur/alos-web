@@ -46,4 +46,16 @@ describe("production architecture hygiene", () => {
     });
     expect(offenders.map((path) => relative(process.cwd(), path))).toEqual([]);
   });
+
+  it("rejects role-based permission synthesis in shared-work", () => {
+    const sharedWorkFiles = productionFiles(join(sourceRoot, "features", "shared-work"));
+    const offenders = sharedWorkFiles.filter((path) => {
+      const content = readFileSync(path, "utf8");
+      return (
+        /role(?:_refs)?(?:\.includes|\s*===)\s*\(?["'](?:WORKSPACE_LEAD|WORKSPACE_MEMBER|ORG_ADMIN)/.test(content) &&
+        /project\.create|task\.create|approval\./.test(content)
+      );
+    });
+    expect(offenders.map((path) => relative(process.cwd(), path))).toEqual([]);
+  });
 });

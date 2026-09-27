@@ -11,7 +11,12 @@ export type CanonicalProjectStatus =
   | "CANCELLED"
   | "ARCHIVED";
 
-export type CanonicalTaskStatus =
+/**
+ * Presentation values for Task Status.
+ * NOTE: In alos-backend migration 0013_shared_work, column `status` has server_default="OPEN"
+ * without an enum constraint. All other values are PROVISIONAL presentation states (NEEDS DECISION from Backend/Contracts).
+ */
+export type TaskStatusPresentationValue =
   | "OPEN"
   | "IN_PROGRESS"
   | "BLOCKED"
@@ -19,7 +24,17 @@ export type CanonicalTaskStatus =
   | "COMPLETED"
   | "CANCELLED";
 
-export type CanonicalTaskPriority = "LOW" | "NORMAL" | "HIGH" | "CRITICAL";
+/**
+ * Presentation values for Task Priority.
+ * NOTE: In alos-backend migration 0013_shared_work, column `priority` has server_default="NORMAL"
+ * without an enum constraint. All other values are PROVISIONAL presentation states (NEEDS DECISION from Backend/Contracts).
+ */
+export type TaskPriorityPresentationValue = "LOW" | "NORMAL" | "HIGH" | "CRITICAL";
+
+/** @deprecated Use TaskStatusPresentationValue instead of inventing canonical contract */
+export type CanonicalTaskStatus = TaskStatusPresentationValue;
+/** @deprecated Use TaskPriorityPresentationValue instead of inventing canonical contract */
+export type CanonicalTaskPriority = TaskPriorityPresentationValue;
 
 export type CanonicalApprovalStatus =
   | "PENDING"
