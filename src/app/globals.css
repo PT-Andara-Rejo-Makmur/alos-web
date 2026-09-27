@@ -9,6 +9,8 @@
   --alos-app-background: #f5f7f6;
   --alos-surface: #ffffff;
   --alos-surface-alt: #fafbfa;
+  --alos-table-header: #f7f9f8;
+  --alos-table-row-hover: #f7faf8;
   --alos-border: #dfe5e1;
   --alos-border-strong: #c9d2cd;
   --alos-text-primary: #17211d;
@@ -51,6 +53,8 @@
   --alos-radius-panel: 10px;
   --alos-radius-drawer: 12px;
   --alos-radius-modal: 12px;
+  --alos-overlay: rgb(23 33 29 / 36%);
+  --alos-shadow-floating: 0 12px 28px rgb(23 33 29 / 13%);
 }
 
 * {
@@ -80,6 +84,37 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+.alos-form-control {
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border-strong);
+  border-radius: var(--alos-radius-input);
+  color: var(--alos-text-primary);
+  font-size: 14px;
+  line-height: 21px;
+  min-height: 40px;
+  padding: 0 var(--alos-space-3);
+  width: 100%;
+}
+
+textarea.alos-form-control {
+  min-height: 104px;
+  padding-bottom: var(--alos-space-3);
+  padding-top: var(--alos-space-3);
+  resize: vertical;
+}
+
+.alos-form-control:focus {
+  border-color: var(--alos-primary);
+  box-shadow: 0 0 0 2px var(--alos-primary-soft);
+  outline: none;
+}
+
+.alos-form-control:disabled {
+  background: var(--alos-surface-alt);
+  color: var(--alos-disabled);
+  cursor: not-allowed;
 }
 
 button,

@@ -3,6 +3,8 @@
 import { ChevronDown, LogOut, Menu } from "lucide-react";
 import { useEffect, useRef, useState, type RefObject } from "react";
 
+import { Avatar } from "@/components/ui";
+
 import type { AppShellProfile } from "./app-shell";
 import styles from "./app-shell.module.css";
 
@@ -73,9 +75,7 @@ export function AppTopbar({
           onClick={() => setProfileMenuOpen((open) => !open)}
           type="button"
         >
-          <span aria-hidden="true" className={styles.avatarTopbar}>
-            {profile.initials}
-          </span>
+          <Avatar initials={profile.initials} size="sm" />
           <span className={styles.profileTriggerName}>
             {profile.displayName ?? "Profil pengguna"}
           </span>

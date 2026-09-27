@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { House, LogOut } from "lucide-react";
 
+import { Avatar } from "@/components/ui";
+
 import type { AppShellProfile } from "./app-shell";
 import styles from "./app-shell.module.css";
 
@@ -54,9 +56,7 @@ export function AppSidebar({
 
       <div className={styles.sidebarFooter}>
         <div className={styles.profileSummary}>
-          <span aria-hidden="true" className={styles.avatar}>
-            {profile.initials}
-          </span>
+          <Avatar initials={profile.initials} size="sm" />
           <span className={styles.profileDetails}>
             <span className={styles.profileName}>{profile.displayName ?? "Profil pengguna"}</span>
             {profile.workspaceName || profile.email ? (
