@@ -55,6 +55,29 @@ export type {
   WorkspaceType,
 } from "../../../../alos-contracts/generated/typescript/identity-access";
 
+export type {
+  BusinessPeriod as StrategyBusinessPeriod,
+  BusinessScope as StrategyBusinessScope,
+  BusinessTarget,
+  BusinessUnit,
+  CascadePreview,
+  CascadeRunStatus,
+  ConstraintResult as StrategyConstraintResult,
+  ConstraintResultState,
+  MeasurementType as StrategyMeasurementType,
+  MetricObservation,
+  MetricValueKind,
+  PlanningAssumption,
+  StrategicObjective,
+  StrategyLifecycleState,
+  StrategyAuthorityProjection,
+  StrategyPlan,
+  StrategyPlanCreateRequest,
+  TargetRelationship,
+  VerificationState as StrategyVerificationState,
+  VersionRef,
+} from "../../../../alos-contracts/generated/typescript/strategy";
+
 /**
  * Narrow bootstrap projection of IntegrationDiagnostic. Replace this declaration
  * with the generated export when alos-contracts is published as a package.

@@ -234,13 +234,13 @@ describe("Strategy & Performance Module Surfaces", () => {
       expect(offenders.map((p) => relative(process.cwd(), p))).toEqual([]);
     });
 
-    it("does not invent fictitious backend API endpoints", () => {
+    it("uses only the canonical Stage 2 strategy API namespace", () => {
       const allFiles = getStrategyFiles();
-      const inventedApi = /["']\/api\/v1\/(?:strategy|kpis|objectives|initiatives|target-revisions)/;
+      const nonCanonicalApi = /["']\/api\/v1\/(?:kpis|objectives|initiatives|target-revisions)/;
 
       const offenders = allFiles.filter((filePath) => {
         const content = readFileSync(filePath, "utf8");
-        return inventedApi.test(content);
+        return nonCanonicalApi.test(content);
       });
 
       expect(offenders.map((p) => relative(process.cwd(), p))).toEqual([]);
