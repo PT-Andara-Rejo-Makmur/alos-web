@@ -1,0 +1,72 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-4);
+  width: 100%;
+}
+
+.noticeContainer {
+  margin-bottom: var(--alos-space-2);
+}
+
+.tabsContainer {
+  margin-bottom: var(--alos-space-2);
+  overflow: hidden;
+}
+
+.requestTitleCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.requestTitleText {
+  font-weight: 600;
+  color: var(--alos-text-primary);
+}
+
+.requestSubjectText {
+  font-size: 12px;
+  color: var(--alos-text-muted);
+}
+
+.sodPipeline {
+  display: flex;
+  align-items: center;
+  gap: var(--alos-space-2);
+  padding: var(--alos-space-3);
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-badge);
+}
+
+.sodStep {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.sodStepRole {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--alos-text-muted);
+}
+
+.sodStepActor {
+  font-size: 13px;
+  color: var(--alos-text-primary);
+}
+
+.sodArrow {
+  color: var(--alos-text-muted);
+  font-size: 14px;
+}
+
+.drawerFooterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--alos-space-3);
+  width: 100%;
+}

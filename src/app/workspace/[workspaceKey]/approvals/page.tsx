@@ -2,7 +2,7 @@
 
 import { use } from "react";
 
-import { ModulePlaceholder } from "@/features/shared-work";
+import { ApprovalsPage } from "@/features/shared-work/approvals";
 
 export default function WorkspaceApprovalsPageRoute({
   params,
@@ -10,12 +10,5 @@ export default function WorkspaceApprovalsPageRoute({
   readonly params: Promise<{ workspaceKey: string }>;
 }) {
   const { workspaceKey } = use(params);
-  return (
-    <ModulePlaceholder
-      description="Kelola permintaan yang membutuhkan tinjauan atau keputusan sesuai kewenangan Anda."
-      module="approvals"
-      title="Persetujuan"
-      workspaceKey={workspaceKey}
-    />
-  );
+  return <ApprovalsPage workspaceKey={workspaceKey} />;
 }
