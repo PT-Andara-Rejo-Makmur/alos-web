@@ -1,0 +1,71 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-4);
+  width: 100%;
+}
+
+.noticeContainer {
+  margin-bottom: var(--alos-space-2);
+}
+
+.tabsContainer {
+  margin-bottom: var(--alos-space-2);
+  overflow: hidden;
+}
+
+.findingTitleCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.findingTitleText {
+  font-weight: 600;
+  color: var(--alos-text-primary);
+}
+
+.findingCategoryText {
+  font-size: 12px;
+  color: var(--alos-text-muted);
+}
+
+.correctiveActionBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-2);
+  padding: var(--alos-space-3);
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-badge);
+}
+
+.correctiveActionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--alos-text-primary);
+}
+
+.correctiveActionDesc {
+  font-size: 13px;
+  color: var(--alos-text-secondary);
+  line-height: 1.5;
+}
+
+.taskLinkBox {
+  display: flex;
+  align-items: center;
+  gap: var(--alos-space-2);
+  padding: var(--alos-space-2) var(--alos-space-3);
+  background: var(--alos-surface-alt);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-badge);
+  font-size: 13px;
+}
+
+.drawerFooterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--alos-space-3);
+  width: 100%;
+}

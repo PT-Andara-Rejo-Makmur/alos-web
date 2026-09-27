@@ -2,7 +2,7 @@
 
 import { use } from "react";
 
-import { ModulePlaceholder } from "@/features/shared-work";
+import { FindingsPage } from "@/features/shared-work/findings";
 
 export default function WorkspaceFindingsPageRoute({
   params,
@@ -10,12 +10,5 @@ export default function WorkspaceFindingsPageRoute({
   readonly params: Promise<{ workspaceKey: string }>;
 }) {
   const { workspaceKey } = use(params);
-  return (
-    <ModulePlaceholder
-      description="Kelola masalah, ketidaksesuaian, dan tindak lanjut yang memerlukan perhatian."
-      module="findings"
-      title="Temuan"
-      workspaceKey={workspaceKey}
-    />
-  );
+  return <FindingsPage workspaceKey={workspaceKey} />;
 }
