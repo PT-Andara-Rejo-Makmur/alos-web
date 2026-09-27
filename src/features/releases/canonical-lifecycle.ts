@@ -35,13 +35,6 @@ export type MaterialityLevel = "NON_MATERIAL" | "MATERIAL";
 
 export type DecisionOutcome = "APPROVED" | "RETURNED" | "REJECTED" | "HOLD";
 
-export type AuthorityLevel =
-  | "REQUESTER"
-  | "OPERATOR"
-  | "IT_APPROVER"
-  | "DIRECTOR_APPROVER"
-  | "SYSTEM";
-
 export type CanonicalReleaseAction =
   | "it-decision"
   | "director-decision"
@@ -62,7 +55,7 @@ export interface GovernedReleaseProjection {
   readonly kill_switch_active: boolean;
   readonly rollback_target_release_id: string | null;
   readonly ever_released: boolean;
-  readonly materiality?: MaterialityLevel;
+  readonly materiality?: MaterialityLevel | null;
 }
 
 export interface CreateReleasePayload {
@@ -77,7 +70,6 @@ export interface DecisionActionPayload {
   readonly decision_id: string;
   readonly outcome: DecisionOutcome;
   readonly rationale: string;
-  readonly authority_level?: AuthorityLevel;
 }
 
 export interface ReasonActionPayload {
@@ -152,55 +144,403 @@ export const CANONICAL_LIFECYCLE_STAGES: readonly LifecycleStageDescriptor[] = [
   { key: "ACTIVE", label: "Aktif", order: 9 },
 ];
 
+export type StageDisplayStatus =
+  | "COMPLETED"
+  | "CURRENT"
+  | "PENDING"
+  | "SKIPPED"
+  | "DEVIATION"
+  | "REJECTED"
+  | "ON_HOLD"
+  | "BLOCKED"
+  | "SUSPENDED"
+  | "ROLLED_BACK"
+  | "UNKNOWN";
+
+export interface LifecycleProjection {
+  readonly activeStageKey: LifecycleStageKey | null;
+  readonly activeStageLabel: string;
+  readonly stageStatuses: Record<LifecycleStageKey, StageDisplayStatus>;
+  readonly isTerminalOrDeviation: boolean;
+  readonly deviationNotice?: string;
+}
+
 /**
- * Maps a canonical Backend release state to the current active lifecycle stage.
+ * Projects a canonical Backend release state into an explicit, truthful UI stage representation.
+ * NEVER assumes preceding stages are successfully completed when a terminal or deviation state is active.
  */
-export function getActiveLifecycleStage(
+export function projectLifecycleStages(
   state: CanonicalReleaseState,
-  materiality: MaterialityLevel = "NON_MATERIAL",
-): LifecycleStageKey {
+  materiality?: MaterialityLevel | null,
+  killSwitchActive?: boolean,
+): LifecycleProjection {
+  const basePending: Record<LifecycleStageKey, StageDisplayStatus> = {
+    REQUIREMENT: "PENDING",
+    FACTORY: "PENDING",
+    DRAFT: "PENDING",
+    AUTOMATED_QA: "PENDING",
+    GENESIS_REVIEW: "PENDING",
+    IT_DECISION: "PENDING",
+    DIRECTOR_DECISION: "PENDING",
+    RELEASE: "PENDING",
+    ACTIVE: "PENDING",
+  };
+
   switch (state) {
     case "DRAFT":
-    case "REVISION_REQUIRED":
-      return "DRAFT";
+      return {
+        activeStageKey: "DRAFT",
+        activeStageLabel: "Draf Komponen",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "CURRENT",
+        },
+        isTerminalOrDeviation: false,
+      };
+
     case "IMPLEMENTED":
+      return {
+        activeStageKey: "AUTOMATED_QA",
+        activeStageLabel: "Terimplementasi (Menunggu QA)",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "CURRENT",
+        },
+        isTerminalOrDeviation: false,
+      };
+
     case "AUTOMATED_ASSURANCE":
-      return "AUTOMATED_QA";
+      return {
+        activeStageKey: "AUTOMATED_QA",
+        activeStageLabel: "QA Otomatis Berjalan",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "CURRENT",
+        },
+        isTerminalOrDeviation: false,
+      };
+
     case "AI_REVIEWED":
-      return "GENESIS_REVIEW";
+      return {
+        activeStageKey: "GENESIS_REVIEW",
+        activeStageLabel: "Ditinjau AI (Siap Evaluasi IT)",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "CURRENT",
+        },
+        isTerminalOrDeviation: false,
+      };
+
     case "READY_FOR_IT":
-    case "RETURNED":
-    case "REJECTED":
-    case "HOLD":
-      return "IT_DECISION";
+      return {
+        activeStageKey: "IT_DECISION",
+        activeStageLabel: "Menunggu Keputusan IT",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "CURRENT",
+        },
+        isTerminalOrDeviation: false,
+      };
+
     case "IT_APPROVED":
-      return materiality === "MATERIAL" ? "DIRECTOR_DECISION" : "RELEASE";
+      if (materiality === "NON_MATERIAL") {
+        return {
+          activeStageKey: "RELEASE",
+          activeStageLabel: "Disetujui IT (Siap Rilis)",
+          stageStatuses: {
+            ...basePending,
+            REQUIREMENT: "COMPLETED",
+            FACTORY: "COMPLETED",
+            DRAFT: "COMPLETED",
+            AUTOMATED_QA: "COMPLETED",
+            GENESIS_REVIEW: "COMPLETED",
+            IT_DECISION: "COMPLETED",
+            DIRECTOR_DECISION: "SKIPPED",
+            RELEASE: "CURRENT",
+          },
+          isTerminalOrDeviation: false,
+        };
+      }
+      if (materiality === "MATERIAL") {
+        return {
+          activeStageKey: "DIRECTOR_DECISION",
+          activeStageLabel: "Disetujui IT (Wajib Persetujuan Direktur)",
+          stageStatuses: {
+            ...basePending,
+            REQUIREMENT: "COMPLETED",
+            FACTORY: "COMPLETED",
+            DRAFT: "COMPLETED",
+            AUTOMATED_QA: "COMPLETED",
+            GENESIS_REVIEW: "COMPLETED",
+            IT_DECISION: "COMPLETED",
+            DIRECTOR_DECISION: "CURRENT",
+          },
+          isTerminalOrDeviation: false,
+        };
+      }
+      // Fail closed when materiality is not provided by Backend
+      return {
+        activeStageKey: null,
+        activeStageLabel: "Disetujui IT (Menunggu Informasi Otoritas / Materialitas)",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "COMPLETED",
+          DIRECTOR_DECISION: "UNKNOWN",
+          RELEASE: "UNKNOWN",
+        },
+        isTerminalOrDeviation: false,
+        deviationNotice:
+          "Tahap lanjutan menunggu projection materialitas atau transisi Director dari Backend.",
+      };
+
     case "READY_FOR_DIRECTOR":
+      return {
+        activeStageKey: "DIRECTOR_DECISION",
+        activeStageLabel: "Menunggu Persetujuan Direktur",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "COMPLETED",
+          DIRECTOR_DECISION: "CURRENT",
+        },
+        isTerminalOrDeviation: false,
+      };
+
     case "DIRECTOR_APPROVED":
-      return materiality === "MATERIAL" ? "DIRECTOR_DECISION" : "RELEASE";
+      return {
+        activeStageKey: "RELEASE",
+        activeStageLabel: "Disetujui Direktur (Siap Rilis)",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "COMPLETED",
+          DIRECTOR_DECISION: "COMPLETED",
+          RELEASE: "CURRENT",
+        },
+        isTerminalOrDeviation: false,
+      };
+
     case "RELEASED":
-      return "RELEASE";
+      return {
+        activeStageKey: "RELEASE",
+        activeStageLabel: "Dirilis (Siap Aktivasi)",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "COMPLETED",
+          DIRECTOR_DECISION: materiality === "NON_MATERIAL" ? "SKIPPED" : "COMPLETED",
+          RELEASE: "COMPLETED",
+          ACTIVE: "CURRENT",
+        },
+        isTerminalOrDeviation: false,
+      };
+
     case "ACTIVE":
-    case "SUSPENDED":
-    case "ROLLED_BACK":
+      return {
+        activeStageKey: "ACTIVE",
+        activeStageLabel: "Aktif di Lingkungan Produksi",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "COMPLETED",
+          DIRECTOR_DECISION: materiality === "NON_MATERIAL" ? "SKIPPED" : "COMPLETED",
+          RELEASE: "COMPLETED",
+          ACTIVE: "COMPLETED",
+        },
+        isTerminalOrDeviation: false,
+      };
+
+    case "REVISION_REQUIRED":
+      return {
+        activeStageKey: "DRAFT",
+        activeStageLabel: "Perlu Revisi Teknis",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "DEVIATION",
+        },
+        isTerminalOrDeviation: true,
+        deviationNotice: "Komponen memerlukan perbaikan teknis sebelum dapat diproses kembali.",
+      };
+
+    case "RETURNED":
+      return {
+        activeStageKey: null,
+        activeStageLabel: "Dikembalikan (Perlu Revisi / Klarifikasi)",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "DEVIATION",
+        },
+        isTerminalOrDeviation: true,
+        deviationNotice:
+          "Rilis dikembalikan untuk revisi. Riwayat pengembali spesifik tidak disertakan pada projection rilis Backend.",
+      };
+
+    case "REJECTED":
+      return {
+        activeStageKey: null,
+        activeStageLabel: "Ditolak (Tahap Keputusan Tidak Dapat Ditentukan dari Projection Saat Ini)",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "REJECTED",
+        },
+        isTerminalOrDeviation: true,
+        deviationNotice:
+          "Rilis ditolak secara definitif. Riwayat keputusan spesifik tidak disertakan pada projection rilis Backend.",
+      };
+
+    case "HOLD":
+      return {
+        activeStageKey: null,
+        activeStageLabel: "Ditahan (Penundaan Sementara Evaluasi)",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "ON_HOLD",
+        },
+        isTerminalOrDeviation: true,
+        deviationNotice:
+          "Evaluasi rilis sedang ditahan. Riwayat penahanan spesifik tidak disertakan pada projection rilis Backend.",
+      };
+
     case "BLOCKED":
-      return "ACTIVE";
+      return {
+        activeStageKey: null,
+        activeStageLabel: "Terblokir Kendala Operasional / Integrasi",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "BLOCKED",
+        },
+        isTerminalOrDeviation: true,
+        deviationNotice: "Rilis terblokir dependensi eksternal atau kendala integrasi.",
+      };
+
+    case "SUSPENDED":
+      return {
+        activeStageKey: "ACTIVE",
+        activeStageLabel: killSwitchActive ? "Ditangguhkan (Kill Switch Aktif)" : "Ditangguhkan",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "COMPLETED",
+          DIRECTOR_DECISION: materiality === "NON_MATERIAL" ? "SKIPPED" : "COMPLETED",
+          RELEASE: "COMPLETED",
+          ACTIVE: "SUSPENDED",
+        },
+        isTerminalOrDeviation: true,
+        deviationNotice: killSwitchActive
+          ? "Rilis dinonaktifkan darurat oleh sakelar pemutus (kill switch)."
+          : "Rilis dinonaktifkan sementara dari lingkungan operasional.",
+      };
+
+    case "ROLLED_BACK":
+      return {
+        activeStageKey: "ACTIVE",
+        activeStageLabel: "Di-rollback ke Versi Sebelumnya",
+        stageStatuses: {
+          ...basePending,
+          REQUIREMENT: "COMPLETED",
+          FACTORY: "COMPLETED",
+          DRAFT: "COMPLETED",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "COMPLETED",
+          DIRECTOR_DECISION: materiality === "NON_MATERIAL" ? "SKIPPED" : "COMPLETED",
+          RELEASE: "COMPLETED",
+          ACTIVE: "ROLLED_BACK",
+        },
+        isTerminalOrDeviation: true,
+        deviationNotice: "Operasional rilis telah dikembalikan ke versi rilis sebelumnya.",
+      };
+
     default:
-      return "DRAFT";
+      return {
+        activeStageKey: null,
+        activeStageLabel: "State Tidak Dikenal",
+        stageStatuses: basePending,
+        isTerminalOrDeviation: true,
+      };
   }
 }
 
 /**
- * Evaluates allowed actions directly against canonical Backend authority semantics.
- * Backend endpoints:
- * - it-decision: IT_ADMIN / release.decide.it
- * - director-decision: EXECUTIVE / release.decide.director
- * - release: IT_ADMIN / release.manage
- * - activate: IT_ADMIN / release.manage
- * - suspend: IT_ADMIN / release.manage
- * - kill: IT_ADMIN / release.manage
- * - clear-kill: IT_ADMIN / release.manage
- * - rollback: IT_ADMIN / release.manage
+ * Maps a canonical Backend release state to the current active lifecycle stage key if determinable.
+ * Does NOT assume non-material when materiality is omitted.
+ */
+export function getActiveLifecycleStage(
+  state: CanonicalReleaseState,
+  materiality?: MaterialityLevel | null,
+): LifecycleStageKey | null {
+  return projectLifecycleStages(state, materiality).activeStageKey;
+}
+
+/**
+ * Evaluates allowed actions strictly against canonical Backend authority semantics.
+ * Backend authority requires:
+ * - it-decision: IT_ADMIN AND release.decide.it
+ * - director-decision: EXECUTIVE AND release.decide.director
+ * - release/activate/suspend/kill/clear-kill/rollback: IT_ADMIN AND release.manage
+ *
+ * Materiality fail-closed invariant:
+ * - IT_APPROVED only allows "release" if materiality is authoritatively confirmed as "NON_MATERIAL".
+ * - If materiality is missing / unknown, NO action is allowed.
  */
 export function getAllowedReleaseActions(
   release: GovernedReleaseProjection,
@@ -209,9 +549,9 @@ export function getAllowedReleaseActions(
   const roles = new Set(actor.roles);
   const permissions = new Set(actor.permissions ?? []);
 
-  const hasItDecide = roles.has("IT_ADMIN") || permissions.has("release.decide.it");
-  const hasDirectorDecide = roles.has("EXECUTIVE") || permissions.has("release.decide.director");
-  const hasReleaseManage = roles.has("IT_ADMIN") || permissions.has("release.manage");
+  const hasItDecide = roles.has("IT_ADMIN") && permissions.has("release.decide.it");
+  const hasDirectorDecide = roles.has("EXECUTIVE") && permissions.has("release.decide.director");
+  const hasReleaseManage = roles.has("IT_ADMIN") && permissions.has("release.manage");
 
   const allowed: CanonicalReleaseAction[] = [];
 
@@ -221,10 +561,10 @@ export function getAllowedReleaseActions(
       break;
 
     case "IT_APPROVED":
-      if (release.materiality === "MATERIAL") {
-        // Must wait for Director decision
-      } else {
-        if (hasReleaseManage) allowed.push("release");
+      // FAIL CLOSED: Only allow release if Backend authoritatively confirms NON_MATERIAL!
+      // If materiality is null, undefined, or missing, NO mutation is allowed.
+      if (release.materiality === "NON_MATERIAL" && hasReleaseManage) {
+        allowed.push("release");
       }
       break;
 
@@ -303,5 +643,43 @@ export const backendReleaseAdapter = {
         body: payload,
       },
     );
+  },
+
+  /**
+   * Convenience wrapper for submitting IT Decision
+   */
+  async submitItDecision(
+    releaseId: string,
+    data: { decision_id?: string; outcome: DecisionOutcome; rationale: string },
+  ): Promise<GovernedReleaseProjection> {
+    const decision_id =
+      data.decision_id ||
+      (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `dec_${Date.now()}`);
+    return this.executeAction(releaseId, "it-decision", {
+      decision_id,
+      outcome: data.outcome,
+      rationale: data.rationale,
+    });
+  },
+
+  /**
+   * Convenience wrapper for submitting Director Decision
+   */
+  async submitDirectorDecision(
+    releaseId: string,
+    data: { decision_id?: string; outcome: DecisionOutcome; rationale: string },
+  ): Promise<GovernedReleaseProjection> {
+    const decision_id =
+      data.decision_id ||
+      (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `dec_${Date.now()}`);
+    return this.executeAction(releaseId, "director-decision", {
+      decision_id,
+      outcome: data.outcome,
+      rationale: data.rationale,
+    });
   },
 };
