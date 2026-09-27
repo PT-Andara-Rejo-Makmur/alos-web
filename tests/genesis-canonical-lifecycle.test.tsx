@@ -88,7 +88,7 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
       expect(getActiveLifecycleStage("IT_APPROVED", "MATERIAL")).toBe("DIRECTOR_DECISION");
       expect(getActiveLifecycleStage("READY_FOR_DIRECTOR")).toBe("DIRECTOR_DECISION");
       expect(getActiveLifecycleStage("DIRECTOR_APPROVED")).toBe("RELEASE");
-      expect(getActiveLifecycleStage("RELEASED")).toBe("RELEASE");
+      expect(getActiveLifecycleStage("RELEASED")).toBe("ACTIVE");
       expect(getActiveLifecycleStage("ACTIVE")).toBe("ACTIVE");
       expect(getActiveLifecycleStage("SUSPENDED")).toBe("ACTIVE");
       expect(getActiveLifecycleStage("ROLLED_BACK")).toBe("ACTIVE");
@@ -181,6 +181,50 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
       const withLineage = projectLifecycleStages("READY_FOR_IT", null, false, true);
       expect(withLineage.stageStatuses.REQUIREMENT).toBe("COMPLETED");
       expect(withLineage.stageStatuses.FACTORY).toBe("COMPLETED");
+    });
+
+    it("projects RELEASED, ACTIVE, SUSPENDED, and ROLLED_BACK truthfully regarding active stage and unknown materiality", () => {
+      // 1. RELEASED: activeStageKey === "ACTIVE", RELEASE === "COMPLETED", ACTIVE === "CURRENT"
+      const releasedUnknown = projectLifecycleStages("RELEASED");
+      expect(releasedUnknown.activeStageKey).toBe("ACTIVE");
+      expect(releasedUnknown.activeStageLabel).toBe("Dirilis — Menunggu Aktivasi");
+      expect(releasedUnknown.stageStatuses.RELEASE).toBe("COMPLETED");
+      expect(releasedUnknown.stageStatuses.ACTIVE).toBe("CURRENT");
+
+      // 2. RELEASED tanpa materiality: DIRECTOR_DECISION === "UNKNOWN"
+      expect(releasedUnknown.stageStatuses.DIRECTOR_DECISION).toBe("UNKNOWN");
+
+      // 3. ACTIVE tanpa materiality: DIRECTOR_DECISION === "UNKNOWN"
+      const activeUnknown = projectLifecycleStages("ACTIVE");
+      expect(activeUnknown.stageStatuses.DIRECTOR_DECISION).toBe("UNKNOWN");
+
+      // 4. SUSPENDED tanpa materiality: DIRECTOR_DECISION === "UNKNOWN"
+      const suspendedUnknown = projectLifecycleStages("SUSPENDED");
+      expect(suspendedUnknown.stageStatuses.DIRECTOR_DECISION).toBe("UNKNOWN");
+
+      // 5. ROLLED_BACK tanpa materiality: DIRECTOR_DECISION === "UNKNOWN"
+      const rolledBackUnknown = projectLifecycleStages("ROLLED_BACK");
+      expect(rolledBackUnknown.stageStatuses.DIRECTOR_DECISION).toBe("UNKNOWN");
+
+      // 6. NON_MATERIAL: DIRECTOR_DECISION === "SKIPPED"
+      const releasedNonMat = projectLifecycleStages("RELEASED", "NON_MATERIAL");
+      expect(releasedNonMat.stageStatuses.DIRECTOR_DECISION).toBe("SKIPPED");
+      const activeNonMat = projectLifecycleStages("ACTIVE", "NON_MATERIAL");
+      expect(activeNonMat.stageStatuses.DIRECTOR_DECISION).toBe("SKIPPED");
+      const suspendedNonMat = projectLifecycleStages("SUSPENDED", "NON_MATERIAL");
+      expect(suspendedNonMat.stageStatuses.DIRECTOR_DECISION).toBe("SKIPPED");
+      const rolledBackNonMat = projectLifecycleStages("ROLLED_BACK", "NON_MATERIAL");
+      expect(rolledBackNonMat.stageStatuses.DIRECTOR_DECISION).toBe("SKIPPED");
+
+      // 7. MATERIAL: DIRECTOR_DECISION === "COMPLETED"
+      const releasedMat = projectLifecycleStages("RELEASED", "MATERIAL");
+      expect(releasedMat.stageStatuses.DIRECTOR_DECISION).toBe("COMPLETED");
+      const activeMat = projectLifecycleStages("ACTIVE", "MATERIAL");
+      expect(activeMat.stageStatuses.DIRECTOR_DECISION).toBe("COMPLETED");
+      const suspendedMat = projectLifecycleStages("SUSPENDED", "MATERIAL");
+      expect(suspendedMat.stageStatuses.DIRECTOR_DECISION).toBe("COMPLETED");
+      const rolledBackMat = projectLifecycleStages("ROLLED_BACK", "MATERIAL");
+      expect(rolledBackMat.stageStatuses.DIRECTOR_DECISION).toBe("COMPLETED");
     });
   });
 
