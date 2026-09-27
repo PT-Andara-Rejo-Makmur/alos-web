@@ -53,6 +53,11 @@ export function WorkspaceMobileNav({
     };
   }, [drawerOpen]);
 
+  const isExecutive =
+    identity.workspaceKey === "executive" ||
+    identity.divisionCode === "EXEC" ||
+    identity.divisionCode === "EXECUTIVE";
+
   return (
     <>
       {/* Compact Top Header for Mobile */}
@@ -172,7 +177,7 @@ export function WorkspaceMobileNav({
                         <IconComponent size={18} strokeWidth={isActive ? 2.2 : 1.8} />
                       </div>
                       <span className={styles.navLabel}>{item.label}</span>
-                      {item.availability === "BLOCKED" ? (
+                      {item.availability === "BLOCKED" && !isExecutive ? (
                         <span className={styles.notConnectedBadge}>Belum terhubung</span>
                       ) : item.badge && item.badge > 0 ? (
                         <span className={styles.navBadge}>{item.badge}</span>

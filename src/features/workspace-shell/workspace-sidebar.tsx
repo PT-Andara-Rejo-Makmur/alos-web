@@ -168,6 +168,11 @@ export function WorkspaceSidebar({
     items: navigation.filter((item) => item.group === group),
   })).filter((section) => section.items.length > 0);
 
+  const isExecutive =
+    identity.workspaceKey === "executive" ||
+    identity.divisionCode === "EXEC" ||
+    identity.divisionCode === "EXECUTIVE";
+
   return (
     <aside aria-label="Sidebar ALOS" className={styles.sidebar}>
       <div className={styles.sidebarInner}>
@@ -241,7 +246,7 @@ export function WorkspaceSidebar({
                       <IconComponent size={18} strokeWidth={isActive ? 2.2 : 1.8} />
                     </div>
                     <span className={styles.navLabel}>{item.label}</span>
-                    {item.availability === "BLOCKED" ? (
+                    {item.availability === "BLOCKED" && !isExecutive ? (
                       <span className={styles.notConnectedBadge}>Belum terhubung</span>
                     ) : item.badge && item.badge > 0 ? (
                       <span className={styles.navBadge}>{item.badge}</span>

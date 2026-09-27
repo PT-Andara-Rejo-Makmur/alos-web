@@ -295,7 +295,8 @@ export function projectWorkspaceNavigation(
         href: getWorkspaceRoot("executive"),
         icon: "LayoutDashboard",
         group: "COMMAND_CENTER",
-        available: true,
+        available: false,
+        navigable: true,
       },
       {
         key: "brief",
@@ -303,7 +304,8 @@ export function projectWorkspaceNavigation(
         href: "/workspace/executive/brief",
         icon: "Newspaper",
         group: "COMMAND_CENTER",
-        available: true,
+        available: false,
+        navigable: true,
       },
       // Group: STRATEGI_KINERJA
       {
@@ -358,7 +360,8 @@ export function projectWorkspaceNavigation(
         href: "/workspace/executive/divisions",
         icon: "Building2",
         group: "ORGANIZATION",
-        available: true,
+        available: false,
+        navigable: true,
       },
       // Group: PEKERJAAN
       {
@@ -422,7 +425,8 @@ export function projectWorkspaceNavigation(
         href: getWorkspaceAraRoute("executive"),
         icon: "Sparkles",
         group: "AI",
-        available: true,
+        available: false,
+        navigable: true,
       },
     );
 
