@@ -1,0 +1,52 @@
+.summaryContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-3);
+  padding: var(--alos-space-4);
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-panel);
+}
+
+.summaryTitle {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--alos-text-muted);
+  margin: 0 0 var(--alos-space-1) 0;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--alos-space-3);
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  padding: var(--alos-space-2) var(--alos-space-3);
+  background: var(--alos-surface-alt);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-badge);
+}
+
+.itemLabel {
+  font-size: 12px;
+  color: var(--alos-text-secondary);
+}
+
+.itemValue {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--alos-text-primary);
+  margin-top: var(--alos-space-1);
+}
+
+.itemValueUnconnected {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--alos-text-muted);
+  font-style: italic;
+}

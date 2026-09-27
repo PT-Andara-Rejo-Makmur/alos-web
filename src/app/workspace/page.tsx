@@ -57,8 +57,12 @@ export default function WorkspacePage() {
 
   if (state === "ready" && session) {
     const canOpenExecutive = hasExecutiveContext(session);
+    const workspaceKey =
+      session.principal && "actor" in session.principal && session.principal.active_workspace
+        ? session.principal.active_workspace.workspace.workspace_key
+        : null;
     return (
-      <AppShell navigationSections={navigationForSession(canOpenExecutive)} session={session}>
+      <AppShell navigationSections={navigationForSession(canOpenExecutive, workspaceKey)} session={session}>
         <section aria-labelledby="workspace-title" className={styles.landing}>
           <PageHeader
             description="Ruang kerja Anda siap digunakan."

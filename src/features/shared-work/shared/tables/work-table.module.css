@@ -1,0 +1,16 @@
+.clickableTable tr {
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.clickableTable tr:hover {
+  background-color: var(--alos-table-row-hover);
+}
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-panel);
+  background: var(--alos-surface);
+}
