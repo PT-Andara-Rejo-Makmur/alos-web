@@ -11,6 +11,7 @@
 
 .tabsContainer {
   margin-bottom: var(--alos-space-2);
+  overflow: hidden;
 }
 
 .projectCodeBadge {

@@ -336,8 +336,9 @@
 
 .tableEmpty {
   color: var(--alos-text-muted) !important;
-  height: 96px !important;
+  padding: var(--alos-space-8) var(--alos-space-4) !important;
   text-align: center;
+  vertical-align: middle;
 }
 
 .tableSkeleton,
@@ -412,6 +413,15 @@
   display: flex;
   gap: var(--alos-space-5);
   overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabList::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .tab {
@@ -554,14 +564,18 @@
   align-items: center;
   display: flex;
   flex-direction: column;
-  max-width: 440px;
-  padding: var(--alos-space-8) var(--alos-space-4);
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 480px;
+  padding: var(--alos-space-6) var(--alos-space-4);
   text-align: center;
 }
 
 .emptyStateIcon {
+  align-items: center;
   color: var(--alos-text-muted);
   display: inline-flex;
+  justify-content: center;
   margin-bottom: var(--alos-space-3);
 }
 
