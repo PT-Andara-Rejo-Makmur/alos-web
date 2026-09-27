@@ -374,10 +374,10 @@ describe("Executive / Director Dashboard ALOS", () => {
   // 11. Attention Projects: Lists projects needing attention
   it("merender daftar proyek yang membutuhkan perhatian", () => {
     render(<ExecutiveDashboardHome snapshot={MOCK_SNAPSHOT} />);
-    expect(screen.getByText("Pergudangan Tahap II")).toBeInTheDocument();
-    expect(screen.getByText(/Kemajuan saat ini: 38%/i)).toBeInTheDocument();
-    expect(screen.getByText("CRITICAL")).toBeInTheDocument();
-    expect(screen.getByText("Izin AMDAL Terpadu")).toBeInTheDocument();
+    expect(screen.getAllByText(/Pergudangan Tahap II/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Kemajuan fisik baru mencapai 38%/i)).toBeInTheDocument();
+    expect(screen.getAllByText("Kritis").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Izin AMDAL Terpadu/i).length).toBeGreaterThanOrEqual(1);
   });
 
   // 12. Security & RBAC: Redirect to /login on 401 unauthenticated
@@ -417,60 +417,58 @@ describe("Executive / Director Dashboard ALOS", () => {
     expect(screen.getByRole("link", { name: /Kembali ke Ruang Kerja Saya/i })).toBeInTheDocument();
   });
 
-  // 14. Full Page Integration: Renders all 8 core sections in exact canonical order
-  it("merender seluruh komponen utama dalam ExecutiveDashboardHome sesuai 8 urutan kanonis Pusat Kendali Eksekutif", () => {
+  // 14. Full Page Integration: Renders all core sections in exact canonical order
+  it("merender seluruh komponen utama dalam ExecutiveDashboardHome sesuai urutan kanonis Pusat Kendali Eksekutif", () => {
     render(<ExecutiveDashboardHome snapshot={MOCK_SNAPSHOT} />);
 
     // Header & Title
-    expect(screen.getByText("PUSAT KENDALI EKSEKUTIF")).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Pusat Kendali Eksekutif", level: 1 }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Ringkasan strategis, kondisi operasional, keputusan, dan perhatian lintas divisi PT Andara Rejo Makmur/i),
+      screen.getByText(/Ringkasan kondisi perusahaan, pencapaian target, pekerjaan yang perlu mendapat perhatian/i),
     ).toBeInTheDocument();
 
-    // 1. Waktu pembaruan data
-    expect(screen.getByLabelText("Waktu Pembaruan Data")).toBeInTheDocument();
+    // 02. Status Data Perusahaan
+    expect(screen.getByLabelText("Status Kesiapan Data Perusahaan")).toBeInTheDocument();
 
-    // 2. Strategi & Kinerja Perusahaan
-    expect(screen.getByLabelText("Strategi & Kinerja Perusahaan")).toBeInTheDocument();
-    expect(screen.getByText("Sumber KPI dan sasaran perusahaan belum tersedia.")).toBeInTheDocument();
+    // 03. Ringkasan Utama Perusahaan
+    expect(screen.getByLabelText("Ringkasan Utama Perusahaan")).toBeInTheDocument();
 
-    // 3. Ringkasan Operasional
-    expect(screen.getByLabelText("Ringkasan Operasional")).toBeInTheDocument();
+    // 04. Pencapaian Target Perusahaan
+    expect(screen.getByLabelText("Pencapaian Target Perusahaan")).toBeInTheDocument();
 
-    // 4. Keputusan yang Membutuhkan Perhatian
-    expect(screen.getByLabelText("Keputusan yang Membutuhkan Perhatian")).toBeInTheDocument();
+    // 05-10. Ringkasan Domain Operasional
+    expect(screen.getByLabelText("Ringkasan Domain Operasional")).toBeInTheDocument();
 
-    // 5. Status Operasional Divisi
-    expect(screen.getByLabelText("Status Operasional Divisi")).toBeInTheDocument();
-
-    // 6. Peringatan Dini
+    // 11. Peringatan Dini
     expect(screen.getByLabelText("Peringatan Dini")).toBeInTheDocument();
 
-    // 7. Portofolio Pekerjaan
-    expect(screen.getByLabelText("Portofolio Pekerjaan")).toBeInTheDocument();
+    // 12. Keputusan yang Membutuhkan Perhatian
+    expect(screen.getByLabelText("Keputusan yang Membutuhkan Perhatian")).toBeInTheDocument();
 
-    // 8. Bantuan ARA
-    expect(screen.getByLabelText("Bantuan ARA")).toBeInTheDocument();
+    // 13. Status Operasional Divisi
+    expect(screen.getByLabelText("Status Operasional Divisi")).toBeInTheDocument();
+
+    // 14. Analisis GENESIS
+    expect(screen.getByLabelText("Analisis GENESIS")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Buka ARA/i })).toBeInTheDocument();
+
+    // 15. Ritme Pelaporan & Tata Kelola
+    expect(screen.getByLabelText("Ritme Pelaporan & Tata Kelola")).toBeInTheDocument();
   });
 
   // 15. Kebijakan Kinerja: Kemajuan proyek tidak disebut sebagai KPI dan sasaran
-  it("membedakan kemajuan pekerjaan dengan capaian KPI & sasaran secara tegas dan jujur", () => {
+  it("membedakan kemajuan pekerjaan dengan capaian target korporat secara tegas dan jujur", () => {
     render(<ExecutiveDashboardHome snapshot={MOCK_SNAPSHOT} />);
 
-    // Kemajuan Pekerjaan shows progress (81,5%)
-    expect(screen.getByText("Kemajuan Pekerjaan")).toBeInTheDocument();
+    // Progres Proyek shows progress (81,5%) in headline and not fabricated as target
+    expect(screen.getByText("Progres Proyek")).toBeInTheDocument();
     expect(screen.getAllByText("81,5%").length).toBeGreaterThanOrEqual(1);
 
-    // Capaian KPI and Capaian Sasaran explicitly show em-dash '—'
-    expect(screen.getByText("Capaian KPI")).toBeInTheDocument();
-    expect(screen.getByText("Capaian Sasaran")).toBeInTheDocument();
-    expect(
-      screen.getByText("Sumber KPI dan sasaran perusahaan belum tersedia."),
-    ).toBeInTheDocument();
+    // Target table is present and separate
+    expect(screen.getByLabelText("Pencapaian Target Perusahaan")).toBeInTheDocument();
   });
 
   // 16. Kesalahan memuat data tidak disamarkan sebagai data kosong

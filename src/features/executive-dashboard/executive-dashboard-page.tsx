@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { AlertCircle } from "lucide-react";
 
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
-import { authenticatedApiRequest } from "@/lib/api";
 import { ExecutiveDashboardHome } from "./executive-dashboard-home";
-import { createEmptyExecutiveSnapshot } from "./executive-dashboard-projection";
+import { ExecutiveDashboardSkeleton } from "./components/executive-dashboard-skeleton";
+import { useExecutiveOverview } from "./use-executive-overview";
 import type { ExecutiveDashboardSnapshot } from "./types";
 import styles from "./executive-dashboard.module.css";
 
@@ -51,50 +50,39 @@ function ExecutiveContent({
 }: {
   readonly initialSnapshot?: ExecutiveDashboardSnapshot | null;
 }) {
-  const [snapshot, setSnapshot] = useState<ExecutiveDashboardSnapshot | null>(initialSnapshot ?? null);
-  const [loading, setLoading] = useState(!initialSnapshot);
-  const [error, setError] = useState<string | null>(null);
-  const [reloadIndex, setReloadIndex] = useState(0);
+  const {
+    initialLoading,
+    refreshing,
+    error,
+    partialRefreshError,
+    loadingTasks,
+    loadingCompletedCount,
+    loadingTotalCount,
+    loadingPercent,
+    snapshot,
+    activePlan,
+    corporateTargets,
+    rawTargets,
+    headlines,
+    domainSummaries,
+    earlyWarnings,
+    decisionItems,
+    divisionItems,
+    dataStatus,
+    lastUpdatedTime,
+    refresh,
+    retry,
+  } = useExecutiveOverview(initialSnapshot);
 
-  useEffect(() => {
-    if (initialSnapshot && reloadIndex === 0) return;
-    const controller = new AbortController();
-    authenticatedApiRequest<ExecutiveDashboardSnapshot>("/api/v1/executive-dashboard", {
-      signal: controller.signal,
-    })
-      .then((data) => {
-        setSnapshot(data);
-        setError(null);
-      })
-      .catch((err) => {
-        if (!controller.signal.aborted) {
-          const status = (err as { status?: number })?.status;
-          if (status === 404) {
-            // Backend endpoint is not yet connected (State 2: Data / sumber belum terhubung)
-            setSnapshot(createEmptyExecutiveSnapshot());
-            setError(null);
-          } else {
-            // State 3: Terjadi kendala saat mengambil data (500, network loss, dll)
-            setError("Ringkasan eksekutif belum dapat dimuat. Silakan coba lagi beberapa saat.");
-          }
-        }
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
-      });
-    return () => controller.abort();
-  }, [initialSnapshot, reloadIndex]);
-
-  const handleRetry = () => {
-    setLoading(true);
-    setError(null);
-    setReloadIndex((prev) => prev + 1);
-  };
-
-  if (loading) {
-    return <div className="alos-loading-shell">Memuat data eksekutif…</div>;
+  if (initialLoading) {
+    return (
+      <ExecutiveDashboardSkeleton
+        loadingTasks={loadingTasks}
+        completedCount={loadingCompletedCount}
+        totalCount={loadingTotalCount}
+        percent={loadingPercent}
+      />
+    );
   }
 
   if (error) {
@@ -105,13 +93,30 @@ function ExecutiveContent({
         </div>
         <h2 className={styles.stateTitle}>Kendala Memuat Data</h2>
         <p className={styles.stateDesc}>{error}</p>
-        <button type="button" onClick={handleRetry} className={styles.stateActionBtn}>
+        <button type="button" onClick={retry} className={styles.stateActionBtn}>
           Muat Ulang
         </button>
       </div>
     );
   }
 
-  if (!snapshot) return null;
-  return <ExecutiveDashboardHome snapshot={snapshot} />;
+  return (
+    <ExecutiveDashboardHome
+      snapshot={snapshot}
+      activePlan={activePlan}
+      rawTargets={rawTargets}
+      corporateTargets={corporateTargets}
+      headlines={headlines}
+      domainSummaries={domainSummaries}
+      earlyWarnings={earlyWarnings}
+      decisionItems={decisionItems}
+      divisionItems={divisionItems}
+      dataStatus={dataStatus}
+      lastUpdatedTime={lastUpdatedTime}
+      refreshing={refreshing}
+      partialError={partialRefreshError}
+      onRefresh={refresh}
+      onRetry={refresh}
+    />
+  );
 }

@@ -101,11 +101,11 @@ describe("ExecutiveHomeDashboard", () => {
   it("renders live governance data and explicit unavailable business sources", () => {
     const html = renderToStaticMarkup(<ExecutiveHomeDashboard dashboard={snapshot} />);
 
-    expect(html).toContain("Kinerja Perusahaan");
-    expect(html).toContain("Approval Pending");
-    expect(html).toContain("Analisis Genesis");
+    expect(html).toContain("Pencapaian Target Perusahaan");
+    expect(html).toContain("Keputusan Menunggu");
+    expect(html).toContain("Analisis GENESIS");
     expect(html).toContain("Status Operasional Divisi");
-    expect(html).toContain("Sumber proyek belum terhubung");
+    expect(html).toContain("Sumber data penjualan belum terhubung");
     expect(html).not.toContain(">12<");
   });
 

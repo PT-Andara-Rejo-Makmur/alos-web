@@ -1,11 +1,101 @@
 import type {
+  BusinessTarget,
+  MetricObservation,
+  StrategyPlan,
+} from "@/lib/contracts";
+
+import type {
   DecisionQueueItem,
   DivisionHealthItem,
   ExecutiveAIContext,
   ExecutiveBriefBlock,
+  ExecutiveCorporateTargetRow,
+  ExecutiveDataStatusSummary,
   ExecutiveDashboardMetric,
   ExecutiveDashboardSnapshot,
+  ExecutiveDomainSummaryCard,
+  ExecutiveEarlyWarningItem,
+  ExecutiveHeadlineItem,
+  ExecutiveSourceInspection,
+  SourceConnectionState,
 } from "./types";
+
+/* =========================================================================
+ * TRANSLATION HELPERS (STRICT INDONESIAN)
+ * ========================================================================= */
+
+export function translateSourceReadiness(state: SourceConnectionState): string {
+  switch (state) {
+    case "LIVE":
+      return "Terkini";
+    case "PARTIAL":
+      return "Sebagian Tersedia";
+    case "STALE":
+      return "Perlu Diperbarui";
+    case "ERROR":
+      return "Gagal Memuat";
+    case "LOADING":
+      return "Sedang Memuat";
+    case "NOT_CONNECTED":
+    default:
+      return "Belum Terhubung";
+  }
+}
+
+export function translatePerformanceState(state?: string | null): string {
+  switch (state) {
+    case "ON_TRACK":
+      return "Sesuai Target";
+    case "AT_RISK":
+      return "Berisiko";
+    case "OFF_TRACK":
+      return "Tidak Sesuai Target";
+    case "ACHIEVED":
+      return "Tercapai";
+    case "NOT_EVALUATED":
+    default:
+      return "Belum Dinilai";
+  }
+}
+
+export function translateVerificationState(state?: string | null): string {
+  switch (state) {
+    case "VERIFIED":
+      return "Terverifikasi";
+    case "PENDING_VERIFICATION":
+      return "Menunggu Verifikasi";
+    case "CONFLICT":
+      return "Data Tidak Sesuai";
+    case "REJECTED":
+      return "Ditolak";
+    case "UNVERIFIED":
+    default:
+      return "Belum Diverifikasi";
+  }
+}
+
+export function translateLifecycleState(state?: string | null): string {
+  switch (state) {
+    case "DRAFT":
+      return "Draf";
+    case "UNDER_REVIEW":
+      return "Dalam Peninjauan";
+    case "APPROVED":
+      return "Disetujui";
+    case "ACTIVE":
+      return "Aktif";
+    case "SUPERSEDED":
+      return "Digantikan";
+    case "ARCHIVED":
+      return "Diarsipkan";
+    default:
+      return "Draf";
+  }
+}
+
+/* =========================================================================
+ * FORMATTING HELPERS
+ * ========================================================================= */
 
 export function createEmptyExecutiveSnapshot(): ExecutiveDashboardSnapshot {
   return {
@@ -35,6 +125,28 @@ export function formatMetricDisplayValue(metric: ExecutiveDashboardMetric): stri
     return `${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 }).format(metric.value)}%`;
   }
   return new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(metric.value);
+}
+
+export function formatNumberIndonesian(val: number | string | boolean | null | undefined, unit?: string | null): string {
+  if (val === null || val === undefined) return "—";
+  if (typeof val === "boolean") return val ? "Ya" : "Tidak";
+  if (typeof val === "string") {
+    const num = Number(val);
+    if (isNaN(num)) return val;
+    val = num;
+  }
+  const formatted = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 }).format(val);
+  if (!unit) return formatted;
+  const upper = unit.toUpperCase();
+  if (upper === "PERCENT" || upper === "%") return `${formatted}%`;
+  if (upper === "IDR" || upper === "RP") return `Rp${formatted}`;
+  if (upper === "COUNT") return formatted;
+  if (upper === "UNIT") return `${formatted} unit`;
+  if (upper === "SCORE") return `${formatted} poin`;
+  if (upper === "DAY") return `${formatted} hari`;
+  if (upper === "HOUR") return `${formatted} jam`;
+  if (upper === "MINUTE") return `${formatted} menit`;
+  return `${formatted} ${unit.toLowerCase()}`;
 }
 
 export function formatDateIndonesian(dateInput?: string | Date | null): string {
@@ -102,10 +214,559 @@ export function formatJakartaTime(date: Date): string {
 
 export const formatExecutiveMetric = formatMetricDisplayValue;
 
-/**
- * Maps snapshot into the 5-block Executive Brief projection.
- * Strategic targets (cash, agent overnight) are honestly marked as NOT_CONNECTED.
- */
+/* =========================================================================
+ * STAGE 2 STRATEGY TARGETS PROJECTION
+ * ========================================================================= */
+
+function getObservation(observations: readonly MetricObservation[] | undefined, kind: "TARGET" | "ACTUAL" | "FORECAST" | "ASSUMPTION") {
+  return observations?.find((o) => o.kind === kind);
+}
+
+export function projectCorporateTargets(targets: readonly BusinessTarget[]): readonly ExecutiveCorporateTargetRow[] {
+  return targets.map((t) => {
+    const targetObs = getObservation(t.observations, "TARGET");
+    const actualObs = getObservation(t.observations, "ACTUAL");
+    const forecastObs = getObservation(t.observations, "FORECAST");
+
+    const targetVal = targetObs?.value;
+    const actualVal = actualObs?.value;
+    const forecastVal = forecastObs?.value;
+
+    const targetNum = typeof targetVal === "number" ? targetVal : (targetVal ? Number(targetVal) : null);
+    const actualNum = typeof actualVal === "number" ? actualVal : (actualVal ? Number(actualVal) : null);
+
+    // Variance strictly actual - target if numeric
+    let varianceDisplay = "—";
+    if (actualNum !== null && targetNum !== null && !isNaN(actualNum) && !isNaN(targetNum)) {
+      const diff = actualNum - targetNum;
+      const prefix = diff > 0 ? "+" : "";
+      varianceDisplay = `${prefix}${formatNumberIndonesian(diff, t.unit)}`;
+    }
+
+    // Achievement percentage: safe calculation only for valid measurement types
+    let achievementPercent: number | null = null;
+    const isSafeMeasurement =
+      t.measurement_type === "HIGHER_IS_BETTER" ||
+      t.measurement_type === "CUMULATIVE" ||
+      t.measurement_type === "PERCENTAGE";
+
+    if (isSafeMeasurement && targetNum !== null && targetNum > 0 && actualNum !== null && !isNaN(actualNum)) {
+      achievementPercent = Math.min(999, Math.max(0, (actualNum / targetNum) * 100));
+    }
+
+    // Status mapping
+    const statusLabel = translatePerformanceState(t.performance_state);
+    let statusTone: ExecutiveCorporateTargetRow["statusTone"] = "NEUTRAL";
+    if (t.performance_state === "ON_TRACK" || t.performance_state === "ACHIEVED") {
+      statusTone = "SUCCESS";
+    } else if (t.performance_state === "AT_RISK") {
+      statusTone = "WARNING";
+    } else if (t.performance_state === "OFF_TRACK") {
+      statusTone = "DANGER";
+    }
+
+    // Verification from primary observation (actual if present, else target)
+    const primaryObs = actualObs ?? targetObs;
+    const verificationLabel = translateVerificationState(primaryObs?.verification_state);
+
+    const periodLabel = t.period?.label || (t.period?.granularity ? `${t.period.granularity}` : "Tahunan");
+
+    return {
+      targetId: t.target_id,
+      code: t.code,
+      name: t.name,
+      periodLabel,
+      targetDisplay: formatNumberIndonesian(targetVal, t.unit),
+      actualDisplay: formatNumberIndonesian(actualVal, t.unit),
+      forecastDisplay: formatNumberIndonesian(forecastVal, t.unit),
+      varianceDisplay,
+      achievementPercent,
+      statusLabel,
+      statusTone,
+      verificationLabel,
+      sourceLabel: t.owner_workspace_id ? `Divisi ${t.owner_workspace_id}` : "Strategi Korporat",
+      rawTarget: t,
+    };
+  });
+}
+
+/* =========================================================================
+ * 6 HEADLINES PROJECTION
+ * ========================================================================= */
+
+export function projectExecutiveHeadlines(
+  snapshot: ExecutiveDashboardSnapshot | null,
+  targets: readonly BusinessTarget[],
+  plans: readonly StrategyPlan[],
+  isSnapshotConnected: boolean,
+): readonly ExecutiveHeadlineItem[] {
+  // Find potential targets matching headline domains
+  const revTarget = targets.find((t) => t.code.includes("REV") || t.metric_code.includes("REVENUE") || t.name.toLowerCase().includes("pendapatan"));
+  const closingTarget = targets.find((t) => t.code.includes("CLOSING") || t.metric_code.includes("CLOSING") || t.name.toLowerCase().includes("closing") || t.code === "KPI-SM-01");
+  const deliveryTarget = targets.find((t) => t.code.includes("DELIVERY") || t.name.toLowerCase().includes("kemajuan") || t.metric_code.includes("PROGRESS"));
+
+  const averageProgressMetric = snapshot?.metrics.find((m) => m.key === "average_progress");
+
+  const earlyWarnings = snapshot ? projectEarlyWarnings(snapshot) : { totalWarnings: 0 };
+
+  // 1. Pendapatan
+  const revTargetObs = revTarget ? getObservation(revTarget.observations, "TARGET") : null;
+  const revActualObs = revTarget ? getObservation(revTarget.observations, "ACTUAL") : null;
+  const headlineRevenue: ExecutiveHeadlineItem = {
+    id: "revenue",
+    label: "Pendapatan",
+    primaryValue: revActualObs?.value ? formatNumberIndonesian(revActualObs.value, "IDR") : "—",
+    targetValue: revTargetObs?.value ? formatNumberIndonesian(revTargetObs.value, "IDR") : null,
+    actualValue: revActualObs?.value ? formatNumberIndonesian(revActualObs.value, "IDR") : null,
+    statusLabel: "Belum Terhubung",
+    statusTone: "NEUTRAL",
+    sourceLabel: "Keuangan & Kas",
+    readiness: "NOT_CONNECTED",
+    helperText: "Sumber data aktual belum terhubung.",
+    drilldownHref: "/workspace/finance",
+  };
+
+  // 2. Penjualan / Closing
+  const closingTargetObs = closingTarget ? getObservation(closingTarget.observations, "TARGET") : null;
+  const closingActualObs = closingTarget ? getObservation(closingTarget.observations, "ACTUAL") : null;
+  const closingTargetNum = typeof closingTargetObs?.value === "number" ? closingTargetObs.value : null;
+  const closingActualNum = typeof closingActualObs?.value === "number" ? closingActualObs.value : null;
+  let closingProgress: number | null = null;
+  if (closingTargetNum && closingTargetNum > 0 && closingActualNum !== null) {
+    closingProgress = (closingActualNum / closingTargetNum) * 100;
+  }
+
+  const headlineClosing: ExecutiveHeadlineItem = {
+    id: "closing",
+    label: "Penjualan / Closing",
+    primaryValue: closingActualNum !== null ? `${closingActualNum} unit` : "—",
+    targetValue: closingTargetNum !== null ? `${closingTargetNum} unit` : null,
+    actualValue: closingActualNum !== null ? `${closingActualNum} unit` : null,
+    progressPercent: closingProgress,
+    statusLabel: closingActualNum !== null ? (closingProgress && closingProgress >= 80 ? "Sesuai Target" : "Berisiko") : "Belum Terhubung",
+    statusTone: closingActualNum !== null ? (closingProgress && closingProgress >= 80 ? "SUCCESS" : "WARNING") : "NEUTRAL",
+    sourceLabel: "Penjualan & Komersial",
+    readiness: closingActualNum !== null ? "LIVE" : "NOT_CONNECTED",
+    helperText: closingActualNum === null ? "Sumber data aktual belum terhubung." : undefined,
+    verificationLabel: closingActualObs ? translateVerificationState(closingActualObs.verification_state) : undefined,
+    drilldownHref: "/workspace/sales",
+  };
+
+  // 3. Kas & Likuiditas
+  const headlineCash: ExecutiveHeadlineItem = {
+    id: "cash",
+    label: "Kas & Likuiditas",
+    primaryValue: "—",
+    statusLabel: "Belum Terhubung",
+    statusTone: "NEUTRAL",
+    sourceLabel: "Perbankan & Kas",
+    readiness: "NOT_CONNECTED",
+    helperText: "Sumber data keuangan belum terhubung.",
+    drilldownHref: "/workspace/finance",
+  };
+
+  // 4. Progres Proyek
+  const avgProgressVal = averageProgressMetric?.value;
+  const headlineDelivery: ExecutiveHeadlineItem = {
+    id: "delivery",
+    label: "Progres Proyek",
+    primaryValue: isSnapshotConnected && avgProgressVal !== null && avgProgressVal !== undefined
+      ? `${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 }).format(avgProgressVal)}%`
+      : "—",
+    progressPercent: isSnapshotConnected && typeof avgProgressVal === "number" ? avgProgressVal : null,
+    targetValue: deliveryTarget ? formatNumberIndonesian(getObservation(deliveryTarget.observations, "TARGET")?.value, "%") : null,
+    actualValue: isSnapshotConnected && avgProgressVal !== null && avgProgressVal !== undefined ? `${avgProgressVal}%` : null,
+    statusLabel: isSnapshotConnected ? (avgProgressVal && avgProgressVal >= 75 ? "Sesuai Target" : "Berisiko") : "Belum Terhubung",
+    statusTone: isSnapshotConnected ? (avgProgressVal && avgProgressVal >= 75 ? "SUCCESS" : "WARNING") : "NEUTRAL",
+    sourceLabel: "Proyek & Konstruksi",
+    readiness: isSnapshotConnected ? "PARTIAL" : "NOT_CONNECTED",
+    helperText: isSnapshotConnected ? "Rata-rata progres portofolio proyek" : "Sumber data operasional belum terhubung.",
+    drilldownHref: "/workspace/executive/projects",
+  };
+
+  // 5. Keputusan Menunggu
+  const pendingCount = snapshot?.pending_approvals.length ?? 0;
+  const headlineDecisions: ExecutiveHeadlineItem = {
+    id: "decisions",
+    label: "Keputusan Menunggu",
+    primaryValue: isSnapshotConnected ? `${pendingCount} item` : "—",
+    statusLabel: isSnapshotConnected ? (pendingCount > 0 ? "Perlu Peninjauan" : "Selesai") : "Belum Terhubung",
+    statusTone: isSnapshotConnected ? (pendingCount > 0 ? "WARNING" : "SUCCESS") : "NEUTRAL",
+    sourceLabel: "Alur Persetujuan ALOS",
+    readiness: isSnapshotConnected ? "LIVE" : "NOT_CONNECTED",
+    helperText: isSnapshotConnected ? `${pendingCount} item menunggu persetujuan pimpinan` : "Sumber data persetujuan belum terhubung.",
+    drilldownHref: "/workspace/executive/approvals",
+  };
+
+  // 6. Risiko / Perhatian
+  const totalWarnings = earlyWarnings.totalWarnings;
+  const headlineRisk: ExecutiveHeadlineItem = {
+    id: "risk",
+    label: "Risiko / Perhatian",
+    primaryValue: isSnapshotConnected ? `${totalWarnings} perhatian` : "—",
+    statusLabel: isSnapshotConnected ? (totalWarnings > 0 ? "Perlu Perhatian" : "Terkendali") : "Belum Terhubung",
+    statusTone: isSnapshotConnected ? (totalWarnings > 0 ? "DANGER" : "SUCCESS") : "NEUTRAL",
+    sourceLabel: "Pusat Kendali Eksekutif",
+    readiness: isSnapshotConnected ? "PARTIAL" : "NOT_CONNECTED",
+    helperText: isSnapshotConnected ? (totalWarnings > 0 ? `${totalWarnings} deviasi/peringatan aktif` : "Tidak ada deviasi kritis") : "Sumber data peringatan belum terhubung.",
+    drilldownHref: "/workspace/executive/approvals",
+  };
+
+  return [
+    headlineRevenue,
+    headlineClosing,
+    headlineCash,
+    headlineDelivery,
+    headlineDecisions,
+    headlineRisk,
+  ];
+}
+
+/* =========================================================================
+ * 6 DOMAIN SUMMARIES PROJECTION
+ * ========================================================================= */
+
+export function projectDomainSummaries(
+  snapshot: ExecutiveDashboardSnapshot | null,
+  isSnapshotConnected: boolean,
+): readonly ExecutiveDomainSummaryCard[] {
+  const activeProjects = snapshot?.metrics.find((m) => m.key === "active_projects")?.value;
+  const avgProgress = snapshot?.metrics.find((m) => m.key === "average_progress")?.value;
+  const attentionCount = snapshot?.attention_projects.length ?? 0;
+
+  return [
+    {
+      domainKey: "sales",
+      title: "Penjualan & Komersial",
+      businessPurpose: "Monitoring prospek, alur pemesanan, dan penyelesaian akad.",
+      readiness: "NOT_CONNECTED",
+      readinessLabel: "Belum Terhubung",
+      facts: [
+        { label: "Target Closing", value: "—" },
+        { label: "Prospek Berkualitas", value: "—" },
+        { label: "Akad KPR", value: "—" },
+      ],
+      primaryAttention: "Sumber data penjualan belum terhubung.",
+      drilldownHref: "/workspace/sales",
+      sourceName: "CRM Penjualan",
+      lastUpdated: "—",
+    },
+    {
+      domainKey: "finance",
+      title: "Kondisi Keuangan",
+      businessPurpose: "Likuiditas kas harian, realisasi anggaran, dan rekonsiliasi bank.",
+      readiness: "NOT_CONNECTED",
+      readinessLabel: "Belum Terhubung",
+      facts: [
+        { label: "Kas Tersedia", value: "—" },
+        { label: "Arus Kas Masuk", value: "—" },
+        { label: "Arus Kas Keluar", value: "—" },
+      ],
+      primaryAttention: "Sumber data keuangan belum terhubung.",
+      drilldownHref: "/workspace/finance",
+      sourceName: "Buku Besar Keuangan",
+      lastUpdated: "—",
+    },
+    {
+      domainKey: "property",
+      title: "Proyek & Konstruksi",
+      businessPurpose: "Kemajuan fisik proyek, 7 hold points, dan keselamatan kerja.",
+      readiness: isSnapshotConnected ? "PARTIAL" : "NOT_CONNECTED",
+      readinessLabel: isSnapshotConnected ? "Sebagian Tersedia" : "Belum Terhubung",
+      facts: [
+        { label: "Proyek Aktif", value: isSnapshotConnected && activeProjects !== null && activeProjects !== undefined ? `${activeProjects} Proyek` : "—" },
+        { label: "Rata-rata Kemajuan", value: isSnapshotConnected && avgProgress !== null && avgProgress !== undefined ? `${avgProgress}%` : "—" },
+        { label: "Proyek Perlu Perhatian", value: isSnapshotConnected ? `${attentionCount} Proyek` : "—" },
+      ],
+      primaryAttention: isSnapshotConnected && attentionCount > 0
+        ? `${snapshot?.attention_projects[0]?.name} (${snapshot?.attention_projects[0]?.progress_percent}% - ${translatePerformanceState(snapshot?.attention_projects[0]?.status)})`
+        : isSnapshotConnected ? "Tidak ada kendala material terdeteksi" : "Sumber data belum terhubung.",
+      drilldownHref: "/workspace/executive/projects",
+      sourceName: "Manajemen Proyek",
+      lastUpdated: isSnapshotConnected && snapshot?.generated_at ? formatDateIndonesian(snapshot.generated_at) : "—",
+    },
+    {
+      domainKey: "legal",
+      title: "Legal, Perizinan & KPR",
+      businessPurpose: "Legalitas tanah, penerbitan PBG/SLF, dan berkas KPR perbankan.",
+      readiness: "NOT_CONNECTED",
+      readinessLabel: "Belum Terhubung",
+      facts: [
+        { label: "Izin PBG/SLF", value: "—" },
+        { label: "Kontrak Menunggu", value: "—" },
+        { label: "Berkas KPR", value: "—" },
+      ],
+      primaryAttention: "Sumber data legalitas belum terhubung.",
+      drilldownHref: "/workspace/legal",
+      sourceName: "Sistem Legalitas & Kepatuhan",
+      lastUpdated: "—",
+    },
+    {
+      domainKey: "hr",
+      title: "SDM & Organisasi",
+      businessPurpose: "Formasi karyawan aktif, absensi, dan pemisahan tugas (SoD).",
+      readiness: "NOT_CONNECTED",
+      readinessLabel: "Belum Terhubung",
+      facts: [
+        { label: "Karyawan Aktif", value: "—" },
+        { label: "Tingkat Kehadiran", value: "—" },
+        { label: "Kepatuhan SoD", value: "—" },
+      ],
+      primaryAttention: "Sumber data personalia belum terhubung.",
+      drilldownHref: "/workspace/hr",
+      sourceName: "Sistem Manajemen SDM",
+      lastUpdated: "—",
+    },
+    {
+      domainKey: "it",
+      title: "Teknologi & ALOS",
+      businessPurpose: "Ketersediaan platform, backend API, dan kontrol agen GENESIS.",
+      readiness: "NOT_CONNECTED",
+      readinessLabel: "Belum Terhubung",
+      facts: [
+        { label: "Status ALOS", value: "Aktif (Frontend)" },
+        { label: "Insiden Kritis", value: "—" },
+        { label: "Pencadangan Data", value: "—" },
+      ],
+      primaryAttention: "Pemantauan runtime operasional IT penuh belum terhubung.",
+      drilldownHref: "/workspace/it",
+      sourceName: "Operasional IT ALOS",
+      lastUpdated: "—",
+    },
+  ];
+}
+
+/* =========================================================================
+ * EARLY WARNINGS PROJECTION (EXTENDED)
+ * ========================================================================= */
+
+export function projectExecutiveEarlyWarnings(
+  snapshot: ExecutiveDashboardSnapshot | null,
+): readonly ExecutiveEarlyWarningItem[] {
+  if (!snapshot) return [];
+
+  const warnings: ExecutiveEarlyWarningItem[] = [];
+
+  // Critical projects
+  snapshot.attention_projects
+    .filter((p) => p.status === "CRITICAL")
+    .forEach((p) => {
+      warnings.push({
+        id: `warn-proj-${p.project_id}`,
+        title: `Proyek ${p.name}`,
+        category: "Konstruksi & Proyek",
+        severity: "CRITICAL",
+        severityLabel: "Kritis",
+        concreteCause: `Kemajuan fisik baru mencapai ${p.progress_percent}%, deviasi kritis terdeteksi.`,
+        source: "Proyek & Konstruksi",
+        sinceWhen: formatDateIndonesian(snapshot.generated_at),
+        actionHref: `/workspace/executive/projects`,
+        actionLabel: "Buka Proyek",
+      });
+    });
+
+  // Overdue decisions
+  snapshot.pending_approvals
+    .filter((a) => a.urgency === "OVERDUE")
+    .forEach((a) => {
+      warnings.push({
+        id: `warn-appr-${a.approval_id}`,
+        title: a.title,
+        category: "Keputusan Tertunda",
+        severity: "CRITICAL",
+        severityLabel: "Terlambat",
+        concreteCause: `Persetujuan diajukan oleh ${a.requested_by} (${a.workspace_name}) telah menunggu ${a.age_days} hari melampaui SLA.`,
+        source: "Alur Persetujuan ALOS",
+        sinceWhen: formatDateIndonesian(a.submitted_at),
+        actionHref: `/workspace/executive/approvals`,
+        actionLabel: "Tinjau Keputusan",
+      });
+    });
+
+  // At-risk projects
+  snapshot.attention_projects
+    .filter((p) => p.status === "AT_RISK")
+    .forEach((p) => {
+      warnings.push({
+        id: `warn-proj-${p.project_id}`,
+        title: `Proyek ${p.name}`,
+        category: "Konstruksi & Proyek",
+        severity: "AT_RISK",
+        severityLabel: "Berisiko",
+        concreteCause: `Kemajuan fisik sebesar ${p.progress_percent}%, memerlukan perhatian pengawas.`,
+        source: "Proyek & Konstruksi",
+        sinceWhen: formatDateIndonesian(snapshot.generated_at),
+        actionHref: `/workspace/executive/projects`,
+        actionLabel: "Buka Proyek",
+      });
+    });
+
+  // Due soon decisions
+  snapshot.pending_approvals
+    .filter((a) => a.urgency === "DUE_SOON")
+    .forEach((a) => {
+      warnings.push({
+        id: `warn-appr-${a.approval_id}`,
+        title: a.title,
+        category: "Keputusan Tertunda",
+        severity: "DUE_SOON",
+        severityLabel: "Mendekati Tenggat",
+        concreteCause: `Persetujuan dari ${a.workspace_name} mendekati batas toleransi waktu tinjauan (${a.age_days} hari).`,
+        source: "Alur Persetujuan ALOS",
+        sinceWhen: formatDateIndonesian(a.submitted_at),
+        actionHref: `/workspace/executive/approvals`,
+        actionLabel: "Tinjau Keputusan",
+      });
+    });
+
+  // Divisions needing attention
+  snapshot.divisions
+    .filter((d) => d.health === "ATTENTION" || d.health === "CRITICAL")
+    .forEach((d) => {
+      warnings.push({
+        id: `warn-div-${d.division_code}`,
+        title: `Divisi ${d.division_name}`,
+        category: "Organisasi",
+        severity: d.health === "CRITICAL" ? "CRITICAL" : "AT_RISK",
+        severityLabel: d.health === "CRITICAL" ? "Kritis" : "Perlu Perhatian",
+        concreteCause: `Terdapat ${d.pending_approvals} persetujuan menunggu tindakan dan ${d.document_count} dokumen aktif.`,
+        source: "Status Divisi",
+        sinceWhen: formatDateIndonesian(snapshot.generated_at),
+        actionHref: `/workspace/executive/divisions`,
+        actionLabel: "Lihat Divisi",
+      });
+    });
+
+  return warnings;
+}
+
+/* =========================================================================
+ * DATA STATUS SUMMARY PROJECTION
+ * ========================================================================= */
+
+export function projectDataStatusSummary(
+  isSnapshotConnected: boolean,
+  isStrategyConnected: boolean,
+  snapshotTime?: string | null,
+): ExecutiveDataStatusSummary {
+  const sources: ExecutiveSourceInspection[] = [
+    {
+      id: "strategy",
+      name: "Rencana & Target Perusahaan (Stage 2)",
+      domain: "Strategi",
+      state: isStrategyConnected ? "LIVE" : "NOT_CONNECTED",
+      stateLabel: isStrategyConnected ? "Terkini" : "Belum Terhubung",
+      checked: true,
+      detail: isStrategyConnected ? "Terhubung ke Backend Strategy API resmi" : "Endpoint belum memberikan respons",
+      lastUpdated: snapshotTime,
+    },
+    {
+      id: "operational",
+      name: "Ringkasan Operasional Eksekutif",
+      domain: "Operasional",
+      state: isSnapshotConnected ? "LIVE" : "NOT_CONNECTED",
+      stateLabel: isSnapshotConnected ? "Terkini" : "Belum Terhubung",
+      checked: true,
+      detail: isSnapshotConnected ? "Snapshot operasional diterima" : "Backend mengembalikan 404 (sumber belum terhubung)",
+      lastUpdated: snapshotTime,
+    },
+    {
+      id: "sales",
+      name: "Sistem Penjualan & CRM",
+      domain: "Penjualan",
+      state: "NOT_CONNECTED",
+      stateLabel: "Belum Terhubung",
+      checked: true,
+      detail: "Konektor domain penjualan belum diintegrasikan",
+    },
+    {
+      id: "finance",
+      name: "Buku Besar Keuangan & Kas",
+      domain: "Keuangan",
+      state: "NOT_CONNECTED",
+      stateLabel: "Belum Terhubung",
+      checked: true,
+      detail: "Konektor sistem keuangan belum diintegrasikan",
+    },
+    {
+      id: "property",
+      name: "Manajemen Proyek Konstruksi",
+      domain: "Proyek",
+      state: isSnapshotConnected ? "PARTIAL" : "NOT_CONNECTED",
+      stateLabel: isSnapshotConnected ? "Sebagian Tersedia" : "Belum Terhubung",
+      checked: true,
+      detail: isSnapshotConnected ? "Data proyek aktif tersedia via snapshot" : "Sumber proyek belum terhubung",
+      lastUpdated: snapshotTime,
+    },
+    {
+      id: "legal",
+      name: "Dokumen Legal & KPR",
+      domain: "Legal",
+      state: "NOT_CONNECTED",
+      stateLabel: "Belum Terhubung",
+      checked: true,
+      detail: "Konektor dokumen legalitas belum diintegrasikan",
+    },
+    {
+      id: "hr",
+      name: "Personalia & SDM",
+      domain: "SDM",
+      state: "NOT_CONNECTED",
+      stateLabel: "Belum Terhubung",
+      checked: true,
+      detail: "Konektor data personalia belum diintegrasikan",
+    },
+    {
+      id: "it",
+      name: "Telemetri Platform & IT",
+      domain: "Teknologi",
+      state: "NOT_CONNECTED",
+      stateLabel: "Belum Terhubung",
+      checked: true,
+      detail: "Observabilitas runtime sistem belum terintegrasi ke dashboard",
+    },
+    {
+      id: "genesis",
+      name: "Kontrol Agen GENESIS",
+      domain: "AI & Pengawasan",
+      state: "NOT_CONNECTED",
+      stateLabel: "Belum Terhubung",
+      checked: true,
+      detail: "Layanan penasihat otomatis GENESIS belum terhubung",
+    },
+  ];
+
+  let liveCount = 0;
+  let partialCount = 0;
+  let notConnectedCount = 0;
+  let staleCount = 0;
+  let errorCount = 0;
+
+  for (const src of sources) {
+    if (src.state === "LIVE") liveCount++;
+    else if (src.state === "PARTIAL") partialCount++;
+    else if (src.state === "NOT_CONNECTED") notConnectedCount++;
+    else if (src.state === "STALE") staleCount++;
+    else if (src.state === "ERROR") errorCount++;
+  }
+
+  return {
+    totalChecked: sources.filter((s) => s.checked).length,
+    totalInspected: sources.length,
+    liveCount,
+    partialCount,
+    notConnectedCount,
+    staleCount,
+    errorCount,
+    lastUpdatedFormatted: formatDateIndonesian(snapshotTime),
+    sources,
+  };
+}
+
+/* =========================================================================
+ * PRESERVED LEGACY PROJECTIONS (MAINTAINING TEST COMPATIBILITY)
+ * ========================================================================= */
+
 export function projectExecutiveBrief(
   snapshot: ExecutiveDashboardSnapshot,
 ): readonly ExecutiveBriefBlock[] {
@@ -163,10 +824,6 @@ const URGENCY_WEIGHT: Record<DecisionQueueItem["urgency"], number> = {
   NORMAL: 1,
 };
 
-/**
- * Projects pending approvals into the Decision Queue with urgency ordering:
- * TERLAMBAT (OVERDUE) -> MENDEKATI TENGGAT (DUE_SOON) -> NORMAL.
- */
 export function projectDecisionQueue(
   snapshot: ExecutiveDashboardSnapshot,
 ): readonly DecisionQueueItem[] {
@@ -197,10 +854,6 @@ export function projectDecisionQueue(
   });
 }
 
-/**
- * Projects division list with honest status labels:
- * Sehat / Perlu Perhatian / Kritis / Belum Terhubung
- */
 export function projectDivisionHealth(
   snapshot: ExecutiveDashboardSnapshot,
 ): readonly DivisionHealthItem[] {
@@ -226,13 +879,6 @@ export function projectDivisionHealth(
   });
 }
 
-/**
- * Projects early warning signals solely from REAL operational data:
- * - Critical projects
- * - At-risk projects
- * - Overdue decisions
- * - Divisions requiring attention
- */
 export function projectEarlyWarnings(snapshot: ExecutiveDashboardSnapshot) {
   const criticalProjects = snapshot.attention_projects.filter((p) => p.status === "CRITICAL");
   const atRiskProjects = snapshot.attention_projects.filter((p) => p.status === "AT_RISK");
@@ -256,9 +902,6 @@ export function projectEarlyWarnings(snapshot: ExecutiveDashboardSnapshot) {
   };
 }
 
-/**
- * Projects AI & GENESIS context safely without fabricated numbers.
- */
 export function projectExecutiveAIContext(
   snapshot: ExecutiveDashboardSnapshot,
 ): ExecutiveAIContext {
