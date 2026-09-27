@@ -129,7 +129,7 @@ export const MODULE_READINESS_MATRIX: Record<string, ModuleReadinessDescriptor> 
   research: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   evidence: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
   decisions: { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
-  "control-plane": { availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" },
+  "control-plane": { availability: "BLOCKED", blockReason: "CONTRACT_PENDING" },
 };
 
 /**

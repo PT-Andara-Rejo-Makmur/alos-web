@@ -173,10 +173,13 @@ export function projectLifecycleStages(
   state: CanonicalReleaseState,
   materiality?: MaterialityLevel | null,
   killSwitchActive?: boolean,
+  hasAuthoritativeLineage: boolean = false,
 ): LifecycleProjection {
+  const lineageStatus: StageDisplayStatus = hasAuthoritativeLineage ? "COMPLETED" : "UNKNOWN";
+
   const basePending: Record<LifecycleStageKey, StageDisplayStatus> = {
-    REQUIREMENT: "PENDING",
-    FACTORY: "PENDING",
+    REQUIREMENT: lineageStatus,
+    FACTORY: lineageStatus,
     DRAFT: "PENDING",
     AUTOMATED_QA: "PENDING",
     GENESIS_REVIEW: "PENDING",
@@ -193,8 +196,6 @@ export function projectLifecycleStages(
         activeStageLabel: "Draf Komponen",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "CURRENT",
         },
         isTerminalOrDeviation: false,
@@ -206,8 +207,6 @@ export function projectLifecycleStages(
         activeStageLabel: "Terimplementasi (Menunggu QA)",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "CURRENT",
         },
@@ -216,30 +215,27 @@ export function projectLifecycleStages(
 
     case "AUTOMATED_ASSURANCE":
       return {
-        activeStageKey: "AUTOMATED_QA",
-        activeStageLabel: "QA Otomatis Berjalan",
+        activeStageKey: "GENESIS_REVIEW",
+        activeStageLabel: "QA Otomatis Selesai (Menunggu Review GENESIS)",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
-          AUTOMATED_QA: "CURRENT",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "CURRENT",
         },
         isTerminalOrDeviation: false,
       };
 
     case "AI_REVIEWED":
       return {
-        activeStageKey: "GENESIS_REVIEW",
-        activeStageLabel: "Ditinjau AI (Siap Evaluasi IT)",
+        activeStageKey: null,
+        activeStageLabel: "Ditinjau AI (Menunggu Penyerahan ke IT)",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
-          IT_DECISION: "CURRENT",
+          IT_DECISION: "PENDING",
         },
         isTerminalOrDeviation: false,
       };
@@ -250,8 +246,6 @@ export function projectLifecycleStages(
         activeStageLabel: "Menunggu Keputusan IT",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
@@ -267,8 +261,6 @@ export function projectLifecycleStages(
           activeStageLabel: "Disetujui IT (Siap Rilis)",
           stageStatuses: {
             ...basePending,
-            REQUIREMENT: "COMPLETED",
-            FACTORY: "COMPLETED",
             DRAFT: "COMPLETED",
             AUTOMATED_QA: "COMPLETED",
             GENESIS_REVIEW: "COMPLETED",
@@ -285,8 +277,6 @@ export function projectLifecycleStages(
           activeStageLabel: "Disetujui IT (Wajib Persetujuan Direktur)",
           stageStatuses: {
             ...basePending,
-            REQUIREMENT: "COMPLETED",
-            FACTORY: "COMPLETED",
             DRAFT: "COMPLETED",
             AUTOMATED_QA: "COMPLETED",
             GENESIS_REVIEW: "COMPLETED",
@@ -302,8 +292,6 @@ export function projectLifecycleStages(
         activeStageLabel: "Disetujui IT (Menunggu Informasi Otoritas / Materialitas)",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
@@ -322,8 +310,6 @@ export function projectLifecycleStages(
         activeStageLabel: "Menunggu Persetujuan Direktur",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
@@ -339,8 +325,6 @@ export function projectLifecycleStages(
         activeStageLabel: "Disetujui Direktur (Siap Rilis)",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
@@ -357,8 +341,6 @@ export function projectLifecycleStages(
         activeStageLabel: "Dirilis (Siap Aktivasi)",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
@@ -376,8 +358,6 @@ export function projectLifecycleStages(
         activeStageLabel: "Aktif di Lingkungan Produksi",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
@@ -395,8 +375,6 @@ export function projectLifecycleStages(
         activeStageLabel: "Perlu Revisi Teknis",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "DEVIATION",
         },
         isTerminalOrDeviation: true,
@@ -406,52 +384,52 @@ export function projectLifecycleStages(
     case "RETURNED":
       return {
         activeStageKey: null,
-        activeStageLabel: "Dikembalikan (Perlu Revisi / Klarifikasi)",
+        activeStageLabel: "Dikembalikan",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "DEVIATION",
+          AUTOMATED_QA: "COMPLETED",
+          GENESIS_REVIEW: "COMPLETED",
+          IT_DECISION: "UNKNOWN",
+          DIRECTOR_DECISION: "UNKNOWN",
         },
         isTerminalOrDeviation: true,
         deviationNotice:
-          "Rilis dikembalikan untuk revisi. Riwayat pengembali spesifik tidak disertakan pada projection rilis Backend.",
+          "Rilis dikembalikan untuk revisi. Tahap dan otoritas keputusan tidak tersedia pada projection rilis Backend.",
       };
 
     case "REJECTED":
       return {
         activeStageKey: null,
-        activeStageLabel: "Ditolak (Tahap Keputusan Tidak Dapat Ditentukan dari Projection Saat Ini)",
+        activeStageLabel: "Ditolak",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
-          IT_DECISION: "REJECTED",
+          IT_DECISION: "UNKNOWN",
+          DIRECTOR_DECISION: "UNKNOWN",
         },
         isTerminalOrDeviation: true,
         deviationNotice:
-          "Rilis ditolak secara definitif. Riwayat keputusan spesifik tidak disertakan pada projection rilis Backend.",
+          "Rilis ditolak secara definitif. Tahap dan otoritas keputusan tidak tersedia pada projection rilis Backend.",
       };
 
     case "HOLD":
       return {
         activeStageKey: null,
-        activeStageLabel: "Ditahan (Penundaan Sementara Evaluasi)",
+        activeStageLabel: "Ditahan",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
-          IT_DECISION: "ON_HOLD",
+          IT_DECISION: "UNKNOWN",
+          DIRECTOR_DECISION: "UNKNOWN",
         },
         isTerminalOrDeviation: true,
         deviationNotice:
-          "Evaluasi rilis sedang ditahan. Riwayat penahanan spesifik tidak disertakan pada projection rilis Backend.",
+          "Evaluasi rilis sedang ditahan. Tahap dan otoritas keputusan tidak tersedia pada projection rilis Backend.",
       };
 
     case "BLOCKED":
@@ -460,8 +438,6 @@ export function projectLifecycleStages(
         activeStageLabel: "Terblokir Kendala Operasional / Integrasi",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "BLOCKED",
         },
         isTerminalOrDeviation: true,
@@ -474,8 +450,6 @@ export function projectLifecycleStages(
         activeStageLabel: killSwitchActive ? "Ditangguhkan (Kill Switch Aktif)" : "Ditangguhkan",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
@@ -496,8 +470,6 @@ export function projectLifecycleStages(
         activeStageLabel: "Di-rollback ke Versi Sebelumnya",
         stageStatuses: {
           ...basePending,
-          REQUIREMENT: "COMPLETED",
-          FACTORY: "COMPLETED",
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
@@ -541,6 +513,10 @@ export function getActiveLifecycleStage(
  * Materiality fail-closed invariant:
  * - IT_APPROVED only allows "release" if materiality is authoritatively confirmed as "NON_MATERIAL".
  * - If materiality is missing / unknown, NO action is allowed.
+ *
+ * Runtime suspension invariant:
+ * - SUSPENDED with kill_switch_active=true allows "clear-kill" (if IT_ADMIN AND release.manage).
+ * - SUSPENDED with kill_switch_active=false allows NO ACTION (fail closed, no invented resume).
  */
 export function getAllowedReleaseActions(
   release: GovernedReleaseProjection,
@@ -589,12 +565,10 @@ export function getAllowedReleaseActions(
       break;
 
     case "SUSPENDED":
-      if (hasReleaseManage) {
-        if (release.kill_switch_active) {
-          allowed.push("clear-kill");
-        } else {
-          allowed.push("activate");
-        }
+      // FAIL CLOSED: Only clear-kill is permitted when kill switch was activated.
+      // Normal suspension has no public resume endpoint; never offer activate!
+      if (hasReleaseManage && release.kill_switch_active) {
+        allowed.push("clear-kill");
       }
       break;
 

@@ -299,14 +299,11 @@ export function GenesisControlPlaneWorkspace({ actor }: GenesisControlPlaneWorks
       <section aria-label="Status Pusat Kendali">
         <ItStatusRow
           detail={controlPlaneReadiness.blockReason}
-          helper="Factory dan sebagian lifecycle rilis telah terhubung. Projection materialitas dan transisi publik menuju persetujuan Direktur belum lengkap."
+          helper="Factory dan sebagian lifecycle rilis telah terhubung. Projection materialitas dan transisi publik menuju persetujuan Direktur masih menunggu penyelesaian kontrak Backend."
           icon={ShieldCheck}
           label="Status Pusat Kendali"
           status={controlPlaneReadiness.availability}
         />
-        <p className={styles.fieldHint} style={{ margin: "4px 0 0", paddingLeft: "4px" }}>
-          Permukaan kontrol frontend tersedia. Integrasi operasional Backend belum terhubung.
-        </p>
       </section>
 
       {/* 2. Requirement & Factory */}
