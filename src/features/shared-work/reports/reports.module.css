@@ -1,0 +1,60 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-4);
+  width: 100%;
+}
+
+.noticeContainer {
+  margin-bottom: var(--alos-space-2);
+}
+
+.primaryTabsContainer {
+  margin-bottom: var(--alos-space-3);
+  overflow: hidden;
+}
+
+.reportTitleCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reportTitleText {
+  font-weight: 600;
+  color: var(--alos-text-primary);
+}
+
+.reportTypeText {
+  font-size: 12px;
+  color: var(--alos-text-muted);
+}
+
+.definitionMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-3);
+}
+
+.recipientList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--alos-space-2);
+}
+
+.recipientTag {
+  display: inline-block;
+  font-size: 12px;
+  padding: 2px 8px;
+  background: var(--alos-surface-alt);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-badge);
+  color: var(--alos-text-primary);
+}
+
+.drawerFooterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--alos-space-3);
+  width: 100%;
+}

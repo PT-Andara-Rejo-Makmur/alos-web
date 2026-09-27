@@ -1,0 +1,79 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-4);
+  width: 100%;
+}
+
+.noticeContainer {
+  margin-bottom: var(--alos-space-2);
+}
+
+.tabsContainer {
+  margin-bottom: var(--alos-space-2);
+  overflow: hidden;
+}
+
+.docTitleCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.docTitleText {
+  font-weight: 600;
+  color: var(--alos-text-primary);
+}
+
+.docCategoryText {
+  font-size: 12px;
+  color: var(--alos-text-muted);
+}
+
+.versionBadge {
+  display: inline-block;
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  background: var(--alos-surface-alt);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-badge);
+  color: var(--alos-text-primary);
+}
+
+.versionList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-3);
+}
+
+.versionItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-2);
+  padding: var(--alos-space-3);
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-badge);
+}
+
+.versionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.versionHash {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--alos-text-muted);
+  word-break: break-all;
+}
+
+.drawerFooterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--alos-space-3);
+  width: 100%;
+}

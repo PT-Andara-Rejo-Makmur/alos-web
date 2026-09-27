@@ -2,7 +2,7 @@
 
 import { use } from "react";
 
-import { ModulePlaceholder } from "@/features/shared-work";
+import { DocumentsPage } from "@/features/shared-work/documents";
 
 export default function WorkspaceDocumentsPageRoute({
   params,
@@ -10,12 +10,5 @@ export default function WorkspaceDocumentsPageRoute({
   readonly params: Promise<{ workspaceKey: string }>;
 }) {
   const { workspaceKey } = use(params);
-  return (
-    <ModulePlaceholder
-      description="Kelola dokumen kerja sesuai akses dan konteks bisnis Anda."
-      module="documents"
-      title="Dokumen"
-      workspaceKey={workspaceKey}
-    />
-  );
+  return <DocumentsPage workspaceKey={workspaceKey} />;
 }
