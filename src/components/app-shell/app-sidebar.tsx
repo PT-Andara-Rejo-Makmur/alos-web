@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { Avatar } from "@/components/ui";
@@ -17,6 +17,7 @@ interface AppSidebarProps {
   readonly navigationSections: readonly AppNavigationSection[];
   readonly onLogout: () => void;
   readonly onNavigate?: () => void;
+  readonly onToggleSidebar?: () => void;
   readonly profile: AppShellProfile;
 }
 
@@ -27,6 +28,7 @@ export function AppSidebar({
   navigationSections,
   onLogout,
   onNavigate,
+  onToggleSidebar,
   profile,
 }: AppSidebarProps) {
   const pathname = usePathname() ?? "";
@@ -40,17 +42,34 @@ export function AppSidebar({
         .join(" ")}
     >
       <div className={styles.sidebarHeader}>
-        <Link aria-label="ALOS" className={styles.logoLink} href="/workspace" onClick={onNavigate}>
-          <Image
-            alt=""
-            className={styles.logoMark}
-            height={32}
-            priority
-            src="/brand/alos-logo-mark.png"
-            width={32}
-          />
-          <span className={styles.logoName}>ALOS</span>
-        </Link>
+        <div className={styles.sidebarHeaderRow}>
+          <Link aria-label="ALOS" className={styles.logoLink} href="/workspace" onClick={onNavigate}>
+            <Image
+              alt=""
+              className={styles.logoMark}
+              height={32}
+              priority
+              src="/brand/alos-logo-mark.png"
+              width={32}
+            />
+            <span className={styles.logoName}>ALOS</span>
+          </Link>
+          {!mobile && onToggleSidebar ? (
+            <button
+              aria-label={visuallyCollapsed ? "Buka sidebar" : "Tutup sidebar"}
+              aria-pressed={visuallyCollapsed}
+              className={styles.sidebarToggle}
+              onClick={onToggleSidebar}
+              type="button"
+            >
+              {visuallyCollapsed ? (
+                <PanelLeftOpen aria-hidden="true" size={18} strokeWidth={1.9} />
+              ) : (
+                <PanelLeftClose aria-hidden="true" size={18} strokeWidth={1.9} />
+              )}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       <nav aria-label="Menu aplikasi" className={styles.navigation}>

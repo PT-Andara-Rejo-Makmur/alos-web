@@ -32,10 +32,19 @@
   padding: 0 var(--alos-space-2) var(--alos-space-8);
 }
 
+.sidebarHeaderRow {
+  align-items: center;
+  display: flex;
+  gap: var(--alos-space-2);
+  justify-content: space-between;
+}
+
 .logoLink {
   align-items: center;
   display: inline-flex;
+  flex: 1;
   gap: var(--alos-space-3);
+  min-width: 0;
 }
 
 .logoMark {
@@ -206,7 +215,6 @@
   display: inline-flex;
   height: 36px;
   justify-content: center;
-  margin-right: var(--alos-space-3);
   padding: 0;
   width: 36px;
 }
@@ -428,6 +436,10 @@
   padding-right: 0;
 }
 
+.sidebarCollapsed .sidebarHeaderRow {
+  gap: 0;
+}
+
 .sidebarCollapsed .logoLink,
 .sidebarCollapsed .navigationItem,
 .sidebarCollapsed .profileSummary,
@@ -456,6 +468,10 @@
   gap: 0;
 }
 
+.sidebarCollapsed .logoLink {
+  flex: 0 0 32px;
+}
+
 .sidebarCollapsed .profileSummary {
   gap: 0;
 }
@@ -477,10 +493,6 @@
 
   .menuButton {
     display: inline-flex;
-  }
-
-  .sidebarToggle {
-    display: none;
   }
 
   .topbar {

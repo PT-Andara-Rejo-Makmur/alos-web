@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, LogOut, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronDown, LogOut, Menu } from "lucide-react";
 import { useEffect, useRef, useState, type RefObject } from "react";
 
 import { Avatar } from "@/components/ui";
@@ -12,22 +12,18 @@ interface AppTopbarProps {
   readonly loggingOut: boolean;
   readonly menuButtonRef: RefObject<HTMLButtonElement | null>;
   readonly mobileNavigationOpen: boolean;
-  readonly onToggleSidebar: () => void;
   readonly onLogout: () => void;
   readonly onOpenMenu: () => void;
   readonly profile: AppShellProfile;
-  readonly sidebarCollapsed: boolean;
 }
 
 export function AppTopbar({
   loggingOut,
   menuButtonRef,
   mobileNavigationOpen,
-  onToggleSidebar,
   onLogout,
   onOpenMenu,
   profile,
-  sidebarCollapsed,
 }: AppTopbarProps) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -61,20 +57,6 @@ export function AppTopbar({
         type="button"
       >
         <Menu aria-hidden="true" size={20} strokeWidth={1.9} />
-      </button>
-
-      <button
-        aria-label={sidebarCollapsed ? "Buka sidebar" : "Tutup sidebar"}
-        aria-pressed={sidebarCollapsed}
-        className={styles.sidebarToggle}
-        onClick={onToggleSidebar}
-        type="button"
-      >
-        {sidebarCollapsed ? (
-          <PanelLeftOpen aria-hidden="true" size={18} strokeWidth={1.9} />
-        ) : (
-          <PanelLeftClose aria-hidden="true" size={18} strokeWidth={1.9} />
-        )}
       </button>
 
       <div className={styles.workspaceContext}>

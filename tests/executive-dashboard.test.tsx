@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ExecutiveDashboardPage } from "@/features/executive";
@@ -190,7 +190,7 @@ describe("Executive Golden Dashboard", () => {
     expect(plans).not.toHaveBeenCalled();
   });
 
-  it("keeps Strategy failures human-friendly and allows refresh to repeat only real requests", async () => {
+  it("keeps Strategy failures human-friendly without exposing a refresh action", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
     const plans = vi.spyOn(strategyApi, "listPlans").mockRejectedValue(new Error("Failed to fetch"));
     const targets = vi.spyOn(strategyApi, "listTargets").mockRejectedValue(new Error("Request failed"));
@@ -202,10 +202,9 @@ describe("Executive Golden Dashboard", () => {
     expect(screen.queryByText("Failed to fetch")).not.toBeInTheDocument();
     expect(screen.queryByText("Request failed")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Segarkan" }));
-    await waitFor(() => {
-      expect(plans).toHaveBeenCalledTimes(2);
-      expect(targets).toHaveBeenCalledTimes(2);
-    });
+    expect(screen.queryByRole("button", { name: "Segarkan" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Coba lagi" })).not.toBeInTheDocument();
+    expect(plans).toHaveBeenCalledTimes(1);
+    expect(targets).toHaveBeenCalledTimes(1);
   });
 });

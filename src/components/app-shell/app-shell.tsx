@@ -41,6 +41,12 @@ function initialsFor(displayName: string | null): string {
   return `${parts[0][0]}${parts.at(-1)?.[0] ?? ""}`.toUpperCase();
 }
 
+function correctDisplayTypo(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  return trimmed.toLocaleLowerCase() === "direcur" ? "Direktur" : trimmed;
+}
+
 export function getAppShellProfile(session: SessionProjection): AppShellProfile {
   const principal = session.principal;
   if (!principal) {
@@ -48,11 +54,12 @@ export function getAppShellProfile(session: SessionProjection): AppShellProfile 
   }
 
   if ("actor" in principal) {
-    const displayName = principal.actor.display_name.trim() || null;
+    const displayName = correctDisplayTypo(principal.actor.display_name);
+    const workspaceName = correctDisplayTypo(principal.active_workspace?.workspace.workspace_name);
     return {
       displayName,
       email: principal.email || null,
-      workspaceName: principal.active_workspace?.workspace.workspace_name ?? null,
+      workspaceName,
       initials: initialsFor(displayName),
     };
   }
@@ -61,7 +68,7 @@ export function getAppShellProfile(session: SessionProjection): AppShellProfile 
     readonly display_name?: string;
     readonly email?: string;
   };
-  const displayName = legacy.display_name?.trim() || null;
+  const displayName = correctDisplayTypo(legacy.display_name);
   return {
     displayName,
     email: legacy.email || null,
@@ -104,6 +111,7 @@ export function AppShell({
         loggingOut={loggingOut}
         navigationSections={navigationSections}
         onLogout={() => void logout()}
+        onToggleSidebar={() => setSidebarCollapsed((collapsed) => !collapsed)}
         profile={profile}
       />
 
@@ -112,11 +120,9 @@ export function AppShell({
           loggingOut={loggingOut}
           menuButtonRef={menuButtonRef}
           mobileNavigationOpen={mobileNavigationOpen}
-          onToggleSidebar={() => setSidebarCollapsed((collapsed) => !collapsed)}
           onLogout={() => void logout()}
           onOpenMenu={() => setMobileNavigationOpen(true)}
           profile={profile}
-          sidebarCollapsed={sidebarCollapsed}
         />
         <main className={styles.main}>
           <div className={styles.content}>{children}</div>

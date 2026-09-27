@@ -80,8 +80,6 @@ export function ExecutiveDashboardPage() {
           data={strategyData}
           errorMessage={strategyError}
           loading={strategyLoading}
-          onRefresh={() => void loadStrategy()}
-          refreshing={strategyLoading && strategyData !== null}
         />
       </AppShell>
     );

@@ -1,8 +1,5 @@
-import { RefreshCw } from "lucide-react";
-
 import {
   Alert,
-  Button,
   DataTable,
   EmptyState,
   LoadingState,
@@ -31,8 +28,6 @@ export interface ExecutiveDashboardProps {
   readonly data: ExecutiveStrategyData | null;
   readonly errorMessage?: string;
   readonly loading: boolean;
-  readonly onRefresh: () => void;
-  readonly refreshing: boolean;
 }
 
 const summaryMetrics = [
@@ -62,24 +57,13 @@ const divisions = [
   "IT & Technology",
 ];
 
-export function ExecutiveDashboard({ data, errorMessage, loading, onRefresh, refreshing }: ExecutiveDashboardProps) {
+export function ExecutiveDashboard({ data, errorMessage, loading }: ExecutiveDashboardProps) {
   const plan = activePlan(data?.plans ?? []);
   const targets = corporateTargets(data?.targets ?? []);
 
   return (
     <div className={styles.dashboard}>
       <PageHeader
-        actions={(
-          <Button
-            iconBefore={<RefreshCw aria-hidden="true" size={16} strokeWidth={1.9} />}
-            loading={refreshing}
-            loadingLabel="Memuat…"
-            onClick={onRefresh}
-            variant="secondary"
-          >
-            Segarkan
-          </Button>
-        )}
         description="Ringkasan strategis dan operasional perusahaan untuk mendukung pemantauan dan pengambilan keputusan."
         eyebrow="EKSEKUTIF"
         metadata={plan ? `Rencana aktif · ${periodLabel(plan.period)}` : "Belum ada rencana aktif."}
@@ -88,7 +72,6 @@ export function ExecutiveDashboard({ data, errorMessage, loading, onRefresh, ref
 
       {errorMessage ? (
         <Alert
-          action={<Button onClick={onRefresh} size="sm" variant="secondary">Coba lagi</Button>}
           message={errorMessage}
           title="Target perusahaan belum dapat dimuat."
           variant="warning"
