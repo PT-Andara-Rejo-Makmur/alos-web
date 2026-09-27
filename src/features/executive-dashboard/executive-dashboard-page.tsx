@@ -70,6 +70,7 @@ function ExecutiveContent({
     divisionItems,
     dataStatus,
     lastUpdatedTime,
+    refreshProgress,
     refresh,
     retry,
   } = useExecutiveOverview(initialSnapshot);
@@ -114,6 +115,7 @@ function ExecutiveContent({
       dataStatus={dataStatus}
       lastUpdatedTime={lastUpdatedTime}
       refreshing={refreshing}
+      refreshProgress={refreshProgress}
       partialError={partialRefreshError}
       onRefresh={refresh}
       onRetry={refresh}

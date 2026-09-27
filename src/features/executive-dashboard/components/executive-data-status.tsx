@@ -53,10 +53,14 @@ export function ExecutiveDataStatus({
 
           <div className={styles.dataStatusCounts}>
             <span>
-              <strong>{summary.totalChecked}</strong> dari <strong>{summary.totalInspected}</strong> sumber diperiksa
+              <strong>{summary.inspectedCount}</strong> sumber diperiksa melalui request
             </span>
             <span aria-hidden="true" className={styles.dataStatusDivider}>·</span>
             <span>{parts.join(" · ")}</span>
+            <span aria-hidden="true" className={styles.dataStatusDivider}>·</span>
+            <span style={{ color: "var(--workspace-muted, #7e848c)" }}>
+              {summary.catalogUnconnectedCount} sumber domain terdaftar belum terhubung
+            </span>
           </div>
         </div>
 

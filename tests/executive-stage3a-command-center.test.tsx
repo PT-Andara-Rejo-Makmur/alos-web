@@ -9,6 +9,7 @@ import {
   ExecutiveProgress,
   formatMetricDisplayValue,
   projectCorporateTargets,
+  translateGranularity,
   translateLifecycleState,
   translatePerformanceState,
   translateSourceReadiness,
@@ -211,7 +212,7 @@ const MOCK_STAGE2_TARGETS: readonly BusinessTarget[] = [
     plan_ref: { id: "plan-rkap-2027", version: 1 },
     objective_ref: null,
     metric_code: "KPI-SM-01",
-    scope: { type: "DIVISION", ref: "sales" },
+    scope: { type: "COMPANY", ref: null },
     period: { granularity: "ANNUAL", starts_at: "2027-01-01", ends_at: "2027-12-31", label: "2027" },
     measurement_type: "HIGHER_IS_BETTER",
     unit: "COUNT",
@@ -315,6 +316,32 @@ const MOCK_STAGE2_TARGETS: readonly BusinessTarget[] = [
       },
     ],
   },
+  {
+    target_id: "target-div-marketing",
+    version: 1,
+    tenant_id: "tenant-1",
+    organization_id: "org-1",
+    code: "KPI-MKT-01",
+    name: "Kampanye Pemasaran Digital Divisi",
+    plan_ref: { id: "plan-rkap-2027", version: 1 },
+    objective_ref: null,
+    metric_code: "KPI-MKT-01",
+    scope: { type: "DIVISION", ref: "sales" },
+    period: { granularity: "ANNUAL", starts_at: "2027-01-01", ends_at: "2027-12-31", label: "2027" },
+    measurement_type: "HIGHER_IS_BETTER",
+    unit: "COUNT",
+    owner_workspace_id: "sales",
+    owner_role_ref: "WORKSPACE_LEAD",
+    materiality: "NON_MATERIAL",
+    lifecycle_state: "ACTIVE",
+    performance_state: "ON_TRACK",
+    evidence_refs: [],
+    source_refs: [],
+    created_by: "director",
+    created_at: "2026-09-27T00:00:00Z",
+    updated_at: "2026-09-27T00:00:00Z",
+    observations: [],
+  },
 ];
 
 describe("ALOS MVP-2 Stage 3A: Finalisasi Executive Command Center", () => {
@@ -406,6 +433,9 @@ describe("ALOS MVP-2 Stage 3A: Finalisasi Executive Command Center", () => {
     const rows = projectCorporateTargets(MOCK_STAGE2_TARGETS);
     expect(rows).toHaveLength(2);
 
+    // Pastikan target divisi tidak ikut masuk ke tabel target korporat
+    expect(rows.some((r) => r.code === "KPI-MKT-01")).toBe(false);
+
     const closingRow = rows.find((r) => r.code === "KPI-SM-01");
     expect(closingRow).toBeDefined();
     expect(closingRow?.targetDisplay).toBe("12");
@@ -427,6 +457,8 @@ describe("ALOS MVP-2 Stage 3A: Finalisasi Executive Command Center", () => {
     expect(screen.getByText("Penjualan Rumah Klaten")).toBeInTheDocument();
     expect(screen.getByText("KPI-SM-01")).toBeInTheDocument();
     expect(screen.getByText("58,3%")).toBeInTheDocument();
+    // Target divisi tidak boleh tampil di tabel korporat
+    expect(screen.queryByText("Kampanye Pemasaran Digital Divisi")).not.toBeInTheDocument();
   });
 
   // 5. Target, Actual, Forecast, Assumption tidak tercampur
@@ -505,6 +537,12 @@ describe("ALOS MVP-2 Stage 3A: Finalisasi Executive Command Center", () => {
     expect(translateLifecycleState("ACTIVE")).toBe("Aktif");
     expect(translateLifecycleState("APPROVED")).toBe("Disetujui");
     expect(translateLifecycleState("UNDER_REVIEW")).toBe("Dalam Peninjauan");
+
+    expect(translateGranularity("ANNUAL")).toBe("Tahunan");
+    expect(translateGranularity("MONTHLY")).toBe("Bulanan");
+    expect(translateGranularity("QUARTERLY")).toBe("Kuartalan");
+    expect(translateGranularity("WEEKLY")).toBe("Mingguan");
+    expect(translateGranularity("DAILY")).toBe("Harian");
   });
 
   // 9. Loading Skeleton dengan progress request nyata
@@ -656,5 +694,74 @@ describe("ALOS MVP-2 Stage 3A: Finalisasi Executive Command Center", () => {
     expect(screen.getByText("RKAP Perusahaan 2027")).toBeInTheDocument();
     expect(screen.getAllByText("2027").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByRole("button", { name: /Segarkan seluruh data eksekutif/i })).toBeInTheDocument();
+  });
+
+  // 16. Status Data membedakan sumber diperiksa vs katalog terdaftar
+  it("membedakan 2 sumber diperiksa melalui request jaringan dengan 7 sumber domain terdaftar", () => {
+    render(
+      <ExecutiveDashboardHome
+        snapshot={MOCK_STAGE3A_SNAPSHOT}
+        activePlan={MOCK_STAGE2_PLAN}
+        rawTargets={MOCK_STAGE2_TARGETS}
+      />,
+    );
+
+    expect(screen.getByText(/sumber diperiksa melalui request/i)).toBeInTheDocument();
+    expect(screen.getByText(/7 sumber domain terdaftar belum terhubung/i)).toBeInTheDocument();
+  });
+
+  // 17. Progress refresh nyata tanpa menghapus data
+  it("menampilkan kemajuan refresh nyata (1 dari 2 selesai) tanpa menghapus data yang ada", () => {
+    render(
+      <ExecutiveDashboardHome
+        snapshot={MOCK_STAGE3A_SNAPSHOT}
+        activePlan={MOCK_STAGE2_PLAN}
+        rawTargets={MOCK_STAGE2_TARGETS}
+        refreshing={true}
+        refreshProgress={{ completed: 1, total: 2 }}
+      />,
+    );
+
+    expect(screen.getByText(/Memperbarui \(1 dari 2 selesai\)\.\.\./i)).toBeInTheDocument();
+    expect(screen.getByText("Pusat Kendali Eksekutif")).toBeInTheDocument();
+    expect(screen.getByText("Penjualan Rumah Klaten")).toBeInTheDocument();
+  });
+
+  // 18. Ritme tata kelola berstatus Belum Terhubung
+  it("menampilkan status pelaksanaan 'Belum Terhubung' pada ritme pelaporan dan tata kelola", () => {
+    render(
+      <ExecutiveDashboardHome
+        snapshot={MOCK_STAGE3A_SNAPSHOT}
+        activePlan={MOCK_STAGE2_PLAN}
+        rawTargets={MOCK_STAGE2_TARGETS}
+      />,
+    );
+
+    const cadenceSection = screen.getByLabelText("Ritme Pelaporan & Tata Kelola");
+    expect(cadenceSection.textContent).toContain("Belum Terhubung");
+    expect(cadenceSection.textContent).not.toContain("Sesuai Jadwal");
+  });
+
+  // 19. Nilai 0 valid dan tidak berubah menjadi em-dash, null tetap em-dash
+  it("memperlakukan nilai 0 sebagai angka valid tanpa menjadikannya em-dash, dan null tetap em-dash", () => {
+    expect(formatMetricDisplayValue({
+      key: "test_zero",
+      label: "Nilai Nol",
+      value: 0,
+      unit: "COUNT",
+      tone: "INFO",
+      state: "LIVE",
+      context: "Uji nilai nol",
+    })).toBe("0");
+
+    expect(formatMetricDisplayValue({
+      key: "test_null",
+      label: "Nilai Null",
+      value: null,
+      unit: "COUNT",
+      tone: "INFO",
+      state: "NOT_CONNECTED",
+      context: "Uji nilai null",
+    })).toBe("—");
   });
 });

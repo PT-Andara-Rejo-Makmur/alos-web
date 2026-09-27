@@ -3,13 +3,15 @@
 import React from "react";
 import { RefreshCw, Calendar, FileText, Clock } from "lucide-react";
 import type { StrategyPlan } from "@/lib/contracts";
-import { formatDateIndonesian } from "../executive-dashboard-projection";
+import { formatDateIndonesian, translateGranularity } from "../executive-dashboard-projection";
+import type { ExecutiveRefreshProgress } from "../types";
 import styles from "../executive-dashboard.module.css";
 
 interface ExecutivePageHeaderProps {
   readonly activePlan: StrategyPlan | null;
   readonly lastUpdatedTime?: string | null;
   readonly refreshing: boolean;
+  readonly refreshProgress?: ExecutiveRefreshProgress | null;
   readonly onRefresh: () => void;
 }
 
@@ -17,13 +19,16 @@ export function ExecutivePageHeader({
   activePlan,
   lastUpdatedTime,
   refreshing,
+  refreshProgress,
   onRefresh,
 }: ExecutivePageHeaderProps) {
   const periodLabel = activePlan?.period?.label
     ? activePlan.period.label
     : activePlan?.period?.starts_at && activePlan?.period?.ends_at
       ? `${activePlan.period.starts_at.slice(0, 4)}–${activePlan.period.ends_at.slice(0, 4)}`
-      : "Periode belum tersedia";
+      : activePlan?.period?.granularity
+        ? translateGranularity(activePlan.period.granularity)
+        : "Periode belum tersedia";
 
   const planName = activePlan?.name ?? "Belum ada rencana aktif";
 
@@ -55,7 +60,13 @@ export function ExecutivePageHeader({
               className={refreshing ? styles.spinningIcon : undefined}
               aria-hidden="true"
             />
-            <span>{refreshing ? "Memperbarui..." : "Segarkan Data"}</span>
+            <span>
+              {refreshing && refreshProgress
+                ? `Memperbarui (${refreshProgress.completed} dari ${refreshProgress.total} selesai)...`
+                : refreshing
+                  ? "Memperbarui..."
+                  : "Segarkan Data"}
+            </span>
           </button>
         </div>
       </div>

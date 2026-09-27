@@ -25,6 +25,7 @@ import type {
   ExecutiveEarlyWarningItem,
   ExecutiveHeadlineItem,
   ExecutiveLoadingTask,
+  ExecutiveRefreshProgress,
 } from "./types";
 
 export interface UseExecutiveOverviewResult {
@@ -49,6 +50,7 @@ export interface UseExecutiveOverviewResult {
   readonly divisionItems: readonly DivisionHealthItem[];
   readonly dataStatus: ExecutiveDataStatusSummary;
   readonly lastUpdatedTime: string | null;
+  readonly refreshProgress: ExecutiveRefreshProgress | null;
   readonly refresh: () => Promise<void>;
   readonly retry: () => void;
 }
@@ -74,6 +76,7 @@ export function useExecutiveOverview(
 
   const [initialLoading, setInitialLoading] = useState<boolean>(!initialSnapshot);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [refreshProgress, setRefreshProgress] = useState<ExecutiveRefreshProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [partialRefreshError, setPartialRefreshError] = useState<string | null>(null);
   const [lastUpdatedTime, setLastUpdatedTime] = useState<string | null>(
@@ -93,6 +96,7 @@ export function useExecutiveOverview(
     if (refreshing) return;
     setRefreshing(true);
     setPartialRefreshError(null);
+    setRefreshProgress({ completed: 0, total: 2 });
 
     let operationalError = false;
     let strategyError = false;
@@ -116,6 +120,8 @@ export function useExecutiveOverview(
       strategyError = true;
       setIsStrategyConnected(false);
       updateTaskStatus("strategy", true);
+    } finally {
+      setRefreshProgress({ completed: 1, total: 2 });
     }
 
     try {
@@ -135,9 +141,12 @@ export function useExecutiveOverview(
         operationalError = true;
       }
       updateTaskStatus("operational", true);
+    } finally {
+      setRefreshProgress({ completed: 2, total: 2 });
     }
 
     setRefreshing(false);
+    setRefreshProgress(null);
     if (operationalError || strategyError) {
       setPartialRefreshError(
         "Sebagian data gagal diperbarui. Data terakhir yang tersedia tetap ditampilkan.",
@@ -287,6 +296,7 @@ export function useExecutiveOverview(
     divisionItems,
     dataStatus,
     lastUpdatedTime,
+    refreshProgress,
     refresh,
     retry,
   };

@@ -11,6 +11,7 @@ import type {
   ExecutiveDomainSummaryCard,
   ExecutiveEarlyWarningItem,
   ExecutiveHeadlineItem,
+  ExecutiveRefreshProgress,
 } from "./types";
 import {
   projectCorporateTargets,
@@ -48,6 +49,7 @@ export interface ExecutiveDashboardHomeProps {
   readonly dataStatus?: ExecutiveDataStatusSummary;
   readonly lastUpdatedTime?: string | null;
   readonly refreshing?: boolean;
+  readonly refreshProgress?: ExecutiveRefreshProgress | null;
   readonly partialError?: string | null;
   readonly onRefresh?: () => void;
   readonly onRetry?: () => void;
@@ -66,6 +68,7 @@ export function ExecutiveDashboardHome({
   dataStatus: providedDataStatus,
   lastUpdatedTime = snapshot?.generated_at || null,
   refreshing = false,
+  refreshProgress = null,
   partialError = null,
   onRefresh = () => {},
   onRetry,
@@ -127,6 +130,7 @@ export function ExecutiveDashboardHome({
         activePlan={activePlan}
         lastUpdatedTime={lastUpdatedTime}
         refreshing={refreshing}
+        refreshProgress={refreshProgress}
         onRefresh={onRefresh}
       />
 

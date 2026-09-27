@@ -168,6 +168,23 @@ export function formatDateIndonesian(dateInput?: string | Date | null): string {
   }
 }
 
+export function translateGranularity(granularity?: string | null): string {
+  switch (granularity?.toUpperCase()) {
+    case "ANNUAL":
+      return "Tahunan";
+    case "MONTHLY":
+      return "Bulanan";
+    case "QUARTERLY":
+      return "Kuartalan";
+    case "WEEKLY":
+      return "Mingguan";
+    case "DAILY":
+      return "Harian";
+    default:
+      return "Tahunan";
+  }
+}
+
 export function approvalKindLabel(kind: "DOCUMENT" | "AGENT_RELEASE" | string): string {
   if (kind === "AGENT_RELEASE") return "Release Agent";
   return "Dokumen";
@@ -223,7 +240,13 @@ function getObservation(observations: readonly MetricObservation[] | undefined, 
 }
 
 export function projectCorporateTargets(targets: readonly BusinessTarget[]): readonly ExecutiveCorporateTargetRow[] {
-  return targets.map((t) => {
+  const companyTargets = targets.filter((t) => {
+    if (!t.scope) return false;
+    if (typeof t.scope === "string") return t.scope === "COMPANY";
+    return t.scope.type === "COMPANY";
+  });
+
+  return companyTargets.map((t) => {
     const targetObs = getObservation(t.observations, "TARGET");
     const actualObs = getObservation(t.observations, "ACTUAL");
     const forecastObs = getObservation(t.observations, "FORECAST");
@@ -232,8 +255,18 @@ export function projectCorporateTargets(targets: readonly BusinessTarget[]): rea
     const actualVal = actualObs?.value;
     const forecastVal = forecastObs?.value;
 
-    const targetNum = typeof targetVal === "number" ? targetVal : (targetVal ? Number(targetVal) : null);
-    const actualNum = typeof actualVal === "number" ? actualVal : (actualVal ? Number(actualVal) : null);
+    const targetNum =
+      typeof targetVal === "number"
+        ? targetVal
+        : targetVal !== null && targetVal !== undefined && targetVal !== ""
+          ? Number(targetVal)
+          : null;
+    const actualNum =
+      typeof actualVal === "number"
+        ? actualVal
+        : actualVal !== null && actualVal !== undefined && actualVal !== ""
+          ? Number(actualVal)
+          : null;
 
     // Variance strictly actual - target if numeric
     let varianceDisplay = "—";
@@ -269,7 +302,7 @@ export function projectCorporateTargets(targets: readonly BusinessTarget[]): rea
     const primaryObs = actualObs ?? targetObs;
     const verificationLabel = translateVerificationState(primaryObs?.verification_state);
 
-    const periodLabel = t.period?.label || (t.period?.granularity ? `${t.period.granularity}` : "Tahunan");
+    const periodLabel = t.period?.label || translateGranularity(t.period?.granularity);
 
     return {
       targetId: t.target_id,
@@ -312,17 +345,29 @@ export function projectExecutiveHeadlines(
   // 1. Pendapatan
   const revTargetObs = revTarget ? getObservation(revTarget.observations, "TARGET") : null;
   const revActualObs = revTarget ? getObservation(revTarget.observations, "ACTUAL") : null;
+  const revTargetVal = revTargetObs?.value;
+  const revActualVal = revActualObs?.value;
   const headlineRevenue: ExecutiveHeadlineItem = {
     id: "revenue",
     label: "Pendapatan",
-    primaryValue: revActualObs?.value ? formatNumberIndonesian(revActualObs.value, "IDR") : "—",
-    targetValue: revTargetObs?.value ? formatNumberIndonesian(revTargetObs.value, "IDR") : null,
-    actualValue: revActualObs?.value ? formatNumberIndonesian(revActualObs.value, "IDR") : null,
-    statusLabel: "Belum Terhubung",
-    statusTone: "NEUTRAL",
+    primaryValue: revActualVal !== null && revActualVal !== undefined ? formatNumberIndonesian(revActualVal, "IDR") : "—",
+    targetValue: revTargetVal !== null && revTargetVal !== undefined ? formatNumberIndonesian(revTargetVal, "IDR") : null,
+    actualValue: revActualVal !== null && revActualVal !== undefined ? formatNumberIndonesian(revActualVal, "IDR") : null,
+    statusLabel: revActualVal !== null && revActualVal !== undefined
+      ? (revTarget?.performance_state ? translatePerformanceState(revTarget.performance_state) : "Belum Dinilai")
+      : "Belum Terhubung",
+    statusTone: revActualVal !== null && revActualVal !== undefined
+      ? (revTarget?.performance_state === "ON_TRACK" || revTarget?.performance_state === "ACHIEVED"
+          ? "SUCCESS"
+          : revTarget?.performance_state === "AT_RISK"
+            ? "WARNING"
+            : revTarget?.performance_state === "OFF_TRACK"
+              ? "DANGER"
+              : "NEUTRAL")
+      : "NEUTRAL",
     sourceLabel: "Keuangan & Kas",
-    readiness: "NOT_CONNECTED",
-    helperText: "Sumber data aktual belum terhubung.",
+    readiness: revActualVal !== null && revActualVal !== undefined ? "LIVE" : "NOT_CONNECTED",
+    helperText: revActualVal !== null && revActualVal !== undefined ? undefined : "Sumber data aktual belum terhubung.",
     drilldownHref: "/workspace/finance",
   };
 
@@ -336,6 +381,24 @@ export function projectExecutiveHeadlines(
     closingProgress = (closingActualNum / closingTargetNum) * 100;
   }
 
+  let closingStatusLabel = "Belum Terhubung";
+  let closingTone: ExecutiveHeadlineItem["statusTone"] = "NEUTRAL";
+  if (closingActualNum !== null) {
+    if (closingTarget?.performance_state) {
+      closingStatusLabel = translatePerformanceState(closingTarget.performance_state);
+      if (closingTarget.performance_state === "ON_TRACK" || closingTarget.performance_state === "ACHIEVED") {
+        closingTone = "SUCCESS";
+      } else if (closingTarget.performance_state === "AT_RISK") {
+        closingTone = "WARNING";
+      } else if (closingTarget.performance_state === "OFF_TRACK") {
+        closingTone = "DANGER";
+      }
+    } else {
+      closingStatusLabel = "Belum Dinilai";
+      closingTone = "NEUTRAL";
+    }
+  }
+
   const headlineClosing: ExecutiveHeadlineItem = {
     id: "closing",
     label: "Penjualan / Closing",
@@ -343,8 +406,8 @@ export function projectExecutiveHeadlines(
     targetValue: closingTargetNum !== null ? `${closingTargetNum} unit` : null,
     actualValue: closingActualNum !== null ? `${closingActualNum} unit` : null,
     progressPercent: closingProgress,
-    statusLabel: closingActualNum !== null ? (closingProgress && closingProgress >= 80 ? "Sesuai Target" : "Berisiko") : "Belum Terhubung",
-    statusTone: closingActualNum !== null ? (closingProgress && closingProgress >= 80 ? "SUCCESS" : "WARNING") : "NEUTRAL",
+    statusLabel: closingStatusLabel,
+    statusTone: closingTone,
     sourceLabel: "Penjualan & Komersial",
     readiness: closingActualNum !== null ? "LIVE" : "NOT_CONNECTED",
     helperText: closingActualNum === null ? "Sumber data aktual belum terhubung." : undefined,
@@ -367,6 +430,22 @@ export function projectExecutiveHeadlines(
 
   // 4. Progres Proyek
   const avgProgressVal = averageProgressMetric?.value;
+  let deliveryStatusLabel = "Belum Terhubung";
+  let deliveryTone: ExecutiveHeadlineItem["statusTone"] = "NEUTRAL";
+  if (deliveryTarget?.performance_state) {
+    deliveryStatusLabel = translatePerformanceState(deliveryTarget.performance_state);
+    if (deliveryTarget.performance_state === "ON_TRACK" || deliveryTarget.performance_state === "ACHIEVED") {
+      deliveryTone = "SUCCESS";
+    } else if (deliveryTarget.performance_state === "AT_RISK") {
+      deliveryTone = "WARNING";
+    } else if (deliveryTarget.performance_state === "OFF_TRACK") {
+      deliveryTone = "DANGER";
+    }
+  } else if (isSnapshotConnected) {
+    deliveryStatusLabel = "Belum Dinilai";
+    deliveryTone = "NEUTRAL";
+  }
+
   const headlineDelivery: ExecutiveHeadlineItem = {
     id: "delivery",
     label: "Progres Proyek",
@@ -376,8 +455,8 @@ export function projectExecutiveHeadlines(
     progressPercent: isSnapshotConnected && typeof avgProgressVal === "number" ? avgProgressVal : null,
     targetValue: deliveryTarget ? formatNumberIndonesian(getObservation(deliveryTarget.observations, "TARGET")?.value, "%") : null,
     actualValue: isSnapshotConnected && avgProgressVal !== null && avgProgressVal !== undefined ? `${avgProgressVal}%` : null,
-    statusLabel: isSnapshotConnected ? (avgProgressVal && avgProgressVal >= 75 ? "Sesuai Target" : "Berisiko") : "Belum Terhubung",
-    statusTone: isSnapshotConnected ? (avgProgressVal && avgProgressVal >= 75 ? "SUCCESS" : "WARNING") : "NEUTRAL",
+    statusLabel: deliveryStatusLabel,
+    statusTone: deliveryTone,
     sourceLabel: "Proyek & Konstruksi",
     readiness: isSnapshotConnected ? "PARTIAL" : "NOT_CONNECTED",
     helperText: isSnapshotConnected ? "Rata-rata progres portofolio proyek" : "Sumber data operasional belum terhubung.",
@@ -404,11 +483,13 @@ export function projectExecutiveHeadlines(
     id: "risk",
     label: "Risiko / Perhatian",
     primaryValue: isSnapshotConnected ? `${totalWarnings} perhatian` : "—",
-    statusLabel: isSnapshotConnected ? (totalWarnings > 0 ? "Perlu Perhatian" : "Terkendali") : "Belum Terhubung",
+    statusLabel: isSnapshotConnected ? (totalWarnings > 0 ? "Perlu Perhatian" : "Tidak Ada Deviasi") : "Belum Terhubung",
     statusTone: isSnapshotConnected ? (totalWarnings > 0 ? "DANGER" : "SUCCESS") : "NEUTRAL",
     sourceLabel: "Pusat Kendali Eksekutif",
     readiness: isSnapshotConnected ? "PARTIAL" : "NOT_CONNECTED",
-    helperText: isSnapshotConnected ? (totalWarnings > 0 ? `${totalWarnings} deviasi/peringatan aktif` : "Tidak ada deviasi kritis") : "Sumber data peringatan belum terhubung.",
+    helperText: isSnapshotConnected
+      ? (totalWarnings > 0 ? `${totalWarnings} deviasi/peringatan aktif` : "Tidak ada peringatan dari sumber yang tersedia.")
+      : "Sumber data peringatan belum terhubung.",
     drilldownHref: "/workspace/executive/approvals",
   };
 
@@ -676,8 +757,8 @@ export function projectDataStatusSummary(
       domain: "Penjualan",
       state: "NOT_CONNECTED",
       stateLabel: "Belum Terhubung",
-      checked: true,
-      detail: "Konektor domain penjualan belum diintegrasikan",
+      checked: false,
+      detail: "Terdaftar di katalog kebutuhan data bisnis; konektor API penjualan belum diaktifkan.",
     },
     {
       id: "finance",
@@ -685,18 +766,17 @@ export function projectDataStatusSummary(
       domain: "Keuangan",
       state: "NOT_CONNECTED",
       stateLabel: "Belum Terhubung",
-      checked: true,
-      detail: "Konektor sistem keuangan belum diintegrasikan",
+      checked: false,
+      detail: "Terdaftar di katalog kebutuhan data bisnis; konektor API keuangan belum diaktifkan.",
     },
     {
       id: "property",
       name: "Manajemen Proyek Konstruksi",
       domain: "Proyek",
-      state: isSnapshotConnected ? "PARTIAL" : "NOT_CONNECTED",
-      stateLabel: isSnapshotConnected ? "Sebagian Tersedia" : "Belum Terhubung",
-      checked: true,
-      detail: isSnapshotConnected ? "Data proyek aktif tersedia via snapshot" : "Sumber proyek belum terhubung",
-      lastUpdated: snapshotTime,
+      state: "NOT_CONNECTED",
+      stateLabel: "Belum Terhubung",
+      checked: false,
+      detail: "Terdaftar di katalog kebutuhan data bisnis; konektor API proyek mandiri belum diaktifkan.",
     },
     {
       id: "legal",
@@ -704,8 +784,8 @@ export function projectDataStatusSummary(
       domain: "Legal",
       state: "NOT_CONNECTED",
       stateLabel: "Belum Terhubung",
-      checked: true,
-      detail: "Konektor dokumen legalitas belum diintegrasikan",
+      checked: false,
+      detail: "Terdaftar di katalog kebutuhan data bisnis; konektor API legalitas belum diaktifkan.",
     },
     {
       id: "hr",
@@ -713,8 +793,8 @@ export function projectDataStatusSummary(
       domain: "SDM",
       state: "NOT_CONNECTED",
       stateLabel: "Belum Terhubung",
-      checked: true,
-      detail: "Konektor data personalia belum diintegrasikan",
+      checked: false,
+      detail: "Terdaftar di katalog kebutuhan data bisnis; konektor API personalia belum diaktifkan.",
     },
     {
       id: "it",
@@ -722,8 +802,8 @@ export function projectDataStatusSummary(
       domain: "Teknologi",
       state: "NOT_CONNECTED",
       stateLabel: "Belum Terhubung",
-      checked: true,
-      detail: "Observabilitas runtime sistem belum terintegrasi ke dashboard",
+      checked: false,
+      detail: "Terdaftar di katalog kebutuhan data bisnis; konektor telemetri belum diaktifkan.",
     },
     {
       id: "genesis",
@@ -731,18 +811,19 @@ export function projectDataStatusSummary(
       domain: "AI & Pengawasan",
       state: "NOT_CONNECTED",
       stateLabel: "Belum Terhubung",
-      checked: true,
-      detail: "Layanan penasihat otomatis GENESIS belum terhubung",
+      checked: false,
+      detail: "Terdaftar di katalog kebutuhan data bisnis; layanan penasihat otomatis belum diaktifkan.",
     },
   ];
 
+  const checkedSources = sources.filter((s) => s.checked);
   let liveCount = 0;
   let partialCount = 0;
   let notConnectedCount = 0;
   let staleCount = 0;
   let errorCount = 0;
 
-  for (const src of sources) {
+  for (const src of checkedSources) {
     if (src.state === "LIVE") liveCount++;
     else if (src.state === "PARTIAL") partialCount++;
     else if (src.state === "NOT_CONNECTED") notConnectedCount++;
@@ -751,8 +832,11 @@ export function projectDataStatusSummary(
   }
 
   return {
-    totalChecked: sources.filter((s) => s.checked).length,
-    totalInspected: sources.length,
+    totalChecked: checkedSources.length,
+    totalInspected: checkedSources.length,
+    inspectedCount: checkedSources.length,
+    registeredCount: sources.length,
+    catalogUnconnectedCount: sources.length - checkedSources.length,
     liveCount,
     partialCount,
     notConnectedCount,

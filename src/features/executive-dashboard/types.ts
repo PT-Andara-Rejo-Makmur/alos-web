@@ -167,6 +167,9 @@ export interface ExecutiveSourceInspection {
 export interface ExecutiveDataStatusSummary {
   readonly totalChecked: number;
   readonly totalInspected: number;
+  readonly inspectedCount: number;
+  readonly registeredCount: number;
+  readonly catalogUnconnectedCount: number;
   readonly liveCount: number;
   readonly partialCount: number;
   readonly notConnectedCount: number;
@@ -174,6 +177,11 @@ export interface ExecutiveDataStatusSummary {
   readonly errorCount: number;
   readonly lastUpdatedFormatted: string;
   readonly sources: readonly ExecutiveSourceInspection[];
+}
+
+export interface ExecutiveRefreshProgress {
+  readonly completed: number;
+  readonly total: number;
 }
 
 export interface ExecutiveHeadlineItem {
