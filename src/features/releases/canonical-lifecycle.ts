@@ -177,6 +177,13 @@ export function projectLifecycleStages(
 ): LifecycleProjection {
   const lineageStatus: StageDisplayStatus = hasAuthoritativeLineage ? "COMPLETED" : "UNKNOWN";
 
+  const postReleaseDirectorStatus: StageDisplayStatus =
+    materiality === "NON_MATERIAL"
+      ? "SKIPPED"
+      : materiality === "MATERIAL"
+        ? "COMPLETED"
+        : "UNKNOWN";
+
   const basePending: Record<LifecycleStageKey, StageDisplayStatus> = {
     REQUIREMENT: lineageStatus,
     FACTORY: lineageStatus,
@@ -337,15 +344,15 @@ export function projectLifecycleStages(
 
     case "RELEASED":
       return {
-        activeStageKey: "RELEASE",
-        activeStageLabel: "Dirilis (Siap Aktivasi)",
+        activeStageKey: "ACTIVE",
+        activeStageLabel: "Dirilis — Menunggu Aktivasi",
         stageStatuses: {
           ...basePending,
           DRAFT: "COMPLETED",
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
           IT_DECISION: "COMPLETED",
-          DIRECTOR_DECISION: materiality === "NON_MATERIAL" ? "SKIPPED" : "COMPLETED",
+          DIRECTOR_DECISION: postReleaseDirectorStatus,
           RELEASE: "COMPLETED",
           ACTIVE: "CURRENT",
         },
@@ -362,7 +369,7 @@ export function projectLifecycleStages(
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
           IT_DECISION: "COMPLETED",
-          DIRECTOR_DECISION: materiality === "NON_MATERIAL" ? "SKIPPED" : "COMPLETED",
+          DIRECTOR_DECISION: postReleaseDirectorStatus,
           RELEASE: "COMPLETED",
           ACTIVE: "COMPLETED",
         },
@@ -454,7 +461,7 @@ export function projectLifecycleStages(
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
           IT_DECISION: "COMPLETED",
-          DIRECTOR_DECISION: materiality === "NON_MATERIAL" ? "SKIPPED" : "COMPLETED",
+          DIRECTOR_DECISION: postReleaseDirectorStatus,
           RELEASE: "COMPLETED",
           ACTIVE: "SUSPENDED",
         },
@@ -474,7 +481,7 @@ export function projectLifecycleStages(
           AUTOMATED_QA: "COMPLETED",
           GENESIS_REVIEW: "COMPLETED",
           IT_DECISION: "COMPLETED",
-          DIRECTOR_DECISION: materiality === "NON_MATERIAL" ? "SKIPPED" : "COMPLETED",
+          DIRECTOR_DECISION: postReleaseDirectorStatus,
           RELEASE: "COMPLETED",
           ACTIVE: "ROLLED_BACK",
         },
