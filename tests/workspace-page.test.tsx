@@ -77,14 +77,14 @@ describe("WorkspacePage and ALOS App Shell", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("complementary", { name: "Navigasi utama" })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "ALOS", level: 1 })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Pratinjau Komponen ALOS", level: 1 })).toBeInTheDocument();
     });
 
     expect(screen.getByRole("link", { name: "Beranda" })).toHaveAttribute("aria-current", "page");
     expect(screen.getAllByText("Rani Andara").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Property").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Antarmuka kerja ALOS sedang disiapkan.")).toBeInTheDocument();
-    expect(screen.getByText("Fondasi sistem aktif")).toBeInTheDocument();
+    expect(screen.getAllByText("Halaman ini digunakan sementara untuk meninjau standar antarmuka sebelum modul bisnis dibangun.").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("CONTOH TAMPILAN").length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText(/KPI|Executive|Sales|Finance|Property Dashboard|GENESIS/)).not.toBeInTheDocument();
   });
 
