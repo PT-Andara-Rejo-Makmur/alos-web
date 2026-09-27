@@ -6,8 +6,21 @@ Jalankan development server:
 pnpm dev
 ```
 
-Buka `http://localhost:3000`. Jika Backend belum dikonfigurasi, shell dan seluruh route tetap
-render serta menampilkan status `Backend belum dikonfigurasi`.
+Buka `http://localhost:3000`. Runtime frontend saat ini:
+
+```text
+/          -> /workspace
+/login     -> login
+/workspace -> temporary clean landing
+```
+
+Pada landing terautentikasi, teks yang ditampilkan adalah:
+
+> Antarmuka ALOS sedang dibangun ulang.
+
+`/workspace` memeriksa session melalui `/api/session`. Jika session tidak tersedia, pengguna dapat
+masuk kembali melalui `/login`; jika request gagal, halaman menyediakan retry. Tidak ada klaim
+bahwa seluruh route lama tetap render.
 
 Untuk mode production:
 
@@ -15,6 +28,3 @@ Untuk mode production:
 pnpm build
 pnpm start
 ```
-
-Default port Next.js adalah 3000. Gunakan environment deployment untuk mengubah port atau base
-URL Backend.
