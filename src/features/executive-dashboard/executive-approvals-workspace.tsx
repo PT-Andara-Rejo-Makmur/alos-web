@@ -88,9 +88,15 @@ export function ExecutiveApprovalsWorkspace({
           setLoadingGenesis(false);
         }
       })
-      .catch(() => {
+      .catch((err) => {
         if (!cancelled) {
-          setGenesisError("Data persetujuan rilis GENESIS belum dapat dimuat. Silakan coba lagi beberapa saat.");
+          const status = (err as { status?: number })?.status;
+          if (status === 404) {
+            setGenesisReleases([]);
+            setGenesisError(null);
+          } else {
+            setGenesisError("Data persetujuan rilis GENESIS belum dapat dimuat. Silakan coba lagi beberapa saat.");
+          }
           setLoadingGenesis(false);
         }
       });

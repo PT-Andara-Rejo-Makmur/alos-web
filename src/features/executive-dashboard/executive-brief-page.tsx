@@ -7,6 +7,7 @@ import { AlertCircle, BadgeCheck, Clock, HelpCircle } from "lucide-react";
 import { authenticatedApiRequest } from "@/lib/api";
 import type { ExecutiveDashboardSnapshot } from "./types";
 import {
+  createEmptyExecutiveSnapshot,
   formatDateIndonesian,
   formatMetricDisplayValue,
   projectDecisionQueue,
@@ -29,9 +30,15 @@ export function ExecutiveBriefPage() {
         setSnapshot(data);
         setError(null);
       })
-      .catch(() => {
+      .catch((err) => {
         if (!controller.signal.aborted) {
-          setError("Brief eksekutif belum dapat dimuat. Silakan coba lagi beberapa saat.");
+          const status = (err as { status?: number })?.status;
+          if (status === 404) {
+            setSnapshot(createEmptyExecutiveSnapshot());
+            setError(null);
+          } else {
+            setError("Brief eksekutif belum dapat dimuat. Silakan coba lagi beberapa saat.");
+          }
         }
       })
       .finally(() => {

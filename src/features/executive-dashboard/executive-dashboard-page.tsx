@@ -7,6 +7,7 @@ import { AlertCircle } from "lucide-react";
 import { ProtectedDomainWorkspace } from "@/features/workspace-shell";
 import { authenticatedApiRequest } from "@/lib/api";
 import { ExecutiveDashboardHome } from "./executive-dashboard-home";
+import { createEmptyExecutiveSnapshot } from "./executive-dashboard-projection";
 import type { ExecutiveDashboardSnapshot } from "./types";
 import styles from "./executive-dashboard.module.css";
 
@@ -65,10 +66,17 @@ function ExecutiveContent({
         setSnapshot(data);
         setError(null);
       })
-      .catch(() => {
+      .catch((err) => {
         if (!controller.signal.aborted) {
-          // Never mask failure as empty data
-          setError("Ringkasan eksekutif belum dapat dimuat. Silakan coba lagi beberapa saat.");
+          const status = (err as { status?: number })?.status;
+          if (status === 404) {
+            // Backend endpoint is not yet connected (State 2: Data / sumber belum terhubung)
+            setSnapshot(createEmptyExecutiveSnapshot());
+            setError(null);
+          } else {
+            // State 3: Terjadi kendala saat mengambil data (500, network loss, dll)
+            setError("Ringkasan eksekutif belum dapat dimuat. Silakan coba lagi beberapa saat.");
+          }
         }
       })
       .finally(() => {
