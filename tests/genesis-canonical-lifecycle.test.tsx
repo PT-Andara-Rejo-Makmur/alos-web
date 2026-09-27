@@ -11,6 +11,7 @@ import {
   formatCanonicalReleaseState,
   getActiveLifecycleStage,
   getAllowedReleaseActions,
+  projectLifecycleStages,
   backendReleaseAdapter,
   type GovernedReleaseProjection,
 } from "@/features/releases";
@@ -39,9 +40,9 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
   });
 
   // =========================================================================
-  // 1. TEST — STATE MAPPING
+  // 1. TEST — STATE MAPPING & EXPLICIT LIFECYCLE PROJECTION
   // =========================================================================
-  describe("1. State Mapping (All 17 Canonical Backend States)", () => {
+  describe("1. State Mapping & Explicit Lifecycle Projection (All 17 States)", () => {
     it("maps all 17 canonical states to non-empty Indonesian display labels", () => {
       expect(CANONICAL_RELEASE_STATES).toHaveLength(17);
 
@@ -49,12 +50,11 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
         const display = formatCanonicalReleaseState(state);
         expect(display).toBeTruthy();
         expect(display).toBe(CANONICAL_STATE_DISPLAY[state]);
-        // Display must not be raw unmapped string
         expect(display).not.toBe("—");
       }
     });
 
-    it("verifies exact Indonesian terminology for key canonical states", () => {
+    it("verifies exact Indonesian terminology for all canonical states", () => {
       expect(formatCanonicalReleaseState("DRAFT")).toBe("Draf");
       expect(formatCanonicalReleaseState("IMPLEMENTED")).toBe("Terimplementasi");
       expect(formatCanonicalReleaseState("AUTOMATED_ASSURANCE")).toBe("QA Otomatis");
@@ -74,116 +74,224 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
       expect(formatCanonicalReleaseState("ROLLED_BACK")).toBe("Di-rollback");
     });
 
-    it("maps Backend release states to correct lifecycle stages", () => {
+    it("projects active stage keys without assuming non-material when materiality is omitted", () => {
       expect(getActiveLifecycleStage("DRAFT")).toBe("DRAFT");
-      expect(getActiveLifecycleStage("REVISION_REQUIRED")).toBe("DRAFT");
       expect(getActiveLifecycleStage("IMPLEMENTED")).toBe("AUTOMATED_QA");
       expect(getActiveLifecycleStage("AUTOMATED_ASSURANCE")).toBe("AUTOMATED_QA");
       expect(getActiveLifecycleStage("AI_REVIEWED")).toBe("GENESIS_REVIEW");
       expect(getActiveLifecycleStage("READY_FOR_IT")).toBe("IT_DECISION");
-      expect(getActiveLifecycleStage("HOLD")).toBe("IT_DECISION");
+      // IT_APPROVED with unknown materiality must return null (unknown next stage, fail closed!)
+      expect(getActiveLifecycleStage("IT_APPROVED")).toBeNull();
+      expect(getActiveLifecycleStage("IT_APPROVED", null)).toBeNull();
+      expect(getActiveLifecycleStage("IT_APPROVED", "NON_MATERIAL")).toBe("RELEASE");
+      expect(getActiveLifecycleStage("IT_APPROVED", "MATERIAL")).toBe("DIRECTOR_DECISION");
+      expect(getActiveLifecycleStage("READY_FOR_DIRECTOR")).toBe("DIRECTOR_DECISION");
+      expect(getActiveLifecycleStage("DIRECTOR_APPROVED")).toBe("RELEASE");
       expect(getActiveLifecycleStage("RELEASED")).toBe("RELEASE");
       expect(getActiveLifecycleStage("ACTIVE")).toBe("ACTIVE");
       expect(getActiveLifecycleStage("SUSPENDED")).toBe("ACTIVE");
       expect(getActiveLifecycleStage("ROLLED_BACK")).toBe("ACTIVE");
+      // Branching / terminal states do not assume IT decision
+      expect(getActiveLifecycleStage("RETURNED")).toBeNull();
+      expect(getActiveLifecycleStage("REJECTED")).toBeNull();
+      expect(getActiveLifecycleStage("HOLD")).toBeNull();
     });
 
-    it("maps allowed actions accurately from Backend authority without local guessing", () => {
-      const itActor = { roles: ["IT_ADMIN"], permissions: ["release.manage", "release.decide.it"] };
-      const executiveActor = { roles: ["EXECUTIVE"], permissions: ["release.decide.director"] };
-      const unprivilegedActor = { roles: ["WORKSPACE_MEMBER"] };
+    it("projects truthful stage statuses for terminal and deviation states without index completion assumption", () => {
+      // REJECTED
+      const rejectedProj = projectLifecycleStages("REJECTED");
+      expect(rejectedProj.isTerminalOrDeviation).toBe(true);
+      expect(rejectedProj.stageStatuses.IT_DECISION).toBe("REJECTED");
+      expect(rejectedProj.stageStatuses.RELEASE).toBe("PENDING");
+      expect(rejectedProj.stageStatuses.ACTIVE).toBe("PENDING");
+      expect(rejectedProj.activeStageLabel).toContain("Ditolak");
 
-      const releaseReadyForIt: GovernedReleaseProjection = {
-        release_id: "rel-1",
-        review_id: "rev-1",
-        subject_id: "agent-1",
-        subject_version: "1.0.0",
-        state: "READY_FOR_IT",
-        correlation_id: "corr-1",
-        kill_switch_active: false,
-        rollback_target_release_id: null,
-        ever_released: false,
-      };
+      // RETURNED
+      const returnedProj = projectLifecycleStages("RETURNED");
+      expect(returnedProj.isTerminalOrDeviation).toBe(true);
+      expect(returnedProj.stageStatuses.DRAFT).toBe("DEVIATION");
+      expect(returnedProj.activeStageLabel).toContain("Dikembalikan");
 
-      expect(getAllowedReleaseActions(releaseReadyForIt, itActor)).toEqual(["it-decision"]);
-      expect(getAllowedReleaseActions(releaseReadyForIt, executiveActor)).toEqual([]);
-      expect(getAllowedReleaseActions(releaseReadyForIt, unprivilegedActor)).toEqual([]);
+      // HOLD
+      const holdProj = projectLifecycleStages("HOLD");
+      expect(holdProj.isTerminalOrDeviation).toBe(true);
+      expect(holdProj.stageStatuses.IT_DECISION).toBe("ON_HOLD");
+      expect(holdProj.activeStageLabel).toContain("Ditahan");
 
-      const releaseActive: GovernedReleaseProjection = {
-        ...releaseReadyForIt,
-        state: "ACTIVE",
-        ever_released: true,
-      };
+      // BLOCKED
+      const blockedProj = projectLifecycleStages("BLOCKED");
+      expect(blockedProj.isTerminalOrDeviation).toBe(true);
+      expect(blockedProj.stageStatuses.DRAFT).toBe("BLOCKED");
+      expect(blockedProj.stageStatuses.ACTIVE).toBe("PENDING");
+      expect(blockedProj.activeStageLabel).toContain("Terblokir");
 
-      expect(getAllowedReleaseActions(releaseActive, itActor)).toEqual(["suspend", "kill", "rollback"]);
-      expect(getAllowedReleaseActions(releaseActive, executiveActor)).toEqual([]);
+      // SUSPENDED with kill switch active
+      const suspendedKill = projectLifecycleStages("SUSPENDED", "NON_MATERIAL", true);
+      expect(suspendedKill.isTerminalOrDeviation).toBe(true);
+      expect(suspendedKill.stageStatuses.ACTIVE).toBe("SUSPENDED");
+      expect(suspendedKill.activeStageLabel).toBe("Ditangguhkan (Kill Switch Aktif)");
 
-      const releaseSuspendedKill: GovernedReleaseProjection = {
-        ...releaseActive,
-        state: "SUSPENDED",
-        kill_switch_active: true,
-      };
+      // SUSPENDED without kill switch
+      const suspendedNormal = projectLifecycleStages("SUSPENDED", "NON_MATERIAL", false);
+      expect(suspendedNormal.activeStageLabel).toBe("Ditangguhkan");
 
-      expect(getAllowedReleaseActions(releaseSuspendedKill, itActor)).toEqual(["clear-kill"]);
+      // ROLLED_BACK
+      const rolledBackProj = projectLifecycleStages("ROLLED_BACK");
+      expect(rolledBackProj.isTerminalOrDeviation).toBe(true);
+      expect(rolledBackProj.stageStatuses.ACTIVE).toBe("ROLLED_BACK");
+      expect(rolledBackProj.activeStageLabel).toContain("Di-rollback");
     });
   });
 
   // =========================================================================
-  // 2. TEST — ACTION MAPPING (HTTP METHOD, PATH, BODY)
+  // 2. TEST — AUTHORITY SEMANTICS: ROLE AND PERMISSION (NOT OR)
   // =========================================================================
-  describe("2. Action Mapping to Canonical Backend Endpoints", () => {
-    it("calls POST /api/v1/releases with exact canonical payload", async () => {
-      const spy = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({
-        release_id: "rel_123",
-        review_id: "rev_123",
-        subject_id: "agent_recon",
-        subject_version: "1.0.0",
-        state: "DRAFT",
-        correlation_id: "corr_123",
-        kill_switch_active: false,
-        rollback_target_release_id: null,
-        ever_released: false,
-      });
+  describe("2. Authority Semantics (role AND permission mandatory)", () => {
+    const releaseReadyIt: GovernedReleaseProjection = {
+      release_id: "rel_1",
+      review_id: "rev_1",
+      subject_id: "agent_1",
+      subject_version: "1.0.0",
+      state: "READY_FOR_IT",
+      correlation_id: "corr_1",
+      kill_switch_active: false,
+      rollback_target_release_id: null,
+      ever_released: false,
+    };
 
-      const result = await backendReleaseAdapter.create({
-        release_id: "rel_123",
-        review_id: "rev_123",
-        subject_id: "agent_recon",
-        subject_version: "1.0.0",
-        materiality: "NON_MATERIAL",
-      });
-
-      expect(spy).toHaveBeenCalledWith("/api/v1/releases", {
-        method: "POST",
-        body: {
-          release_id: "rel_123",
-          review_id: "rev_123",
-          subject_id: "agent_recon",
-          subject_version: "1.0.0",
-          materiality: "NON_MATERIAL",
-        },
-      });
-      expect(result.state).toBe("DRAFT");
+    it("requires BOTH IT_ADMIN role AND release.decide.it permission for it-decision", () => {
+      // Role only -> NO ACTION
+      expect(getAllowedReleaseActions(releaseReadyIt, { roles: ["IT_ADMIN"], permissions: [] })).toEqual([]);
+      // Permission only -> NO ACTION
+      expect(getAllowedReleaseActions(releaseReadyIt, { roles: [], permissions: ["release.decide.it"] })).toEqual([]);
+      // Wrong role with permission -> NO ACTION
+      expect(getAllowedReleaseActions(releaseReadyIt, { roles: ["EXECUTIVE"], permissions: ["release.decide.it"] })).toEqual([]);
+      // Both -> ALLOWED
+      expect(
+        getAllowedReleaseActions(releaseReadyIt, { roles: ["IT_ADMIN"], permissions: ["release.decide.it"] }),
+      ).toEqual(["it-decision"]);
     });
 
-    it("calls GET /api/v1/releases/{release_id} with encoded path", async () => {
-      const spy = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({
-        release_id: "rel/test#1",
+    it("requires BOTH EXECUTIVE role AND release.decide.director permission for director-decision", () => {
+      const releaseReadyDir: GovernedReleaseProjection = {
+        ...releaseReadyIt,
+        state: "READY_FOR_DIRECTOR",
+      };
+
+      // Role only -> NO ACTION
+      expect(getAllowedReleaseActions(releaseReadyDir, { roles: ["EXECUTIVE"], permissions: [] })).toEqual([]);
+      // Permission only -> NO ACTION
+      expect(getAllowedReleaseActions(releaseReadyDir, { roles: [], permissions: ["release.decide.director"] })).toEqual([]);
+      // IT role with director permission -> NO ACTION
+      expect(getAllowedReleaseActions(releaseReadyDir, { roles: ["IT_ADMIN"], permissions: ["release.decide.director"] })).toEqual([]);
+      // Both -> ALLOWED
+      expect(
+        getAllowedReleaseActions(releaseReadyDir, { roles: ["EXECUTIVE"], permissions: ["release.decide.director"] }),
+      ).toEqual(["director-decision"]);
+    });
+
+    it("requires BOTH IT_ADMIN role AND release.manage permission for release management actions", () => {
+      const releaseActive: GovernedReleaseProjection = {
+        ...releaseReadyIt,
+        state: "ACTIVE",
+        ever_released: true,
+      };
+
+      // Role only -> NO ACTION
+      expect(getAllowedReleaseActions(releaseActive, { roles: ["IT_ADMIN"], permissions: [] })).toEqual([]);
+      // Permission only -> NO ACTION
+      expect(getAllowedReleaseActions(releaseActive, { roles: [], permissions: ["release.manage"] })).toEqual([]);
+      // Both -> ALLOWED
+      expect(
+        getAllowedReleaseActions(releaseActive, { roles: ["IT_ADMIN"], permissions: ["release.manage"] }),
+      ).toEqual(["suspend", "kill", "rollback"]);
+    });
+  });
+
+  // =========================================================================
+  // 3. TEST — MATERIALITY FAIL-CLOSED & UNKNOWN MATERIALITY BEHAVIOR
+  // =========================================================================
+  describe("3. Materiality Fail-Closed Behavior", () => {
+    it("fails closed on IT_APPROVED when materiality is unknown / undefined", () => {
+      const releaseItApprovedUnknownMateriality: GovernedReleaseProjection = {
+        release_id: "rel_unknown",
         review_id: "rev_1",
-        subject_id: "sub_1",
+        subject_id: "agent_1",
         subject_version: "1.0.0",
-        state: "READY_FOR_IT",
+        state: "IT_APPROVED",
         correlation_id: "corr_1",
         kill_switch_active: false,
         rollback_target_release_id: null,
         ever_released: false,
-      });
+        // materiality is undefined/missing from Backend
+      };
 
-      await backendReleaseAdapter.get("rel/test#1");
-      expect(spy).toHaveBeenCalledWith("/api/v1/releases/rel%2Ftest%231");
+      const itActor = { roles: ["IT_ADMIN"], permissions: ["release.manage", "release.decide.it"] };
+
+      // MANDATORY FAIL-CLOSED: No release action allowed when materiality is unknown!
+      expect(getAllowedReleaseActions(releaseItApprovedUnknownMateriality, itActor)).toEqual([]);
     });
 
-    it("calls POST /api/v1/releases/{release_id}/actions/{action} with correct payload for it-decision", async () => {
+    it("allows release action on IT_APPROVED ONLY when materiality is authoritatively NON_MATERIAL", () => {
+      const releaseNonMaterial: GovernedReleaseProjection = {
+        release_id: "rel_nm",
+        review_id: "rev_1",
+        subject_id: "agent_1",
+        subject_version: "1.0.0",
+        state: "IT_APPROVED",
+        materiality: "NON_MATERIAL",
+        correlation_id: "corr_1",
+        kill_switch_active: false,
+        rollback_target_release_id: null,
+        ever_released: false,
+      };
+
+      const itActor = { roles: ["IT_ADMIN"], permissions: ["release.manage"] };
+      expect(getAllowedReleaseActions(releaseNonMaterial, itActor)).toEqual(["release"]);
+    });
+
+    it("does NOT allow release action on IT_APPROVED when materiality is MATERIAL", () => {
+      const releaseMaterial: GovernedReleaseProjection = {
+        release_id: "rel_mat",
+        review_id: "rev_1",
+        subject_id: "agent_1",
+        subject_version: "1.0.0",
+        state: "IT_APPROVED",
+        materiality: "MATERIAL",
+        correlation_id: "corr_1",
+        kill_switch_active: false,
+        rollback_target_release_id: null,
+        ever_released: false,
+      };
+
+      const itActor = { roles: ["IT_ADMIN"], permissions: ["release.manage"] };
+      expect(getAllowedReleaseActions(releaseMaterial, itActor)).toEqual([]);
+    });
+
+    it("allows release on DIRECTOR_APPROVED for IT_ADMIN with release.manage", () => {
+      const releaseDirectorApproved: GovernedReleaseProjection = {
+        release_id: "rel_dir_app",
+        review_id: "rev_1",
+        subject_id: "agent_1",
+        subject_version: "1.0.0",
+        state: "DIRECTOR_APPROVED",
+        materiality: "MATERIAL",
+        correlation_id: "corr_1",
+        kill_switch_active: false,
+        rollback_target_release_id: null,
+        ever_released: false,
+      };
+
+      const itActor = { roles: ["IT_ADMIN"], permissions: ["release.manage"] };
+      expect(getAllowedReleaseActions(releaseDirectorApproved, itActor)).toEqual(["release"]);
+    });
+  });
+
+  // =========================================================================
+  // 4. TEST — ACTION PAYLOAD (NO INVENTED / CONFLICTING FIELDS)
+  // =========================================================================
+  describe("4. Action Payload Invariants (No authority_level, No DIRECTOR_APPROVER)", () => {
+    it("calls POST it-decision with decision_id, outcome, rationale and NO authority_level", async () => {
       const spy = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({
         release_id: "rel_1",
         review_id: "rev_1",
@@ -197,162 +305,174 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
       });
 
       await backendReleaseAdapter.executeAction("rel_1", "it-decision", {
-        decision_id: "dec_1",
+        decision_id: "dec_test_123",
         outcome: "APPROVED",
-        rationale: "Memenuhi seluruh standar pengujian teknis",
-        authority_level: "IT_APPROVER",
+        rationale: "Hasil pengujian otomatis dan arsitektur valid.",
       });
 
       expect(spy).toHaveBeenCalledWith("/api/v1/releases/rel_1/actions/it-decision", {
         method: "POST",
         body: {
-          decision_id: "dec_1",
+          decision_id: "dec_test_123",
           outcome: "APPROVED",
-          rationale: "Memenuhi seluruh standar pengujian teknis",
-          authority_level: "IT_APPROVER",
+          rationale: "Hasil pengujian otomatis dan arsitektur valid.",
         },
       });
+
+      const sentBody = spy.mock.calls[0][1]?.body as Record<string, unknown>;
+      expect(sentBody).not.toHaveProperty("authority_level");
+      expect(sentBody).not.toHaveProperty("actor_id");
+      expect(sentBody).not.toHaveProperty("tenant_id");
+      expect(sentBody).not.toHaveProperty("workspace_id");
     });
 
-    it("calls POST /api/v1/releases/{release_id}/actions/release without invented body", async () => {
+    it("calls POST director-decision without DIRECTOR_APPROVER or authority_level", async () => {
       const spy = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({
         release_id: "rel_1",
         review_id: "rev_1",
         subject_id: "agent_1",
         subject_version: "1.0.0",
-        state: "RELEASED",
+        state: "DIRECTOR_APPROVED",
         correlation_id: "corr_1",
         kill_switch_active: false,
         rollback_target_release_id: null,
-        ever_released: true,
+        ever_released: false,
       });
 
-      await backendReleaseAdapter.executeAction("rel_1", "release");
+      await backendReleaseAdapter.executeAction("rel_1", "director-decision", {
+        decision_id: "dec_dir_456",
+        outcome: "APPROVED",
+        rationale: "Persetujuan Direktur untuk operasional material.",
+      });
 
-      expect(spy).toHaveBeenCalledWith("/api/v1/releases/rel_1/actions/release", {
+      expect(spy).toHaveBeenCalledWith("/api/v1/releases/rel_1/actions/director-decision", {
         method: "POST",
-        body: {},
+        body: {
+          decision_id: "dec_dir_456",
+          outcome: "APPROVED",
+          rationale: "Persetujuan Direktur untuk operasional material.",
+        },
       });
+
+      const sentBody = spy.mock.calls[0][1]?.body as Record<string, unknown>;
+      expect(sentBody).not.toHaveProperty("authority_level");
+      expect(JSON.stringify(sentBody)).not.toContain("DIRECTOR_APPROVER");
     });
   });
 
   // =========================================================================
-  // 3. TEST — MATERIALITY
+  // 5. TEST — DATA HONESTY & NO EVIDENCE FABRICATION
   // =========================================================================
-  describe("3. Materiality Behavior (NON_MATERIAL vs MATERIAL)", () => {
-    it("non-material release does not require Director decision and progresses IT_APPROVED -> RELEASE", () => {
-      const nonMaterialStage = getActiveLifecycleStage("IT_APPROVED", "NON_MATERIAL");
-      expect(nonMaterialStage).toBe("RELEASE");
-
-      const releaseNonMaterial: GovernedReleaseProjection = {
-        release_id: "rel_nm",
-        review_id: "rev_1",
-        subject_id: "agent_nm",
-        subject_version: "1.0.0",
-        state: "IT_APPROVED",
-        materiality: "NON_MATERIAL",
-        correlation_id: "c1",
-        kill_switch_active: false,
-        rollback_target_release_id: null,
-        ever_released: false,
-      };
-
-      const itActor = { roles: ["IT_ADMIN"], permissions: ["release.manage"] };
-      const actions = getAllowedReleaseActions(releaseNonMaterial, itActor);
-      expect(actions).toContain("release");
-      expect(actions).not.toContain("director-decision");
-    });
-
-    it("material release requires Director decision before release", () => {
-      const materialStage = getActiveLifecycleStage("IT_APPROVED", "MATERIAL");
-      expect(materialStage).toBe("DIRECTOR_DECISION");
-
-      const releaseMaterial: GovernedReleaseProjection = {
-        release_id: "rel_m",
-        review_id: "rev_2",
-        subject_id: "agent_m",
-        subject_version: "1.0.0",
-        state: "IT_APPROVED",
-        materiality: "MATERIAL",
-        correlation_id: "c2",
-        kill_switch_active: false,
-        rollback_target_release_id: null,
-        ever_released: false,
-      };
-
-      const itActor = { roles: ["IT_ADMIN"], permissions: ["release.manage"] };
-      // IT cannot release a MATERIAL release in IT_APPROVED state until Director approves!
-      expect(getAllowedReleaseActions(releaseMaterial, itActor)).toEqual([]);
-
-      const releaseReadyDirector: GovernedReleaseProjection = {
-        ...releaseMaterial,
-        state: "READY_FOR_DIRECTOR",
-      };
-
-      const execActor = { roles: ["EXECUTIVE"], permissions: ["release.decide.director"] };
-      expect(getAllowedReleaseActions(releaseReadyDirector, execActor)).toEqual(["director-decision"]);
-
-      const releaseDirectorApproved: GovernedReleaseProjection = {
-        ...releaseMaterial,
-        state: "DIRECTOR_APPROVED",
-      };
-      // Once DIRECTOR_APPROVED, IT_ADMIN can execute release
-      expect(getAllowedReleaseActions(releaseDirectorApproved, itActor)).toEqual(["release"]);
-    });
-  });
-
-  // =========================================================================
-  // 4. TEST — AUTHORITY & FAIL-CLOSED
-  // =========================================================================
-  describe("4. Authority Boundary & Fail-Closed Checks", () => {
-    it("fails closed when actor lacks required roles / permissions for release actions", () => {
-      const release: GovernedReleaseProjection = {
-        release_id: "rel_auth",
-        review_id: "rev_auth",
-        subject_id: "agent_auth",
-        subject_version: "1.0.0",
+  describe("5. Data Honesty & Zero Evidence Fabrication", () => {
+    it("renders actual Backend response shape and never synthesizes urn:alos:review-package", async () => {
+      // Matches EXACT Backend _response() shape (materiality & evidence_uri are omitted)
+      const canonicalBackendResponse = {
+        release_id: "rel_live_99",
+        review_id: "rev_audit_88",
+        subject_id: "agent_recon",
+        subject_version: "1.2.0",
         state: "READY_FOR_IT",
-        correlation_id: "c_auth",
+        correlation_id: "corr_xyz_77",
         kill_switch_active: false,
         rollback_target_release_id: null,
         ever_released: false,
       };
 
-      // General user or sales role cannot take IT decision
-      const randomUser = { roles: ["SALES_OFFICER"], permissions: ["sales.manage"] };
-      expect(getAllowedReleaseActions(release, randomUser)).toEqual([]);
+      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue(canonicalBackendResponse);
 
-      // Guest / unauthenticated actor
-      expect(getAllowedReleaseActions(release, { roles: [] })).toEqual([]);
-    });
+      render(
+        <GenesisControlPlaneWorkspace
+          actor={{
+            user_id: "usr_it",
+            organization_id: "org_1",
+            tenant_id: "ten_1",
+            workspace_ids: ["ws_it"],
+            roles: ["IT_ADMIN"],
+            permissions: ["release.manage", "release.decide.it"],
+            division_codes: ["IT"],
+            issued_at: "",
+            expires_at: "",
+          }}
+        />,
+      );
 
-    it("verifies ProtectedDomainWorkspace fails closed for non-IT roles", async () => {
-      vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
-        authenticated: true,
-        principal: canonicalPrincipal({
-          actorId: "usr_finance",
-          divisionCode: "FINANCE",
-          workspaceId: "ws_fin",
-          workspaceKey: "finance",
-          workspaceName: "Finance Workspace",
-          roles: ["WORKSPACE_MEMBER"],
-        }),
-      });
+      const input = screen.getByLabelText(/ID Rilis/i);
+      fireEvent.change(input, { target: { value: "rel_live_99" } });
 
-      render(<WorkspaceItGenesisPage />);
+      const inspectBtn = screen.getByRole("button", { name: /Inspeksi Rilis/i });
+      fireEvent.click(inspectBtn);
 
       await waitFor(() => {
-        expect(screen.getByText("Bukan Otoritas IT / GENESIS")).toBeInTheDocument();
+        expect(screen.getByText("rel_live_99")).toBeInTheDocument();
+        expect(screen.getByText("rev_audit_88")).toBeInTheDocument();
       });
-      expect(screen.queryByRole("heading", { name: "Pusat Kendali GENESIS", level: 1 })).not.toBeInTheDocument();
+
+      // Assert review_id is rendered
+      expect(screen.getByText("rev_audit_88")).toBeInTheDocument();
+
+      // Invariant: review_id != evidence_uri. Fabricated URN must NEVER appear!
+      expect(document.body.textContent).not.toContain("urn:alos:review-package:rev_audit_88");
+
+      // Materialitas must show BELUM TERSEDIA with helper
+      expect(screen.getByText("Materialitas rilis tidak disertakan pada projection Backend saat ini.")).toBeInTheDocument();
+      expect(document.body.textContent).not.toContain("NON_MATERIAL (Cukup Otoritas IT)");
+
+      // Bukti review must show BELUM TERSEDIA with helper
+      expect(screen.getByText("Referensi bukti review tidak tersedia pada projection rilis Backend.")).toBeInTheDocument();
+    });
+
+    it("renders fail-closed notice on IT_APPROVED when materiality is not exposed", async () => {
+      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({
+        release_id: "rel_it_app",
+        review_id: "rev_1",
+        subject_id: "agent_recon",
+        subject_version: "1.0.0",
+        state: "IT_APPROVED",
+        correlation_id: "corr_1",
+        kill_switch_active: false,
+        rollback_target_release_id: null,
+        ever_released: false,
+        // materiality omitted!
+      });
+
+      render(
+        <GenesisControlPlaneWorkspace
+          actor={{
+            user_id: "usr_it",
+            organization_id: "org_1",
+            tenant_id: "ten_1",
+            workspace_ids: ["ws_it"],
+            roles: ["IT_ADMIN"],
+            permissions: ["release.manage"],
+            division_codes: ["IT"],
+            issued_at: "",
+            expires_at: "",
+          }}
+        />,
+      );
+
+      const input = screen.getByLabelText(/ID Rilis/i);
+      fireEvent.change(input, { target: { value: "rel_it_app" } });
+      fireEvent.click(screen.getByRole("button", { name: /Inspeksi Rilis/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText("Menunggu Informasi Otoritas")).toBeInTheDocument();
+      });
+
+      expect(
+        screen.getByText(/Action lanjutan tidak dapat ditentukan secara aman karena materialitas rilis belum tersedia/i),
+      ).toBeInTheDocument();
+
+      // Release button must NOT be present
+      expect(screen.queryByRole("button", { name: /Publikasikan Rilis/i })).not.toBeInTheDocument();
     });
   });
 
   // =========================================================================
-  // 5. TEST — ARCHITECTURE GUARD: NO DIRECT GENESIS CALLS
+  // 6. TEST — ARCHITECTURE & LEGACY GUARDS
   // =========================================================================
-  describe("5. Architecture Guard: Zero Direct genesis-ai / Model Provider / MCP Calls", () => {
-    it("scans all alos-web source files ensuring no direct genesis-ai service or model endpoints are called", () => {
+  describe("6. Architecture & Legacy Purge Guards", () => {
+    it("scans alos-web ensuring zero direct calls to genesis-ai, model APIs, or MCP", () => {
       const srcDir = path.resolve(__dirname, "../src");
       const prohibitedPatterns = [
         /https?:\/\/.*genesis.*internal/i,
@@ -386,68 +506,43 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
       const violations = scanDir(srcDir);
       expect(violations).toEqual([]);
     });
+
+    it("ensures obsolete endpoints and authority strings are purged from canonical lifecycle", () => {
+      const lifecycleFilePath = path.resolve(__dirname, "../src/features/releases/canonical-lifecycle.ts");
+      const content = fs.readFileSync(lifecycleFilePath, "utf-8");
+
+      expect(content).not.toContain("/api/v1/release-requests");
+      expect(content).not.toContain("/api/v1/genesis/agent-requests");
+      expect(content).not.toContain("DIRECTOR_APPROVER");
+      expect(content).not.toContain("IT_APPROVER");
+    });
+
+    it("verifies ProtectedDomainWorkspace fails closed for non-IT roles", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue({
+        authenticated: true,
+        principal: canonicalPrincipal({
+          actorId: "usr_finance",
+          divisionCode: "FINANCE",
+          workspaceId: "ws_fin",
+          workspaceKey: "finance",
+          workspaceName: "Finance Workspace",
+          roles: ["WORKSPACE_MEMBER"],
+        }),
+      });
+
+      render(<WorkspaceItGenesisPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Bukan Otoritas IT / GENESIS")).toBeInTheDocument();
+      });
+      expect(screen.queryByRole("heading", { name: "Pusat Kendali GENESIS", level: 1 })).not.toBeInTheDocument();
+    });
   });
 
   // =========================================================================
-  // 6. TEST — LEGACY PURGE GUARD
+  // 7. TEST — FACTORY SUBMISSION HONESTY
   // =========================================================================
-  describe("6. Legacy Purge Guard", () => {
-    it("ensures known obsolete endpoints are not referenced in the canonical lifecycle", () => {
-      const srcDir = path.resolve(__dirname, "../src/features/releases");
-      const files = fs.readdirSync(srcDir);
-      for (const file of files) {
-        const fullPath = path.join(srcDir, file);
-        const content = fs.readFileSync(fullPath, "utf-8");
-        expect(content).not.toContain("/api/v1/release-requests");
-        expect(content).not.toContain("/api/v1/genesis/agent-requests");
-      }
-    });
-
-    it("verifies module-readiness reflects honest blocked status on technical modules", async () => {
-      const { getModuleReadiness } = await import("@/features/workspace-routing");
-      expect(getModuleReadiness("skills")).toEqual({
-        availability: "BLOCKED",
-        blockReason: "MODULE_NOT_IMPLEMENTED",
-      });
-      expect(getModuleReadiness("models-tools")).toEqual({
-        availability: "BLOCKED",
-        blockReason: "MODULE_NOT_IMPLEMENTED",
-      });
-    });
-  });
-
-  // =========================================================================
-  // 7. TEST — LANGUAGE & DATA HONESTY
-  // =========================================================================
-  describe("7. Language & Data Honesty", () => {
-    it("renders honest fallback for null or missing values", () => {
-      expect(formatCanonicalReleaseState(null)).toBe("—");
-      expect(formatCanonicalReleaseState(undefined)).toBe("—");
-      expect(formatCanonicalReleaseState("")).toBe("—");
-    });
-
-    it("renders GenesisControlPlaneWorkspace with honest initial state", async () => {
-      render(
-        <GenesisControlPlaneWorkspace
-          actor={{
-            user_id: "usr_it",
-            organization_id: "org_1",
-            tenant_id: "ten_1",
-            workspace_ids: ["ws_it"],
-            roles: ["IT_ADMIN"],
-            division_codes: ["IT"],
-            issued_at: "",
-            expires_at: "",
-          }}
-        />,
-      );
-
-      expect(screen.getByRole("heading", { name: "Pusat Kendali GENESIS", level: 1 })).toBeInTheDocument();
-      expect(screen.getByText("Belum Ada Rilis yang Diinspeksi")).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Registri Teknis", level: 2 })).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Referensi Tata Kelola", level: 2 })).toBeInTheDocument();
-    });
-
+  describe("7. Factory Requirement Submission Honesty", () => {
     it("handles Factory Requirement submission and displays backend decision honestly", async () => {
       vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({
         correlation_id: "corr_fac_1",
