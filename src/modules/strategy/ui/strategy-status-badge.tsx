@@ -14,7 +14,7 @@ export function StrategyStatusBadge({ status, label }: StrategyStatusBadgeProps)
   if (!status) {
     badgeClass = styles.badgeNotConnected;
     text = label ?? "—";
-  } else if (status === "CONNECTED") {
+  } else if (status === "LIVE") {
     badgeClass = styles.badgeConnected;
     text = label ?? "TERHUBUNG";
   } else if (status === "NOT_CONNECTED") {
@@ -26,10 +26,10 @@ export function StrategyStatusBadge({ status, label }: StrategyStatusBadgeProps)
   } else if (status === "AT_RISK") {
     badgeClass = styles.badgeAtRisk;
     text = label ?? strategyStatusLabel(status as StrategyStatus);
-  } else if (status === "BEHIND") {
+  } else if (status === "OFF_TRACK" || status === "ERROR" || status === "REJECTED") {
     badgeClass = styles.badgeBehind;
     text = label ?? strategyStatusLabel(status as StrategyStatus);
-  } else if (status === "UNDER_REVIEW" || status === "REVISED") {
+  } else if (status === "NOT_EVALUATED" || status === "LOADING" || status === "PARTIAL" || status === "STALE") {
     badgeClass = styles.badgeUnderReview;
     text = label ?? strategyStatusLabel(status as StrategyStatus);
   }

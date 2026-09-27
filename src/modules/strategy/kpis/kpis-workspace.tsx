@@ -55,7 +55,7 @@ export function KpisWorkspace({
 
       <StrategySourceStrip
         helperText="Sumber indikator kinerja utama belum terhubung dari Backend."
-        state={kpis.length > 0 ? "CONNECTED" : "NOT_CONNECTED"}
+        state={kpis.length > 0 ? "LIVE" : "NOT_CONNECTED"}
       />
 
       <section aria-labelledby="kpis-table-title">
@@ -101,7 +101,7 @@ export function KpisWorkspace({
                   ) : null}
                 </td>
                 <td>{kpi.objective_title ?? "—"}</td>
-                <td>{kpi.owner ?? "—"}</td>
+                <td>{kpi.owner_role_ref ?? "—"}</td>
                 <td className={styles.codeCell}>
                   {kpi.target !== null && kpi.target !== undefined ? `${kpi.target} ${kpi.unit ?? ""}` : "—"}
                 </td>

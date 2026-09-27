@@ -65,7 +65,7 @@ export const CorrectiveActionsPanel: React.FC<CorrectiveActionsPanelProps> = ({
                 <p className={styles.actionCardDesc}>{act.description}</p>
               )}
               <div className={styles.actionMeta}>
-                <span>Pemilik: {act.owner ?? "—"}</span>
+                <span>Pemilik role: {act.owner_role_ref ?? "—"}</span>
                 <span>Tenggat: {act.due_date ?? "—"}</span>
                 {act.linked_project_id ? (
                   <span className={styles.tagProject}>

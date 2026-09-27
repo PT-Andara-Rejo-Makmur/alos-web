@@ -24,7 +24,7 @@ export const InitiativesWorkspace: React.FC<InitiativesWorkspaceProps> = ({
 }) => {
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
-  const isSourceConnected = sourceState === "CONNECTED";
+  const isSourceConnected = sourceState === "LIVE";
 
   return (
     <div className={styles.strategyRoot}>
@@ -124,7 +124,7 @@ export const InitiativesWorkspace: React.FC<InitiativesWorkspaceProps> = ({
                       "—"
                     )}
                   </td>
-                  <td>{item.owner ?? "—"}</td>
+                  <td>{item.owner_role_ref ?? "—"}</td>
                   <td>{item.period ?? "—"}</td>
                   <td>
                     <StrategyStatusBadge status={item.status} />

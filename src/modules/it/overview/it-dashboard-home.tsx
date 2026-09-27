@@ -10,6 +10,7 @@ import {
   ItStatusBadge,
 } from "@/modules/it/ui";
 import { StrategyPerformanceSummary } from "@/modules/strategy";
+import { BusinessDashboardFoundation } from "@/features/business-foundation";
 import { ItDataReadiness } from "./it-data-readiness";
 import type { ItDashboardSnapshot } from "./types";
 import styles from "./it-dashboard.module.css";
@@ -28,6 +29,7 @@ export function ItDashboardHome({ snapshot }: ItDashboardHomeProps) {
       />
 
       <ItDataReadiness items={snapshot.readiness} />
+      <BusinessDashboardFoundation dashboard="it" />
 
       <section aria-labelledby="systems-delivery-title" className={styles.section}>
         <ItSectionHeader

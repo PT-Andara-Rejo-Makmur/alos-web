@@ -22,7 +22,7 @@ export const StrategicSourcesWorkspace: React.FC<StrategicSourcesWorkspaceProps>
   sources = [],
   sourceState = "NOT_CONNECTED",
 }) => {
-  const isSourceConnected = sourceState === "CONNECTED";
+  const isSourceConnected = sourceState === "LIVE";
   const documentCenterUrl = `/workspace/${context.workspaceKey}/documents`;
 
   return (
@@ -113,7 +113,7 @@ export const StrategicSourcesWorkspace: React.FC<StrategicSourcesWorkspaceProps>
                   <td className={styles.primaryCell}>{doc.document_name}</td>
                   <td>{doc.document_type ?? "Rencana Strategis"}</td>
                   <td className={styles.codeCell}>{doc.version ?? "1.0"}</td>
-                  <td>{doc.owner ?? "—"}</td>
+                  <td>{doc.owner_role_ref ?? "—"}</td>
                   <td>{doc.date ?? "—"}</td>
                   <td>
                     <StrategyStatusBadge status={doc.status ?? "TERCATAT"} />

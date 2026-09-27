@@ -1,3 +1,5 @@
+import type { DataReadinessState, LifecycleState, MeasurementType, PerformanceState } from "@/features/business-foundation";
+
 /**
  * Frontend-only View Models for Strategy & Performance.
  * 
@@ -6,25 +8,13 @@
  * All fields are null-safe and optional.
  */
 
-export type StrategySourceState = "CONNECTED" | "NOT_CONNECTED" | "LOADING" | "ERROR";
+export type StrategySourceState = DataReadinessState;
 
 export type StrategicHorizon = "SHORT_TERM" | "MEDIUM_TERM" | "LONG_TERM";
 
-export type KpiMeasurementType =
-  | "HIGHER_IS_BETTER"
-  | "LOWER_IS_BETTER"
-  | "BINARY"
-  | "MILESTONE"
-  | "CUMULATIVE"
-  | "PERCENTAGE";
+export type KpiMeasurementType = MeasurementType;
 
-export type StrategyStatus =
-  | "ON_TRACK"
-  | "AT_RISK"
-  | "BEHIND"
-  | "ACHIEVED"
-  | "UNDER_REVIEW"
-  | "REVISED";
+export type StrategyStatus = PerformanceState;
 
 export interface StrategicObjectiveViewModel {
   readonly id: string;
@@ -32,7 +22,8 @@ export interface StrategicObjectiveViewModel {
   readonly description?: string | null;
   readonly horizon?: StrategicHorizon | string | null;
   readonly period?: string | null;
-  readonly owner?: string | null;
+  readonly owner_role_ref?: string | null;
+  readonly lifecycle_state?: LifecycleState | null;
   readonly status?: StrategyStatus | string | null;
   readonly source?: string | null;
   readonly performance?: number | null;
@@ -44,7 +35,8 @@ export interface KpiViewModel {
   readonly name: string;
   readonly objective_id?: string | null;
   readonly objective_title?: string | null;
-  readonly owner?: string | null;
+  readonly owner_role_ref?: string | null;
+  readonly lifecycle_state?: LifecycleState | null;
   readonly measurement_type?: KpiMeasurementType | string | null;
   readonly target?: number | string | null;
   readonly actual?: number | string | null;
@@ -63,7 +55,8 @@ export interface InitiativeViewModel {
   readonly objective_title?: string | null;
   readonly kpi_ids?: readonly string[];
   readonly kpi_names?: readonly string[];
-  readonly owner?: string | null;
+  readonly owner_role_ref?: string | null;
+  readonly lifecycle_state?: LifecycleState | null;
   readonly period?: string | null;
   readonly status?: StrategyStatus | string | null;
   readonly related_project_ids?: readonly string[];
@@ -74,7 +67,8 @@ export interface CorrectiveActionItem {
   readonly id: string;
   readonly title: string;
   readonly description?: string | null;
-  readonly owner?: string | null;
+  readonly owner_role_ref?: string | null;
+  readonly lifecycle_state?: LifecycleState | null;
   readonly due_date?: string | null;
   readonly status?: string | null;
   readonly linked_project_id?: string | null;
@@ -92,7 +86,8 @@ export interface PerformanceReviewViewModel {
   readonly root_cause_analysis?: string | null;
   readonly impact_analysis?: string | null;
   readonly corrective_actions?: readonly CorrectiveActionItem[];
-  readonly owner?: string | null;
+  readonly owner_role_ref?: string | null;
+  readonly lifecycle_state?: LifecycleState | null;
   readonly next_review_date?: string | null;
   readonly evidence_refs?: readonly string[];
 }
@@ -104,8 +99,8 @@ export interface TargetRevisionViewModel {
   readonly previous_value?: string | number | null;
   readonly proposed_value?: string | number | null;
   readonly reason: string;
-  readonly proposer?: string | null;
-  readonly approver?: string | null;
+  readonly proposer_role_ref?: string | null;
+  readonly approver_role_ref?: string | null;
   readonly effective_date?: string | null;
   readonly status: "PROPOSED" | "APPROVED" | "REJECTED" | "SUPERSEDED" | string;
   readonly evidence_refs?: readonly string[];
@@ -116,7 +111,7 @@ export interface StrategicSourceDocumentViewModel {
   readonly document_name: string;
   readonly document_type?: string | null;
   readonly version?: string | null;
-  readonly owner?: string | null;
+  readonly owner_role_ref?: string | null;
   readonly date?: string | null;
   readonly status?: string | null;
   readonly reference_code?: string | null;

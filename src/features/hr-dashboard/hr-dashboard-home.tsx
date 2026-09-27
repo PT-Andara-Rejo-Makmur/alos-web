@@ -7,6 +7,7 @@ import { GrievancePersonnelPanel } from "./grievance-personnel-panel";
 import { HrControlCadence } from "./hr-control-cadence";
 import { HrAgentSupport } from "./hr-agent-support";
 import { StrategyPerformanceSummary } from "@/modules/strategy";
+import { BusinessDashboardFoundation } from "@/features/business-foundation";
 import styles from "./hr-dashboard.module.css";
 
 export function HrDashboardHome({
@@ -29,6 +30,7 @@ export function HrDashboardHome({
 
       {/* HR Data Readiness Panel */}
       <HrDataReadiness items={snapshot.readiness} />
+      <BusinessDashboardFoundation dashboard="hr" />
 
       {/* Top 4 Aggregate KPI Metrics Grid */}
       <HrMetricGrid metrics={snapshot.metrics} />

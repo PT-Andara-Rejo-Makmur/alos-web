@@ -28,3 +28,4 @@ export * from "./performance-reviews/performance-reviews-workspace";
 export * from "./corrective-actions/corrective-actions-panel";
 export * from "./target-revisions/target-revisions-workspace";
 export * from "./sources/strategic-sources-workspace";
+export * from "./planning/planning-workspaces";

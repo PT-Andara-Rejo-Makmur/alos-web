@@ -24,7 +24,7 @@ export const TargetRevisionsWorkspace: React.FC<TargetRevisionsWorkspaceProps> =
 }) => {
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
-  const isSourceConnected = sourceState === "CONNECTED";
+  const isSourceConnected = sourceState === "LIVE";
 
   return (
     <div className={styles.strategyRoot}>
@@ -106,8 +106,8 @@ export const TargetRevisionsWorkspace: React.FC<TargetRevisionsWorkspaceProps> =
                   <td>{rev.previous_value ?? "—"}</td>
                   <td className={styles.primaryCell}>{rev.proposed_value ?? "—"}</td>
                   <td className={styles.textWrapCell}>{rev.reason}</td>
-                  <td>{rev.proposer ?? "—"}</td>
-                  <td>{rev.approver ?? "—"}</td>
+                  <td>{rev.proposer_role_ref ?? "—"}</td>
+                  <td>{rev.approver_role_ref ?? "—"}</td>
                   <td>{rev.effective_date ?? "—"}</td>
                   <td>
                     <StrategyStatusBadge status={rev.status} />

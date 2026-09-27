@@ -25,7 +25,7 @@ export const PerformanceReviewsWorkspace: React.FC<PerformanceReviewsWorkspacePr
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
 
-  const isSourceConnected = sourceState === "CONNECTED";
+  const isSourceConnected = sourceState === "LIVE";
 
   return (
     <div className={styles.strategyRoot}>
@@ -128,7 +128,7 @@ export const PerformanceReviewsWorkspace: React.FC<PerformanceReviewsWorkspacePr
                       <td>
                         <StrategyStatusBadge status={rev.status} />
                       </td>
-                      <td>{rev.owner ?? "—"}</td>
+                      <td>{rev.owner_role_ref ?? "—"}</td>
                       <td>{rev.next_review_date ?? "—"}</td>
                       <td>
                         {rev.evidence_refs && rev.evidence_refs.length > 0 ? (

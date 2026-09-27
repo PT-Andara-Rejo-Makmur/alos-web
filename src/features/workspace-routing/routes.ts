@@ -161,6 +161,9 @@ export const WORKSPACE_MODULE_ALLOWLIST: Record<CanonicalWorkspaceKey, readonly 
 };
 
 export const STRATEGY_SUBMODULE_ALLOWLIST: readonly string[] = [
+  "renstra",
+  "annual-plan",
+  "targets",
   "objectives",
   "kpis",
   "initiatives",
@@ -241,8 +244,11 @@ export function isKnownGovernanceSubmodule(submodule: string): boolean {
 /**
  * Checks whether a submodule is an officially known Strategy submodule.
  */
-export function isKnownStrategySubmodule(submodule: string): boolean {
-  return STRATEGY_SUBMODULE_ALLOWLIST.includes(normalizeCanonicalModuleSegment(submodule));
+export function isKnownStrategySubmodule(submodule: string, workspaceKey?: string): boolean {
+  const normalizedSubmodule = normalizeCanonicalModuleSegment(submodule);
+  const normalizedWorkspace = workspaceKey ? normalizeWorkspaceKey(workspaceKey) : null;
+  if (normalizedSubmodule === "annual-plan" && workspaceKey && normalizedWorkspace !== "executive") return false;
+  return STRATEGY_SUBMODULE_ALLOWLIST.includes(normalizedSubmodule);
 }
 
 /**
@@ -297,7 +303,7 @@ export function getStrategyRoute(workspaceKey: string, submodule?: string): stri
   if (!normalized) return WORKSPACE_ROUTES.resolver;
   if (!submodule) return `/workspace/${normalized}/strategy`;
   const cleanSubpath = normalizeCanonicalModuleSegment(submodule.replace(/^\/+/, ""));
-  if (!isKnownStrategySubmodule(cleanSubpath)) {
+  if (!isKnownStrategySubmodule(cleanSubpath, normalized)) {
     return `/workspace/${normalized}/strategy`;
   }
   return `/workspace/${normalized}/strategy/${cleanSubpath}`;

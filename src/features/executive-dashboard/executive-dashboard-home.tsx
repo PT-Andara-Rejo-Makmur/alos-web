@@ -12,6 +12,7 @@ import {
   projectEarlyWarnings,
 } from "./executive-dashboard-projection";
 import styles from "./executive-dashboard.module.css";
+import { BusinessDashboardFoundation } from "@/features/business-foundation";
 
 interface ExecutiveDashboardHomeProps {
   readonly snapshot: ExecutiveDashboardSnapshot;
@@ -68,6 +69,8 @@ export function ExecutiveDashboardHome({ snapshot }: ExecutiveDashboardHomeProps
         </div>
         <span>Data operasional terkini PT Andara Rejo Makmur</span>
       </div>
+
+      <BusinessDashboardFoundation dashboard="executive" />
 
       {/* 2. Strategi & Kinerja Perusahaan */}
       <section className={styles.strategyCard} aria-label="Strategi & Kinerja Perusahaan">

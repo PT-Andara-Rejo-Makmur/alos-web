@@ -8,6 +8,7 @@ import { FinanceApprovalPanel } from "./finance-approval-panel";
 import { FinanceAgentSupport } from "./finance-agent-support";
 import { FinanceWalletsPanel } from "./finance-wallets-panel";
 import { StrategyPerformanceSummary } from "@/modules/strategy";
+import { BusinessDashboardFoundation } from "@/features/business-foundation";
 import styles from "./finance-dashboard.module.css";
 
 interface FinanceDashboardHomeProps {
@@ -29,6 +30,7 @@ export function FinanceDashboardHome({ snapshot }: FinanceDashboardHomeProps) {
         {/* 1. Data Readiness */}
         <div className={styles.orderReadiness}>
           <FinanceDataReadiness items={snapshot.source_readiness} />
+          <BusinessDashboardFoundation dashboard="finance" />
         </div>
 
         {/* 2. Metrics 4 Cards */}

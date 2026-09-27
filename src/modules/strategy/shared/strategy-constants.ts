@@ -18,20 +18,39 @@ export const DEFAULT_UNCONNECTED_STRATEGY_OVERVIEW: StrategyOverviewViewModel = 
 
 export const STRATEGY_SOURCE_HELPERS = {
   NOT_CONNECTED: "Sumber strategi dan KPI resmi dari Backend belum tersedia.",
-  CONNECTED: "Terhubung dengan sistem strategi dan KPI Backend.",
+  LIVE: "Terhubung dengan sumber strategi dan KPI authoritative Backend.",
+  PARTIAL: "Sebagian sumber strategi dan KPI tersedia.",
+  STALE: "Data strategi tersedia tetapi telah melewati freshness rule.",
   LOADING: "Memuat data strategi dari Backend…",
   ERROR: "Terjadi kesalahan saat memuat sumber strategi Backend.",
 } as const;
 
-export const STRATEGY_SUBMODULES = [
-  { key: "overview", label: "Ringkasan", hrefSuffix: "" },
+export const EXECUTIVE_STRATEGY_SUBMODULES = [
+  { key: "overview", label: "Overview", hrefSuffix: "" },
+  { key: "renstra", label: "Renstra", hrefSuffix: "/renstra" },
+  { key: "annual-plan", label: "RKAP & Rencana Kerja", hrefSuffix: "/annual-plan" },
+  { key: "targets", label: "Target Perusahaan", hrefSuffix: "/targets" },
   { key: "objectives", label: "Sasaran", hrefSuffix: "/objectives" },
   { key: "kpis", label: "KPI", hrefSuffix: "/kpis" },
   { key: "initiatives", label: "Inisiatif", hrefSuffix: "/initiatives" },
   { key: "reviews", label: "Review Kinerja", hrefSuffix: "/reviews" },
   { key: "revisions", label: "Revisi Target", hrefSuffix: "/revisions" },
-  { key: "sources", label: "Sumber Dokumen", hrefSuffix: "/sources" },
+  { key: "sources", label: "Sumber Strategis", hrefSuffix: "/sources" },
 ] as const;
+
+export const DIVISION_STRATEGY_SUBMODULES = [
+  { key: "overview", label: "Overview", hrefSuffix: "" },
+  { key: "renstra", label: "Renstra", hrefSuffix: "/renstra" },
+  { key: "targets", label: "Target Divisi", hrefSuffix: "/targets" },
+  ...EXECUTIVE_STRATEGY_SUBMODULES.filter((item) => ["objectives", "kpis", "initiatives", "reviews", "revisions", "sources"].includes(item.key)),
+] as const;
+
+/** Backward-compatible corporate export. Prefer getStrategySubmodules for contextual navigation. */
+export const STRATEGY_SUBMODULES = EXECUTIVE_STRATEGY_SUBMODULES;
+
+export function getStrategySubmodules(workspaceKey: string) {
+  return workspaceKey === "executive" ? EXECUTIVE_STRATEGY_SUBMODULES : DIVISION_STRATEGY_SUBMODULES;
+}
 
 export function horizonLabel(horizon?: StrategicHorizon | string | null): string {
   if (!horizon) return "—";
@@ -74,14 +93,12 @@ export function strategyStatusLabel(status?: StrategyStatus | string | null): st
       return "Sesuai Rencana";
     case "AT_RISK":
       return "Berisiko";
-    case "BEHIND":
+    case "OFF_TRACK":
       return "Tidak Sesuai Rencana";
     case "ACHIEVED":
       return "Tercapai";
-    case "UNDER_REVIEW":
-      return "Dalam Review";
-    case "REVISED":
-      return "Direvisi";
+    case "NOT_EVALUATED":
+      return "Belum Dievaluasi";
     default:
       return String(status);
   }

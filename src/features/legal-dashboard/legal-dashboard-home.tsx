@@ -8,6 +8,7 @@ import { ComplianceControlPanel } from "./compliance-control-panel";
 import { LegalControlCadence } from "./legal-control-cadence";
 import { LegalAgentSupport } from "./legal-agent-support";
 import { StrategyPerformanceSummary } from "@/modules/strategy";
+import { BusinessDashboardFoundation } from "@/features/business-foundation";
 import type { LegalDashboardSnapshot } from "./types";
 import styles from "./legal-dashboard.module.css";
 
@@ -33,6 +34,7 @@ export function LegalDashboardHome({ snapshot }: LegalDashboardHomeProps) {
 
       {/* Legal Data Readiness */}
       <LegalDataReadiness items={snapshot.readiness} />
+      <BusinessDashboardFoundation dashboard="legal" />
 
       {/* Top 4 KPI Metrics */}
       <LegalMetricGrid metrics={snapshot.metrics} />

@@ -17,6 +17,7 @@ import { PerformanceReviewsWorkspace } from "../performance-reviews/performance-
 import { TargetRevisionsWorkspace } from "../target-revisions/target-revisions-workspace";
 import { StrategicSourcesWorkspace } from "../sources/strategic-sources-workspace";
 import type { StrategyContext } from "./types";
+import { AnnualPlanWorkspace, RenstraWorkspace, TargetsWorkspace } from "../planning/planning-workspaces";
 
 interface StrategySubmoduleRunnerProps {
   readonly workspaceKey: CanonicalWorkspaceKey;
@@ -45,7 +46,7 @@ export function StrategySubmoduleRunner({
     redirect(`/workspace/${workspaceKey}/strategy/${rawSubmodule}`);
   }
 
-  if (rawSubmodule && !isKnownStrategySubmodule(rawSubmodule)) {
+  if (rawSubmodule && !isKnownStrategySubmodule(rawSubmodule, workspaceKey)) {
     notFound();
   }
 
@@ -71,6 +72,16 @@ export function StrategySubmoduleRunner({
         };
 
         switch (rawSubmodule) {
+          case "renstra":
+            return <RenstraWorkspace context={context} />;
+          case "annual-plan":
+            if (workspaceKey !== "executive") {
+              notFound();
+              return null;
+            }
+            return <AnnualPlanWorkspace context={context} />;
+          case "targets":
+            return <TargetsWorkspace context={context} />;
           case "objectives":
             return <ObjectivesWorkspace context={context} />;
           case "kpis":

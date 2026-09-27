@@ -310,13 +310,16 @@ export function projectWorkspaceNavigation(
       // Group: STRATEGI_KINERJA
       {
         key: "strategy",
-        label: "Ringkasan Strategi",
+        label: "Overview",
         href: "/workspace/executive/strategy",
         icon: "Target",
         group: "STRATEGI_KINERJA",
         available: false,
         navigable: true,
       },
+      { key: "renstra", label: "Renstra", href: "/workspace/executive/strategy/renstra", icon: "Target", group: "STRATEGI_KINERJA", available: false, navigable: true },
+      { key: "annual-plan", label: "RKAP & Rencana Kerja", href: "/workspace/executive/strategy/annual-plan", icon: "CalendarDays", group: "STRATEGI_KINERJA", available: false, navigable: true },
+      { key: "targets", label: "Target Perusahaan", href: "/workspace/executive/strategy/targets", icon: "Gauge", group: "STRATEGI_KINERJA", available: false, navigable: true },
       {
         key: "objectives",
         label: "Sasaran",
@@ -353,6 +356,8 @@ export function projectWorkspaceNavigation(
         available: false,
         navigable: true,
       },
+      { key: "revisions", label: "Revisi Target", href: "/workspace/executive/strategy/revisions", icon: "RefreshCcw", group: "STRATEGI_KINERJA", available: false, navigable: true },
+      { key: "sources", label: "Sumber Strategis", href: "/workspace/executive/strategy/sources", icon: "Files", group: "STRATEGI_KINERJA", available: false, navigable: true },
       // Group: ORGANIZATION (ORGANISASI)
       {
         key: "divisions",

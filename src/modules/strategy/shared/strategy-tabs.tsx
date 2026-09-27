@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { STRATEGY_SUBMODULES } from "./strategy-constants";
+import { getStrategySubmodules } from "./strategy-constants";
 import styles from "../ui/strategy-ui.module.css";
 
 interface StrategyTabsProps {
@@ -14,7 +14,7 @@ export function StrategyTabs({ workspaceKey, activeSubmodule, activeTab }: Strat
 
   return (
     <nav aria-label="Navigasi Bagian Strategi" className={styles.tabsContainer}>
-      {STRATEGY_SUBMODULES.map((submodule) => {
+      {getStrategySubmodules(workspaceKey).map((submodule) => {
         const href = `${basePath}${submodule.hrefSuffix}`;
         const isActive = currentSubmodule === submodule.key;
 

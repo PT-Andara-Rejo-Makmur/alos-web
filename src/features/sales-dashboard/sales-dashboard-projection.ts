@@ -57,15 +57,18 @@ export const DEFAULT_SALES_METRICS: readonly SalesMetricItem[] = [
 ];
 
 /**
- * 5-stage Lead-to-Cash funnel skeleton.
+ * Canonical 8-stage commercial pipeline presentation.
  * In accordance with WF-03, booking does NOT auto-close and requires Finance/Legal handoff.
  */
 export const DEFAULT_SALES_FUNNEL: readonly SalesFunnelStage[] = [
-  { stage: "lead", label: "Lead Masuk", count: null, conversionRate: null },
-  { stage: "qualified", label: "Terkualifikasi", count: null, conversionRate: null },
-  { stage: "visit", label: "Site Visit", count: null, conversionRate: null },
-  { stage: "booking", label: "Reservasi / Booking", count: null, conversionRate: null },
-  { stage: "closing", label: "Akad & Closing", count: null, conversionRate: null },
+  { stage: "lead", label: "Lead", count: null, conversionRate: null },
+  { stage: "qualified", label: "Qualified", count: null, conversionRate: null },
+  { stage: "survey", label: "Survey", count: null, conversionRate: null },
+  { stage: "booking_fee", label: "Booking Fee", count: null, conversionRate: null },
+  { stage: "spk", label: "SPK", count: null, conversionRate: null },
+  { stage: "kpr_submitted", label: "KPR Submitted", count: null, conversionRate: null },
+  { stage: "sp3k", label: "SP3K", count: null, conversionRate: null },
+  { stage: "akad", label: "Akad", count: null, conversionRate: null },
 ];
 
 /**

@@ -51,7 +51,7 @@ export function ObjectivesWorkspace({
 
       <StrategySourceStrip
         helperText="Sumber sasaran strategis belum terhubung dari Backend."
-        state={objectives.length > 0 ? "CONNECTED" : "NOT_CONNECTED"}
+        state={objectives.length > 0 ? "LIVE" : "NOT_CONNECTED"}
       />
 
       <section aria-labelledby="objectives-table-title">
@@ -79,7 +79,7 @@ export function ObjectivesWorkspace({
               </td>
               <td>{horizonLabel(obj.horizon)}</td>
               <td>{obj.period ?? "—"}</td>
-              <td>{obj.owner ?? "—"}</td>
+              <td>{obj.owner_role_ref ?? "—"}</td>
               <td>
                 <StrategyStatusBadge
                   label={strategyStatusLabel(obj.status)}

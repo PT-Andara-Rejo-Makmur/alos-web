@@ -27,7 +27,7 @@ export const StrategyPerformanceSummary: React.FC<StrategyPerformanceSummaryProp
   kpiAchievementPercent = null,
   objectiveAchievementPercent = null,
 }) => {
-  const isSourceConnected = sourceState === "CONNECTED";
+  const isSourceConnected = sourceState === "LIVE";
   const resolvedWorkspaceKey = context?.workspaceKey ?? workspaceKey;
   const strategyBaseUrl = `/workspace/${resolvedWorkspaceKey}/strategy`;
 

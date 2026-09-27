@@ -168,34 +168,32 @@ describe("ALOS Sales & Marketing Dashboard", () => {
     });
   });
 
-  // 9. Lead-to-Cash funnel renders 5 skeleton stages with "—" and retains WF-03 handoff
-  it("9. Funnel Lead-to-Cash menampilkan 5 tahap skeleton dengan em-dash dan penjelasan handoff Finance/Legal", () => {
+  // 9. Canonical commercial funnel renders 8 skeleton stages and retains WF-03 handoff
+  it("9. Funnel komersial menampilkan 8 tahap kanonis dengan em-dash dan handoff Finance/Legal", () => {
     render(<SalesFunnelPanel stages={DEFAULT_SALES_FUNNEL} />);
 
     expect(screen.getByText("Lead-to-Cash Sales Funnel")).toBeInTheDocument();
-    expect(screen.getByText("Lead Masuk")).toBeInTheDocument();
-    expect(screen.getByText("Terkualifikasi")).toBeInTheDocument();
-    expect(screen.getByText("Site Visit")).toBeInTheDocument();
-    expect(screen.getByText("Reservasi / Booking")).toBeInTheDocument();
-    expect(screen.getByText("Akad & Closing")).toBeInTheDocument();
+    ["Lead", "Qualified", "Survey", "Booking Fee", "SPK", "KPR Submitted", "SP3K", "Akad"].forEach((stage) => {
+      expect(screen.getByText(stage)).toBeInTheDocument();
+    });
 
     const dashes = screen.getAllByText("—");
-    expect(dashes.length).toBe(5);
+    expect(dashes.length).toBe(8);
 
     expect(
       screen.getByText(/Tahap booking diverifikasi bersama tim Finance & Legal sebelum akad/i),
     ).toBeInTheDocument();
   });
 
-  // 10. Booking is not considered closing/akad/handover (separate stages in funnel)
-  it("10. membedakan tahap Reservasi / Booking dengan Akad & Closing (bukan auto-closing)", () => {
-    const bookingStage = DEFAULT_SALES_FUNNEL.find((s) => s.stage === "booking");
-    const closingStage = DEFAULT_SALES_FUNNEL.find((s) => s.stage === "closing");
+  // 10. Booking Fee is not considered Akad (separate stages in funnel)
+  it("10. membedakan tahap Booking Fee dengan Akad (bukan auto-closing)", () => {
+    const bookingStage = DEFAULT_SALES_FUNNEL.find((s) => s.stage === "booking_fee");
+    const closingStage = DEFAULT_SALES_FUNNEL.find((s) => s.stage === "akad");
 
     expect(bookingStage).toBeDefined();
     expect(closingStage).toBeDefined();
-    expect(bookingStage?.label).toBe("Reservasi / Booking");
-    expect(closingStage?.label).toBe("Akad & Closing");
+    expect(bookingStage?.label).toBe("Booking Fee");
+    expect(closingStage?.label).toBe("Akad");
   });
 
   // 11. Daily Control Response & Follow-up displays "—" and WA API note

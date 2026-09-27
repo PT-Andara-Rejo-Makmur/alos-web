@@ -13,6 +13,7 @@ import { ConstructionControlCadence } from "./construction-control-cadence";
 import { PropertyAgentSupport } from "./property-agent-support";
 import { PropertyOperationsDrawer } from "./property-operations-drawer";
 import { StrategyPerformanceSummary } from "@/modules/strategy";
+import { BusinessDashboardFoundation } from "@/features/business-foundation";
 import styles from "./property-dashboard.module.css";
 
 interface PropertyDashboardHomeProps {
@@ -106,6 +107,7 @@ export function PropertyDashboardHome({
 
       {/* Property Data Readiness Indicator Card */}
       <PropertyDataReadiness readiness={snapshot.readiness} />
+      <BusinessDashboardFoundation dashboard="property" />
 
       {/* Top 4 KPI Metrics Grid */}
       <PropertyMetricGrid metrics={snapshot.portfolio.metrics} />

@@ -9,6 +9,7 @@ import { SalesChannelAttributionPanel } from "./sales-channel-attribution-panel"
 import { SalesControlCadence } from "./sales-control-cadence";
 import { SalesAgentSupport } from "./sales-agent-support";
 import { StrategyPerformanceSummary } from "@/modules/strategy";
+import { BusinessDashboardFoundation } from "@/features/business-foundation";
 import styles from "./sales-dashboard.module.css";
 
 export function SalesDashboardHome({
@@ -40,6 +41,7 @@ export function SalesDashboardHome({
 
       {/* Sales Data Readiness Panel */}
       <SalesDataReadiness items={snapshot.readiness} />
+      <BusinessDashboardFoundation dashboard="sales" />
 
       {/* Top 4 KPI Metrics Grid */}
       <SalesMetricGrid metrics={snapshot.metrics} />

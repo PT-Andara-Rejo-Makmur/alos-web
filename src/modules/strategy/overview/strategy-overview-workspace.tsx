@@ -128,7 +128,7 @@ export function StrategyOverviewWorkspace({
               <td className={styles.primaryCell}>{obj.title}</td>
               <td>{obj.horizon ?? "—"}</td>
               <td>{obj.period ?? "—"}</td>
-              <td>{obj.owner ?? "—"}</td>
+              <td>{obj.owner_role_ref ?? "—"}</td>
               <td>{obj.status ?? "—"}</td>
             </tr>
           ))}
@@ -190,7 +190,7 @@ export function StrategyOverviewWorkspace({
             <tr key={init.id}>
               <td className={styles.primaryCell}>{init.title}</td>
               <td>{init.objective_title ?? "—"}</td>
-              <td>{init.owner ?? "—"}</td>
+              <td>{init.owner_role_ref ?? "—"}</td>
               <td>{init.period ?? "—"}</td>
               <td>{init.related_project_names?.join(", ") || "—"}</td>
             </tr>
