@@ -17,6 +17,7 @@ import {
 } from "@/features/releases";
 import { GenesisControlPlaneWorkspace } from "@/modules/it/genesis/control-plane";
 import WorkspaceItGenesisPage from "@/app/workspace/it/genesis/page";
+import { getModuleReadiness } from "@/features/workspace-routing";
 
 const mockRouter = {
   push: vi.fn(),
@@ -77,8 +78,8 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
     it("projects active stage keys without assuming non-material when materiality is omitted", () => {
       expect(getActiveLifecycleStage("DRAFT")).toBe("DRAFT");
       expect(getActiveLifecycleStage("IMPLEMENTED")).toBe("AUTOMATED_QA");
-      expect(getActiveLifecycleStage("AUTOMATED_ASSURANCE")).toBe("AUTOMATED_QA");
-      expect(getActiveLifecycleStage("AI_REVIEWED")).toBe("GENESIS_REVIEW");
+      expect(getActiveLifecycleStage("AUTOMATED_ASSURANCE")).toBe("GENESIS_REVIEW");
+      expect(getActiveLifecycleStage("AI_REVIEWED")).toBeNull();
       expect(getActiveLifecycleStage("READY_FOR_IT")).toBe("IT_DECISION");
       // IT_APPROVED with unknown materiality must return null (unknown next stage, fail closed!)
       expect(getActiveLifecycleStage("IT_APPROVED")).toBeNull();
@@ -98,25 +99,36 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
     });
 
     it("projects truthful stage statuses for terminal and deviation states without index completion assumption", () => {
-      // REJECTED
+      // REJECTED: must not assert IT or Director authority when not provided by Backend
       const rejectedProj = projectLifecycleStages("REJECTED");
       expect(rejectedProj.isTerminalOrDeviation).toBe(true);
-      expect(rejectedProj.stageStatuses.IT_DECISION).toBe("REJECTED");
+      expect(rejectedProj.stageStatuses.IT_DECISION).not.toBe("REJECTED");
+      expect(rejectedProj.stageStatuses.DIRECTOR_DECISION).not.toBe("REJECTED");
+      expect(rejectedProj.stageStatuses.IT_DECISION).toBe("UNKNOWN");
+      expect(rejectedProj.stageStatuses.DIRECTOR_DECISION).toBe("UNKNOWN");
       expect(rejectedProj.stageStatuses.RELEASE).toBe("PENDING");
       expect(rejectedProj.stageStatuses.ACTIVE).toBe("PENDING");
-      expect(rejectedProj.activeStageLabel).toContain("Ditolak");
+      expect(rejectedProj.activeStageLabel).toBe("Ditolak");
+      expect(rejectedProj.deviationNotice).toContain("tidak tersedia pada projection rilis Backend");
 
-      // RETURNED
+      // RETURNED: must not assume IT returned
       const returnedProj = projectLifecycleStages("RETURNED");
       expect(returnedProj.isTerminalOrDeviation).toBe(true);
+      expect(returnedProj.stageStatuses.IT_DECISION).toBe("UNKNOWN");
+      expect(returnedProj.stageStatuses.DIRECTOR_DECISION).toBe("UNKNOWN");
       expect(returnedProj.stageStatuses.DRAFT).toBe("DEVIATION");
-      expect(returnedProj.activeStageLabel).toContain("Dikembalikan");
+      expect(returnedProj.activeStageLabel).toBe("Dikembalikan");
+      expect(returnedProj.deviationNotice).toContain("tidak tersedia pada projection rilis Backend");
 
-      // HOLD
+      // HOLD: must not assume IT hold
       const holdProj = projectLifecycleStages("HOLD");
       expect(holdProj.isTerminalOrDeviation).toBe(true);
-      expect(holdProj.stageStatuses.IT_DECISION).toBe("ON_HOLD");
-      expect(holdProj.activeStageLabel).toContain("Ditahan");
+      expect(holdProj.stageStatuses.IT_DECISION).not.toBe("ON_HOLD");
+      expect(holdProj.stageStatuses.DIRECTOR_DECISION).not.toBe("ON_HOLD");
+      expect(holdProj.stageStatuses.IT_DECISION).toBe("UNKNOWN");
+      expect(holdProj.stageStatuses.DIRECTOR_DECISION).toBe("UNKNOWN");
+      expect(holdProj.activeStageLabel).toBe("Ditahan");
+      expect(holdProj.deviationNotice).toContain("tidak tersedia pada projection rilis Backend");
 
       // BLOCKED
       const blockedProj = projectLifecycleStages("BLOCKED");
@@ -140,6 +152,35 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
       expect(rolledBackProj.isTerminalOrDeviation).toBe(true);
       expect(rolledBackProj.stageStatuses.ACTIVE).toBe("ROLLED_BACK");
       expect(rolledBackProj.activeStageLabel).toContain("Di-rollback");
+    });
+
+    it("projects AUTOMATED_ASSURANCE and AI_REVIEWED semantics accurately", () => {
+      // AUTOMATED_ASSURANCE: QA Otomatis completed, Review GENESIS is current
+      const autoAssurance = projectLifecycleStages("AUTOMATED_ASSURANCE");
+      expect(autoAssurance.stageStatuses.AUTOMATED_QA).toBe("COMPLETED");
+      expect(autoAssurance.stageStatuses.GENESIS_REVIEW).toBe("CURRENT");
+      expect(autoAssurance.activeStageKey).toBe("GENESIS_REVIEW");
+      expect(autoAssurance.activeStageLabel).toBe("QA Otomatis Selesai (Menunggu Review GENESIS)");
+      expect(autoAssurance.activeStageLabel).not.toContain("Berjalan");
+
+      // AI_REVIEWED: Review GENESIS completed, IT Decision is pending (not current)
+      const aiReviewed = projectLifecycleStages("AI_REVIEWED");
+      expect(aiReviewed.stageStatuses.GENESIS_REVIEW).toBe("COMPLETED");
+      expect(aiReviewed.stageStatuses.IT_DECISION).toBe("PENDING");
+      expect(aiReviewed.activeStageKey).toBeNull();
+      expect(aiReviewed.activeStageLabel).toBe("Ditinjau AI (Menunggu Penyerahan ke IT)");
+    });
+
+    it("projects REQUIREMENT and FACTORY as UNKNOWN on release inspection without lineage", () => {
+      // Independently inspected release without authoritative lineage evidence
+      const noLineage = projectLifecycleStages("READY_FOR_IT");
+      expect(noLineage.stageStatuses.REQUIREMENT).toBe("UNKNOWN");
+      expect(noLineage.stageStatuses.FACTORY).toBe("UNKNOWN");
+
+      // When authoritative lineage is confirmed
+      const withLineage = projectLifecycleStages("READY_FOR_IT", null, false, true);
+      expect(withLineage.stageStatuses.REQUIREMENT).toBe("COMPLETED");
+      expect(withLineage.stageStatuses.FACTORY).toBe("COMPLETED");
     });
   });
 
@@ -205,6 +246,32 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
       expect(
         getAllowedReleaseActions(releaseActive, { roles: ["IT_ADMIN"], permissions: ["release.manage"] }),
       ).toEqual(["suspend", "kill", "rollback"]);
+    });
+
+    it("handles SUSPENDED actions fail-closed based strictly on kill switch and authority", () => {
+      const releaseSuspendedNormal: GovernedReleaseProjection = {
+        ...releaseReadyIt,
+        state: "SUSPENDED",
+        ever_released: true,
+        kill_switch_active: false,
+      };
+
+      const releaseSuspendedKill: GovernedReleaseProjection = {
+        ...releaseSuspendedNormal,
+        kill_switch_active: true,
+      };
+
+      const itActor = { roles: ["IT_ADMIN"], permissions: ["release.manage"] };
+      const actorRoleOnly = { roles: ["IT_ADMIN"], permissions: [] };
+      const actorPermOnly = { roles: [], permissions: ["release.manage"] };
+
+      // SUSPENDED + kill_switch=false -> NO ACTION (never offer activate, no invented resume)
+      expect(getAllowedReleaseActions(releaseSuspendedNormal, itActor)).toEqual([]);
+
+      // SUSPENDED + kill_switch=true -> ["clear-kill"] ONLY with IT_ADMIN AND release.manage
+      expect(getAllowedReleaseActions(releaseSuspendedKill, itActor)).toEqual(["clear-kill"]);
+      expect(getAllowedReleaseActions(releaseSuspendedKill, actorRoleOnly)).toEqual([]);
+      expect(getAllowedReleaseActions(releaseSuspendedKill, actorPermOnly)).toEqual([]);
     });
   });
 
@@ -536,6 +603,14 @@ describe("GENESIS Canonical Lifecycle & Governance Alignment", () => {
         expect(screen.getByText("Bukan Otoritas IT / GENESIS")).toBeInTheDocument();
       });
       expect(screen.queryByRole("heading", { name: "Pusat Kendali GENESIS", level: 1 })).not.toBeInTheDocument();
+    });
+
+    it("verifies control-plane readiness is BLOCKED / CONTRACT_PENDING", () => {
+      const readiness = getModuleReadiness("control-plane");
+      expect(readiness).toEqual({
+        availability: "BLOCKED",
+        blockReason: "CONTRACT_PENDING",
+      });
     });
   });
 

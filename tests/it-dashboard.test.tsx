@@ -122,8 +122,10 @@ describe("IT visual foundation", () => {
     it("renders centralized control-plane status without a health claim", () => {
       render(<GenesisControlPlaneWorkspace />);
       expect(screen.getByRole("heading", { level: 1, name: "Pusat Kendali GENESIS" })).toBeInTheDocument();
-      expect(getModuleReadiness("control-plane")).toEqual({ availability: "BLOCKED", blockReason: "BACKEND_NOT_CONNECTED" });
-      expect(screen.getByText("Permukaan kontrol frontend tersedia. Integrasi operasional Backend belum terhubung.")).toBeInTheDocument();
+      expect(getModuleReadiness("control-plane")).toEqual({ availability: "BLOCKED", blockReason: "CONTRACT_PENDING" });
+      expect(
+        screen.getByText(/Projection materialitas dan transisi publik menuju persetujuan Direktur masih menunggu penyelesaian kontrak Backend/i),
+      ).toBeInTheDocument();
       expect(document.body.textContent).not.toMatch(/healthy|online|27 agents|AI score/i);
     });
 

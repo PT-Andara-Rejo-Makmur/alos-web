@@ -247,12 +247,13 @@ describe("IT Structure Normalization and Legacy Purge", () => {
 
       const readiness = getModuleReadiness("control-plane");
       expect(readiness.availability).toBe("BLOCKED");
+      expect(readiness.blockReason).toBe("CONTRACT_PENDING");
 
       const statusRegion = screen.getByRole("region", { name: "Status Pusat Kendali" });
       expect(within(statusRegion).getByText("Status Pusat Kendali")).toBeInTheDocument();
       expect(within(statusRegion).getByText("TERBLOKIR")).toBeInTheDocument();
       expect(
-        screen.getByText("Permukaan kontrol frontend tersedia. Integrasi operasional Backend belum terhubung."),
+        screen.getByText(/Projection materialitas dan transisi publik menuju persetujuan Direktur masih menunggu penyelesaian kontrak Backend/i),
       ).toBeInTheDocument();
 
       expect(screen.queryByText(/Control Plane Status: PARTIAL/i)).not.toBeInTheDocument();

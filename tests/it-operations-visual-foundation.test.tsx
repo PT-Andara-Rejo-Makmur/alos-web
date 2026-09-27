@@ -277,7 +277,7 @@ describe("IT Operations Visual Foundation (Tahap 1)", () => {
       expect(within(statusRegion).getByText("Status Pusat Kendali")).toBeInTheDocument();
       expect(within(statusRegion).getByText("TERBLOKIR")).toBeInTheDocument();
       expect(
-        screen.getByText(/Permukaan kontrol frontend tersedia\. Integrasi operasional Backend belum terhubung\./i),
+        screen.getByText(/Factory dan sebagian lifecycle rilis telah terhubung\. Projection materialitas dan transisi publik menuju persetujuan Direktur masih menunggu penyelesaian kontrak Backend/i),
       ).toBeInTheDocument();
       expect(screen.queryByText(/Control Plane Status: PARTIAL/i)).not.toBeInTheDocument();
     });
