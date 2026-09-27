@@ -12,7 +12,7 @@ export default function WorkspaceItGenesisPage() {
       loadingLabel="Memuat Pusat Kendali GENESIS…"
       workspaceKeys={["it", "technology"]}
     >
-      {() => <GenesisControlPlaneWorkspace />}
+      {({ actor }) => <GenesisControlPlaneWorkspace actor={actor} />}
     </ProtectedDomainWorkspace>
   );
 }
