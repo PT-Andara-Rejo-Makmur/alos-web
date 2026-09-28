@@ -8,6 +8,7 @@ import { navigationForSession } from "@/app/navigation";
 import { AppShell } from "@/components/app-shell/app-shell";
 import { Button, PageHeader, Section, Status } from "@/components/ui";
 import { hasExecutiveContext } from "@/features/executive";
+import { hasItAccountManagementAccess } from "@/features/it/account-management-model";
 import type { SessionProjection } from "@/features/session";
 import { ApiError, sessionApiRequest } from "@/lib/api";
 
@@ -62,7 +63,7 @@ export default function WorkspacePage() {
         ? session.principal.active_workspace.workspace.workspace_key
         : null;
     return (
-      <AppShell navigationSections={navigationForSession(canOpenExecutive, workspaceKey)} session={session}>
+      <AppShell navigationSections={navigationForSession(canOpenExecutive, workspaceKey, hasItAccountManagementAccess(session), session)} session={session}>
         <section aria-labelledby="workspace-title" className={styles.landing}>
           <PageHeader
             description="Ruang kerja Anda siap digunakan."
