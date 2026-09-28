@@ -200,7 +200,18 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
 
     expect(await screen.findByRole("heading", { name: "Brief Eksekutif" })).toBeInTheDocument();
     expect(screen.queryByText(/Nihil/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Data temuan belum tersedia/)).toBeInTheDocument();
+    expect(await screen.findByText(/Data temuan belum tersedia/)).toBeInTheDocument();
+  });
+
+  it("does not infer risk or safety when the Strategy source cannot be loaded", async () => {
+    vi.spyOn(strategyApi, "listPlans").mockRejectedValueOnce(new Error("Failed to fetch"));
+
+    render(<ExecutiveBriefPage />);
+
+    expect(await screen.findByText("Kondisi perusahaan belum dapat disimpulkan karena data strategi belum tersedia.")).toBeInTheDocument();
+    expect(screen.getByText("Risiko dan peringatan belum dapat disimpulkan karena data strategi belum tersedia.")).toBeInTheDocument();
+    expect(screen.queryByText(/Tidak ada target korporasi yang terindikasi berisiko/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/aman/i)).not.toBeInTheDocument();
   });
 
   // 5. Brief does not create fake agendas/deadlines
@@ -276,7 +287,19 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
 
     // Target without valid scope.ref must NOT leak into sales
     expect(screen.queryByText("Target Divisi Anomali")).not.toBeInTheDocument();
-    expect(await screen.findByText("Belum ada target spesifik divisi yang diturunkan melalui alur cascade.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada data target yang dialokasikan khusus untuk divisi ini.")).toBeInTheDocument();
+  });
+
+  it("does not present a source failure as an empty division target list", async () => {
+    vi.spyOn(strategyApi, "listPlans").mockRejectedValueOnce(new Error("Request failed"));
+
+    render(<ExecutiveDivisionDetailPage divisionKey="sales" />);
+
+    expect(await screen.findByRole("heading", { name: "Sales & Marketing" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Kinerja" }));
+
+    expect(await screen.findByText("Kinerja belum dapat disimpulkan karena data strategi belum tersedia.")).toBeInTheDocument();
+    expect(screen.queryByText("Belum ada data target yang dialokasikan khusus untuk divisi ini.")).not.toBeInTheDocument();
   });
 
   // 10. Division owner is not hardcoded

@@ -33,9 +33,11 @@ export function ExecutiveBriefPage() {
 }
 
 function ExecutiveBriefContent({ session }: BriefProps) {
-  const { data, loading } = useExecutiveStrategyData();
+  const { data, error, loading, sessionExpired } = useExecutiveStrategyData();
   const currentPlan = activePlan(data?.plans ?? []);
   const targets = corporateTargets(data?.targets ?? []);
+  const strategyUnavailable = !loading && (Boolean(error) || sessionExpired || !data);
+  const strategyHasNoTargets = !loading && !strategyUnavailable && targets.length === 0;
 
   // Check task mutation capability and permission
   const hasTaskPermission = canCreateTask(session);
@@ -54,26 +56,37 @@ function ExecutiveBriefContent({ session }: BriefProps) {
       <PageHeader
         description="Ringkasan eksekutif 1–3 menit untuk membaca kondisi, memantau tenggat, dan mengambil keputusan."
         eyebrow="EKSEKUTIF"
-        metadata={currentPlan ? `Rencana Aktif: ${currentPlan.name} · ${periodLabel(currentPlan.period)}` : "Rencana aktif belum ditentukan"}
+        metadata={currentPlan
+          ? `Rencana Aktif: ${currentPlan.name} · ${periodLabel(currentPlan.period)}`
+          : loading
+            ? "Memuat rencana aktif"
+            : strategyUnavailable
+              ? "Data strategi belum terhubung"
+              : "Rencana aktif belum ditentukan"}
         title="Brief Eksekutif"
       />
-
-      {loading ? <LoadingState label="Memuat ringkasan eksekutif" variant="table" /> : null}
 
       <div className={styles.briefLayout}>
         {/* A. Kondisi Perusahaan Saat Ini */}
         <section aria-labelledby="brief-condition" className={styles.briefSection}>
           <div className={styles.briefHeader}>
             <h2 id="brief-condition">A. Kondisi Perusahaan Saat Ini</h2>
-            <Status
-              label={currentPlan ? "Rencana Berjalan" : "Perlu Rencana"}
+            {!loading ? <Status
+              label={strategyUnavailable ? "Belum Terhubung" : currentPlan ? "Rencana Berjalan" : "Perlu Rencana"}
               variant={currentPlan ? "success" : "neutral"}
-            />
+            /> : null}
           </div>
-          {currentPlan ? (
+          {loading ? <LoadingState label="Memuat kondisi perusahaan" variant="section" /> : strategyUnavailable ? (
+            <div className={styles.inlineReadiness}>
+              <Status label="Belum Terhubung" variant="neutral" />
+              <span>Kondisi perusahaan belum dapat disimpulkan karena data strategi belum tersedia.</span>
+            </div>
+          ) : currentPlan ? (
             <p className={styles.briefTimelineText}>
               Perusahaan beroperasi mengacu pada <strong>{currentPlan.name}</strong> ({periodLabel(currentPlan.period)}).
-              Dari {targets.length} sasaran perusahaan terpantau: {onTrackCount} sesuai target, {atRiskCount} perlu perhatian khusus{unassessedCount > 0 ? `, ${unassessedCount} belum dinilai` : ""}.
+              {targets.length > 0
+                ? ` Dari ${targets.length} sasaran perusahaan terpantau: ${onTrackCount} sesuai target, ${atRiskCount} perlu perhatian khusus${unassessedCount > 0 ? `, ${unassessedCount} belum dinilai` : ""}.`
+                : " Sasaran perusahaan belum tersedia untuk diringkas."}
             </p>
           ) : (
             <div className={styles.inlineReadiness}>
@@ -89,7 +102,12 @@ function ExecutiveBriefContent({ session }: BriefProps) {
             <h2 id="brief-highlights">B. Sorotan Utama</h2>
             <Link className={styles.detailLink} href="/workspace/executive/performance">Lihat Kinerja</Link>
           </div>
-          {targets.length > 0 ? (
+          {loading ? <LoadingState label="Memuat sorotan utama" variant="table" /> : strategyUnavailable ? (
+            <div className={styles.inlineReadiness}>
+              <Status label="Belum Terhubung" variant="neutral" />
+              <span>Sorotan utama belum dapat disimpulkan karena data strategi belum tersedia.</span>
+            </div>
+          ) : targets.length > 0 ? (
             <DataTable
               caption="Sasaran perusahaan utama"
               columns={[
@@ -103,7 +121,7 @@ function ExecutiveBriefContent({ session }: BriefProps) {
             />
           ) : (
             <div className={styles.inlineReadiness}>
-              <Status label="Belum Tersedia" variant="neutral" />
+              <Status label="Belum ada data" variant="neutral" />
               <span>Sasaran korporasi belum didaftarkan pada rencana aktif.</span>
             </div>
           )}
@@ -127,7 +145,12 @@ function ExecutiveBriefContent({ session }: BriefProps) {
             <h2 id="brief-risks">D. Risiko & Peringatan</h2>
             <Link className={styles.detailLink} href="/workspace/executive/findings">Semua Temuan</Link>
           </div>
-          {atRiskCount > 0 ? (
+          {loading ? <LoadingState label="Memuat risiko dan peringatan" variant="section" /> : strategyUnavailable ? (
+            <div className={styles.inlineReadiness}>
+              <Status label="Belum Terhubung" variant="neutral" />
+              <span>Risiko dan peringatan belum dapat disimpulkan karena data strategi belum tersedia.</span>
+            </div>
+          ) : atRiskCount > 0 ? (
             <ul className={styles.briefCompactList}>
               {targets.filter((t) => t.performance_state === "AT_RISK" || t.performance_state === "OFF_TRACK").map((t) => (
                 <li className={styles.briefListItem} key={t.target_id}>
@@ -136,10 +159,15 @@ function ExecutiveBriefContent({ session }: BriefProps) {
                 </li>
               ))}
             </ul>
+          ) : strategyHasNoTargets ? (
+            <div className={styles.inlineReadiness}>
+              <Status label="Belum ada data" variant="neutral" />
+              <span>Risiko belum dapat diringkas karena belum ada sasaran perusahaan pada data strategi.</span>
+            </div>
           ) : (
             <div className={styles.inlineReadiness}>
               <Status label="Belum Tersedia" variant="neutral" />
-              <span>Data temuan belum tersedia. Tidak ada target korporasi yang terindikasi berisiko dari data rencana saat ini.</span>
+              <span>Data temuan belum tersedia. Ringkasan risiko akan ditampilkan ketika sumber temuan tersedia.</span>
             </div>
           )}
         </section>

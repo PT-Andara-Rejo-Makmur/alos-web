@@ -263,13 +263,13 @@ function TargetPerformanceDetail({
         </div>
 
         <div className={styles.candidateCard}>
-          <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Perkiraan (Forecast)</span>
+          <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Perkiraan</span>
           <strong style={{ fontSize: "20px" }}>{valueForObservation(forecastObs, formatValue)}</strong>
           <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>Variansi: —</span>
         </div>
 
         <div className={styles.candidateCard}>
-          <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Status Performa</span>
+          <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Status Kinerja</span>
           <div>
             <Status
               label={performanceLabel(target.performance_state)}
@@ -403,7 +403,7 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
     // Validation according to canonical rules:
     // MANUAL_EVIDENCED -> Evidence is mandatory
     if (sourceMode === "MANUAL_EVIDENCED" && !evidenceRef.trim()) {
-      setFeedback("Bukti pendukung (Evidence) wajib diisi untuk mode pencatatan manual.");
+      setFeedback("Bukti pendukung wajib diisi untuk mode pencatatan manual.");
       return;
     }
 

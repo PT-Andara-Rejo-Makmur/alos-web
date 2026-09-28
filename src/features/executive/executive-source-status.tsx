@@ -9,26 +9,27 @@ import styles from "./executive.module.css";
 export interface SourceStatusItem {
   readonly domain: string;
   readonly owner: string;
-  readonly status: "available" | "unavailable" | "error";
+  readonly status: "loading" | "available" | "unavailable" | "error";
   readonly updatedAt: string;
   readonly verification: string;
 }
 
 interface ExecutiveSourceStatusProps {
-  readonly strategyAvailable: boolean;
+  readonly strategyStatus: SourceStatusItem["status"];
   readonly strategyUpdatedAt?: string | null;
   readonly strategyOwner?: string | null;
   readonly strategyVerification?: string | null;
 }
 
 function sourceStatus(status: SourceStatusItem["status"]) {
+  if (status === "loading") return { label: "Memuat", variant: "neutral" as const };
   if (status === "available") return { label: "Tersedia", variant: "success" as const };
   if (status === "error") return { label: "Gagal Memuat", variant: "danger" as const };
   return { label: "Belum Terhubung", variant: "neutral" as const };
 }
 
 export function ExecutiveSourceStatus({
-  strategyAvailable,
+  strategyStatus,
   strategyUpdatedAt,
   strategyOwner,
   strategyVerification,
@@ -38,10 +39,10 @@ export function ExecutiveSourceStatus({
   const sources: readonly SourceStatusItem[] = [
     {
       domain: "Strategi",
-      owner: strategyOwner || "—",
-      status: strategyAvailable ? "available" : "error",
-      updatedAt: strategyAvailable ? (strategyUpdatedAt || "—") : "—",
-      verification: strategyAvailable ? (strategyVerification || "—") : "—",
+      owner: strategyStatus === "available" ? (strategyOwner || "—") : "—",
+      status: strategyStatus,
+      updatedAt: strategyStatus === "available" ? (strategyUpdatedAt || "—") : "—",
+      verification: strategyStatus === "available" ? (strategyVerification || "—") : "—",
     },
     { domain: "Operasional", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
     { domain: "Keuangan", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
@@ -81,7 +82,13 @@ export function ExecutiveSourceStatus({
                 <dt>Verifikasi</dt>
                 <dd>{source.verification}</dd>
                 <dt>Keterangan</dt>
-                <dd>{source.status === "available" ? "Data strategi terhubung pada ruang kerja ini." : "Sumber belum terhubung."}</dd>
+                <dd>{source.status === "available"
+                  ? "Data strategi tersedia pada ruang kerja ini."
+                  : source.status === "loading"
+                    ? "Data strategi sedang dimuat."
+                    : source.status === "error"
+                      ? "Data strategi belum dapat dimuat."
+                      : "Sumber belum terhubung."}</dd>
               </div>
             );
           })}

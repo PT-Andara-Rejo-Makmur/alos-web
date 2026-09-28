@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import {
   DataTable,
   EmptyState,
+  LoadingState,
   PageHeader,
   Section,
   Status,
@@ -56,9 +57,9 @@ export function ExecutiveDivisionsPage() {
               caption="Daftar divisi"
               columns={[
                 { header: "Divisi", key: "name", render: (row: readonly string[]) => row[0] },
-                { header: "Pemimpin / Owner", key: "owner", render: () => "—" },
+                { header: "Penanggung Jawab", key: "owner", render: () => "—" },
                 { header: "Target Utama", key: "target", render: () => "—" },
-                { header: "Performance", key: "performance", render: () => "—" },
+                { header: "Kinerja", key: "performance", render: () => "—" },
                 { header: "Proyek Aktif", key: "projects", render: () => "—" },
                 { header: "Tugas Terlambat", key: "tasks", render: () => "—" },
                 { header: "Temuan", key: "findings", render: () => "—" },
@@ -87,7 +88,7 @@ export function ExecutiveDivisionsPage() {
 export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ divisionKey: string }>) {
   const division = divisionRows.find((row) => row[1] === divisionKey);
   const [activeTab, setActiveTab] = useState("summary");
-  const { data, error, loading } = useExecutiveStrategyData();
+  const { data, error, loading, sessionExpired } = useExecutiveStrategyData();
 
   const tabs: readonly TabItem[] = useMemo(() => [
     { id: "summary", label: "Ringkasan" },
@@ -185,7 +186,13 @@ export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ division
                   description="Proyeksi kinerja dan pencapaian target yang dialokasikan khusus untuk divisi ini."
                   title={`Kinerja ${division[0]}`}
                 >
-                  {divisionTargets.length > 0 ? (
+                  {loading ? <LoadingState label={`Memuat kinerja ${division[0]}`} variant="table" /> : null}
+                  {!loading && (error || sessionExpired || !data) ? (
+                    <div className={styles.readinessRow}>
+                      <Status label="Belum Terhubung" variant="neutral" />
+                      <p>Kinerja belum dapat disimpulkan karena data strategi belum tersedia.</p>
+                    </div>
+                  ) : divisionTargets.length > 0 ? (
                     <DataTable
                       caption={`Kinerja ${division[0]}`}
                       columns={[
@@ -226,8 +233,8 @@ export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ division
                     />
                   ) : (
                     <div className={styles.readinessRow}>
-                      <Status label="Belum Ada Target" variant="neutral" />
-                      <p>Belum ada target spesifik divisi yang diturunkan melalui alur cascade.</p>
+                      <Status label="Belum ada data" variant="neutral" />
+                      <p>Belum ada data target yang dialokasikan khusus untuk divisi ini.</p>
                     </div>
                   )}
                 </Section>

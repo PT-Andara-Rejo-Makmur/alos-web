@@ -212,4 +212,16 @@ describe("Executive Workspace", () => {
     expect(plans).toHaveBeenCalledTimes(1);
     expect(targets).toHaveBeenCalledTimes(1);
   });
+
+  it("shows a neutral source state while Strategy data is still loading", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
+    vi.spyOn(strategyApi, "listPlans").mockImplementation(() => new Promise(() => {}));
+    vi.spyOn(strategyApi, "listTargets").mockImplementation(() => new Promise(() => {}));
+
+    render(<ExecutiveDashboardPage />);
+
+    expect(await screen.findByRole("heading", { name: "Pusat Kendali Eksekutif" })).toBeInTheDocument();
+    expect(screen.getAllByRole("status", { name: "Memuat" }).length).toBeGreaterThan(0);
+    expect(screen.queryByText("Gagal Memuat")).not.toBeInTheDocument();
+  });
 });

@@ -39,23 +39,37 @@ function ExecutiveSummaryContent() {
   const { data, error, loading, sessionExpired } = useExecutiveStrategyData();
   const plan = activePlan(data?.plans ?? []);
   const targets = corporateTargets(data?.targets ?? []);
+  const strategyStatus = loading
+    ? "loading"
+    : data
+      ? "available"
+      : error
+        ? "error"
+        : "unavailable";
+  const strategyUnavailable = !loading && !data;
 
   return (
     <div className={styles.page}>
       <PageHeader
         description="Ringkasan kondisi, kinerja, risiko, dan keputusan perusahaan."
         eyebrow="EKSEKUTIF"
-        metadata={plan ? `Rencana aktif · ${periodLabel(plan.period)}` : "Rencana aktif belum tersedia."}
+        metadata={plan
+          ? `Rencana aktif · ${periodLabel(plan.period)}`
+          : loading
+            ? "Memuat rencana aktif"
+            : strategyUnavailable
+              ? "Data strategi belum terhubung"
+              : "Rencana aktif belum tersedia."}
         title="Pusat Kendali Eksekutif"
       />
       {sessionExpired ? <Alert message="Sesi Anda sudah berakhir. Silakan masuk kembali." title="Sesi berakhir" variant="warning" /> : null}
       {error ? <Alert message={error} title="Data belum dapat dimuat." variant="warning" /> : null}
 
       <ExecutiveSourceStatus
-        strategyAvailable={Boolean(data)}
-        strategyOwner={plan?.owner_role_ref || "—"}
+        strategyStatus={strategyStatus}
+        strategyOwner="—"
         strategyUpdatedAt={plan ? formatDate(plan.updated_at) : "—"}
-        strategyVerification={targets.length > 0 ? "Terverifikasi Sebagian" : "—"}
+        strategyVerification="—"
       />
 
       <Section bordered title="Ringkasan Utama">
@@ -66,8 +80,9 @@ function ExecutiveSummaryContent() {
 
       <Section actions={<Link className={styles.detailLink} href="/workspace/executive/performance">Lihat Kinerja</Link>} description="Target perusahaan dari sumber strategi yang tersedia." title="Target & Kinerja Perusahaan">
         {loading ? <LoadingState label="Memuat target perusahaan" variant="table" /> : null}
-        {!loading && targets.length === 0 ? <EmptyState description="Target akan ditampilkan setelah tersedia pada rencana perusahaan." title="Belum ada target perusahaan." /> : null}
-        {targets.length > 0 ? <CorporateTargetTable targets={targets} /> : null}
+        {strategyUnavailable ? <EmptyState description="Kinerja perusahaan belum dapat disimpulkan karena data strategi belum tersedia." title="Belum Terhubung" /> : null}
+        {!loading && !strategyUnavailable && targets.length === 0 ? <EmptyState description="Target akan ditampilkan setelah tersedia pada rencana perusahaan." title="Belum ada target perusahaan." /> : null}
+        {!strategyUnavailable && targets.length > 0 ? <CorporateTargetTable targets={targets} /> : null}
       </Section>
 
       <Section title="Ringkasan Domain" description="Kondisi domain operasional akan tampil setelah sumber authoritative tersedia.">

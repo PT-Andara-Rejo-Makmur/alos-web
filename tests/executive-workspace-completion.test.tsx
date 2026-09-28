@@ -418,7 +418,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     const form = submitBtn.closest("form")!;
     fireEvent.submit(form);
 
-    expect(await screen.findByText("Bukti pendukung (Evidence) wajib diisi untuk mode pencatatan manual.")).toBeInTheDocument();
+    expect(await screen.findByText("Bukti pendukung wajib diisi untuk mode pencatatan manual.")).toBeInTheDocument();
   });
 
   // 10. Initiative UI Detail
