@@ -23,6 +23,7 @@ import styles from "./reports.module.css";
 
 interface ReportsPageProps {
   readonly workspaceKey?: string | null;
+  readonly embed?: boolean;
 }
 
 function formatDate(dateString: string | null | undefined): string {
@@ -40,7 +41,7 @@ function formatDate(dateString: string | null | undefined): string {
   }
 }
 
-export function ReportsPage({ workspaceKey }: ReportsPageProps) {
+export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
   const [session, setSession] = useState<SessionProjection | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [sessionError, setSessionError] = useState<unknown | null>(null);
@@ -304,12 +305,8 @@ export function ReportsPage({ workspaceKey }: ReportsPageProps) {
   const connectionMessage = isResultsView ? resultsMessage : definitionsMessage;
   const isLoading = isResultsView ? resultsLoading : definitionsLoading;
 
-  return (
-    <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
-      session={session}
-    >
-      <div className={styles.pageContainer}>
+  const innerContent = (
+    <div className={styles.pageContainer}>
         <PageHeader
           description="Kelola hasil laporan dan pengaturan pelaporan yang tersedia untuk ruang kerja Anda."
           eyebrow="PEKERJAAN"
@@ -416,6 +413,18 @@ export function ReportsPage({ workspaceKey }: ReportsPageProps) {
           workspaceKey={effectiveWorkspaceKey}
         />
       </div>
+  );
+
+  if (embed) {
+    return innerContent;
+  }
+
+  return (
+    <AppShell
+      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
+      session={session}
+    >
+      {innerContent}
     </AppShell>
   );
 }

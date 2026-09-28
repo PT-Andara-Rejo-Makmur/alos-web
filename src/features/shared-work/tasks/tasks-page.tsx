@@ -24,9 +24,10 @@ import styles from "./tasks.module.css";
 
 interface TasksPageProps {
   readonly workspaceKey?: string | null;
+  readonly embed?: boolean;
 }
 
-export function TasksPage({ workspaceKey }: TasksPageProps) {
+export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
   const [session, setSession] = useState<SessionProjection | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [sessionError, setSessionError] = useState<unknown | null>(null);
@@ -233,12 +234,8 @@ export function TasksPage({ workspaceKey }: TasksPageProps) {
 
   const canOpenExecutive = hasExecutiveContext(session);
 
-  return (
-    <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
-      session={session}
-    >
-      <div className={styles.pageContainer}>
+  const innerContent = (
+    <div className={styles.pageContainer}>
         <PageHeader
           actions={
             canCreate ? (
@@ -345,6 +342,18 @@ export function TasksPage({ workspaceKey }: TasksPageProps) {
           workspaceKey={effectiveWorkspaceKey}
         />
       </div>
+  );
+
+  if (embed) {
+    return innerContent;
+  }
+
+  return (
+    <AppShell
+      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
+      session={session}
+    >
+      {innerContent}
     </AppShell>
   );
 }

@@ -14,16 +14,12 @@ export interface SourceStatusItem {
   readonly verification: string;
 }
 
-const defaultSources: readonly SourceStatusItem[] = [
-  { domain: "Strategi", owner: "—", status: "available", updatedAt: "Mengikuti data halaman", verification: "Mengikuti data target" },
-  { domain: "Operasional", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
-  { domain: "Keuangan", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
-  { domain: "Penjualan", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
-  { domain: "Property", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
-  { domain: "Legal", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
-  { domain: "SDM", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
-  { domain: "IT", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
-];
+interface ExecutiveSourceStatusProps {
+  readonly strategyAvailable: boolean;
+  readonly strategyUpdatedAt?: string | null;
+  readonly strategyOwner?: string | null;
+  readonly strategyVerification?: string | null;
+}
 
 function sourceStatus(status: SourceStatusItem["status"]) {
   if (status === "available") return { label: "Tersedia", variant: "success" as const };
@@ -31,18 +27,42 @@ function sourceStatus(status: SourceStatusItem["status"]) {
   return { label: "Belum Terhubung", variant: "neutral" as const };
 }
 
-export function ExecutiveSourceStatus({ strategyAvailable }: Readonly<{ strategyAvailable: boolean }>) {
+export function ExecutiveSourceStatus({
+  strategyAvailable,
+  strategyUpdatedAt,
+  strategyOwner,
+  strategyVerification,
+}: ExecutiveSourceStatusProps) {
   const [open, setOpen] = useState(false);
-  const sources = defaultSources.map((source) => source.domain === "Strategi" && !strategyAvailable
-    ? { ...source, status: "error" as const, updatedAt: "—", verification: "—" }
-    : source);
+
+  const sources: readonly SourceStatusItem[] = [
+    {
+      domain: "Strategi",
+      owner: strategyOwner || "—",
+      status: strategyAvailable ? "available" : "error",
+      updatedAt: strategyAvailable ? (strategyUpdatedAt || "—") : "—",
+      verification: strategyAvailable ? (strategyVerification || "—") : "—",
+    },
+    { domain: "Operasional", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
+    { domain: "Keuangan", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
+    { domain: "Penjualan", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
+    { domain: "Property", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
+    { domain: "Legal", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
+    { domain: "SDM", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
+    { domain: "IT", owner: "—", status: "unavailable", updatedAt: "—", verification: "—" },
+  ];
 
   return (
     <>
       <div className={styles.sourceStrip}>
         {sources.map((source) => {
           const presentation = sourceStatus(source.status);
-          return <span className={styles.sourceItem} key={source.domain}><span>{source.domain}</span><Status label={presentation.label} variant={presentation.variant} /></span>;
+          return (
+            <span className={styles.sourceItem} key={source.domain}>
+              <span>{source.domain}</span>
+              <Status label={presentation.label} variant={presentation.variant} />
+            </span>
+          );
         })}
         <Button onClick={() => setOpen(true)} size="sm" variant="ghost">Lihat Status Data</Button>
       </div>
@@ -52,11 +72,16 @@ export function ExecutiveSourceStatus({ strategyAvailable }: Readonly<{ strategy
             const presentation = sourceStatus(source.status);
             return (
               <div className={styles.sourceDetail} key={source.domain}>
-                <dt>{source.domain}</dt><dd><Status label={presentation.label} variant={presentation.variant} /></dd>
-                <dt>Waktu data</dt><dd>{source.updatedAt}</dd>
-                <dt>Owner source</dt><dd>{source.owner}</dd>
-                <dt>Verifikasi</dt><dd>{source.verification}</dd>
-                <dt>Keterangan</dt><dd>{source.status === "available" ? "Data strategi tersedia pada halaman ini." : "Sumber belum terhubung."}</dd>
+                <dt>{source.domain}</dt>
+                <dd><Status label={presentation.label} variant={presentation.variant} /></dd>
+                <dt>Waktu data</dt>
+                <dd>{source.updatedAt}</dd>
+                <dt>Penanggung Jawab</dt>
+                <dd>{source.owner}</dd>
+                <dt>Verifikasi</dt>
+                <dd>{source.verification}</dd>
+                <dt>Keterangan</dt>
+                <dd>{source.status === "available" ? "Data strategi terhubung pada ruang kerja ini." : "Sumber belum terhubung."}</dd>
               </div>
             );
           })}

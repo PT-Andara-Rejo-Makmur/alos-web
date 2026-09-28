@@ -124,7 +124,7 @@ function authenticatedSession(principal = executivePrincipal) {
   return { authenticated: true, principal };
 }
 
-describe("Executive Golden Dashboard", () => {
+describe("Executive Workspace", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(strategyApi, "listAssumptions").mockResolvedValue([]);

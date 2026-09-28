@@ -27,6 +27,7 @@ import styles from "./approvals.module.css";
 
 interface ApprovalsPageProps {
   readonly workspaceKey?: string | null;
+  readonly embed?: boolean;
 }
 
 function formatDate(dateString: string | null | undefined): string {
@@ -44,7 +45,7 @@ function formatDate(dateString: string | null | undefined): string {
   }
 }
 
-export function ApprovalsPage({ workspaceKey }: ApprovalsPageProps) {
+export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
   const [session, setSession] = useState<SessionProjection | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [sessionError, setSessionError] = useState<unknown | null>(null);
@@ -251,12 +252,8 @@ export function ApprovalsPage({ workspaceKey }: ApprovalsPageProps) {
 
   const canOpenExecutive = hasExecutiveContext(session);
 
-  return (
-    <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
-      session={session}
-    >
-      <div className={styles.pageContainer}>
+  const innerContent = (
+    <div className={styles.pageContainer}>
         <PageHeader
           description="Kelola permintaan yang membutuhkan tinjauan atau keputusan sesuai kewenangan Anda."
           eyebrow="PEKERJAAN"
@@ -338,6 +335,18 @@ export function ApprovalsPage({ workspaceKey }: ApprovalsPageProps) {
           workspaceKey={effectiveWorkspaceKey}
         />
       </div>
+  );
+
+  if (embed) {
+    return innerContent;
+  }
+
+  return (
+    <AppShell
+      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
+      session={session}
+    >
+      {innerContent}
     </AppShell>
   );
 }

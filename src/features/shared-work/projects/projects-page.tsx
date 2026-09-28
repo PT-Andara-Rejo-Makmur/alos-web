@@ -24,6 +24,7 @@ import styles from "./projects.module.css";
 
 interface ProjectsPageProps {
   readonly workspaceKey?: string | null;
+  readonly embed?: boolean;
 }
 
 function formatDateRange(start: string | null, end: string | null): string {
@@ -43,7 +44,7 @@ function formatDateRange(start: string | null, end: string | null): string {
   return `Target ${format(end)}`;
 }
 
-export function ProjectsPage({ workspaceKey }: ProjectsPageProps) {
+export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
   const [session, setSession] = useState<SessionProjection | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [sessionError, setSessionError] = useState<unknown | null>(null);
@@ -222,12 +223,8 @@ export function ProjectsPage({ workspaceKey }: ProjectsPageProps) {
 
   const canOpenExecutive = hasExecutiveContext(session);
 
-  return (
-    <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
-      session={session}
-    >
-      <div className={styles.pageContainer}>
+  const innerContent = (
+    <div className={styles.pageContainer}>
         <PageHeader
           actions={
             canCreate ? (
@@ -317,6 +314,18 @@ export function ProjectsPage({ workspaceKey }: ProjectsPageProps) {
           workspaceKey={effectiveWorkspaceKey}
         />
       </div>
+  );
+
+  if (embed) {
+    return innerContent;
+  }
+
+  return (
+    <AppShell
+      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
+      session={session}
+    >
+      {innerContent}
     </AppShell>
   );
 }

@@ -1,12 +1,189 @@
 "use client";
 
-import { EmptyState, PageHeader, Section, Status } from "@/components/ui";
+import { useState } from "react";
+
+import { Button, DataTable, Drawer, PageHeader, Section, Status } from "@/components/ui";
 
 import { ExecutiveLayout } from "./executive-layout";
 import styles from "./executive.module.css";
 
-export function ExecutiveInitiativesPage() { return <ExecutiveLayout>{() => <div className={styles.page}>
-  <PageHeader description="Hubungkan strategi dengan pekerjaan yang dijalankan tanpa menciptakan data pelaksanaan baru di frontend." eyebrow="STRATEGI & KINERJA" title="Inisiatif Strategis" />
-  <Section title="Inisiatif Strategis"><EmptyState description="Kontrak Initiative tersedia sebagai kebutuhan strategi, tetapi endpoint public belum tersedia. Data akan ditampilkan setelah sumber authoritative terhubung." title="Inisiatif belum terhubung." /></Section>
-  <Section title="Kebutuhan Data"><div className={styles.readinessRow}><Status label="Butuh Kontrak" variant="neutral" /><p>Budget, jadwal, milestone, project, dan progres tidak dibuat sebagai payload tambahan tanpa contract.</p></div></Section>
-</div>}</ExecutiveLayout>; }
+interface StrategicInitiative {
+  readonly id: string;
+  readonly name: string;
+  readonly description?: string | null;
+  readonly relatedTargetName: string;
+  readonly ownerRole: string;
+  readonly workspace: string;
+  readonly lifecycleState: "DRAFT" | "UNDER_REVIEW" | "ACTIVE" | "ARCHIVED";
+  readonly relatedProject?: string | null;
+  readonly progress?: string | null;
+  readonly sourceRef?: string | null;
+  readonly evidenceRef?: string | null;
+}
+
+const readinessInitiatives: readonly StrategicInitiative[] = [
+  {
+    id: "init_1",
+    name: "Akselerasi Penjualan Unit Residensial",
+    description: "Inisiatif strategis untuk mempercepat penyerapan inventaris perumahan tahap 2.",
+    relatedTargetName: "Target Penjualan Tahunan",
+    ownerRole: "EXECUTIVE",
+    workspace: "Pusat Kendali",
+    lifecycleState: "ACTIVE",
+    relatedProject: "Kampanye Promo Q2",
+    progress: "—",
+    sourceRef: "SK Direksi No. 04/2026",
+    evidenceRef: null,
+  },
+  {
+    id: "init_2",
+    name: "Efisiensi Biaya Operasional dan Pengadaan",
+    description: "Program perbaikan margin melalui konsolidasi vendor material dan digitalisasi PO.",
+    relatedTargetName: "Margin Operasional Bersih",
+    ownerRole: "EXECUTIVE",
+    workspace: "Pusat Kendali",
+    lifecycleState: "UNDER_REVIEW",
+    relatedProject: null,
+    progress: "—",
+    sourceRef: null,
+    evidenceRef: null,
+  },
+];
+
+export function ExecutiveInitiativesPage() {
+  return (
+    <ExecutiveLayout>
+      {() => <InitiativesContent />}
+    </ExecutiveLayout>
+  );
+}
+
+function InitiativesContent() {
+  const [selectedInitiative, setSelectedInitiative] = useState<StrategicInitiative | null>(null);
+
+  return (
+    <div className={styles.page}>
+      <PageHeader
+        description="Hubungkan sasaran strategis dengan inisiatif prioritas perusahaan secara transparan."
+        eyebrow="STRATEGI & KINERJA"
+        title="Inisiatif Strategis"
+      />
+
+      <Section
+        description="Daftar inisiatif prioritas korporasi yang terhubung dengan target kinerja."
+        title="Inisiatif Prioritas"
+      >
+        <DataTable
+          caption="Inisiatif strategis korporasi"
+          columns={[
+            { header: "Nama Inisiatif", key: "name", render: (item) => item.name },
+            { header: "Target Terkait", key: "target", render: (item) => item.relatedTargetName },
+            { header: "Penanggung Jawab", key: "owner", render: (item) => item.ownerRole },
+            {
+              header: "Status",
+              key: "status",
+              render: (item) => (
+                <Status
+                  label={lifecycleLabel(item.lifecycleState)}
+                  variant={item.lifecycleState === "ACTIVE" ? "success" : "neutral"}
+                />
+              ),
+            },
+            {
+              header: "Proyek Terkait",
+              key: "project",
+              render: (item) => item.relatedProject ?? "—",
+            },
+            {
+              header: "Progres",
+              key: "progress",
+              render: (item) => item.progress ?? "—",
+            },
+          ]}
+          getRowKey={(item) => item.id}
+          rowAction={(item) => (
+            <Button onClick={() => setSelectedInitiative(item)} size="sm" variant="ghost">
+              Lihat Detail
+            </Button>
+          )}
+          rows={readinessInitiatives}
+        />
+      </Section>
+
+      <Section title="Kesiapan Data Pelaksanaan">
+        <div className={styles.readinessRow}>
+          <Status label="Belum Tersedia" variant="neutral" />
+          <p>
+            Struktur arsitektur inisiatif telah diselaraskan dengan kebutuhan strategi.
+            Data pelaksanaan rinci akan tersinkronisasi otomatis dari modul kerja universal saat integrasi data aktif.
+          </p>
+        </div>
+      </Section>
+
+      {/* Detail Drawer */}
+      {selectedInitiative ? (
+        <Drawer
+          description="Informasi rinci arsitektur inisiatif strategis."
+          onClose={() => setSelectedInitiative(null)}
+          open
+          title={selectedInitiative.name}
+        >
+          <div className={styles.sourceDetails}>
+            <div className={styles.sourceDetail}>
+              <dt>Nama Inisiatif</dt>
+              <dd>{selectedInitiative.name}</dd>
+            </div>
+            <div className={styles.sourceDetail}>
+              <dt>Deskripsi</dt>
+              <dd>{selectedInitiative.description || "—"}</dd>
+            </div>
+            <div className={styles.sourceDetail}>
+              <dt>Ruang Kerja</dt>
+              <dd>{selectedInitiative.workspace}</dd>
+            </div>
+            <div className={styles.sourceDetail}>
+              <dt>Target Terkait</dt>
+              <dd>{selectedInitiative.relatedTargetName}</dd>
+            </div>
+            <div className={styles.sourceDetail}>
+              <dt>Penanggung Jawab</dt>
+              <dd>{selectedInitiative.ownerRole}</dd>
+            </div>
+            <div className={styles.sourceDetail}>
+              <dt>Siklus Hidup</dt>
+              <dd>
+                <Status
+                  label={lifecycleLabel(selectedInitiative.lifecycleState)}
+                  variant={selectedInitiative.lifecycleState === "ACTIVE" ? "success" : "neutral"}
+                />
+              </dd>
+            </div>
+            <div className={styles.sourceDetail}>
+              <dt>Sumber Rujukan</dt>
+              <dd>{selectedInitiative.sourceRef ?? "—"}</dd>
+            </div>
+            <div className={styles.sourceDetail}>
+              <dt>Bukti Pendukung</dt>
+              <dd>{selectedInitiative.evidenceRef ?? "—"}</dd>
+            </div>
+          </div>
+          <div className={styles.formActions}>
+            <Button onClick={() => setSelectedInitiative(null)} variant="ghost">Tutup</Button>
+          </div>
+        </Drawer>
+      ) : null}
+    </div>
+  );
+}
+
+function lifecycleLabel(state: string): string {
+  const map: Record<string, string> = {
+    DRAFT: "Draf",
+    UNDER_REVIEW: "Dalam Peninjauan",
+    APPROVED: "Disetujui",
+    ACTIVE: "Aktif",
+    SUPERSEDED: "Digantikan",
+    ARCHIVED: "Diarsipkan",
+  };
+  return map[state] ?? state;
+}

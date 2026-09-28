@@ -23,6 +23,7 @@ import styles from "./findings.module.css";
 
 interface FindingsPageProps {
   readonly workspaceKey?: string | null;
+  readonly embed?: boolean;
 }
 
 function formatDate(dateString: string | null | undefined): string {
@@ -40,7 +41,7 @@ function formatDate(dateString: string | null | undefined): string {
   }
 }
 
-export function FindingsPage({ workspaceKey }: FindingsPageProps) {
+export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
   const [session, setSession] = useState<SessionProjection | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [sessionError, setSessionError] = useState<unknown | null>(null);
@@ -239,12 +240,8 @@ export function FindingsPage({ workspaceKey }: FindingsPageProps) {
 
   const canOpenExecutive = hasExecutiveContext(session);
 
-  return (
-    <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
-      session={session}
-    >
-      <div className={styles.pageContainer}>
+  const innerContent = (
+    <div className={styles.pageContainer}>
         <PageHeader
           description="Kelola masalah, ketidaksesuaian, dan tindak lanjut yang memerlukan perhatian."
           eyebrow="PEKERJAAN"
@@ -328,6 +325,18 @@ export function FindingsPage({ workspaceKey }: FindingsPageProps) {
           workspaceKey={effectiveWorkspaceKey}
         />
       </div>
+  );
+
+  if (embed) {
+    return innerContent;
+  }
+
+  return (
+    <AppShell
+      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
+      session={session}
+    >
+      {innerContent}
     </AppShell>
   );
 }

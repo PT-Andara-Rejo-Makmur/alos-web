@@ -1,31 +1,260 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 
-import { DataTable, EmptyState, PageHeader, Section, Status, Tabs } from "@/components/ui";
+import {
+  DataTable,
+  EmptyState,
+  PageHeader,
+  Section,
+  Status,
+  Tabs,
+  type TabItem,
+} from "@/components/ui";
+import {
+  ApprovalsPage,
+  FindingsPage,
+  ProjectsPage,
+  ReportsPage,
+  TasksPage,
+} from "@/features/shared-work";
 
 import { ExecutiveLayout } from "./executive-layout";
+import { useExecutiveStrategyData } from "./executive-data";
+import {
+  formatValue,
+  observationFor,
+  performanceLabel,
+  performanceVariant,
+  valueForObservation,
+  verificationLabel,
+} from "./executive-model";
 import styles from "./executive.module.css";
 
 const divisionRows = [
-  ["Sales & Marketing", "sales"], ["Property & Teknik", "property"], ["Finance & Pajak", "finance"], ["Legal", "legal"], ["HR/GA", "hr"], ["IT", "it"],
+  ["Sales & Marketing", "sales"],
+  ["Property & Teknik", "property"],
+  ["Finance & Pajak", "finance"],
+  ["Legal", "legal"],
+  ["HR/GA", "hr"],
+  ["IT", "it"],
 ] as const;
 
-export function ExecutiveDivisionsPage() { return <ExecutiveLayout>{() => <div className={styles.page}>
-  <PageHeader description="Pantau kesiapan data dan keterkaitan pekerjaan tiap divisi sesuai scope yang diberikan Backend." eyebrow="ORGANISASI" title="Divisi" />
-  <Section title="Status Divisi"><DataTable caption="Daftar divisi" columns={[
-    { header: "Divisi", key: "name", render: (row: readonly string[]) => row[0] }, { header: "Pemimpin / Owner", key: "owner", render: () => "—" }, { header: "Target Utama", key: "target", render: () => "—" }, { header: "Performance", key: "performance", render: () => "—" }, { header: "Proyek Aktif", key: "projects", render: () => "—" }, { header: "Tugas Terlambat", key: "tasks", render: () => "—" }, { header: "Temuan", key: "findings", render: () => "—" }, { header: "Persetujuan", key: "approvals", render: () => "—" }, { header: "Status Data", key: "status", render: () => <Status label="Belum Terhubung" variant="neutral" /> },
-  ]} getRowKey={(row) => row[1]} rowAction={(row) => <Link className={styles.detailLink} href={`/workspace/executive/divisions/${row[1]}`}>Lihat Detail</Link>} rows={divisionRows} /></Section>
-</div>}</ExecutiveLayout>; }
+export function ExecutiveDivisionsPage() {
+  return (
+    <ExecutiveLayout>
+      {() => (
+        <div className={styles.page}>
+          <PageHeader
+            description="Pantau kesiapan data, capaian target, serta keterkaitan pekerjaan tiap divisi sesuai ruang lingkup yang berwenang."
+            eyebrow="ORGANISASI"
+            title="Divisi"
+          />
+          <Section title="Status Divisi">
+            <DataTable
+              caption="Daftar divisi"
+              columns={[
+                { header: "Divisi", key: "name", render: (row: readonly string[]) => row[0] },
+                { header: "Pemimpin / Owner", key: "owner", render: () => "—" },
+                { header: "Target Utama", key: "target", render: () => "—" },
+                { header: "Performance", key: "performance", render: () => "—" },
+                { header: "Proyek Aktif", key: "projects", render: () => "—" },
+                { header: "Tugas Terlambat", key: "tasks", render: () => "—" },
+                { header: "Temuan", key: "findings", render: () => "—" },
+                { header: "Persetujuan", key: "approvals", render: () => "—" },
+                {
+                  header: "Status Data",
+                  key: "status",
+                  render: () => <Status label="Belum Terhubung" variant="neutral" />,
+                },
+              ]}
+              getRowKey={(row) => row[1]}
+              rowAction={(row) => (
+                <Link className={styles.detailLink} href={`/workspace/executive/divisions/${row[1]}`}>
+                  Lihat Detail
+                </Link>
+              )}
+              rows={divisionRows}
+            />
+          </Section>
+        </div>
+      )}
+    </ExecutiveLayout>
+  );
+}
 
 export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ divisionKey: string }>) {
   const division = divisionRows.find((row) => row[1] === divisionKey);
-  return <ExecutiveLayout>{() => <div className={styles.page}>
-    <PageHeader description="Kinerja dan pekerjaan divisi ditampilkan sesuai scope dan klasifikasi data yang diberikan Backend." eyebrow="ORGANISASI" title={division?.[0] ?? "Divisi"} />
-    {!division ? <EmptyState action={<Link className={styles.detailLink} href="/workspace/executive/divisions">Kembali ke Divisi</Link>} description="Divisi yang diminta tidak tersedia pada ruang kerja ini." title="Divisi tidak ditemukan." /> : <>
-      <Tabs ariaLabel="Detail divisi" items={[{ id: "summary", label: "Ringkasan" }, { id: "performance", label: "Kinerja" }, { id: "projects", label: "Proyek" }, { id: "tasks", label: "Tugas" }, { id: "approvals", label: "Persetujuan" }, { id: "findings", label: "Temuan" }, { id: "reports", label: "Laporan" }]} />
-      <Section title="Ringkasan"><div className={styles.readinessRow}><Status label="Belum Terhubung" variant="neutral" /><p>Data detail divisi belum tersedia dari sumber authoritative.</p></div></Section>
-      <Section title="Pekerjaan Divisi"><div className={styles.detailLinks}><Link className={styles.detailLink} href="/workspace/executive/projects">Proyek</Link><Link className={styles.detailLink} href="/workspace/executive/tasks">Tugas</Link><Link className={styles.detailLink} href="/workspace/executive/approvals">Persetujuan</Link><Link className={styles.detailLink} href="/workspace/executive/findings">Temuan</Link><Link className={styles.detailLink} href="/workspace/executive/reports">Laporan</Link></div></Section>
-    </>}
-  </div>}</ExecutiveLayout>;
+  const [activeTab, setActiveTab] = useState("summary");
+  const { data } = useExecutiveStrategyData();
+
+  const tabs: readonly TabItem[] = useMemo(() => [
+    { id: "summary", label: "Ringkasan" },
+    { id: "performance", label: "Kinerja" },
+    { id: "projects", label: "Proyek" },
+    { id: "tasks", label: "Tugas" },
+    { id: "approvals", label: "Persetujuan" },
+    { id: "findings", label: "Temuan" },
+    { id: "reports", label: "Laporan" },
+  ], []);
+
+  // Filter strategy targets for this division if any exist
+  const divisionTargets = useMemo(() => {
+    return (data?.targets ?? []).filter(
+      (t) => t.scope.type === "DIVISION" && (t.scope.ref === divisionKey || !t.scope.ref),
+    );
+  }, [data?.targets, divisionKey]);
+
+  return (
+    <ExecutiveLayout>
+      {() => (
+        <div className={styles.page}>
+          <div style={{ marginBottom: "var(--alos-space-2)" }}>
+            <Link className={styles.detailLink} href="/workspace/executive/divisions">
+              ← Kembali ke Daftar Divisi
+            </Link>
+          </div>
+
+          <PageHeader
+            description="Kinerja dan pekerjaan divisi ditampilkan terintegrasi sesuai ruang lingkup yang berwenang."
+            eyebrow="ORGANISASI"
+            metadata={`Kode Ruang Kerja: ${divisionKey}`}
+            title={division?.[0] ?? "Detail Divisi"}
+          />
+
+          {!division ? (
+            <EmptyState
+              action={<Link className={styles.detailLink} href="/workspace/executive/divisions">Kembali ke Divisi</Link>}
+              description="Divisi yang diminta tidak tersedia pada ruang kerja ini."
+              title="Divisi tidak ditemukan."
+            />
+          ) : (
+            <>
+              <Tabs
+                ariaLabel="Detail navigasi divisi"
+                items={tabs}
+                onValueChange={setActiveTab}
+                value={activeTab}
+              />
+
+              {/* Tab 1: Ringkasan */}
+              {activeTab === "summary" ? (
+                <div className={styles.cascadeFlow}>
+                  <Section title="Ringkasan Operasional Divisi">
+                    <div className={styles.targetDetailGrid}>
+                      <div className={styles.candidateCard}>
+                        <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Target Khusus</span>
+                        <strong style={{ fontSize: "20px" }}>{divisionTargets.length}</strong>
+                        <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>Sasaran teralokasi</span>
+                      </div>
+                      <div className={styles.candidateCard}>
+                        <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Status Sinkronisasi</span>
+                        <Status label="Siap Terhubung" variant="neutral" />
+                        <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>Kanal kerja divisi</span>
+                      </div>
+                      <div className={styles.candidateCard}>
+                        <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Penanggung Jawab</span>
+                        <strong style={{ fontSize: "14px" }}>Kepala Divisi {division[0]}</strong>
+                        <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>Peran: WORKSPACE_LEAD</span>
+                      </div>
+                    </div>
+                  </Section>
+
+                  <Section title="Status Alokasi Data">
+                    <div className={styles.readinessRow}>
+                      <Status label="Tersedia" variant="neutral" />
+                      <p>
+                        Ruang kerja divisi {division[0]} telah terhubung ke modul kerja universal.
+                        Gunakan tab di atas untuk menginspeksi Proyek, Tugas, Persetujuan, Temuan, dan Laporan divisi.
+                      </p>
+                    </div>
+                  </Section>
+                </div>
+              ) : null}
+
+              {/* Tab 2: Kinerja */}
+              {activeTab === "performance" ? (
+                <Section
+                  description="Proyeksi kinerja dan pencapaian target yang dialokasikan khusus untuk divisi ini."
+                  title={`Kinerja ${division[0]}`}
+                >
+                  {divisionTargets.length > 0 ? (
+                    <DataTable
+                      caption={`Kinerja ${division[0]}`}
+                      columns={[
+                        { header: "Sasaran", key: "name", render: (t) => t.name },
+                        {
+                          header: "Target",
+                          key: "target",
+                          render: (t) => valueForObservation(observationFor(t, "TARGET"), formatValue),
+                        },
+                        {
+                          header: "Aktual",
+                          key: "actual",
+                          render: (t) => valueForObservation(observationFor(t, "ACTUAL"), formatValue),
+                        },
+                        {
+                          header: "Perkiraan",
+                          key: "forecast",
+                          render: (t) => valueForObservation(observationFor(t, "FORECAST"), formatValue),
+                        },
+                        {
+                          header: "Status",
+                          key: "status",
+                          render: (t) => (
+                            <Status
+                              label={performanceLabel(t.performance_state)}
+                              variant={performanceVariant(t.performance_state)}
+                            />
+                          ),
+                        },
+                        {
+                          header: "Verifikasi",
+                          key: "verification",
+                          render: (t) => verificationLabel(observationFor(t, "ACTUAL")?.verification_state),
+                        },
+                      ]}
+                      getRowKey={(t) => t.target_id}
+                      rows={divisionTargets}
+                    />
+                  ) : (
+                    <div className={styles.readinessRow}>
+                      <Status label="Belum Ada Target" variant="neutral" />
+                      <p>Belum ada target spesifik divisi yang diturunkan melalui alur cascade.</p>
+                    </div>
+                  )}
+                </Section>
+              ) : null}
+
+              {/* Tab 3: Proyek (Reuses Shared Work ProjectsPage with workspaceKey and embed) */}
+              {activeTab === "projects" ? (
+                <ProjectsPage embed workspaceKey={divisionKey} />
+              ) : null}
+
+              {/* Tab 4: Tugas (Reuses Shared Work TasksPage with workspaceKey and embed) */}
+              {activeTab === "tasks" ? (
+                <TasksPage embed workspaceKey={divisionKey} />
+              ) : null}
+
+              {/* Tab 5: Persetujuan (Reuses Shared Work ApprovalsPage with workspaceKey and embed) */}
+              {activeTab === "approvals" ? (
+                <ApprovalsPage embed workspaceKey={divisionKey} />
+              ) : null}
+
+              {/* Tab 6: Temuan (Reuses Shared Work FindingsPage with workspaceKey and embed) */}
+              {activeTab === "findings" ? (
+                <FindingsPage embed workspaceKey={divisionKey} />
+              ) : null}
+
+              {/* Tab 7: Laporan (Reuses Shared Work ReportsPage with workspaceKey and embed) */}
+              {activeTab === "reports" ? (
+                <ReportsPage embed workspaceKey={divisionKey} />
+              ) : null}
+            </>
+          )}
+        </div>
+      )}
+    </ExecutiveLayout>
+  );
 }

@@ -1,16 +1,77 @@
-# Executive Data Requirements
+# Executive Data Requirements Registry
 
-| Component ID | Menu | Entity / Metric | Scope | Source | Verification | Destination | Availability |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `exec.summary.strategy` | Ringkasan | Strategy plan dan target | COMPANY | Strategy API | Target observation | Kinerja | Tersedia |
-| `exec.summary.revenue` | Ringkasan | Pendapatan | COMPANY | Finance authoritative source | Finance | Kinerja / Finance | Belum Terhubung |
-| `exec.summary.sales` | Ringkasan | Penjualan / Closing | COMPANY | Sales authoritative source | Sales | Divisi Sales | Belum Terhubung |
-| `exec.summary.liquidity` | Ringkasan | Kas & Likuiditas | COMPANY | Finance authoritative source | Finance | Divisi Finance | Belum Terhubung |
-| `exec.summary.projects` | Ringkasan | Progres Proyek | COMPANY bila diberikan | Shared Work Project | Shared Work | Proyek | Belum Terhubung |
-| `exec.summary.decisions` | Ringkasan | Persetujuan menunggu | Authority Backend | Shared Work Approval | Shared Work | Persetujuan | Belum Terhubung |
-| `exec.summary.findings` | Ringkasan | Risiko / Temuan | Authority Backend | Shared Work Finding | Shared Work | Temuan | Belum Terhubung |
-| `exec.domain.*` | Divisi | Kinerja domain | Workspace/division Backend | Domain source | Domain source | Detail Divisi | Belum Terhubung |
-| `exec.genesis` | Ringkasan / Brief | Advisory | Principal scope | Governed GENESIS | Backend | Advisory detail | Belum Terhubung |
-| `exec.ara` | Tanya ARA | Read context | Principal/workspace/classification | Governed ARA | Backend | Tanya ARA | Belum Terhubung |
+Registry ini mendokumentasikan spesifikasi kebutuhan data resmi untuk seluruh komponen pada Ruang Kerja Eksekutif (Executive Workspace) ALOS.
+Setiap komponen didefinisikan dengan 17 atribut canonical:
 
-Freshness, owner source, evidence, dan classification hanya ditampilkan ketika disediakan source authoritative. Tidak ada default permission, data, status, atau recommendation di frontend.
+1. **Component ID**: Identifier unik komponen UI
+2. **Menu**: Menu navigasi utama eksekutif
+3. **Business Purpose**: Tujuan bisnis dan kegunaan manajerial
+4. **Entity / Metric**: Entitas atau metrik bisnis yang disajikan
+5. **Scope**: Ruang lingkup data (COMPANY / DIVISION / WORKSPACE)
+6. **Period**: Granularitas dan jangka waktu data (ANNUAL / QUARTERLY / MONTHLY)
+7. **Owner**: Peran penanggung jawab canonical data
+8. **Target Source**: Sumber data target perencanaan
+9. **Actual Source**: Sumber data aktual pencapaian
+10. **Forecast Source**: Sumber data perkiraan / proyeksi
+11. **Data Source**: Sistem atau API penyedia data authoritative
+12. **Verification**: Mekanisme dan status verifikasi data
+13. **Evidence**: Ketentuan bukti pendukung (wajib / opsional / rujukan)
+14. **Freshness**: Kebaruan data (real-time / batch harian / per siklus)
+15. **Authority**: Hak akses / permission yang dipersyaratkan
+16. **Detail Destination**: Rute navigasi halaman atau drawer detail
+17. **Current Availability**: Status ketersediaan saat ini (Tersedia / Siap Terhubung / Belum Terhubung)
+
+---
+
+## Tabel Matriks Kebutuhan Data
+
+| Component ID | Menu | Business Purpose | Entity / Metric | Scope | Period | Owner | Target Source | Actual Source | Forecast Source | Data Source | Verification | Evidence | Freshness | Authority | Detail Destination | Current Availability |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `exec.summary.kpi_strip` | Ringkasan | Pemantauan cepat 6 indikator vital kesehatan bisnis | Pendapatan, Penjualan, Kas & Likuiditas, Progres Proyek, Keputusan, Risiko | COMPANY | ANNUAL | EXECUTIVE | Strategy API / RKAP | Modul Keuangan & Operasional | Proyeksi AI / Strategy | Finance, Sales, Work API | Terverifikasi Audit / Konsolidasi | Wajib untuk Keuangan; Opsional untuk Operasional | Harian | EXECUTIVE | `/workspace/executive/performance` | Tersedia (Strategi); Belum Terhubung (Operasional) |
+| `exec.summary.plan_meta` | Ringkasan | Penegasan landasan rencana strategis aktif perusahaan | Strategy Plan Aktif | COMPANY | ANNUAL / MULTI_YEAR | EXECUTIVE | Strategy API (`/plans`) | — | — | Strategy Service | Terverifikasi SK Direksi | Wajib (SK Pengesahan) | Per Siklus Rencana | EXECUTIVE | `/workspace/executive/planning` | Tersedia |
+| `exec.summary.target_table` | Ringkasan | Tinjauan performa target strategis korporasi | BusinessTarget (Corporate Scope) | COMPANY | ANNUAL | EXECUTIVE | Strategy API (`/targets`) | Observasi AKTUAL | Observasi FORECAST | Strategy Service | Status Verifikasi Observasi | Wajib bila manual; Rujukan bila terhubung | Real-time saat observasi | EXECUTIVE | `/workspace/executive/performance?target=[id]` | Tersedia |
+| `exec.summary.domain_grid` | Ringkasan | Pemantauan status kesehatan per domain bisnis | Domain Health rollup (Sales, Finance, Property, Legal, HR, IT) | COMPANY | MONTHLY | WORKSPACE_LEAD | Target RKAP Domain | Pelaporan Domain Terkait | Proyeksi Domain | Domain Modules API | Verifikasi Lead Domain | Sesuai SOP Domain | Mingguan | EXECUTIVE | `/workspace/executive/divisions/[key]` | Belum Terhubung |
+| `exec.summary.findings_box` | Ringkasan | Deteksi dini temuan dan kendala material | WorkFinding (Critical & High) | COMPANY | REAL_TIME | WORKSPACE_LEAD | Standar Kepatuhan | Laporan Lapangan / Audit | — | Shared Work Findings API | Verifikasi Lead Kepatuhan | Wajib (Dokumen Temuan) | Real-time | EXECUTIVE | `/workspace/executive/findings` | Tersedia |
+| `exec.summary.decisions_box`| Ringkasan | Percepatan eksekusi keputusan penting | WorkApproval (Executive tier) | COMPANY | REAL_TIME | EXECUTIVE | SOP Kewenangan | Pengajuan Tim Kerja | — | Shared Work Approvals API | Validasi Otoritas Pemohon | Wajib (Lampiran Pengajuan) | Real-time | EXECUTIVE | `/workspace/executive/approvals` | Tersedia |
+| `exec.summary.division_table` | Ringkasan | Evaluasi kesiapan dan rollup performa divisi | Division Status Rollup | DIVISION | MONTHLY | WORKSPACE_LEAD | Cascade RKAP Divisi | Laporan Bulanan Divisi | Proyeksi Divisi | Strategy & Work API | Verifikasi Kepala Divisi | Laporan Manajerial | Bulanan | EXECUTIVE | `/workspace/executive/divisions/[key]` | Belum Terhubung |
+| `exec.brief.condition` | Brief | Kondisi umum kelangsungan bisnis 1–3 menit | Status Rencana Aktif & Kesehatan Sasaran | COMPANY | ANNUAL | EXECUTIVE | Rencana Aktif Strategy | Rollup Target On-Track vs At-Risk | — | Strategy API | SK Direksi | Tervalidasi Rencana | Harian | EXECUTIVE | `/workspace/executive/summary` | Tersedia |
+| `exec.brief.highlights` | Brief | Ringkasan 3 sasaran paling krusial | Top 3 Corporate Targets | COMPANY | ANNUAL | EXECUTIVE | Target Strategy | Observasi Aktual | Observasi Perkiraan | Strategy API | Status Verifikasi Target | Rujukan Sumber | Harian | EXECUTIVE | `/workspace/executive/performance` | Tersedia |
+| `exec.brief.decisions` | Brief | Keputusan yang membutuhkan tanda tangan hari ini | Pending Executive Approvals | COMPANY | DAILY | EXECUTIVE | Kebijakan Otorisasi | Pengajuan Persetujuan Masuk | — | Approvals Service | Verifikasi Pemohon | Wajib Bukti Nota Dinas | Real-time | EXECUTIVE | `/workspace/executive/approvals` | Tersedia |
+| `exec.brief.risks` | Brief | Peringatan risiko yang memerlukan intervensi direksi | Critical Risk & Off-Track Targets | COMPANY | REAL_TIME | RISK_OFFICER | Standar Toleransi Risiko | Audit Temuan & Deviasi Kinerja | — | Findings & Strategy API | Verifikasi Manajemen Risiko | Berita Acara Temuan | Real-time | EXECUTIVE | `/workspace/executive/findings` | Tersedia |
+| `exec.brief.progress` | Brief | Pemantauan tonggak capaian proyek strategis | Milestone Strategic Projects | COMPANY | WEEKLY | PROJECT_OWNER | Baseline Jadwal Proyek | Realisasi Lapangan | Proyeksi Penyelesaian | Shared Work Projects API | Verifikasi PMO | Laporan Progres Proyek | Mingguan | EXECUTIVE | `/workspace/executive/projects` | Tersedia |
+| `exec.brief.deadlines` | Brief | Kalender tenggat kepatuhan dan pelaporan | Compliance & Reporting Deadlines | COMPANY | MONTHLY | CORPORATE_SECRETARY | Regulasi & Jadwal RUPS/Audit | Realisasi Pelaporan | — | Calendar & Strategy API | Verifikasi Sekretaris Perusahaan | Dokumen Regulasi | Mingguan | EXECUTIVE | `/workspace/executive/brief` | Tersedia |
+| `exec.brief.directives` | Brief | Penerbitan arahan pimpinan ke jajaran eksekutif | Strategic Directives / Tasks | COMPANY | AD_HOC | EXECUTIVE | Keputusan Direksi | — | — | Shared Work Tasks API | Validasi Otoritas Direksi | Opsional (Disposisi) | Real-time | `task.create` | `/workspace/executive/tasks` | Siap Terhubung (Menunggu task mutation) |
+| `exec.brief.genesis` | Brief | Rekomendasi terarah berbasis kecerdasan GENESIS | GENESIS Advisory Insights | COMPANY | REAL_TIME | AI_CONTROL_PLANE | Parameter Model Strategi | Agregasi Data Lintas Modul | Simulasi Prediktif | GENESIS Advisory Engine | Governed Guardrails | Log Rujukan Parameter | Per Analisis | EXECUTIVE | `/workspace/executive/brief` | Belum Terhubung |
+| `exec.planning.renstra` | Rencana & Target | Rencana Strategis 5 tahunan korporasi | StrategyPlan (`STRATEGIC_PLAN`) | COMPANY | MULTI_YEAR | EXECUTIVE | Rapat Pemegang Saham | — | — | Strategy API (`/plans`) | Pengesahan Notaris / RUPS | Wajib Akta / SK | Tahunan | `CREATE_COMPANY_PLAN` | Modal Formulir Renstra | Tersedia |
+| `exec.planning.rkap` | Rencana & Target | Rencana Kerja & Anggaran tahunan korporasi | StrategyPlan (`OPERATING_PLAN`) | COMPANY | ANNUAL | EXECUTIVE | Renstra Induk | — | — | Strategy API (`/plans`) | RUPS / Dewan Komisaris | Wajib Dokumen RKAP | Tahunan | `CREATE_COMPANY_PLAN` | Modal Formulir RKAP | Tersedia |
+| `exec.planning.objectives` | Rencana & Target | Sasaran strategis turunan rencana induk | StrategicObjective | COMPANY / DIVISION | ANNUAL | EXECUTIVE | Strategy Plan Terkait | — | — | Strategy API (`/objectives`)| Pengesahan Direksi | Matriks Sasaran | Per Siklus Rencana | `CREATE_COMPANY_PLAN` | Modal Formulir Sasaran | Tersedia |
+| `exec.planning.targets` | Rencana & Target | Definisi indikator target terukur perusahaan | BusinessTarget | COMPANY | ANNUAL | EXECUTIVE | Sasaran Strategis | — | — | Strategy API (`/targets`) | Pengesahan Direksi | Form Penetapan KPI | Per Siklus Rencana | `CREATE_COMPANY_PLAN` | Modal Formulir Target | Tersedia |
+| `exec.planning.target_val` | Rencana & Target | Observasi penetapan angka target (TARGET) | MetricObservation (`kind: TARGET`) | COMPANY | ANNUAL | EXECUTIVE | Keputusan Target | — | — | Strategy API (`/observations`)| Pengesahan Direksi | Bukti Dokumen Target | Per Penetapan | `CREATE_COMPANY_PLAN` | Langkah 2 Form Target | Tersedia |
+| `exec.planning.assumptions` | Rencana & Target | Parameter makro dan asumsi operasional | PlanningAssumption | COMPANY | ANNUAL | EXECUTIVE | Riset Pasar / Bank Indonesia | — | Proyeksi Makro | Strategy API (`/assumptions`)| Verifikasi Analis Strategi | Rujukan Laporan Riset | Per Siklus Rencana | `CREATE_COMPANY_PLAN` | Modal Formulir Asumsi | Tersedia |
+| `exec.planning.cascade` | Rencana & Target | Simulasi dan penurunan target ke unit operasional | CascadePreview & Derived Targets | DIVISION | ANNUAL | EXECUTIVE | Target Induk & Aturan Split | — | Hasil Kalkulasi Rumus | Strategy API (`/cascade/preview`)| Evaluasi Constraints | Log Perhitungan | Real-time saat kalkulasi | `CREATE_COMPANY_PLAN` | Alur Cascade Interaktif | Tersedia |
+| `exec.planning.extraction` | Rencana & Target | Digitalisasi data strategi dari dokumen SK/Peraturan | Extracted Candidates | COMPANY | AD_HOC | EXECUTIVE | Dokumen PDF/Arsip ALOS | Ekstraksi NLP | — | Governed Extraction Engine | Telaah Pengguna (Human-in-the-loop)| Referensi Versi Immutable | Per Dokumen | `CREATE_COMPANY_PLAN` | Layar Telaah Kandidat 2 Kolom | Tersedia (Mode Governed Draf) |
+| `exec.performance.company` | Kinerja | Tabel komprehensif performa sasaran perusahaan | Target Performance Rollup | COMPANY | ANNUAL | EXECUTIVE | Observasi TARGET | Observasi AKTUAL | Observasi FORECAST | Strategy API (`/targets`) | Status Verifikasi Observasi | Wajib untuk Manual | Real-time | EXECUTIVE | `/workspace/executive/performance?target=[id]` | Tersedia |
+| `exec.performance.detail` | Kinerja | Evaluasi mendalam satu target spesifik | Target Detail, Observations & History | COMPANY | ANNUAL | EXECUTIVE | Target Metadata | Riwayat Observasi | Riwayat Proyeksi | Strategy API (`/targets/{id}`) | Riwayat Verifikasi | Wajib per Pengamatan Manual | Real-time | EXECUTIVE | Drawer Catat Aktual / Perkiraan | Tersedia |
+| `exec.performance.record` | Kinerja | Pencatatan capaian aktual atau perkiraan baru | MetricObservation (`ACTUAL`/`FORECAST`)| COMPANY / DIVISION | PERIODE BERJALAN | EXECUTIVE / AUDITOR | Target Terkait | Input Lapangan / Laporan | Input Estimasi Analis | Strategy API (`/observations`)| Menunggu Verifikasi | Wajib Bukti untuk Manual; Sumber untuk Tertaut | Real-time saat simpan | `CREATE_COMPANY_PLAN` | Drawer Catat Aktual / Perkiraan | Tersedia |
+| `exec.initiatives.table` | Inisiatif Strategis| Portofolio program kerja strategis pemenuhan target | StrategicInitiative | COMPANY | ANNUAL | EXECUTIVE | Sasaran Terkait | Progres Proyek Lapangan | — | Initiatives Contract & Work API | Validasi Sponsor Program | SK Penugasan Program | Mingguan | EXECUTIVE | Drawer Detail Inisiatif | Tersedia (Readiness Mode) |
+| `exec.reviews.table` | Review & Revisi | Risalah telaah berkala kinerja manajemen | PerformanceReview | COMPANY | QUARTERLY | EXECUTIVE | Target Disepakati | Capaian Aktual Triwulan | Deviasi & Outlook | Strategy Review Service | Berita Acara Rapat Direksi | Notulen & Dokumen Bukti | Triwulanan | EXECUTIVE | Tab Review Kinerja | Tersedia |
+| `exec.reviews.corrective` | Review & Revisi | Penugasan perbaikan deviasi kinerja ke tim operasional | Corrective Tasks & Projects | COMPANY / DIVISION | AD_HOC | EXECUTIVE | Temuan Kesenjangan Kinerja | Eksekusi Shared Work | — | Shared Work API | Verifikasi Penanggung Jawab | Laporan Penyelesaian | Real-time | EXECUTIVE | Tautan ke Shared Work | Tersedia |
+| `exec.reviews.revision` | Review & Revisi | Penyesuaian resmi angka target tanpa menimpa versi aktif | TargetRevision (`revisions`) | COMPANY | AD_HOC | EXECUTIVE | Target Aktif Berjalan | — | Proyeksi Revisi Baru | Strategy API (`/revisions`) | Persetujuan Dewan Komisaris/RUPS | Wajib Dokumen Justifikasi Revisi | Sesuai Pengajuan | `CREATE_COMPANY_PLAN` | Formulir Pengajuan Revisi | Tersedia |
+| `exec.division.detail` | Divisi | Kinerja komprehensif direktorat / divisi spesifik | Division Profile & Performance | DIVISION | MONTHLY | WORKSPACE_LEAD | Target Cascade Divisi | Aktual Laporan Divisi | Proyeksi Divisi | Strategy API (Division Scope)| Verifikasi Kepala Divisi | Dokumen Laporan Divisi | Bulanan | EXECUTIVE | `/workspace/executive/divisions/[key]` | Tersedia |
+| `exec.division.projects` | Divisi | Daftar proyek yang dijalankan divisi terpilih | WorkProject (Division Scoped) | DIVISION | AD_HOC | PROJECT_OWNER | Rencana Kerja Divisi | Milestone Lapangan | — | Shared Work Projects API | Verifikasi Manajer Proyek | Dokumen Deliverables | Real-time | EXECUTIVE | Drawer Proyek Shared Work | Tersedia |
+| `exec.division.tasks` | Divisi | Tugas operasional yang sedang berjalan di divisi | WorkTask (Division Scoped) | DIVISION | AD_HOC | TASK_ASSIGNEE | Penugasan Kerja | Status Pekerjaan Harian | — | Shared Work Tasks API | Verifikasi Pemberi Tugas | Lampiran Hasil Kerja | Real-time | EXECUTIVE | Drawer Tugas Shared Work | Tersedia |
+| `exec.division.approvals` | Divisi | Persetujuan anggaran dan administrasi divisi | WorkApproval (Division Scoped) | DIVISION | AD_HOC | APPROVER | Anggaran Divisi | Pengajuan Biaya / Dokumen | — | Shared Work Approvals API | Otorisasi Bertingkat | Lampiran Kebutuhan Biaya | Real-time | EXECUTIVE | Drawer Persetujuan Shared Work | Tersedia |
+| `exec.division.findings` | Divisi | Kendala operasional dan temuan audit divisi | WorkFinding (Division Scoped) | DIVISION | AD_HOC | AUDITOR / LEAD | SOP Mutu Divisi | Laporan Anomali Lapangan | — | Shared Work Findings API | Verifikasi Lead Divisi | Foto / Dokumen Kendala | Real-time | EXECUTIVE | Drawer Temuan Shared Work | Tersedia |
+| `exec.division.reports` | Divisi | Laporan manajerial berkala divisi | WorkReport (Division Scoped) | DIVISION | PERIODIC | REPORT_AUTHOR | Jadwal Pelaporan Divisi | Kompilasi Data Laporan | — | Shared Work Reports API | Tanda Tangan Kepala Divisi | File Laporan Final | Per Jadwal | EXECUTIVE | Drawer Laporan Shared Work | Tersedia |
+| `exec.ara.dialog` | Tanya ARA | Asisten penalaran data dan analisis kebijakan | ARA Conversation & Context | PRINCIPAL_SCOPE | REAL_TIME | PRINCIPAL | Seluruh Rujukan Terotorisasi | Fakta Data ALOS | Proyeksi Pertanyaan | ARA Intelligence Plane | Validasi Guardrail Keamanan | Log Rujukan Jawaban | Real-time | PRINCIPAL | `/workspace/executive/ara` | Belum Terhubung |
+
+---
+
+## Prinsip Kepatuhan Sumber Data
+
+1. **Source Honesty**:
+   - Jika modul atau endpoint backend belum terhubung, antarmuka wajib menampilkan status `"Belum Terhubung"` atau `"Belum Tersedia"` dan nilai `"—"`. Dilarang menampilkan data tiruan atau angka acak.
+2. **Ketiadaan Tanggal Palsu**:
+   - Waktu pembaruan (`updated_at`) harus bersumber dari entitas data resmi. Dilarang menggunakan frasa umum seperti `"Mengikuti data halaman"`.
+3. **Pemisahan Target dan Nilai Observasi**:
+   - Metadata target (`BusinessTarget`) tidak menyimpan nilai numerik target secara sembunyi-sembunyi. Nilai target selalu tersimpan sebagai entitas `MetricObservation` dengan `kind = "TARGET"`.

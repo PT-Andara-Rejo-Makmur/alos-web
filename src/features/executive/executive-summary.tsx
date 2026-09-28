@@ -51,7 +51,12 @@ function ExecutiveSummaryContent() {
       {sessionExpired ? <Alert message="Sesi Anda sudah berakhir. Silakan masuk kembali." title="Sesi berakhir" variant="warning" /> : null}
       {error ? <Alert message={error} title="Data belum dapat dimuat." variant="warning" /> : null}
 
-      <ExecutiveSourceStatus strategyAvailable={Boolean(data)} />
+      <ExecutiveSourceStatus
+        strategyAvailable={Boolean(data)}
+        strategyOwner={plan?.owner_role_ref || "—"}
+        strategyUpdatedAt={plan ? formatDate(plan.updated_at) : "—"}
+        strategyVerification={targets.length > 0 ? "Terverifikasi Sebagian" : "—"}
+      />
 
       <Section bordered title="Ringkasan Utama">
         <div className={styles.metricsStrip}>
@@ -104,7 +109,7 @@ function ExecutiveSummaryContent() {
       </Section>
 
       <Section title="Analisis GENESIS">
-        <div className={styles.readinessRow}><Status label="Belum Terhubung" variant="neutral" /><p>Analisis advisory akan tersedia setelah integrasi governed GENESIS disediakan oleh Backend.</p></div>
+        <div className={styles.readinessRow}><Status label="Belum Terhubung" variant="neutral" /><p>Analisis advisory akan tersedia setelah integrasi governed data selesai.</p></div>
       </Section>
     </div>
   );
@@ -129,3 +134,12 @@ function CorporateTargetTable({ targets }: Readonly<{ targets: readonly Business
     rows={targets}
   />;
 }
+
+function formatDate(value: string | undefined): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "—"
+    : date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+}
+

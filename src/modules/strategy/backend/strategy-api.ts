@@ -71,6 +71,30 @@ export const strategyApi = {
       body: { derived_targets: derivedTargets },
     });
   },
+  createObjective(payload: Record<string, unknown>, request: StrategyRequest = authenticatedApiRequest) {
+    return request<StrategicObjective>(STRATEGY_API.objectives, { method: "POST", body: payload });
+  },
+  createTarget(payload: Record<string, unknown>, request: StrategyRequest = authenticatedApiRequest) {
+    return request<BusinessTarget>(STRATEGY_API.targets, { method: "POST", body: payload });
+  },
+  createObservation(targetId: string, payload: Record<string, unknown>, request: StrategyRequest = authenticatedApiRequest) {
+    return request<MetricObservation>(`${STRATEGY_API.targets}/${encodeURIComponent(targetId)}/observations`, {
+      method: "POST",
+      body: payload,
+    });
+  },
+  createAssumption(payload: Record<string, unknown>, request: StrategyRequest = authenticatedApiRequest) {
+    return request<PlanningAssumption>(STRATEGY_API.assumptions, { method: "POST", body: payload });
+  },
+  createRevision(targetId: string, payload: { reason: string }, request: StrategyRequest = authenticatedApiRequest) {
+    return request<{ revision: Record<string, unknown>; target: BusinessTarget }>(
+      `${STRATEGY_API.targets}/${encodeURIComponent(targetId)}/revisions`,
+      { method: "POST", body: payload },
+    );
+  },
+  listRevisions(targetId: string, signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest) {
+    return request<Record<string, unknown>[]>(`${STRATEGY_API.targets}/${encodeURIComponent(targetId)}/revisions`, { signal });
+  },
   transitionPlan(planId: string, action: "submit" | "approve" | "activate", request: StrategyRequest = authenticatedApiRequest) {
     return request<StrategyPlan>(`${STRATEGY_API.plans}/${encodeURIComponent(planId)}/${action}`, { method: "POST" });
   },

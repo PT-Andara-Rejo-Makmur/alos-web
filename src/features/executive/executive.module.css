@@ -23,7 +23,42 @@
 .accessBrand { color: var(--alos-primary); font-size: 14px; font-weight: 700; letter-spacing: .08em; margin: 0 0 var(--alos-space-3); }
 .accessTitle { font-size: 20px; line-height: 28px; margin: 0 0 var(--alos-space-2); }
 .accessText { color: var(--alos-text-secondary); margin: 0; }
-.accessButton { background: var(--alos-primary); border: 0; border-radius: var(--alos-radius-button); color: #fff; cursor: pointer; margin-top: var(--alos-space-5); min-height: 40px; padding: 0 var(--alos-space-4); }
+.briefLayout { display: flex; flex-direction: column; gap: var(--alos-space-4); }
+.briefSection { border-bottom: 1px solid var(--alos-border); display: flex; flex-direction: column; gap: var(--alos-space-3); padding-bottom: var(--alos-space-4); }
+.briefSection:last-child { border-bottom: 0; padding-bottom: 0; }
+.briefHeader { align-items: center; display: flex; justify-content: space-between; }
+.briefHeader h2, .briefHeader h3 { font-size: 15px; font-weight: 600; line-height: 22px; margin: 0; }
+.briefCompactList { display: flex; flex-direction: column; gap: var(--alos-space-2); list-style: none; margin: 0; padding: 0; }
+.briefListItem { align-items: center; border-radius: var(--alos-radius-sm, 4px); display: flex; font-size: 13px; justify-content: space-between; padding: var(--alos-space-2); }
+.briefListItem:hover { background: var(--alos-surface-hover); }
+.briefTimeline { border-left: 2px solid var(--alos-border); display: flex; flex-direction: column; gap: var(--alos-space-3); margin-left: var(--alos-space-2); padding-left: var(--alos-space-3); }
+.briefTimelineItem { display: flex; flex-direction: column; gap: var(--alos-space-1); position: relative; }
+.briefTimelineItem::before { background: var(--alos-primary); border-radius: 50%; content: ""; height: 8px; left: calc(-1 * var(--alos-space-3) - 5px); position: absolute; top: 5px; width: 8px; }
+.briefTimelineDate { color: var(--alos-text-muted); font-size: 11px; font-weight: 500; }
+.briefTimelineText { color: var(--alos-text-primary); font-size: 13px; margin: 0; }
+.inlineReadiness { align-items: center; color: var(--alos-text-muted); display: inline-flex; font-size: 12px; gap: var(--alos-space-2); }
+.briefNotice { background: var(--alos-surface); border: 1px dashed var(--alos-border); border-radius: var(--alos-radius-panel); color: var(--alos-text-secondary); font-size: 13px; padding: var(--alos-space-3) var(--alos-space-4); }
+.formGrid { display: grid; gap: var(--alos-space-4); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.formFullWidth { grid-column: 1 / -1; }
+.formField { display: flex; flex-direction: column; gap: var(--alos-space-1); }
+.formField label { color: var(--alos-text-secondary); font-size: 12px; font-weight: 500; }
+.formInput, .formSelect, .formTextarea { background: var(--alos-surface); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-input, 4px); color: var(--alos-text-primary); font-size: 13px; padding: var(--alos-space-2); width: 100%; }
+.formInput:focus, .formSelect:focus, .formTextarea:focus { border-color: var(--alos-primary); outline: none; }
+.formActions { display: flex; gap: var(--alos-space-3); justify-content: flex-end; margin-top: var(--alos-space-4); }
+.stepBar { display: flex; gap: var(--alos-space-2); margin-bottom: var(--alos-space-4); }
+.stepItem { align-items: center; display: flex; font-size: 12px; gap: var(--alos-space-2); }
+.stepActive { color: var(--alos-primary); font-weight: 600; }
+.stepMuted { color: var(--alos-text-muted); }
+.cascadeFlow { display: flex; flex-direction: column; gap: var(--alos-space-4); }
+.cascadeStep { border: 1px solid var(--alos-border); border-radius: var(--alos-radius-panel); padding: var(--alos-space-4); }
+.extractionSplit { display: grid; gap: var(--alos-space-4); grid-template-columns: 1fr 1fr; }
+.docViewer { background: var(--alos-surface); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-panel); display: flex; flex-direction: column; height: 100%; min-height: 400px; padding: var(--alos-space-4); }
+.candidateList { display: flex; flex-direction: column; gap: var(--alos-space-3); }
+.candidateCard { border: 1px solid var(--alos-border); border-radius: var(--alos-radius-panel); display: flex; flex-direction: column; gap: var(--alos-space-2); padding: var(--alos-space-3); }
+.candidateRow { display: flex; justify-content: space-between; }
+.targetDetailGrid { display: grid; gap: var(--alos-space-4); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
 @media (max-width: 1439px) { .metricsStrip { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 1023px) { .domainGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 639px) { .page { gap: var(--alos-space-5); } .metricsStrip, .domainGrid, .twoColumn, .briefGrid { grid-template-columns: 1fr; } .sourceStrip { align-items: flex-start; flex-direction: column; } .sourceDetail { grid-template-columns: 1fr; gap: var(--alos-space-1); } }
+@media (max-width: 1023px) { .domainGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .extractionSplit { grid-template-columns: 1fr; } .targetDetailGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 639px) { .page { gap: var(--alos-space-5); } .metricsStrip, .domainGrid, .twoColumn, .briefGrid, .formGrid, .targetDetailGrid { grid-template-columns: 1fr; } .sourceStrip { align-items: flex-start; flex-direction: column; } .sourceDetail { grid-template-columns: 1fr; gap: var(--alos-space-1); } }
+
