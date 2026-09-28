@@ -7,6 +7,7 @@ import {
   Button,
   DataTable,
   Drawer,
+  EmptyState,
   LoadingState,
   PageHeader,
   Section,
@@ -27,14 +28,34 @@ import { strategyApi } from "@/modules/strategy";
 
 import { ExecutiveLayout } from "./executive-layout";
 import { useExecutiveStrategyData } from "./executive-data";
-import { corporateTargets, periodLabel } from "./executive-model";
+import { corporateTargets, generateCanonicalId, periodLabel } from "./executive-model";
 import styles from "./executive.module.css";
 
-export function ExecutivePlanningPage() {
-  return <ExecutiveLayout>{() => <PlanningContent />}</ExecutiveLayout>;
+export interface ExecutivePlanningPageProps {
+  readonly initialCandidates?: readonly ExtractedCandidate[];
+  readonly initialProcessed?: boolean;
 }
 
-function PlanningContent() {
+export function ExecutivePlanningPage({
+  initialCandidates,
+  initialProcessed,
+}: ExecutivePlanningPageProps = {}) {
+  return (
+    <ExecutiveLayout>
+      {() => (
+        <PlanningContent
+          initialCandidates={initialCandidates}
+          initialProcessed={initialProcessed}
+        />
+      )}
+    </ExecutiveLayout>
+  );
+}
+
+function PlanningContent({
+  initialCandidates,
+  initialProcessed,
+}: ExecutivePlanningPageProps) {
   const { data, error, loading } = useExecutiveStrategyData();
   const [tab, setTab] = useState("strategic");
   const [planFormType, setPlanFormType] = useState<"STRATEGIC_PLAN" | "OPERATING_PLAN" | null>(null);
@@ -118,11 +139,18 @@ function PlanningContent() {
       ) : null}
 
       {!loading && tab === "cascade" ? (
-        <CascadeSection assumptions={assumptions} targets={targets} />
+        <CascadeSection
+          assumptions={assumptions}
+          canCascade={canCreateCompanyPlan}
+          targets={targets}
+        />
       ) : null}
 
       {!loading && tab === "extraction" ? (
-        <ExtractionSection />
+        <ExtractionSection
+          initialCandidates={initialCandidates}
+          initialProcessed={initialProcessed}
+        />
       ) : null}
 
       {/* Form Drawers / Modals */}
@@ -215,8 +243,8 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
   const [label, setLabel] = useState("");
   const [parentPlanId, setParentPlanId] = useState(strategicPlans[0]?.plan_id ?? "");
   const [scopeType, setScopeType] = useState("COMPANY");
-  const [ownerWorkspace, setOwnerWorkspace] = useState("workspace_exec");
-  const [ownerRole, setOwnerRole] = useState("EXECUTIVE");
+  const [ownerWorkspace, setOwnerWorkspace] = useState("");
+  const [ownerRole, setOwnerRole] = useState("");
   const [materiality, setMateriality] = useState<"MATERIAL" | "NON_MATERIAL">("MATERIAL");
   const [source, setSource] = useState("");
   const [evidence, setEvidence] = useState("");
@@ -233,9 +261,13 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
       setFeedback("Renstra induk wajib dipilih untuk RKAP.");
       return;
     }
+    if (!ownerWorkspace.trim() || !ownerRole.trim()) {
+      setFeedback("Ruang kerja dan peran penanggung jawab wajib ditentukan.");
+      return;
+    }
 
     if (!canSubmit) {
-      setFeedback("Pembuatan rencana tidak dapat disimpan karena kewenangan resmi belum mencakup tindakan ini.");
+      setFeedback("Anda belum memiliki kewenangan untuk melakukan tindakan ini.");
       return;
     }
 
@@ -243,7 +275,7 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
     setFeedback(null);
     try {
       const selectedParent = strategicPlans.find((p) => p.plan_id === parentPlanId);
-      const generatedId = `plan_${Date.now()}`;
+      const generatedId = generateCanonicalId("plan");
       await strategyApi.createPlan({
         plan_id: generatedId,
         version: 1,
@@ -279,7 +311,7 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
 
   return (
     <Drawer
-      description={isRenstra ? "Form canonical pembuatan Rencana Strategis jangka panjang." : "Form canonical penyusunan RKAP tahunan mengacu pada Renstra induk."}
+      description={isRenstra ? "Formulir penyusunan Rencana Strategis jangka panjang." : "Formulir penyusunan RKAP tahunan mengacu pada Renstra induk."}
       onClose={onClose}
       open
       title={isRenstra ? "Formulir Renstra" : "Formulir RKAP"}
@@ -287,7 +319,7 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
       <form onSubmit={handleSubmit}>
         {!canSubmit ? (
           <div className={styles.briefNotice}>
-            Kewenangan resmi (CREATE_COMPANY_PLAN) belum aktif untuk akun ini. Formulir ditampilkan dalam mode tinjauan kebutuhan tanpa penyimpanan langsung.
+            Anda belum memiliki kewenangan untuk membuat rencana perusahaan. Formulir ditampilkan dalam mode peninjauan kebutuhan tanpa penyimpanan langsung.
           </div>
         ) : null}
         {feedback ? <Alert message={feedback} title="Perhatian" variant="warning" /> : null}
@@ -328,10 +360,10 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
           <div className={styles.formField}>
             <label htmlFor="plan-granularity">Granularitas *</label>
             <select className={styles.formSelect} id="plan-granularity" onChange={(e) => setGranularity(e.target.value)} value={granularity}>
-              <option value="ANNUAL">Tahunan (Annual)</option>
-              <option value="QUARTERLY">Triwulan (Quarterly)</option>
-              <option value="MONTHLY">Bulanan (Monthly)</option>
-              <option value="CUSTOM">Khusus (Custom)</option>
+              <option value="ANNUAL">Tahunan</option>
+              <option value="QUARTERLY">Triwulan</option>
+              <option value="MONTHLY">Bulanan</option>
+              <option value="CUSTOM">Khusus</option>
             </select>
           </div>
 
@@ -341,15 +373,15 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="plan-scope">Ruang Lingkup (Scope) *</label>
+            <label htmlFor="plan-scope">Ruang Lingkup *</label>
             <select className={styles.formSelect} id="plan-scope" onChange={(e) => setScopeType(e.target.value)} value={scopeType}>
-              <option value="COMPANY">Korporasi (Company)</option>
+              <option value="COMPANY">Korporasi</option>
               <option value="DIVISION">Divisi</option>
             </select>
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="plan-materiality">Tingkat Kepentingan (Materiality) *</label>
+            <label htmlFor="plan-materiality">Tingkat Kepentingan *</label>
             <select className={styles.formSelect} id="plan-materiality" onChange={(e) => setMateriality(e.target.value as "MATERIAL")} value={materiality}>
               <option value="MATERIAL">Material (Strategis)</option>
               <option value="NON_MATERIAL">Non-Material (Operasional)</option>
@@ -358,12 +390,12 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
 
           <div className={styles.formField}>
             <label htmlFor="plan-owner-workspace">Ruang Kerja Penanggung Jawab *</label>
-            <input className={styles.formInput} id="plan-owner-workspace" onChange={(e) => setOwnerWorkspace(e.target.value)} required value={ownerWorkspace} />
+            <input className={styles.formInput} id="plan-owner-workspace" onChange={(e) => setOwnerWorkspace(e.target.value)} placeholder="ID Ruang Kerja" required value={ownerWorkspace} />
           </div>
 
           <div className={styles.formField}>
             <label htmlFor="plan-owner-role">Peran Penanggung Jawab *</label>
-            <input className={styles.formInput} id="plan-owner-role" onChange={(e) => setOwnerRole(e.target.value)} required value={ownerRole} />
+            <input className={styles.formInput} id="plan-owner-role" onChange={(e) => setOwnerRole(e.target.value)} placeholder="Peran / Jabatan" required value={ownerRole} />
           </div>
 
           <div className={styles.formField}>
@@ -372,16 +404,22 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="plan-evidence">Bukti Pendukung (Evidence)</label>
+            <label htmlFor="plan-evidence">Bukti Pendukung</label>
             <input className={styles.formInput} id="plan-evidence" onChange={(e) => setEvidence(e.target.value)} placeholder="ID dokumen bukti" value={evidence} />
           </div>
         </div>
 
         <div className={styles.formActions}>
           <Button onClick={onClose} type="button" variant="ghost">Batal</Button>
-          <Button disabled={!canSubmit || submitting} type="submit" variant="primary">
-            {submitting ? "Menyimpan…" : "Simpan Draf"}
-          </Button>
+          {canSubmit ? (
+            <Button disabled={submitting} type="submit" variant="primary">
+              {submitting ? "Menyimpan…" : "Simpan Draf"}
+            </Button>
+          ) : (
+            <div className={styles.briefNotice}>
+              Anda belum memiliki kewenangan untuk melakukan tindakan ini.
+            </div>
+          )}
         </div>
       </form>
     </Drawer>
@@ -472,9 +510,9 @@ function ObjectiveFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: re
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [workspace, setWorkspace] = useState("workspace_exec");
+  const [workspace, setWorkspace] = useState("");
   const [scopeType, setScopeType] = useState("COMPANY");
-  const [ownerRole, setOwnerRole] = useState("EXECUTIVE");
+  const [ownerRole, setOwnerRole] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -483,19 +521,23 @@ function ObjectiveFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: re
     if (!planId) { setFeedback("Rencana induk wajib dipilih."); return; }
     if (!code.trim()) { setFeedback("Kode sasaran wajib diisi."); return; }
     if (!name.trim()) { setFeedback("Nama sasaran wajib diisi."); return; }
+    if (!workspace.trim() || !ownerRole.trim()) {
+      setFeedback("Ruang kerja dan peran penanggung jawab wajib ditentukan.");
+      return;
+    }
 
     const selectedPlan = plans.find((p) => p.plan_id === planId);
     if (!selectedPlan) { setFeedback("Rencana yang dipilih tidak valid."); return; }
 
     if (!canSubmit) {
-      setFeedback("Pembuatan sasaran tidak dapat disimpan karena kewenangan resmi belum mencakup tindakan ini.");
+      setFeedback("Anda belum memiliki kewenangan untuk melakukan tindakan ini.");
       return;
     }
 
     setSubmitting(true);
     setFeedback(null);
     try {
-      const generatedObjectiveId = `obj_${Date.now()}`;
+      const generatedObjectiveId = generateCanonicalId("obj");
       await strategyApi.createObjective({
         objective_id: generatedObjectiveId,
         version: 1,
@@ -521,7 +563,7 @@ function ObjectiveFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: re
       <form onSubmit={handleSubmit}>
         {!canSubmit ? (
           <div className={styles.briefNotice}>
-            Kewenangan resmi belum aktif untuk tindakan ini. Formulir berjalan dalam mode pratinjau kebutuhan.
+            Anda belum memiliki kewenangan untuk membuat sasaran strategis. Formulir berjalan dalam mode pratinjau kebutuhan tanpa penyimpanan langsung.
           </div>
         ) : null}
         {feedback ? <Alert message={feedback} title="Perhatian" variant="warning" /> : null}
@@ -554,27 +596,33 @@ function ObjectiveFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: re
           <div className={styles.formField}>
             <label htmlFor="obj-scope">Ruang Lingkup *</label>
             <select className={styles.formSelect} id="obj-scope" onChange={(e) => setScopeType(e.target.value)} value={scopeType}>
-              <option value="COMPANY">Korporasi (Company)</option>
+              <option value="COMPANY">Korporasi</option>
               <option value="DIVISION">Divisi</option>
             </select>
           </div>
 
           <div className={styles.formField}>
             <label htmlFor="obj-owner-role">Peran Penanggung Jawab *</label>
-            <input className={styles.formInput} id="obj-owner-role" onChange={(e) => setOwnerRole(e.target.value)} required value={ownerRole} />
+            <input className={styles.formInput} id="obj-owner-role" onChange={(e) => setOwnerRole(e.target.value)} placeholder="Peran / Jabatan" required value={ownerRole} />
           </div>
 
           <div className={`${styles.formField} ${styles.formFullWidth}`}>
-            <label htmlFor="obj-workspace">Ruang Kerja</label>
-            <input className={styles.formInput} id="obj-workspace" onChange={(e) => setWorkspace(e.target.value)} value={workspace} />
+            <label htmlFor="obj-workspace">Ruang Kerja Penanggung Jawab *</label>
+            <input className={styles.formInput} id="obj-workspace" onChange={(e) => setWorkspace(e.target.value)} placeholder="ID Ruang Kerja" required value={workspace} />
           </div>
         </div>
 
         <div className={styles.formActions}>
           <Button onClick={onClose} type="button" variant="ghost">Batal</Button>
-          <Button disabled={!canSubmit || submitting} type="submit" variant="primary">
-            {submitting ? "Menyimpan…" : "Simpan Sasaran"}
-          </Button>
+          {canSubmit ? (
+            <Button disabled={submitting} type="submit" variant="primary">
+              {submitting ? "Menyimpan…" : "Simpan Sasaran"}
+            </Button>
+          ) : (
+            <div className={styles.briefNotice}>
+              Anda belum memiliki kewenangan untuk melakukan tindakan ini.
+            </div>
+          )}
         </div>
       </form>
     </Drawer>
@@ -635,8 +683,8 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
   const [endsAt, setEndsAt] = useState("2026-12-31");
   const [measurementType, setMeasurementType] = useState("HIGHER_IS_BETTER");
   const [unit, setUnit] = useState("IDR");
-  const [ownerWorkspace, setOwnerWorkspace] = useState("workspace_exec");
-  const [ownerRole, setOwnerRole] = useState("EXECUTIVE");
+  const [ownerWorkspace, setOwnerWorkspace] = useState("");
+  const [ownerRole, setOwnerRole] = useState("");
   const [materiality, setMateriality] = useState<"MATERIAL" | "NON_MATERIAL">("MATERIAL");
   const [source, setSource] = useState("");
   const [evidence, setEvidence] = useState("");
@@ -651,8 +699,8 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
 
   function handleNextStep(e: React.FormEvent) {
     e.preventDefault();
-    if (!code.trim() || !name.trim() || !planId || !metricCode.trim()) {
-      setFeedback("Mohon lengkapi seluruh field wajib metadata target.");
+    if (!code.trim() || !name.trim() || !planId || !metricCode.trim() || !ownerWorkspace.trim() || !ownerRole.trim()) {
+      setFeedback("Mohon lengkapi seluruh field wajib metadata target, termasuk penanggung jawab.");
       return;
     }
     setFeedback(null);
@@ -667,7 +715,7 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
     }
 
     if (!canSubmit) {
-      setFeedback("Penyimpanan target tidak dapat dilanjutkan karena kewenangan resmi belum mencakup tindakan ini.");
+      setFeedback("Anda belum memiliki kewenangan untuk melakukan tindakan ini.");
       return;
     }
 
@@ -675,7 +723,8 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
     setFeedback(null);
     try {
       const selectedPlan = plans.find((p) => p.plan_id === planId);
-      const generatedTargetId = `target_${Date.now()}`;
+      const generatedTargetId = generateCanonicalId("target");
+      const generatedObservationId = generateCanonicalId("obs");
       const period: BusinessPeriod = {
         granularity: "ANNUAL",
         starts_at: `${startsAt}T00:00:00Z`,
@@ -695,7 +744,7 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
         measurement_type: measurementType,
         unit,
         period,
-        scope: { type: scopeType, ref: null },
+        scope: { type: scopeType, ref: null, label: scopeType === "COMPANY" ? "Korporasi" : null },
         owner_workspace_id: ownerWorkspace,
         owner_role_ref: ownerRole,
         materiality,
@@ -703,9 +752,9 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
         evidence_refs: evidence ? [evidence] : [],
       });
 
-      // 2. Create Canonical TARGET Observation
+      // 2. Create TARGET Observation
       await strategyApi.createObservation(generatedTargetId, {
-        observation_id: `obs_${generatedTargetId}_target`,
+        observation_id: generatedObservationId,
         target_id: generatedTargetId,
         target_version: 1,
         kind: "TARGET",
@@ -728,7 +777,7 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
   }
 
   return (
-    <Drawer description="Pendaftaran target mencakup metadata target dan observasi nilai TARGET canonical." onClose={onClose} open title="Formulir Target">
+    <Drawer description="Pendaftaran target mencakup metadata target dan pencatatan nilai target terukur." onClose={onClose} open title="Formulir Target Kinerja">
       <div className={styles.stepBar}>
         <span className={`${styles.stepItem} ${step === 1 ? styles.stepActive : styles.stepMuted}`}>
           <strong>Langkah 1:</strong> Metadata Target
@@ -741,7 +790,7 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
 
       {!canSubmit ? (
         <div className={styles.briefNotice}>
-          Kewenangan resmi belum aktif untuk tindakan ini. Formulir berjalan dalam mode pratinjau kebutuhan.
+          Anda belum memiliki kewenangan untuk membuat target kinerja. Formulir berjalan dalam mode pratinjau kebutuhan tanpa penyimpanan langsung.
         </div>
       ) : null}
       {feedback ? <Alert message={feedback} title="Perhatian" variant="warning" /> : null}
@@ -769,7 +818,7 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="tgt-metric">Metric Code *</label>
+              <label htmlFor="tgt-metric">Kode Metrik *</label>
               <input className={styles.formInput} id="tgt-metric" onChange={(e) => setMetricCode(e.target.value)} required value={metricCode} />
             </div>
 
@@ -804,7 +853,7 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
             <div className={styles.formField}>
               <label htmlFor="tgt-scope">Ruang Lingkup *</label>
               <select className={styles.formSelect} id="tgt-scope" onChange={(e) => setScopeType(e.target.value)} value={scopeType}>
-                <option value="COMPANY">Korporasi (Company)</option>
+                <option value="COMPANY">Korporasi</option>
                 <option value="DIVISION">Divisi</option>
               </select>
             </div>
@@ -829,12 +878,12 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
 
             <div className={styles.formField}>
               <label htmlFor="tgt-owner-ws">Ruang Kerja Penanggung Jawab *</label>
-              <input className={styles.formInput} id="tgt-owner-ws" onChange={(e) => setOwnerWorkspace(e.target.value)} required value={ownerWorkspace} />
+              <input className={styles.formInput} id="tgt-owner-ws" onChange={(e) => setOwnerWorkspace(e.target.value)} placeholder="ID Ruang Kerja" required value={ownerWorkspace} />
             </div>
 
             <div className={styles.formField}>
               <label htmlFor="tgt-owner-role">Peran Penanggung Jawab *</label>
-              <input className={styles.formInput} id="tgt-owner-role" onChange={(e) => setOwnerRole(e.target.value)} required value={ownerRole} />
+              <input className={styles.formInput} id="tgt-owner-role" onChange={(e) => setOwnerRole(e.target.value)} placeholder="Peran / Jabatan" required value={ownerRole} />
             </div>
 
             <div className={styles.formField}>
@@ -861,7 +910,7 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
       ) : (
         <form onSubmit={handleFinalSubmit}>
           <div className={styles.briefNotice} style={{ marginBottom: "var(--alos-space-4)" }}>
-            Nilai target dicatat sebagai observasi <code>TARGET</code> dan tidak disimpan langsung ke metadata BusinessTarget.
+            Nilai target dicatat sebagai observasi nilai target tersendiri dan tidak disimpan langsung ke metadata target.
           </div>
 
           <div className={styles.formGrid}>
@@ -878,8 +927,8 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
             <div className={styles.formField}>
               <label htmlFor="tgt-source-mode">Mode Sumber *</label>
               <select className={styles.formSelect} id="tgt-source-mode" onChange={(e) => setSourceMode(e.target.value as "SOURCE_LINKED")} value={sourceMode}>
-                <option value="SOURCE_LINKED">Tautan Sumber Resmi (Source Linked)</option>
-                <option value="MANUAL_EVIDENCED">Manual dengan Bukti (Manual Evidenced)</option>
+                <option value="SOURCE_LINKED">Terhubung ke Sumber Resmi</option>
+                <option value="MANUAL_EVIDENCED">Diisi Manual dengan Bukti</option>
               </select>
             </div>
 
@@ -891,9 +940,15 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
 
           <div className={styles.formActions}>
             <Button onClick={() => setStep(1)} type="button" variant="ghost">← Kembali</Button>
-            <Button disabled={!canSubmit || submitting} type="submit" variant="primary">
-              {submitting ? "Menyimpan…" : "Simpan Target & Nilai"}
-            </Button>
+            {canSubmit ? (
+              <Button disabled={submitting} type="submit" variant="primary">
+                {submitting ? "Menyimpan…" : "Simpan Target & Nilai"}
+              </Button>
+            ) : (
+              <div className={styles.briefNotice}>
+                Anda belum memiliki kewenangan untuk melakukan tindakan ini.
+              </div>
+            )}
           </div>
         </form>
       )}
@@ -942,9 +997,12 @@ function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: bool
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
   const [unit, setUnit] = useState("IDR");
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
+  const [granularity, setGranularity] = useState("ANNUAL");
   const [scopeType, setScopeType] = useState("COMPANY");
-  const [ownerWorkspace, setOwnerWorkspace] = useState("workspace_exec");
-  const [ownerRole, setOwnerRole] = useState("EXECUTIVE");
+  const [ownerWorkspace, setOwnerWorkspace] = useState("");
+  const [ownerRole, setOwnerRole] = useState("");
   const [sourceMode, setSourceMode] = useState<"MANUAL_EVIDENCED" | "SOURCE_LINKED">("MANUAL_EVIDENCED");
   const [sourceRef, setSourceRef] = useState("");
   const [evidenceRef, setEvidenceRef] = useState("");
@@ -959,19 +1017,25 @@ function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: bool
 
     const numValue = Number(value);
     if (unit === "RATIO" && (numValue < 0 || numValue > 1)) {
-      setFeedback("Nilai rasio harus berada dalam rentang canonical 0 hingga 1.");
+      setFeedback("Nilai rasio harus berada dalam rentang 0 hingga 1.");
+      return;
+    }
+
+    if (!startsAt || !endsAt) { setFeedback("Periode mulai dan selesai wajib ditentukan."); return; }
+    if (!ownerWorkspace.trim() || !ownerRole.trim()) {
+      setFeedback("Ruang kerja dan peran penanggung jawab wajib ditentukan.");
       return;
     }
 
     if (!canSubmit) {
-      setFeedback("Pembuatan asumsi tidak dapat disimpan karena kewenangan resmi belum mencakup tindakan ini.");
+      setFeedback("Anda belum memiliki kewenangan untuk melakukan tindakan ini.");
       return;
     }
 
     setSubmitting(true);
     setFeedback(null);
     try {
-      const generatedAssumptionId = `asm_${Date.now()}`;
+      const generatedAssumptionId = generateCanonicalId("asm");
       await strategyApi.createAssumption({
         assumption_id: generatedAssumptionId,
         version: 1,
@@ -980,11 +1044,11 @@ function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: bool
         value: numValue,
         unit,
         period: {
-          granularity: "ANNUAL",
-          starts_at: "2026-01-01T00:00:00Z",
-          ends_at: "2026-12-31T23:59:59Z",
+          granularity: granularity as BusinessPeriod["granularity"],
+          starts_at: `${startsAt}T00:00:00Z`,
+          ends_at: `${endsAt}T23:59:59Z`,
         },
-        scope: { type: scopeType, ref: null },
+        scope: { type: scopeType, ref: null, label: scopeType === "COMPANY" ? "Korporasi" : null },
         source_mode: sourceMode,
         source_ref: sourceRef || null,
         evidence_refs: evidenceRef ? [evidenceRef] : [],
@@ -1006,7 +1070,7 @@ function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: bool
       <form onSubmit={handleSubmit}>
         {!canSubmit ? (
           <div className={styles.briefNotice}>
-            Kewenangan resmi belum aktif untuk tindakan ini. Formulir berjalan dalam mode pratinjau kebutuhan.
+            Anda belum memiliki kewenangan untuk membuat asumsi perencanaan. Formulir berjalan dalam mode pratinjau kebutuhan tanpa penyimpanan langsung.
           </div>
         ) : null}
         {feedback ? <Alert message={feedback} title="Perhatian" variant="warning" /> : null}
@@ -1048,15 +1112,35 @@ function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: bool
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="asm-source-mode">Mode Sumber *</label>
-            <select className={styles.formSelect} id="asm-source-mode" onChange={(e) => setSourceMode(e.target.value as "MANUAL_EVIDENCED")} value={sourceMode}>
-              <option value="MANUAL_EVIDENCED">Manual dengan Bukti (Manual Evidenced)</option>
-              <option value="SOURCE_LINKED">Tautan Sumber Resmi (Source Linked)</option>
+            <label htmlFor="asm-start">Periode Mulai *</label>
+            <input className={styles.formInput} id="asm-start" onChange={(e) => setStartsAt(e.target.value)} required type="date" value={startsAt} />
+          </div>
+
+          <div className={styles.formField}>
+            <label htmlFor="asm-end">Periode Selesai *</label>
+            <input className={styles.formInput} id="asm-end" onChange={(e) => setEndsAt(e.target.value)} required type="date" value={endsAt} />
+          </div>
+
+          <div className={styles.formField}>
+            <label htmlFor="asm-granularity">Granularitas *</label>
+            <select className={styles.formSelect} id="asm-granularity" onChange={(e) => setGranularity(e.target.value)} value={granularity}>
+              <option value="ANNUAL">Tahunan</option>
+              <option value="QUARTERLY">Triwulan</option>
+              <option value="MONTHLY">Bulanan</option>
+              <option value="CUSTOM">Khusus</option>
             </select>
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="asm-verify">Status Verifikasi</label>
+            <label htmlFor="asm-source-mode">Mode Sumber *</label>
+            <select className={styles.formSelect} id="asm-source-mode" onChange={(e) => setSourceMode(e.target.value as "MANUAL_EVIDENCED")} value={sourceMode}>
+              <option value="MANUAL_EVIDENCED">Diisi Manual dengan Bukti</option>
+              <option value="SOURCE_LINKED">Terhubung ke Sumber Resmi</option>
+            </select>
+          </div>
+
+          <div className={styles.formField}>
+            <label htmlFor="asm-verify">Status Verifikasi *</label>
             <select className={styles.formSelect} id="asm-verify" onChange={(e) => setVerificationState(e.target.value)} value={verificationState}>
               <option value="UNVERIFIED">Belum Diverifikasi</option>
               <option value="PENDING_VERIFICATION">Menunggu Verifikasi</option>
@@ -1065,30 +1149,30 @@ function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: bool
 
           <div className={styles.formField}>
             <label htmlFor="asm-source">Referensi Sumber</label>
-            <input className={styles.formInput} id="asm-source" onChange={(e) => setSourceRef(e.target.value)} value={sourceRef} />
+            <input className={styles.formInput} id="asm-source" onChange={(e) => setSourceRef(e.target.value)} placeholder="Tautan / nomor rujukan" value={sourceRef} />
           </div>
 
           <div className={styles.formField}>
             <label htmlFor="asm-evidence">Referensi Bukti</label>
-            <input className={styles.formInput} id="asm-evidence" onChange={(e) => setEvidenceRef(e.target.value)} value={evidenceRef} />
+            <input className={styles.formInput} id="asm-evidence" onChange={(e) => setEvidenceRef(e.target.value)} placeholder="ID dokumen bukti" value={evidenceRef} />
           </div>
 
           <div className={styles.formField}>
             <label htmlFor="asm-scope">Ruang Lingkup *</label>
             <select className={styles.formSelect} id="asm-scope" onChange={(e) => setScopeType(e.target.value)} value={scopeType}>
-              <option value="COMPANY">Korporasi (Company)</option>
+              <option value="COMPANY">Korporasi</option>
               <option value="DIVISION">Divisi</option>
             </select>
           </div>
 
           <div className={styles.formField}>
             <label htmlFor="asm-owner-ws">Ruang Kerja Penanggung Jawab *</label>
-            <input className={styles.formInput} id="asm-owner-ws" onChange={(e) => setOwnerWorkspace(e.target.value)} required value={ownerWorkspace} />
+            <input className={styles.formInput} id="asm-owner-ws" onChange={(e) => setOwnerWorkspace(e.target.value)} placeholder="ID Ruang Kerja" required value={ownerWorkspace} />
           </div>
 
           <div className={styles.formField}>
             <label htmlFor="asm-owner-role">Peran Penanggung Jawab *</label>
-            <input className={styles.formInput} id="asm-owner-role" onChange={(e) => setOwnerRole(e.target.value)} required value={ownerRole} />
+            <input className={styles.formInput} id="asm-owner-role" onChange={(e) => setOwnerRole(e.target.value)} placeholder="Peran / Jabatan" required value={ownerRole} />
           </div>
 
           <div className={`${styles.formField} ${styles.formFullWidth}`}>
@@ -1099,9 +1183,15 @@ function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: bool
 
         <div className={styles.formActions}>
           <Button onClick={onClose} type="button" variant="ghost">Batal</Button>
-          <Button disabled={!canSubmit || submitting} type="submit" variant="primary">
-            {submitting ? "Menyimpan…" : "Simpan Asumsi"}
-          </Button>
+          {canSubmit ? (
+            <Button disabled={submitting} type="submit" variant="primary">
+              {submitting ? "Menyimpan…" : "Simpan Asumsi"}
+            </Button>
+          ) : (
+            <div className={styles.briefNotice}>
+              Anda belum memiliki kewenangan untuk melakukan tindakan ini.
+            </div>
+          )}
         </div>
       </form>
     </Drawer>
@@ -1115,11 +1205,15 @@ function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: bool
 interface CascadeSectionProps {
   readonly targets: readonly BusinessTarget[];
   readonly assumptions: readonly PlanningAssumption[];
+  readonly canCascade?: boolean;
 }
 
-function CascadeSection({ targets, assumptions }: CascadeSectionProps) {
+function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSectionProps) {
   const [rootTargetId, setRootTargetId] = useState(targets[0]?.target_id ?? "");
-  const [ruleType, setRuleType] = useState("RATIO_SPLIT");
+  const [ruleType, setRuleType] = useState<"SPLIT_PERCENT" | "SPLIT_FIXED" | "DIRECT" | "RATIO_MULTIPLY">("SPLIT_PERCENT");
+  const [ratioInput, setRatioInput] = useState("0.5");
+  const [fixedAllocation, setFixedAllocation] = useState("");
+  const [outputTargetId, setOutputTargetId] = useState("");
   const [selectedAssumptionId, setSelectedAssumptionId] = useState(assumptions[0]?.assumption_id ?? "");
   const [previewData, setPreviewData] = useState<CascadePreview | null>(null);
   const [previewing, setPreviewing] = useState(false);
@@ -1134,6 +1228,32 @@ function CascadeSection({ targets, assumptions }: CascadeSectionProps) {
       setErrorMsg("Pilih target utama terlebih dahulu.");
       return;
     }
+    if (!canCascade) {
+      setErrorMsg("Anda belum memiliki kewenangan untuk melakukan tindakan ini.");
+      return;
+    }
+
+    const derivedTargetId = outputTargetId.trim() || generateCanonicalId("target");
+    const ruleId = generateCanonicalId("rule");
+
+    const parameters: Record<string, unknown> = {};
+    if (ruleType === "SPLIT_PERCENT" || ruleType === "RATIO_MULTIPLY") {
+      const parsedRatio = Number(ratioInput);
+      if (Number.isNaN(parsedRatio) || parsedRatio < 0 || parsedRatio > 1) {
+        setErrorMsg("Nilai rasio harus berupa angka valid antara 0.00 hingga 1.00.");
+        return;
+      }
+      parameters.ratio = parsedRatio;
+      parameters.allocations = [{ target_id: derivedTargetId, share: parsedRatio }];
+    } else if (ruleType === "SPLIT_FIXED") {
+      const parsedVal = Number(fixedAllocation);
+      if (Number.isNaN(parsedVal) || parsedVal <= 0) {
+        setErrorMsg("Nilai alokasi tetap harus diisi dengan angka positif.");
+        return;
+      }
+      parameters.value = parsedVal;
+    }
+
     setPreviewing(true);
     setErrorMsg(null);
     setSuccessMsg(null);
@@ -1145,10 +1265,10 @@ function CascadeSection({ targets, assumptions }: CascadeSectionProps) {
         },
         rules: [
           {
-            cascade_rule_id: `rule_${Date.now()}`,
+            cascade_rule_id: ruleId,
             rule_type: ruleType,
-            output_target_refs: [{ target_id: `target_derived_${Date.now()}` }],
-            parameters: { ratio: 0.5 },
+            output_target_refs: [{ target_id: derivedTargetId }],
+            parameters,
           },
         ],
         rule_inputs: {},
@@ -1164,12 +1284,15 @@ function CascadeSection({ targets, assumptions }: CascadeSectionProps) {
     }
   }
 
+  const canAccept = Boolean(
+    previewData &&
+    previewData.status === "VALID" &&
+    (!previewData.blocking_conditions || previewData.blocking_conditions.length === 0) &&
+    canCascade
+  );
+
   async function handleAccept() {
-    if (!previewData) return;
-    if (previewData.blocking_conditions && previewData.blocking_conditions.length > 0) {
-      setErrorMsg("Cascade memiliki kondisi penghalang yang belum terpenuhi dan tidak dapat diterima.");
-      return;
-    }
+    if (!previewData || !canAccept) return;
     setAccepting(true);
     setErrorMsg(null);
     try {
@@ -1183,14 +1306,14 @@ function CascadeSection({ targets, assumptions }: CascadeSectionProps) {
   }
 
   return (
-    <Section description="Penurunan target korporasi ke unit turunan melalui perhitungan terarah dan governed." title="Cascade Target">
+    <Section description="Penurunan target korporasi ke unit turunan melalui perhitungan terarah dan tata kelola resmi." title="Cascade Target">
       {errorMsg ? <Alert message={errorMsg} title="Perhatian" variant="warning" /> : null}
       {successMsg ? <Alert message={successMsg} title="Sukses" variant="success" /> : null}
 
       <div className={styles.cascadeFlow}>
         <div className={styles.cascadeStep}>
           <div className={styles.briefHeader} style={{ marginBottom: "var(--alos-space-3)" }}>
-            <h3>Alur Penurunan: Target Utama → Aturan Cascade → Asumsi → Constraints → Preview</h3>
+            <h3>Alur Penurunan: Target Utama → Aturan Cascade → Asumsi → Pembatas (Constraints) → Pratinjau</h3>
           </div>
           <div className={styles.formGrid}>
             <div className={styles.formField}>
@@ -1204,11 +1327,61 @@ function CascadeSection({ targets, assumptions }: CascadeSectionProps) {
 
             <div className={styles.formField}>
               <label htmlFor="cas-rule">Aturan Cascade *</label>
-              <select className={styles.formSelect} id="cas-rule" onChange={(e) => setRuleType(e.target.value)} value={ruleType}>
-                <option value="RATIO_SPLIT">Pembagian Rasio (Ratio Split)</option>
-                <option value="FIXED_ALLOCATION">Alokasi Tetap (Fixed Allocation)</option>
-                <option value="CAPACITY_BASED">Berdasarkan Kapasitas (Capacity Based)</option>
+              <select
+                className={styles.formSelect}
+                id="cas-rule"
+                onChange={(e) => setRuleType(e.target.value as "SPLIT_PERCENT")}
+                value={ruleType}
+              >
+                <option value="SPLIT_PERCENT">Pembagian Persentase (Split Percent)</option>
+                <option value="SPLIT_FIXED">Alokasi Tetap (Fixed Allocation)</option>
+                <option value="RATIO_MULTIPLY">Pengali Rasio (Ratio Multiply)</option>
+                <option value="DIRECT">Penurunan Langsung (Direct)</option>
               </select>
+            </div>
+
+            {ruleType === "SPLIT_PERCENT" || ruleType === "RATIO_MULTIPLY" ? (
+              <div className={styles.formField}>
+                <label htmlFor="cas-ratio">Nilai Rasio / Persentase (0.00 – 1.00) *</label>
+                <input
+                  className={styles.formInput}
+                  id="cas-ratio"
+                  max="1"
+                  min="0"
+                  onChange={(e) => setRatioInput(e.target.value)}
+                  placeholder="Contoh: 0.50"
+                  required
+                  step="0.01"
+                  type="number"
+                  value={ratioInput}
+                />
+              </div>
+            ) : null}
+
+            {ruleType === "SPLIT_FIXED" ? (
+              <div className={styles.formField}>
+                <label htmlFor="cas-fixed">Nilai Alokasi Tetap *</label>
+                <input
+                  className={styles.formInput}
+                  id="cas-fixed"
+                  onChange={(e) => setFixedAllocation(e.target.value)}
+                  placeholder="Masukkan nilai numerik"
+                  required
+                  type="number"
+                  value={fixedAllocation}
+                />
+              </div>
+            ) : null}
+
+            <div className={styles.formField}>
+              <label htmlFor="cas-target-derived">Target Turunan (Opsional)</label>
+              <input
+                className={styles.formInput}
+                id="cas-target-derived"
+                onChange={(e) => setOutputTargetId(e.target.value)}
+                placeholder="ID Target Turunan (kosongkan untuk otomatis)"
+                value={outputTargetId}
+              />
             </div>
 
             <div className={styles.formField}>
@@ -1222,9 +1395,15 @@ function CascadeSection({ targets, assumptions }: CascadeSectionProps) {
             </div>
 
             <div className={styles.formField} style={{ alignSelf: "flex-end" }}>
-              <Button disabled={previewing} onClick={handlePreview} variant="primary">
-                {previewing ? "Menghitung Pratinjau…" : "Jalankan Pratinjau Cascade"}
-              </Button>
+              {canCascade ? (
+                <Button disabled={previewing} onClick={handlePreview} variant="primary">
+                  {previewing ? "Menghitung Pratinjau…" : "Jalankan Pratinjau Cascade"}
+                </Button>
+              ) : (
+                <div className={styles.briefNotice}>
+                  Anda belum memiliki kewenangan untuk melakukan tindakan ini.
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1249,7 +1428,7 @@ function CascadeSection({ targets, assumptions }: CascadeSectionProps) {
                 <div style={{ margin: "var(--alos-space-2) 0" }}>
                   <Alert
                     message={previewData.blocking_conditions.join("; ")}
-                    title="Kondisi Penghalang (Blocking)"
+                    title="Kondisi Penghalang"
                     variant="warning"
                   />
                 </div>
@@ -1257,12 +1436,15 @@ function CascadeSection({ targets, assumptions }: CascadeSectionProps) {
 
               {previewData.constraint_results && previewData.constraint_results.length > 0 ? (
                 <div style={{ margin: "var(--alos-space-3) 0" }}>
-                  <h4 style={{ fontSize: "13px", marginBottom: "var(--alos-space-2)" }}>Evaluasi Constraints:</h4>
+                  <h4 style={{ fontSize: "13px", marginBottom: "var(--alos-space-2)" }}>Evaluasi Pembatas (Constraints):</h4>
                   <ul className={styles.briefCompactList}>
                     {previewData.constraint_results.map((c) => (
                       <li className={styles.briefListItem} key={c.constraint_id}>
                         <span>{c.message}</span>
-                        <Status label={c.result} variant={c.result === "PASS" ? "success" : "danger"} />
+                        <Status
+                          label={c.result === "PASS" ? "Memenuhi" : c.result === "FAIL" ? "Tidak Memenuhi" : "Belum Dinilai"}
+                          variant={c.result === "PASS" ? "success" : "danger"}
+                        />
                       </li>
                     ))}
                   </ul>
@@ -1270,16 +1452,19 @@ function CascadeSection({ targets, assumptions }: CascadeSectionProps) {
               ) : null}
 
               <div className={styles.formActions}>
-                <Button
-                  disabled={
-                    accepting ||
-                    Boolean(previewData.blocking_conditions && previewData.blocking_conditions.length > 0)
-                  }
-                  onClick={handleAccept}
-                  variant="primary"
-                >
-                  {accepting ? "Menerapkan…" : "Terapkan Cascade (Accept)"}
-                </Button>
+                {canAccept ? (
+                  <Button
+                    disabled={accepting}
+                    onClick={handleAccept}
+                    variant="primary"
+                  >
+                    {accepting ? "Menerapkan…" : "Terapkan Cascade"}
+                  </Button>
+                ) : (
+                  <div className={styles.briefNotice}>
+                    Penerimaan hasil cascade memerlukan pratinjau yang valid, tanpa kondisi penghalang, dan kewenangan resmi.
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1293,7 +1478,7 @@ function CascadeSection({ targets, assumptions }: CascadeSectionProps) {
 // 6. Document Extraction UX & Review Candidate Experience
 // ============================================================
 
-interface ExtractedCandidate {
+export interface ExtractedCandidate {
   readonly id: string;
   readonly fieldName: string;
   value: string;
@@ -1303,62 +1488,18 @@ interface ExtractedCandidate {
   readonly required: boolean;
 }
 
-const mockCandidates: readonly ExtractedCandidate[] = [
-  {
-    id: "cand_1",
-    fieldName: "Nama Renstra",
-    value: "Rencana Strategis Korporasi 2026–2030",
-    status: "TERIMA",
-    sourceText: "Bab 1: Pendahuluan dan Arah Kebijakan",
-    anchor: "Hal 2, Paragraf 1",
-    required: true,
-  },
-  {
-    id: "cand_2",
-    fieldName: "Periode Rencana",
-    value: "2026-01-01 s/d 2030-12-31",
-    status: "TERIMA",
-    sourceText: "Masa berlaku renstra adalah 5 tahun buku",
-    anchor: "Hal 3, Paragraf 4",
-    required: true,
-  },
-  {
-    id: "cand_3",
-    fieldName: "Target Pendapatan Bersih",
-    value: "150000000000",
-    status: "PERLU_DIPERIKSA",
-    sourceText: "Estimasi pendapatan agregat Rp 150 Miliar atau Rp 180 Miliar",
-    anchor: "Hal 14, Tabel 3.2",
-    required: true,
-  },
-  {
-    id: "cand_4",
-    fieldName: "Asumsi Inflasi",
-    value: "0.035",
-    status: "TERIMA",
-    sourceText: "Proyeksi inflasi makro 3.5%",
-    anchor: "Hal 18, Paragraf 2",
-    required: false,
-  },
-];
+export interface ExtractionSectionProps {
+  readonly initialCandidates?: readonly ExtractedCandidate[];
+  readonly initialProcessed?: boolean;
+}
 
-function ExtractionSection() {
+export function ExtractionSection({ initialCandidates = [], initialProcessed = false }: ExtractionSectionProps) {
   const [sourceType, setSourceType] = useState<"EXISTING" | "UPLOAD">("EXISTING");
-  const [selectedDocId, setSelectedDocId] = useState("DOC-STR-2026-V1");
-  const [versionRef, setVersionRef] = useState("ver_immutable_001");
+  const [versionRef, setVersionRef] = useState("");
   const [extractionType, setExtractionType] = useState("STRATEGY_PLAN");
-  const [processed, setProcessed] = useState(false);
-  const [candidates, setCandidates] = useState<ExtractedCandidate[]>([...mockCandidates]);
+  const [processed, setProcessed] = useState(initialProcessed);
+  const [candidates, setCandidates] = useState<ExtractedCandidate[]>([...initialCandidates]);
   const [feedback, setFeedback] = useState<string | null>(null);
-
-  function handleProcess() {
-    if (!versionRef.trim()) {
-      setFeedback("Referensi versi dokumen immutable wajib ditentukan.");
-      return;
-    }
-    setFeedback(null);
-    setProcessed(true);
-  }
 
   function handleCandidateAction(id: string, action: "TERIMA" | "EDIT" | "ABAIKAN") {
     setCandidates((prev) =>
@@ -1372,23 +1513,12 @@ function ExtractionSection() {
     );
   }
 
-  // Check required fields completeness
   const missingRequired = candidates.filter(
     (c) => c.required && (c.status === "ABAIKAN" || c.status === "PERLU_DIPERIKSA" || !c.value.trim()),
   );
 
-  function handleSaveDraft() {
-    if (missingRequired.length > 0) {
-      setFeedback(
-        `Field wajib belum dilengkapi: ${missingRequired.map((m) => m.fieldName).join(", ")}. Mohon periksa dan konfirmasi seluruh nilai.`,
-      );
-      return;
-    }
-    setFeedback("Draf berhasil disimpan. Data ekstraksi masuk ke status Draf dan menunggu verifikasi.");
-  }
-
   return (
-    <Section description="Alur ekstraksi terpandu: Dokumen & Versi Immutable → Jenis Ekstraksi → Proses → Telaah Kandidat → Simpan Draf." title="Ekstraksi Dokumen Strategi">
+    <Section description="Alur ekstraksi terpandu: Dokumen & Versi yang Tetap → Jenis Ekstraksi → Proses → Telaah Kandidat → Simpan Draf." title="Ekstraksi Dokumen Strategi">
       {feedback ? <Alert message={feedback} title="Status Ekstraksi" variant={missingRequired.length > 0 ? "warning" : "success"} /> : null}
 
       {!processed ? (
@@ -1397,132 +1527,162 @@ function ExtractionSection() {
             <div className={styles.formField}>
               <label htmlFor="ext-src-type">Sumber Dokumen *</label>
               <select className={styles.formSelect} id="ext-src-type" onChange={(e) => setSourceType(e.target.value as "EXISTING")} value={sourceType}>
-                <option value="EXISTING">Dokumen ALOS yang Sudah Ada</option>
+                <option value="EXISTING">Dokumen Resmi yang Tersedia</option>
                 <option value="UPLOAD">Unggah Dokumen Baru</option>
               </select>
             </div>
 
-            <div className={styles.formField}>
-              <label htmlFor="ext-doc-id">Dokumen Terpilih *</label>
-              <input className={styles.formInput} id="ext-doc-id" onChange={(e) => setSelectedDocId(e.target.value)} value={selectedDocId} />
-            </div>
+            {sourceType === "EXISTING" ? (
+              <div className={styles.formField}>
+                <label htmlFor="ext-doc-id">Dokumen Terpilih *</label>
+                <select className={styles.formSelect} disabled id="ext-doc-id" value="">
+                  <option value="">Dokumen belum tersedia untuk dipilih.</option>
+                </select>
+                <p style={{ fontSize: "12px", color: "var(--alos-text-secondary)", margin: "var(--alos-space-1) 0 0" }}>
+                  Dokumen belum tersedia untuk dipilih.
+                </p>
+              </div>
+            ) : (
+              <div className={`${styles.formField} ${styles.formFullWidth}`}>
+                <div className={styles.briefNotice}>
+                  Layanan pengunggahan dokumen belum terhubung.
+                </div>
+              </div>
+            )}
 
             <div className={styles.formField}>
-              <label htmlFor="ext-ver">Referensi Versi Dokumen (Immutable) *</label>
-              <input className={styles.formInput} id="ext-ver" onChange={(e) => setVersionRef(e.target.value)} placeholder="Contoh: ver_immutable_001" required value={versionRef} />
+              <label htmlFor="ext-ver">Referensi Versi Dokumen *</label>
+              <input
+                className={styles.formInput}
+                id="ext-ver"
+                onChange={(e) => setVersionRef(e.target.value)}
+                placeholder="Contoh: Versi 1.0 (Dokumen Tetap)"
+                value={versionRef}
+              />
             </div>
 
             <div className={styles.formField}>
               <label htmlFor="ext-type">Jenis Ekstraksi *</label>
               <select className={styles.formSelect} id="ext-type" onChange={(e) => setExtractionType(e.target.value)} value={extractionType}>
                 <option value="STRATEGY_PLAN">Rencana Strategis & RKAP</option>
-                <option value="TARGET_KPI">Target & KPI</option>
+                <option value="TARGET_KPI">Target Kinerja & KPI</option>
                 <option value="ASSUMPTIONS">Asumsi Perencanaan</option>
               </select>
             </div>
           </div>
 
-          <div className={styles.formActions}>
-            <Button onClick={handleProcess} variant="primary">Proses Ekstraksi</Button>
+          <div className={styles.formActions} style={{ marginTop: "var(--alos-space-3)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--alos-space-3)" }}>
+              <Button disabled variant="primary">Proses Ekstraksi</Button>
+              <span style={{ fontSize: "12px", color: "var(--alos-text-secondary)" }}>
+                Ekstraksi dokumen belum tersedia.
+              </span>
+            </div>
           </div>
         </div>
       ) : (
         <div>
           <div className={styles.briefHeader} style={{ marginBottom: "var(--alos-space-4)" }}>
-            <h3>Telaah Kandidat Ekstraksi (Review Candidate Experience)</h3>
+            <h3>Telaah Kandidat Ekstraksi</h3>
             <Button onClick={() => setProcessed(false)} size="sm" variant="ghost">Ganti Dokumen</Button>
           </div>
 
           <div className={styles.extractionSplit}>
-            {/* Desktop Left: Governed Document Viewer Placeholder */}
+            {/* Desktop Left: Document Viewer */}
             <div className={styles.docViewer}>
               <div className={styles.briefHeader} style={{ marginBottom: "var(--alos-space-3)" }}>
-                <h4>Dokumen Sumber: {selectedDocId}</h4>
-                <Status label="Klasifikasi: Internal" variant="neutral" />
+                <h4>Dokumen Sumber</h4>
               </div>
-              <p style={{ color: "var(--alos-text-muted)", fontSize: "12px", marginBottom: "var(--alos-space-4)" }}>
-                Versi Immutable: <code>{versionRef}</code>
-              </p>
-              <div style={{ background: "var(--alos-app-background)", borderRadius: "var(--alos-radius-sm, 4px)", flex: 1, padding: "var(--alos-space-4)" }}>
-                <p style={{ color: "var(--alos-text-secondary)", fontSize: "13px", lineHeight: "1.6" }}>
-                  <strong>[Tampilan Dokumen Governed]</strong>
-                  <br /><br />
-                  Bab 1: Pendahuluan dan Arah Kebijakan
-                  <br />
-                  Masa berlaku renstra korporasi adalah 5 tahun buku, dimulai sejak 1 Januari 2026 hingga 31 Desember 2030.
-                  <br /><br />
-                  Bab 3: Sasaran dan Indikator Keuangan
-                  <br />
-                  Estimasi pendapatan agregat diproyeksikan mencapai Rp 150 Miliar dengan rasio inflasi terantisipasi sebesar 3.5%.
-                </p>
-              </div>
+              <EmptyState
+                description="Pilih dokumen resmi yang terverifikasi untuk menampilkan isi dokumen."
+                title="Pratinjau dokumen belum tersedia."
+              />
             </div>
 
             {/* Desktop Right: Candidate Fields with Actions */}
             <div className={styles.candidateList}>
               <div className={styles.briefNotice}>
-                Dilarang langsung menyimpan hasil ekstraksi sebagai AKTIF. Siklus: Kandidat → Telaah Pengguna → Draf → Verifikasi → Persetujuan → Aktif.
+                Dilarang langsung menetapkan hasil ekstraksi sebagai aktif. Seluruh kandidat wajib ditelaah secara tertib.
               </div>
 
-              {candidates.map((c) => (
-                <div className={styles.candidateCard} key={c.id}>
-                  <div className={styles.candidateRow}>
-                    <strong>{c.fieldName} {c.required ? "*" : ""}</strong>
-                    <Status
-                      label={
-                        c.status === "PERLU_DIPERIKSA"
-                          ? "Perlu Diperiksa"
-                          : c.status === "TERIMA"
-                            ? "Diterima"
-                            : c.status === "EDIT"
-                              ? "Diedit"
-                              : "Diabaikan"
-                      }
-                      variant={
-                        c.status === "PERLU_DIPERIKSA"
-                          ? "warning"
-                          : c.status === "ABAIKAN"
-                            ? "danger"
-                            : "success"
-                      }
-                    />
+              {candidates.length === 0 ? (
+                <EmptyState
+                  description="Hasil pembacaan dokumen akan ditampilkan di sini setelah proses ekstraksi terhubung."
+                  title="Belum ada kandidat ekstraksi."
+                />
+              ) : (
+                candidates.map((c) => (
+                  <div className={styles.candidateCard} key={c.id}>
+                    <div className={styles.candidateRow}>
+                      <strong>{c.fieldName} {c.required ? "*" : ""}</strong>
+                      <Status
+                        label={
+                          c.status === "PERLU_DIPERIKSA"
+                            ? "Perlu Diperiksa"
+                            : c.status === "TERIMA"
+                              ? "Diterima"
+                              : c.status === "EDIT"
+                                ? "Diedit"
+                                : "Diabaikan"
+                        }
+                        variant={
+                          c.status === "PERLU_DIPERIKSA"
+                            ? "warning"
+                            : c.status === "ABAIKAN"
+                              ? "danger"
+                              : "success"
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor={`cand-${c.id}`} style={{ display: "block", fontSize: "11px", color: "var(--alos-text-muted)" }}>
+                        Nilai Kandidat:
+                      </label>
+                      <input
+                        className={styles.formInput}
+                        id={`cand-${c.id}`}
+                        onChange={(e) => handleCandidateValueChange(c.id, e.target.value)}
+                        value={c.value}
+                      />
+                    </div>
+
+                    <p style={{ color: "var(--alos-text-muted)", fontSize: "11px", margin: 0 }}>
+                      Sumber: &quot;{c.sourceText}&quot; ({c.anchor})
+                    </p>
+
+                    <div className={styles.formActions} style={{ marginTop: "var(--alos-space-2)" }}>
+                      <Button onClick={() => handleCandidateAction(c.id, "TERIMA")} size="sm" variant={c.status === "TERIMA" ? "primary" : "ghost"}>
+                        Terima
+                      </Button>
+                      <Button onClick={() => handleCandidateAction(c.id, "EDIT")} size="sm" variant={c.status === "EDIT" ? "primary" : "ghost"}>
+                        Edit
+                      </Button>
+                      <Button onClick={() => handleCandidateAction(c.id, "ABAIKAN")} size="sm" variant={c.status === "ABAIKAN" ? "primary" : "ghost"}>
+                        Abaikan
+                      </Button>
+                    </div>
                   </div>
+                ))
+              )}
 
-                  <div>
-                    <label htmlFor={`cand-${c.id}`} style={{ display: "block", fontSize: "11px", color: "var(--alos-text-muted)" }}>
-                      Nilai Kandidat:
-                    </label>
-                    <input
-                      className={styles.formInput}
-                      id={`cand-${c.id}`}
-                      onChange={(e) => handleCandidateValueChange(c.id, e.target.value)}
-                      value={c.value}
-                    />
-                  </div>
-
-                  <p style={{ color: "var(--alos-text-muted)", fontSize: "11px", margin: 0 }}>
-                    Sumber: &quot;{c.sourceText}&quot; ({c.anchor})
-                  </p>
-
-                  <div className={styles.formActions} style={{ marginTop: "var(--alos-space-2)" }}>
-                    <Button onClick={() => handleCandidateAction(c.id, "TERIMA")} size="sm" variant={c.status === "TERIMA" ? "primary" : "ghost"}>
-                      Terima
-                    </Button>
-                    <Button onClick={() => handleCandidateAction(c.id, "EDIT")} size="sm" variant={c.status === "EDIT" ? "primary" : "ghost"}>
-                      Edit
-                    </Button>
-                    <Button onClick={() => handleCandidateAction(c.id, "ABAIKAN")} size="sm" variant={c.status === "ABAIKAN" ? "primary" : "ghost"}>
-                      Abaikan
-                    </Button>
+              {candidates.length > 0 ? (
+                <div className={styles.formActions} style={{ marginTop: "var(--alos-space-4)", flexDirection: "column", alignItems: "flex-start", gap: "var(--alos-space-2)" }}>
+                  <Button
+                    disabled={missingRequired.length > 0}
+                    onClick={() => {
+                      if (missingRequired.length > 0) return;
+                      setFeedback("Layanan penyimpanan draf ekstraksi resmi belum terhubung.");
+                    }}
+                    variant="primary"
+                  >
+                    Simpan Draf Ekstraksi
+                  </Button>
+                  <div className={styles.briefNotice}>
+                    Penyimpanan draf ekstraksi memerlukan integrasi layanan ekstraksi resmi.
                   </div>
                 </div>
-              ))}
-
-              <div className={styles.formActions} style={{ marginTop: "var(--alos-space-4)" }}>
-                <Button disabled={missingRequired.length > 0} onClick={handleSaveDraft} variant="primary">
-                  Simpan Draf Ekstraksi
-                </Button>
-              </div>
+              ) : null}
             </div>
           </div>
         </div>

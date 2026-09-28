@@ -99,12 +99,14 @@ export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ division
     { id: "reports", label: "Laporan" },
   ], []);
 
-  // Filter strategy targets for this division if any exist
+  // Filter strategy targets for this division if any exist (FAIL-CLOSED: scope.ref must strictly match)
   const divisionTargets = useMemo(() => {
     return (data?.targets ?? []).filter(
-      (t) => t.scope.type === "DIVISION" && (t.scope.ref === divisionKey || !t.scope.ref),
+      (t) => t.scope.type === "DIVISION" && Boolean(t.scope.ref) && t.scope.ref === divisionKey,
     );
   }, [data?.targets, divisionKey]);
+
+  const divisionOwner = divisionTargets[0]?.owner_role_ref || "—";
 
   return (
     <ExecutiveLayout>
@@ -119,7 +121,7 @@ export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ division
           <PageHeader
             description="Kinerja dan pekerjaan divisi ditampilkan terintegrasi sesuai ruang lingkup yang berwenang."
             eyebrow="ORGANISASI"
-            metadata={`Kode Ruang Kerja: ${divisionKey}`}
+            metadata={`Unit Organisasi: ${division?.[0] ?? "Divisi"}`}
             title={division?.[0] ?? "Detail Divisi"}
           />
 
@@ -150,22 +152,24 @@ export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ division
                       </div>
                       <div className={styles.candidateCard}>
                         <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Status Sinkronisasi</span>
-                        <Status label="Siap Terhubung" variant="neutral" />
+                        <Status label="Belum Terhubung" variant="neutral" />
                         <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>Kanal kerja divisi</span>
                       </div>
                       <div className={styles.candidateCard}>
                         <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Penanggung Jawab</span>
-                        <strong style={{ fontSize: "14px" }}>Kepala Divisi {division[0]}</strong>
-                        <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>Peran: WORKSPACE_LEAD</span>
+                        <strong style={{ fontSize: "14px" }}>{divisionOwner}</strong>
+                        <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>
+                          {divisionOwner !== "—" ? `Peran: ${divisionOwner}` : "Belum ditentukan"}
+                        </span>
                       </div>
                     </div>
                   </Section>
 
                   <Section title="Status Alokasi Data">
                     <div className={styles.readinessRow}>
-                      <Status label="Tersedia" variant="neutral" />
+                      <Status label="Belum Terhubung" variant="neutral" />
                       <p>
-                        Ruang kerja divisi {division[0]} telah terhubung ke modul kerja universal.
+                        Integrasi data operasional divisi {division[0]} dalam proses penyambungan.
                         Gunakan tab di atas untuk menginspeksi Proyek, Tugas, Persetujuan, Temuan, dan Laporan divisi.
                       </p>
                     </div>
