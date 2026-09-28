@@ -302,6 +302,20 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     expect(screen.queryByText("Belum ada data target yang dialokasikan khusus untuk divisi ini.")).not.toBeInTheDocument();
   });
 
+  it("shows only the loading state while division performance data is loading", async () => {
+    vi.spyOn(strategyApi, "listPlans").mockImplementation(() => new Promise(() => {}));
+    vi.spyOn(strategyApi, "listTargets").mockImplementation(() => new Promise(() => {}));
+
+    render(<ExecutiveDivisionDetailPage divisionKey="sales" />);
+
+    expect(await screen.findByRole("heading", { name: "Sales & Marketing" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Kinerja" }));
+
+    expect(screen.getByRole("status", { name: "Memuat kinerja Sales & Marketing" })).toBeInTheDocument();
+    expect(screen.queryByText("Belum ada data target yang dialokasikan khusus untuk divisi ini.")).not.toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: "Belum Terhubung" })).not.toBeInTheDocument();
+  });
+
   // 10. Division owner is not hardcoded
   it("Scenario 10: Division owner is not hardcoded and shows honest fallback", async () => {
     render(<ExecutiveDivisionsPage />);

@@ -186,8 +186,9 @@ export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ division
                   description="Proyeksi kinerja dan pencapaian target yang dialokasikan khusus untuk divisi ini."
                   title={`Kinerja ${division[0]}`}
                 >
-                  {loading ? <LoadingState label={`Memuat kinerja ${division[0]}`} variant="table" /> : null}
-                  {!loading && (error || sessionExpired || !data) ? (
+                  {loading ? (
+                    <LoadingState label={`Memuat kinerja ${division[0]}`} variant="table" />
+                  ) : error || sessionExpired || !data ? (
                     <div className={styles.readinessRow}>
                       <Status label="Belum Terhubung" variant="neutral" />
                       <p>Kinerja belum dapat disimpulkan karena data strategi belum tersedia.</p>
