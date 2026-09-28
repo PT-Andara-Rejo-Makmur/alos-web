@@ -62,7 +62,7 @@ export function SalesSharedWorkPage({
     if (module === "projects") return <ProjectsPage embed workspaceKey={workspaceKey} />;
     if (module === "tasks") return <TasksPage embed workspaceKey={workspaceKey} />;
     if (module === "approvals") return <ApprovalsPage embed workspaceKey={workspaceKey} />;
-    if (module === "documents") return <DocumentsPage workspaceKey={workspaceKey} />;
+    if (module === "documents") return <DocumentsPage embed workspaceKey={workspaceKey} />;
     if (module === "reports") return <ReportsPage embed workspaceKey={workspaceKey} />;
     return <FindingsPage embed workspaceKey={workspaceKey} />;
   }}</SalesLayout>;

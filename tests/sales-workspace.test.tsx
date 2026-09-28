@@ -2,7 +2,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { navigationForSession } from "@/app/navigation";
-import { SalesReadinessPage } from "@/features/sales";
+import { SalesReadinessPage, SalesSharedWorkPage } from "@/features/sales";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
 
@@ -107,4 +107,69 @@ describe("Sales workspace", () => {
     expect(screen.getByText("Belum Terhubung")).toBeInTheDocument();
     expect(screen.queryByText(/Rp\s*0|0%|Aman/i)).not.toBeInTheDocument();
   });
+
+  it("Sales Shared Work Documents renders inside a single AppShell", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession("penjualan-utama"));
+    vi.spyOn(api, "authenticatedApiRequest").mockRejectedValue(
+      new api.ApiError(404, "Not Found", "corr_404"),
+    );
+
+    render(
+      <SalesSharedWorkPage
+        module="documents"
+        workspaceKey="penjualan-utama"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Dokumen" })).toBeInTheDocument();
+    });
+
+    // Semantic queries: single shell check
+    expect(screen.getAllByRole("link", { name: "ALOS" })).toHaveLength(1);
+    expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
+    expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "Buka navigasi" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "Pilih workspace" })).toHaveLength(1);
+
+    // Source honesty: unavailable message present, empty state absent
+    expect(screen.getByText("Data Dokumen Belum Terhubung")).toBeInTheDocument();
+    expect(
+      screen.getByText("Data dokumen belum terhubung. Daftar dokumen akan ditampilkan setelah sumber data tersedia."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Belum ada dokumen yang dapat Anda akses.")).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["projects", "Proyek"],
+    ["tasks", "Tugas"],
+    ["approvals", "Persetujuan"],
+    ["reports", "Laporan"],
+    ["findings", "Temuan"],
+  ] as const)(
+    "Sales Shared Work %s renders inside a single AppShell",
+    async (module, heading) => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession("penjualan-utama"));
+      vi.spyOn(api, "authenticatedApiRequest").mockRejectedValue(
+        new api.ApiError(404, "Not Found", `corr_404_${module}`),
+      );
+
+      render(
+        <SalesSharedWorkPage
+          module={module}
+          workspaceKey="penjualan-utama"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
+      });
+
+      expect(screen.getAllByRole("link", { name: "ALOS" })).toHaveLength(1);
+      expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
+      expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
+      expect(screen.getAllByRole("button", { name: "Buka navigasi" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "Pilih workspace" })).toHaveLength(1);
+    },
+  );
 });

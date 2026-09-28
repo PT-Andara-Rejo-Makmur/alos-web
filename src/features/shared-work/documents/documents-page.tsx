@@ -24,6 +24,7 @@ import styles from "./documents.module.css";
 
 interface DocumentsPageProps {
   readonly workspaceKey?: string | null;
+  readonly embed?: boolean;
 }
 
 function formatDate(dateString: string | null | undefined): string {
@@ -41,7 +42,7 @@ function formatDate(dateString: string | null | undefined): string {
   }
 }
 
-export function DocumentsPage({ workspaceKey }: DocumentsPageProps) {
+export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
   const [session, setSession] = useState<SessionProjection | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [sessionError, setSessionError] = useState<unknown | null>(null);
@@ -242,98 +243,106 @@ export function DocumentsPage({ workspaceKey }: DocumentsPageProps) {
 
   const canOpenExecutive = hasExecutiveContext(session);
 
+  const innerContent = (
+    <div className={styles.pageContainer}>
+      <PageHeader
+        description="Kelola dokumen kerja sesuai akses dan konteks bisnis Anda."
+        eyebrow="PEKERJAAN"
+        title="Dokumen"
+      />
+
+      {sourceState === "error" ? (
+        <div className={styles.noticeContainer}>
+          <Alert message={backendMessage ?? "Data dokumen belum dapat dimuat. Silakan coba kembali."} title="Data Dokumen Belum Dapat Dimuat" variant="danger" />
+        </div>
+      ) : !backendConnected ? (
+        <div className={styles.noticeContainer}>
+          <Alert
+            icon={<AlertCircle size={18} strokeWidth={2} />}
+            message={
+              backendMessage ??
+              "Data dokumen belum terhubung. Daftar dokumen akan ditampilkan setelah sumber data tersedia."
+            }
+            title="Data Dokumen Belum Terhubung"
+            variant="neutral"
+          />
+        </div>
+      ) : null}
+
+      <div className={styles.tabsContainer}>
+        <Tabs
+          ariaLabel="Kategori dokumen"
+          items={tabs}
+          onValueChange={setActiveTab}
+          value={activeTab}
+        />
+      </div>
+
+      <WorkToolbar
+        onSearchChange={setSearch}
+        onStatusChange={setStatusFilter}
+        searchPlaceholder="Cari dokumen…"
+        searchValue={search}
+        statusOptions={[
+          { label: "Draf", value: "DRAFT" },
+          { label: "Dalam Review", value: "IN_REVIEW" },
+          { label: "Disetujui", value: "APPROVED" },
+          { label: "Ditolak", value: "REJECTED" },
+          { label: "Tidak Berlaku", value: "RETIRED" },
+        ]}
+        statusValue={statusFilter}
+      />
+
+      <WorkDataTable
+        caption="Daftar Dokumen"
+        columns={columns}
+        emptyState={<WorkEmptyState module="documents" />}
+        getRowKey={(d) => d.id}
+        loading={documentsLoading}
+        loadingLabel="Memuat daftar dokumen…"
+        unavailable={!backendConnected || sourceState === "error"}
+        onRowClick={(d) => {
+          setSelectedDocument(d);
+          setDrawerOpen(true);
+        }}
+        rowAction={(d) => (
+          <Button
+            onClick={() => {
+              setSelectedDocument(d);
+              setDrawerOpen(true);
+            }}
+            size="sm"
+            variant="ghost"
+          >
+            Lihat
+          </Button>
+        )}
+        rows={filteredDocuments}
+      />
+
+      <DocumentDrawer
+        document={selectedDocument}
+        isConnected={backendConnected && sourceState !== "error"}
+        onClose={() => {
+          setDrawerOpen(false);
+          setSelectedDocument(null);
+        }}
+        open={drawerOpen}
+        workspaceKey={effectiveWorkspaceKey}
+      />
+    </div>
+  );
+
+  if (embed) {
+    return innerContent;
+  }
+
   return (
     <AppShell
       navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey, false, session)}
       session={session}
     >
-      <div className={styles.pageContainer}>
-        <PageHeader
-          description="Kelola dokumen kerja sesuai akses dan konteks bisnis Anda."
-          eyebrow="PEKERJAAN"
-          title="Dokumen"
-        />
-
-        {sourceState === "error" ? (
-          <div className={styles.noticeContainer}>
-            <Alert message={backendMessage ?? "Data dokumen belum dapat dimuat. Silakan coba kembali."} title="Data Dokumen Belum Dapat Dimuat" variant="danger" />
-          </div>
-        ) : !backendConnected ? (
-          <div className={styles.noticeContainer}>
-            <Alert
-              icon={<AlertCircle size={18} strokeWidth={2} />}
-              message={
-                backendMessage ??
-                "Data dokumen belum terhubung. Daftar dokumen akan ditampilkan setelah sumber data tersedia."
-              }
-              title="Data Dokumen Belum Terhubung"
-              variant="neutral"
-            />
-          </div>
-        ) : null}
-
-        <div className={styles.tabsContainer}>
-          <Tabs
-            ariaLabel="Kategori dokumen"
-            items={tabs}
-            onValueChange={setActiveTab}
-            value={activeTab}
-          />
-        </div>
-
-        <WorkToolbar
-          onSearchChange={setSearch}
-          onStatusChange={setStatusFilter}
-          searchPlaceholder="Cari dokumen…"
-          searchValue={search}
-          statusOptions={[
-            { label: "Draf", value: "DRAFT" },
-            { label: "Dalam Review", value: "IN_REVIEW" },
-            { label: "Disetujui", value: "APPROVED" },
-            { label: "Ditolak", value: "REJECTED" },
-            { label: "Tidak Berlaku", value: "RETIRED" },
-          ]}
-          statusValue={statusFilter}
-        />
-
-        <WorkDataTable
-          caption="Daftar Dokumen"
-          columns={columns}
-          emptyState={<WorkEmptyState module="documents" />}
-          getRowKey={(d) => d.id}
-          loading={documentsLoading}
-          loadingLabel="Memuat daftar dokumen…"
-          unavailable={!backendConnected || sourceState === "error"}
-          onRowClick={(d) => {
-            setSelectedDocument(d);
-            setDrawerOpen(true);
-          }}
-          rowAction={(d) => (
-            <Button
-              onClick={() => {
-                setSelectedDocument(d);
-                setDrawerOpen(true);
-              }}
-              size="sm"
-              variant="ghost"
-            >
-              Lihat
-            </Button>
-          )}
-          rows={filteredDocuments}
-        />
-
-        <DocumentDrawer
-          document={selectedDocument}
-          isConnected={backendConnected && sourceState !== "error"}
-          onClose={() => {
-            setDrawerOpen(false);
-            setSelectedDocument(null);
-          }}
-          open={drawerOpen}
-          workspaceKey={effectiveWorkspaceKey}
-        />
-      </div>
+      {innerContent}
     </AppShell>
   );
 }
