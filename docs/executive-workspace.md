@@ -12,16 +12,16 @@ Browser → ALOS Web/BFF → ALOS Backend → GENESIS/internal systems. GENESIS 
 
 | Menu | Route | Ketersediaan |
 | --- | --- | --- |
-| Ringkasan | `/workspace/executive/summary` | Strategy tersedia; domain lain mengikuti source readiness |
-| Brief Eksekutif | `/workspace/executive/brief` | Readiness |
-| Rencana & Target | `/workspace/executive/planning` | Strategy plan, target, dan asumsi |
-| Kinerja | `/workspace/executive/performance` | Strategy target dan observasi |
-| Inisiatif Strategis | `/workspace/executive/initiatives` | Butuh endpoint public |
-| Review & Revisi | `/workspace/executive/reviews` | Revisi target/readiness sesuai contract |
-| Divisi | `/workspace/executive/divisions` | Kesiapan data per divisi |
-| Detail Divisi | `/workspace/executive/divisions/[divisionKey]` | Tautan ke Shared Work universal |
-| Proyek, Tugas, Persetujuan, Dokumen, Laporan, Temuan | `/workspace/executive/{module}` | Reuse `src/features/shared-work/` |
-| Tanya ARA | `/workspace/executive/ara` | Readiness tanpa percakapan simulasi |
+| Ringkasan | `/workspace/executive/summary` | UI READY (Strategy Plan/Target; domain lain READINESS ONLY / NOT CONNECTED) |
+| Brief Eksekutif | `/workspace/executive/brief` | READINESS ONLY (Agenda/Tenggat & Temuan NOT CONNECTED) |
+| Rencana & Target | `/workspace/executive/planning` | UI READY (Strategy Plan, Target, Asumsi, Cascade; Ekstraksi Dokumen NOT CONNECTED) |
+| Kinerja | `/workspace/executive/performance` | UI READY (Target & Observasi Aktif/Forecast) |
+| Inisiatif Strategis | `/workspace/executive/initiatives` | NEEDS BACKEND (UI READY, data kosong jujur tanpa dummy) |
+| Review & Revisi | `/workspace/executive/reviews` | UI READY (Revisi Target; Telaah Kinerja NEEDS BACKEND) |
+| Divisi | `/workspace/executive/divisions` | UI READY (Fail-closed scoping) |
+| Detail Divisi | `/workspace/executive/divisions/[divisionKey]` | UI READY (Tautan ke Shared Work universal) |
+| Proyek, Tugas, Persetujuan, Dokumen, Laporan, Temuan | `/workspace/executive/{module}` | LIVE (Universal Shared Work) |
+| Tanya ARA | `/workspace/executive/ara` | READINESS ONLY (Tanpa percakapan simulasi) |
 
 Sidebar desktop tetap 248px saat terbuka dan 72px saat ringkas. Toggle berada di header sidebar. Mobile menggunakan drawer.
 
