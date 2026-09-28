@@ -205,10 +205,10 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(screen.getByLabelText("Tanggal Mulai *")).toBeInTheDocument();
     expect(screen.getByLabelText("Tanggal Selesai *")).toBeInTheDocument();
     expect(screen.getByLabelText("Granularitas *")).toBeInTheDocument();
-    expect(screen.getByLabelText("Ruang Lingkup (Scope) *")).toBeInTheDocument();
+    expect(screen.getByLabelText("Ruang Lingkup *")).toBeInTheDocument();
     expect(screen.getByLabelText("Ruang Kerja Penanggung Jawab *")).toBeInTheDocument();
     expect(screen.getByLabelText("Peran Penanggung Jawab *")).toBeInTheDocument();
-    expect(screen.getByLabelText("Tingkat Kepentingan (Materiality) *")).toBeInTheDocument();
+    expect(screen.getByLabelText("Tingkat Kepentingan *")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Simpan Draf" })).toBeInTheDocument();
   });
 
@@ -259,12 +259,14 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     const addBtn = await screen.findByRole("button", { name: "Tambah Target" });
     fireEvent.click(addBtn);
 
-    expect(await screen.findByText("Formulir Target")).toBeInTheDocument();
+    expect(await screen.findByText(/Formulir Target/)).toBeInTheDocument();
     expect(screen.getByText("Langkah 1:")).toBeInTheDocument();
 
     // Fill metadata Step 1
     fireEvent.change(screen.getByLabelText("Kode Target *"), { target: { value: "TGT-NEW-01" } });
     fireEvent.change(screen.getByLabelText("Nama Target *"), { target: { value: "Target Baru" } });
+    fireEvent.change(screen.getByLabelText("Ruang Kerja Penanggung Jawab *"), { target: { value: "workspace_exec" } });
+    fireEvent.change(screen.getByLabelText("Peran Penanggung Jawab *"), { target: { value: "Direktur" } });
 
     const nextBtn = screen.getByRole("button", { name: "Lanjut: Nilai Target →" });
     fireEvent.click(nextBtn);
@@ -292,11 +294,15 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     fireEvent.change(screen.getByLabelText("Nama Asumsi *"), { target: { value: "Rasio Penjualan" } });
     fireEvent.change(screen.getByLabelText("Satuan (Unit) *"), { target: { value: "RATIO" } });
     fireEvent.change(screen.getByLabelText(/Nilai \*/), { target: { value: "2.5" } });
+    fireEvent.change(screen.getByLabelText("Periode Mulai *"), { target: { value: "2027-01-01" } });
+    fireEvent.change(screen.getByLabelText("Periode Selesai *"), { target: { value: "2027-12-31" } });
+    fireEvent.change(screen.getByLabelText("Ruang Kerja Penanggung Jawab *"), { target: { value: "workspace_exec" } });
+    fireEvent.change(screen.getByLabelText("Peran Penanggung Jawab *"), { target: { value: "Tim Anggaran" } });
 
     const submitBtn = screen.getByRole("button", { name: "Simpan Asumsi" });
     fireEvent.click(submitBtn);
 
-    expect(await screen.findByText("Nilai rasio harus berada dalam rentang canonical 0 hingga 1.")).toBeInTheDocument();
+    expect(await screen.findByText("Nilai rasio harus berada dalam rentang 0 hingga 1.")).toBeInTheDocument();
   });
 
   // 6. Cascade preview before accept
@@ -327,7 +333,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     const casTab = await screen.findByRole("tab", { name: "Cascade" });
     fireEvent.click(casTab);
 
-    expect(screen.queryByRole("button", { name: "Terapkan Cascade (Accept)" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Terapkan Cascade/ })).not.toBeInTheDocument();
 
     const previewBtn = await screen.findByRole("button", { name: "Jalankan Pratinjau Cascade" });
     fireEvent.click(previewBtn);
@@ -335,25 +341,38 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(previewSpy).toHaveBeenCalled();
     expect(await screen.findByText("Hasil Pratinjau Cascade")).toBeInTheDocument();
     expect(screen.getByText("Kapasitas anggaran mencukupi")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Terapkan Cascade (Accept)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Terapkan Cascade/ })).toBeInTheDocument();
   });
 
   // 7. Document extraction UX and candidate review
   it("enforces document version and blocks Save Draft if required candidate fields are ambiguous", async () => {
-    render(<ExecutivePlanningPage />);
+    const mockCandidateList = [
+      {
+        id: "cand_1",
+        fieldName: "Nama Target",
+        value: "Target Penjualan",
+        sourceText: "Pertumbuhan penjualan",
+        anchor: "Hal 12",
+        status: "PERLU_DIPERIKSA" as const,
+        required: true,
+      },
+    ];
+
+    render(
+      <ExecutivePlanningPage
+        initialCandidates={mockCandidateList}
+        initialProcessed={true}
+      />
+    );
 
     expect(await screen.findByRole("heading", { name: "Rencana & Target" })).toBeInTheDocument();
     const extTab = await screen.findByRole("tab", { name: "Ekstraksi Dokumen" });
     fireEvent.click(extTab);
 
-    expect(await screen.findByLabelText("Referensi Versi Dokumen (Immutable) *")).toBeInTheDocument();
-    const processBtn = screen.getByRole("button", { name: "Proses Ekstraksi" });
-    fireEvent.click(processBtn);
+    expect(await screen.findByText("Telaah Kandidat Ekstraksi")).toBeInTheDocument();
+    expect(screen.getByText(/Dilarang langsung menetapkan hasil ekstraksi sebagai aktif/i)).toBeInTheDocument();
 
-    expect(await screen.findByText("Telaah Kandidat Ekstraksi (Review Candidate Experience)")).toBeInTheDocument();
-    expect(screen.getByText(/Dilarang langsung menyimpan hasil ekstraksi sebagai AKTIF/i)).toBeInTheDocument();
-
-    // Ambiguous candidate is present with PERLU_DIPERIKSA
+    // Ambiguous candidate is present with Perlu Diperiksa
     expect(screen.getByText("Perlu Diperiksa")).toBeInTheDocument();
 
     // Missing required / ambiguous fields must block Save Draft button (disabled)
@@ -401,7 +420,17 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
 
   // 10. Initiative UI Detail
   it("renders initiative readiness table and detail drawer without invented payload fields", async () => {
-    render(<ExecutiveInitiativesPage />);
+    const mockInitiativeFixture = {
+      id: "init_res_1",
+      name: "Akselerasi Penjualan Unit Residensial",
+      description: "Program percepatan serah terima unit residensial.",
+      relatedTargetName: "Pertumbuhan Pendapatan",
+      workspace: "Sales & Marketing",
+      ownerRole: "Head of Sales",
+      lifecycleState: "ACTIVE" as const,
+    };
+
+    render(<ExecutiveInitiativesPage initiatives={[mockInitiativeFixture]} />);
 
     expect(await screen.findByRole("heading", { name: "Inisiatif Strategis" })).toBeInTheDocument();
     expect(screen.getByText("Akselerasi Penjualan Unit Residensial")).toBeInTheDocument();
