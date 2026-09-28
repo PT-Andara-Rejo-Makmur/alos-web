@@ -375,10 +375,13 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     // Ambiguous candidate is present with Perlu Diperiksa
     expect(screen.getByText("Perlu Diperiksa")).toBeInTheDocument();
 
-    // Missing required / ambiguous fields must block Save Draft button (disabled)
-    const saveDraftBtn = screen.getByRole("button", { name: "Simpan Draf Ekstraksi" });
-    expect(saveDraftBtn).toBeDisabled();
+    // Simpan Draf button must NOT exist — persistence is not available, notice shown instead
+    expect(screen.queryByRole("button", { name: /Simpan Draf Ekstraksi/i })).not.toBeInTheDocument();
+
+    // Readiness notice must be shown
+    expect(screen.getByText(/memerlukan integrasi layanan ekstraksi resmi yang belum terhubung/i)).toBeInTheDocument();
   });
+
 
   // 8. Performance Detail Query (?target=tgt_revenue)
   it("opens Target Performance Detail when query parameter target is present", async () => {

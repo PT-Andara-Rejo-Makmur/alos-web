@@ -87,7 +87,7 @@ export function ExecutiveDivisionsPage() {
 export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ divisionKey: string }>) {
   const division = divisionRows.find((row) => row[1] === divisionKey);
   const [activeTab, setActiveTab] = useState("summary");
-  const { data } = useExecutiveStrategyData();
+  const { data, error, loading } = useExecutiveStrategyData();
 
   const tabs: readonly TabItem[] = useMemo(() => [
     { id: "summary", label: "Ringkasan" },
@@ -101,12 +101,14 @@ export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ division
 
   // Filter strategy targets for this division if any exist (FAIL-CLOSED: scope.ref must strictly match)
   const divisionTargets = useMemo(() => {
-    return (data?.targets ?? []).filter(
+    if (!data) return [];
+    return data.targets.filter(
       (t) => t.scope.type === "DIVISION" && Boolean(t.scope.ref) && t.scope.ref === divisionKey,
     );
-  }, [data?.targets, divisionKey]);
+  }, [data, divisionKey]);
 
-  const divisionOwner = divisionTargets[0]?.owner_role_ref || "—";
+  // Authoritative division owner is not inferred from target; defaults strictly to "—"
+  const divisionOwner = "—";
 
   return (
     <ExecutiveLayout>
@@ -147,7 +149,7 @@ export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ division
                     <div className={styles.targetDetailGrid}>
                       <div className={styles.candidateCard}>
                         <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Target Khusus</span>
-                        <strong style={{ fontSize: "20px" }}>{divisionTargets.length}</strong>
+                        <strong style={{ fontSize: "20px" }}>{loading || error || !data ? "—" : divisionTargets.length}</strong>
                         <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>Sasaran teralokasi</span>
                       </div>
                       <div className={styles.candidateCard}>

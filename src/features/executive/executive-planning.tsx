@@ -80,6 +80,8 @@ function PlanningContent({
   const assumptions = data?.assumptions ?? [];
   const authorizedActions = data?.authority?.authorized_actions ?? [];
   const canCreateCompanyPlan = authorizedActions.includes("CREATE_COMPANY_PLAN");
+  const canCreateDivisionPlan = authorizedActions.includes("CREATE_DIVISION_PLAN");
+  const canCreate = canCreateCompanyPlan || canCreateDivisionPlan;
 
   return (
     <div className={styles.page}>
@@ -123,7 +125,7 @@ function PlanningContent({
 
       {!loading && tab === "targets" ? (
         <TargetsSection
-          canCreate={canCreateCompanyPlan}
+          canCreate={canCreate}
           onOpenForm={() => setTargetFormOpen(true)}
           plans={plans}
           targets={targets}
@@ -133,7 +135,7 @@ function PlanningContent({
       {!loading && tab === "assumptions" ? (
         <AssumptionsSection
           assumptions={assumptions}
-          canCreate={canCreateCompanyPlan}
+          canCreate={canCreate}
           onOpenForm={() => setAssumptionFormOpen(true)}
         />
       ) : null}
@@ -141,7 +143,7 @@ function PlanningContent({
       {!loading && tab === "cascade" ? (
         <CascadeSection
           assumptions={assumptions}
-          canCascade={canCreateCompanyPlan}
+          canCascade={canCreate}
           targets={targets}
         />
       ) : null}
@@ -173,7 +175,8 @@ function PlanningContent({
 
       {targetFormOpen ? (
         <TargetFormDrawer
-          canSubmit={canCreateCompanyPlan}
+          canSubmitCompany={canCreateCompanyPlan}
+          canSubmitDivision={canCreateDivisionPlan}
           onClose={() => setTargetFormOpen(false)}
           plans={plans}
         />
@@ -237,8 +240,8 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
   const isRenstra = planType === "STRATEGIC_PLAN";
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [startsAt, setStartsAt] = useState("2026-01-01");
-  const [endsAt, setEndsAt] = useState(isRenstra ? "2030-12-31" : "2026-12-31");
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
   const [granularity, setGranularity] = useState(isRenstra ? "ANNUAL" : "MONTHLY");
   const [label, setLabel] = useState("");
   const [parentPlanId, setParentPlanId] = useState(strategicPlans[0]?.plan_id ?? "");
@@ -668,7 +671,7 @@ function TargetsSection({ plans, targets, canCreate, onOpenForm }: TargetsSectio
   );
 }
 
-function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: readonly StrategyPlan[]; canSubmit: boolean; onClose: () => void }>) {
+function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose }: Readonly<{ plans: readonly StrategyPlan[]; canSubmitCompany: boolean; canSubmitDivision: boolean; onClose: () => void }>) {
   const [step, setStep] = useState<1 | 2>(1);
 
   // Step 1: Metadata
@@ -678,21 +681,51 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
   const [planId, setPlanId] = useState(plans[0]?.plan_id ?? "");
   const [metricCode, setMetricCode] = useState("METRIC_PRIMARY");
   const [kpiDef, setKpiDef] = useState("");
+  const [objectiveId, setObjectiveId] = useState("");
+  const [objectives, setObjectives] = useState<readonly StrategicObjective[]>([]);
   const [scopeType, setScopeType] = useState("COMPANY");
-  const [startsAt, setStartsAt] = useState("2026-01-01");
-  const [endsAt, setEndsAt] = useState("2026-12-31");
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
   const [measurementType, setMeasurementType] = useState("HIGHER_IS_BETTER");
   const [unit, setUnit] = useState("IDR");
   const [ownerWorkspace, setOwnerWorkspace] = useState("");
   const [ownerRole, setOwnerRole] = useState("");
   const [materiality, setMateriality] = useState<"MATERIAL" | "NON_MATERIAL">("MATERIAL");
-  const [source, setSource] = useState("");
-  const [evidence, setEvidence] = useState("");
+  const [sourceRef, setSourceRef] = useState("");
+  const [evidenceRef, setEvidenceRef] = useState("");
 
   // Step 2: Observation TARGET
   const [targetValue, setTargetValue] = useState("");
   const [sourceMode, setSourceMode] = useState<"MANUAL_EVIDENCED" | "SOURCE_LINKED">("SOURCE_LINKED");
-  const [targetEvidence, setTargetEvidence] = useState("");
+  const [obsSourceRef, setObsSourceRef] = useState("");
+  const [obsEvidenceRef, setObsEvidenceRef] = useState("");
+
+  const canSubmit = scopeType === "DIVISION" ? canSubmitDivision : canSubmitCompany;
+
+  // Fetch objectives when plan changes
+  useEffect(() => {
+    let active = true;
+    if (planId) {
+      strategyApi.listObjectives(planId)
+        .then((data) => { if (active) setObjectives(data); })
+        .catch(() => { if (active) setObjectives([]); });
+    } else {
+      Promise.resolve().then(() => { if (active) setObjectives([]); });
+    }
+    return () => { active = false; };
+  }, [planId]);
+
+  // Auto-fill period from selected plan when plan changes
+  useEffect(() => {
+    const plan = plans.find((p) => p.plan_id === planId);
+    if (!plan) return;
+    const start = plan.period.starts_at.split("T")[0];
+    const end = plan.period.ends_at.split("T")[0];
+    Promise.resolve().then(() => {
+      setStartsAt(start);
+      setEndsAt(end);
+    });
+  }, [planId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -703,6 +736,10 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
       setFeedback("Mohon lengkapi seluruh field wajib metadata target, termasuk penanggung jawab.");
       return;
     }
+    if (!startsAt || !endsAt) {
+      setFeedback("Periode mulai dan selesai wajib diisi.");
+      return;
+    }
     setFeedback(null);
     setStep(2);
   }
@@ -711,6 +748,14 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
     e.preventDefault();
     if (!targetValue.trim()) {
       setFeedback("Nilai target wajib diisi.");
+      return;
+    }
+    if (sourceMode === "SOURCE_LINKED" && !obsSourceRef.trim()) {
+      setFeedback("Mode sumber terhubung memerlukan referensi sumber yang valid.");
+      return;
+    }
+    if (sourceMode === "MANUAL_EVIDENCED" && !obsEvidenceRef.trim()) {
+      setFeedback("Mode input manual memerlukan bukti dokumen pendukung.");
       return;
     }
 
@@ -726,10 +771,11 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
       const generatedTargetId = generateCanonicalId("target");
       const generatedObservationId = generateCanonicalId("obs");
       const period: BusinessPeriod = {
-        granularity: "ANNUAL",
-        starts_at: `${startsAt}T00:00:00Z`,
-        ends_at: `${endsAt}T23:59:59Z`,
+        granularity: selectedPlan?.period.granularity ?? "ANNUAL",
+        starts_at: startsAt,
+        ends_at: endsAt,
       };
+      const selectedObjective = objectives.find((o) => o.objective_id === objectiveId);
 
       // 1. Create Target Metadata
       await strategyApi.createTarget({
@@ -739,7 +785,10 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
         name,
         description: description || null,
         plan_ref: { id: selectedPlan?.plan_id ?? planId, version: selectedPlan?.version ?? 1 },
-        objective_ref: null,
+        objective_ref: selectedObjective
+          ? { id: selectedObjective.objective_id, version: selectedObjective.version }
+          : null,
+        kpi_definition_ref: kpiDef.trim() || null,
         metric_code: metricCode,
         measurement_type: measurementType,
         unit,
@@ -748,8 +797,8 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
         owner_workspace_id: ownerWorkspace,
         owner_role_ref: ownerRole,
         materiality,
-        source_refs: source ? [source] : [],
-        evidence_refs: evidence ? [evidence] : [],
+        source_refs: sourceRef.trim() ? [sourceRef.trim()] : [],
+        evidence_refs: evidenceRef.trim() ? [evidenceRef.trim()] : [],
       });
 
       // 2. Create TARGET Observation
@@ -762,10 +811,10 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
         unit,
         period,
         source_mode: sourceMode,
-        source_ref: source || null,
+        source_ref: sourceMode === "SOURCE_LINKED" ? obsSourceRef.trim() : null,
         observed_at: new Date().toISOString(),
-        verification_state: "UNVERIFIED",
-        evidence_refs: targetEvidence ? [targetEvidence] : [],
+        verification_state: "PENDING_VERIFICATION",
+        evidence_refs: sourceMode === "MANUAL_EVIDENCED" && obsEvidenceRef.trim() ? [obsEvidenceRef.trim()] : [],
       });
 
       onClose();
@@ -811,8 +860,19 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
             <div className={`${styles.formField} ${styles.formFullWidth}`}>
               <label htmlFor="tgt-plan">Rencana *</label>
               <select className={styles.formSelect} id="tgt-plan" onChange={(e) => setPlanId(e.target.value)} required value={planId}>
+                <option value="">Pilih Rencana</option>
                 {plans.map((p) => (
                   <option key={p.plan_id} value={p.plan_id}>{p.name} ({periodLabel(p.period)})</option>
+                ))}
+              </select>
+            </div>
+
+            <div className={`${styles.formField} ${styles.formFullWidth}`}>
+              <label htmlFor="tgt-objective">Sasaran Terkait</label>
+              <select className={styles.formSelect} id="tgt-objective" onChange={(e) => setObjectiveId(e.target.value)} value={objectiveId}>
+                <option value="">Tidak dikaitkan ke sasaran</option>
+                {objectives.map((o) => (
+                  <option key={o.objective_id} value={o.objective_id}>{o.code} — {o.name}</option>
                 ))}
               </select>
             </div>
@@ -823,8 +883,8 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="tgt-kpi">Definisi KPI</label>
-              <input className={styles.formInput} id="tgt-kpi" onChange={(e) => setKpiDef(e.target.value)} placeholder="Opsional" value={kpiDef} />
+              <label htmlFor="tgt-kpi">Referensi Definisi KPI</label>
+              <input className={styles.formInput} id="tgt-kpi" onChange={(e) => setKpiDef(e.target.value)} placeholder="ID definisi KPI (opsional)" value={kpiDef} />
             </div>
 
             <div className={styles.formField}>
@@ -887,13 +947,13 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="tgt-source">Sumber Referensi</label>
-              <input className={styles.formInput} id="tgt-source" onChange={(e) => setSource(e.target.value)} placeholder="Contoh: Dokumen Renstra" value={source} />
+              <label htmlFor="tgt-source-ref">Referensi Sumber Dokumen</label>
+              <input className={styles.formInput} id="tgt-source-ref" onChange={(e) => setSourceRef(e.target.value)} placeholder="Nomor / tautan dokumen referensi" value={sourceRef} />
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="tgt-evidence">Bukti Dokumen</label>
-              <input className={styles.formInput} id="tgt-evidence" onChange={(e) => setEvidence(e.target.value)} placeholder="Contoh: Bukti Pengesahan" value={evidence} />
+              <label htmlFor="tgt-evidence-ref">ID Bukti Dokumen</label>
+              <input className={styles.formInput} id="tgt-evidence-ref" onChange={(e) => setEvidenceRef(e.target.value)} placeholder="ID dokumen bukti pengesahan" value={evidenceRef} />
             </div>
 
             <div className={`${styles.formField} ${styles.formFullWidth}`}>
@@ -910,7 +970,7 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
       ) : (
         <form onSubmit={handleFinalSubmit}>
           <div className={styles.briefNotice} style={{ marginBottom: "var(--alos-space-4)" }}>
-            Nilai target dicatat sebagai observasi nilai target tersendiri dan tidak disimpan langsung ke metadata target.
+            Nilai target dicatat sebagai observasi terpisah dan memerlukan referensi sumber atau bukti sesuai mode yang dipilih.
           </div>
 
           <div className={styles.formGrid}>
@@ -924,7 +984,7 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
               <input className={styles.formInput} disabled id="tgt-val-unit" value={unit} />
             </div>
 
-            <div className={styles.formField}>
+            <div className={`${styles.formField} ${styles.formFullWidth}`}>
               <label htmlFor="tgt-source-mode">Mode Sumber *</label>
               <select className={styles.formSelect} id="tgt-source-mode" onChange={(e) => setSourceMode(e.target.value as "SOURCE_LINKED")} value={sourceMode}>
                 <option value="SOURCE_LINKED">Terhubung ke Sumber Resmi</option>
@@ -932,10 +992,17 @@ function TargetFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: reado
               </select>
             </div>
 
-            <div className={styles.formField}>
-              <label htmlFor="tgt-val-evidence">Bukti / Referensi Sumber</label>
-              <input className={styles.formInput} id="tgt-val-evidence" onChange={(e) => setTargetEvidence(e.target.value)} placeholder="ID Rujukan atau tautan bukti" value={targetEvidence} />
-            </div>
+            {sourceMode === "SOURCE_LINKED" ? (
+              <div className={`${styles.formField} ${styles.formFullWidth}`}>
+                <label htmlFor="tgt-obs-source">Referensi Sumber * <span style={{ fontSize: "11px", color: "var(--alos-text-muted)" }}>(wajib untuk mode ini)</span></label>
+                <input className={styles.formInput} id="tgt-obs-source" onChange={(e) => setObsSourceRef(e.target.value)} placeholder="Nomor SK / tautan sumber resmi" required value={obsSourceRef} />
+              </div>
+            ) : (
+              <div className={`${styles.formField} ${styles.formFullWidth}`}>
+                <label htmlFor="tgt-obs-evidence">Bukti Dokumen Pendukung * <span style={{ fontSize: "11px", color: "var(--alos-text-muted)" }}>(wajib untuk mode ini)</span></label>
+                <input className={styles.formInput} id="tgt-obs-evidence" onChange={(e) => setObsEvidenceRef(e.target.value)} placeholder="ID dokumen bukti" required value={obsEvidenceRef} />
+              </div>
+            )}
           </div>
 
           <div className={styles.formActions}>
@@ -1210,8 +1277,8 @@ interface CascadeSectionProps {
 
 function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSectionProps) {
   const [rootTargetId, setRootTargetId] = useState(targets[0]?.target_id ?? "");
-  const [ruleType, setRuleType] = useState<"SPLIT_PERCENT" | "SPLIT_FIXED" | "DIRECT" | "RATIO_MULTIPLY">("SPLIT_PERCENT");
-  const [ratioInput, setRatioInput] = useState("0.5");
+  const [ruleType, setRuleType] = useState<"SPLIT_PERCENT" | "SPLIT_FIXED" | "DIRECT" | "RATIO_MULTIPLY" | "SUM_ROLLUP" | "RATIO_DIVIDE_CEIL" | "LIMIT_CHECK">("SPLIT_PERCENT");
+  const [ratioInput, setRatioInput] = useState("");
   const [fixedAllocation, setFixedAllocation] = useState("");
   const [outputTargetId, setOutputTargetId] = useState("");
   const [selectedAssumptionId, setSelectedAssumptionId] = useState(assumptions[0]?.assumption_id ?? "");
@@ -1266,12 +1333,23 @@ function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSec
         rules: [
           {
             cascade_rule_id: ruleId,
+            tenant_id: "tenant.default",
+            organization_id: "org.default",
             rule_type: ruleType,
-            output_target_refs: [{ target_id: derivedTargetId }],
+            input_target_refs: [{
+              target_id: selectedTarget?.target_id ?? rootTargetId,
+              version: selectedTarget?.version ?? 1,
+            }],
+            output_target_refs: [{ target_id: derivedTargetId, version: 1 }],
             parameters,
+            version: 1,
           },
         ],
-        rule_inputs: {},
+        rule_inputs: {
+          [ruleId]: {
+            input: null,
+          },
+        },
         constraints: [],
         assumption_refs: selectedAssumptionId ? [selectedAssumptionId] : [],
       };
@@ -1296,7 +1374,17 @@ function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSec
     setAccepting(true);
     setErrorMsg(null);
     try {
-      await strategyApi.acceptCascade(previewData.cascade_run_id, previewData.derived_targets);
+      // Build derived targets from calculation_trace output
+      const derivedTargets = (previewData.calculation_trace ?? []).flatMap((trace: Record<string, unknown>) => {
+        const outputTargetId = trace["output_target_id"] as string | undefined;
+        if (!outputTargetId || trace["status"] !== "VALID" || trace["output"] == null) return [];
+        return [{
+          target_id: outputTargetId,
+          version: 1,
+          cascade_run_id: previewData.cascade_run_id,
+        }];
+      });
+      await strategyApi.acceptCascade(previewData.cascade_run_id, derivedTargets);
       setSuccessMsg("Hasil cascade berhasil diterima dan target turunan didaftarkan.");
     } catch {
       setErrorMsg("Tindakan penerimaan cascade belum dapat diselesaikan.");
@@ -1337,6 +1425,9 @@ function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSec
                 <option value="SPLIT_FIXED">Alokasi Tetap (Fixed Allocation)</option>
                 <option value="RATIO_MULTIPLY">Pengali Rasio (Ratio Multiply)</option>
                 <option value="DIRECT">Penurunan Langsung (Direct)</option>
+                <option value="SUM_ROLLUP">Akumulasi Penjumlahan (Sum Rollup)</option>
+                <option value="RATIO_DIVIDE_CEIL">Pembagian Rasio Dibulatkan (Ratio Divide Ceil)</option>
+                <option value="LIMIT_CHECK">Batas Maksimum (Limit Check)</option>
               </select>
             </div>
 
@@ -1499,7 +1590,6 @@ export function ExtractionSection({ initialCandidates = [], initialProcessed = f
   const [extractionType, setExtractionType] = useState("STRATEGY_PLAN");
   const [processed, setProcessed] = useState(initialProcessed);
   const [candidates, setCandidates] = useState<ExtractedCandidate[]>([...initialCandidates]);
-  const [feedback, setFeedback] = useState<string | null>(null);
 
   function handleCandidateAction(id: string, action: "TERIMA" | "EDIT" | "ABAIKAN") {
     setCandidates((prev) =>
@@ -1513,13 +1603,8 @@ export function ExtractionSection({ initialCandidates = [], initialProcessed = f
     );
   }
 
-  const missingRequired = candidates.filter(
-    (c) => c.required && (c.status === "ABAIKAN" || c.status === "PERLU_DIPERIKSA" || !c.value.trim()),
-  );
-
   return (
-    <Section description="Alur ekstraksi terpandu: Dokumen & Versi yang Tetap → Jenis Ekstraksi → Proses → Telaah Kandidat → Simpan Draf." title="Ekstraksi Dokumen Strategi">
-      {feedback ? <Alert message={feedback} title="Status Ekstraksi" variant={missingRequired.length > 0 ? "warning" : "success"} /> : null}
+    <Section description="Alur ekstraksi terpandu: Dokumen & Versi yang Tetap → Jenis Ekstraksi → Proses → Telaah Kandidat." title="Ekstraksi Dokumen Strategi">
 
       {!processed ? (
         <div className={styles.cascadeStep}>
@@ -1668,18 +1753,8 @@ export function ExtractionSection({ initialCandidates = [], initialProcessed = f
 
               {candidates.length > 0 ? (
                 <div className={styles.formActions} style={{ marginTop: "var(--alos-space-4)", flexDirection: "column", alignItems: "flex-start", gap: "var(--alos-space-2)" }}>
-                  <Button
-                    disabled={missingRequired.length > 0}
-                    onClick={() => {
-                      if (missingRequired.length > 0) return;
-                      setFeedback("Layanan penyimpanan draf ekstraksi resmi belum terhubung.");
-                    }}
-                    variant="primary"
-                  >
-                    Simpan Draf Ekstraksi
-                  </Button>
                   <div className={styles.briefNotice}>
-                    Penyimpanan draf ekstraksi memerlukan integrasi layanan ekstraksi resmi.
+                    Penyimpanan hasil telaah kandidat memerlukan integrasi layanan ekstraksi resmi yang belum terhubung. Telaah kandidat saat ini bersifat pratinjau saja.
                   </div>
                 </div>
               ) : null}

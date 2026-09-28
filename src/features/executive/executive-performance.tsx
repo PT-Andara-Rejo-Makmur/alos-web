@@ -61,18 +61,21 @@ function PerformanceContent() {
 
   const targets = corporateTargets(data?.targets ?? []);
   const authorizedActions = data?.authority?.authorized_actions ?? [];
-  const canCreateCompanyPlan = authorizedActions.includes("CREATE_COMPANY_PLAN");
 
-  // Selected target for detail view
+  // Selected target for detail view (Corporate or Division scoped)
+  const allTargets = data?.targets ?? [];
   const activeDetailTarget = targetIdParam
-    ? targets.find((t) => t.target_id === targetIdParam) ?? null
+    ? allTargets.find((t) => t.target_id === targetIdParam) ?? null
     : null;
 
   // If URL has target query parameter, show Target Performance Detail
   if (targetIdParam && activeDetailTarget) {
+    const canMutate = activeDetailTarget.scope.type === "COMPANY"
+      ? authorizedActions.includes("CREATE_COMPANY_PLAN")
+      : authorizedActions.includes("CREATE_DIVISION_PLAN");
     return (
       <TargetPerformanceDetail
-        canMutate={canCreateCompanyPlan}
+        canMutate={canMutate}
         onBack={() => router.push("/workspace/executive/performance")}
         target={activeDetailTarget}
       />
@@ -296,7 +299,7 @@ function TargetPerformanceDetail({
 
       {/* Observations / History Table */}
       <Section
-        description="Riwayat pengamatan nilai (TARGET, AKTUAL, FORECAST) yang tercatat secara canonical."
+        description="Riwayat pengamatan nilai (Target, Aktual, Perkiraan) yang tercatat secara resmi."
         title="Riwayat Observasi"
       >
         <DataTable

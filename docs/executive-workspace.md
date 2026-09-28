@@ -14,14 +14,14 @@ Browser → ALOS Web/BFF → ALOS Backend → GENESIS/internal systems. GENESIS 
 | --- | --- | --- |
 | Ringkasan | `/workspace/executive/summary` | UI READY (Strategy Plan/Target; domain lain READINESS ONLY / NOT CONNECTED) |
 | Brief Eksekutif | `/workspace/executive/brief` | READINESS ONLY (Agenda/Tenggat & Temuan NOT CONNECTED) |
-| Rencana & Target | `/workspace/executive/planning` | UI READY (Strategy Plan, Target, Asumsi, Cascade; Ekstraksi Dokumen NOT CONNECTED) |
+| Rencana & Target | `/workspace/executive/planning` | UI READY (Strategy Plan, Target, Asumsi, Cascade; Ekstraksi Dokumen UI READY / NEEDS BACKEND) |
 | Kinerja | `/workspace/executive/performance` | UI READY (Target & Observasi Aktif/Forecast) |
-| Inisiatif Strategis | `/workspace/executive/initiatives` | NEEDS BACKEND (UI READY, data kosong jujur tanpa dummy) |
-| Review & Revisi | `/workspace/executive/reviews` | UI READY (Revisi Target; Telaah Kinerja NEEDS BACKEND) |
+| Inisiatif Strategis | `/workspace/executive/initiatives` | UI READY / NEEDS BACKEND (data kosong jujur tanpa dummy) |
+| Review & Revisi | `/workspace/executive/reviews` | UI READY (Revisi Target); Review Kinerja UI READY / NEEDS CONTRACT |
 | Divisi | `/workspace/executive/divisions` | UI READY (Fail-closed scoping) |
 | Detail Divisi | `/workspace/executive/divisions/[divisionKey]` | UI READY (Tautan ke Shared Work universal) |
-| Proyek, Tugas, Persetujuan, Dokumen, Laporan, Temuan | `/workspace/executive/{module}` | LIVE (Universal Shared Work) |
-| Tanya ARA | `/workspace/executive/ara` | READINESS ONLY (Tanpa percakapan simulasi) |
+| Proyek, Tugas, Persetujuan, Dokumen, Laporan, Temuan | `/workspace/executive/{module}` | UI READY / NEEDS BACKEND (Universal Shared Work — UI siap, koneksi backend belum aktif) |
+| Tanya ARA | `/workspace/executive/ara` | NOT CONNECTED / READINESS ONLY (Tanpa percakapan simulasi) |
 
 Sidebar desktop tetap 248px saat terbuka dan 72px saat ringkas. Toggle berada di header sidebar. Mobile menggunakan drawer.
 
