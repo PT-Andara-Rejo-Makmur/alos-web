@@ -4,8 +4,9 @@ import { House, type LucideIcon } from "lucide-react";
 import { useCallback, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
-import { sessionApiRequest } from "@/lib/api";
-import type { SessionProjection } from "@/features/session";
+import { selectActiveWorkspace, type SessionProjection } from "@/features/session";
+import type { WorkspaceAccessProjection } from "@/lib/contracts";
+import { ApiError, sessionApiRequest } from "@/lib/api";
 
 import { AppSidebar } from "./app-sidebar";
 import { AppTopbar } from "./app-topbar";
@@ -16,6 +17,8 @@ export interface AppShellProfile {
   readonly displayName: string | null;
   readonly email: string | null;
   readonly workspaceName: string | null;
+  readonly activeWorkspaceId: string | null;
+  readonly workspaceAccess: readonly WorkspaceAccessProjection[];
   readonly initials: string;
 }
 
@@ -44,15 +47,24 @@ function initialsFor(displayName: string | null): string {
 export function getAppShellProfile(session: SessionProjection): AppShellProfile {
   const principal = session.principal;
   if (!principal) {
-    return { displayName: null, email: null, workspaceName: null, initials: "?" };
+    return {
+      activeWorkspaceId: null,
+      displayName: null,
+      email: null,
+      initials: "?",
+      workspaceAccess: [],
+      workspaceName: null,
+    };
   }
 
   if ("actor" in principal) {
     const displayName = principal.actor.display_name.trim() || null;
     const workspaceName = principal.active_workspace?.workspace.workspace_name ?? null;
     return {
+      activeWorkspaceId: principal.active_workspace?.workspace.workspace_id ?? null,
       displayName,
       email: principal.email || null,
+      workspaceAccess: principal.workspace_access,
       workspaceName,
       initials: initialsFor(displayName),
     };
@@ -64,11 +76,36 @@ export function getAppShellProfile(session: SessionProjection): AppShellProfile 
   };
   const displayName = legacy.display_name?.trim() || null;
   return {
+    activeWorkspaceId: null,
     displayName,
     email: legacy.email || null,
     workspaceName: null,
+    workspaceAccess: [],
     initials: initialsFor(displayName),
   };
+}
+
+const workspaceSections = new Set(["projects", "tasks", "approvals", "documents", "reports", "findings", "accounts"]);
+
+function workspaceDestination(pathname: string, workspaceKey: string): string {
+  const match = pathname.match(/^\/workspace\/[^/]+(\/.*)?$/);
+  const suffix = match?.[1] ?? "";
+  const section = suffix.split("/").filter(Boolean)[0];
+  const canKeepSection = Boolean(section && workspaceSections.has(section) && (section !== "accounts" || workspaceKey === "it"));
+
+  if (canKeepSection) return `/workspace/${workspaceKey}${suffix}`;
+  if (workspaceKey === "executive") return "/workspace/executive";
+  return `/workspace/${workspaceKey}/projects`;
+}
+
+function getWorkspaceSwitchError(error: unknown): string {
+  if (error instanceof ApiError && error.status === 403) {
+    return "Anda tidak memiliki akses ke workspace tersebut.";
+  }
+  if (error instanceof ApiError && error.status === 401) {
+    return "Sesi Anda sudah berakhir. Silakan masuk kembali.";
+  }
+  return "Workspace belum dapat diganti. Silakan coba lagi.";
 }
 
 export function AppShell({
@@ -84,6 +121,8 @@ export function AppShell({
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [switchingWorkspace, setSwitchingWorkspace] = useState(false);
+  const [workspaceSwitchError, setWorkspaceSwitchError] = useState<string | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const profile = getAppShellProfile(session);
 
@@ -97,6 +136,26 @@ export function AppShell({
       router.refresh?.();
     }
   }, [loggingOut, router]);
+
+  const switchWorkspace = useCallback(async (workspace: WorkspaceAccessProjection) => {
+    if (switchingWorkspace) return;
+    if (workspace.workspace.workspace_id === profile.activeWorkspaceId) {
+      const destination = workspaceDestination(window.location.pathname, workspace.workspace.workspace_key);
+      if (destination !== window.location.pathname) router.push(destination);
+      return;
+    }
+    setSwitchingWorkspace(true);
+    setWorkspaceSwitchError(null);
+    try {
+      await selectActiveWorkspace(workspace.workspace.workspace_id);
+      router.push(workspaceDestination(window.location.pathname, workspace.workspace.workspace_key));
+      router.refresh();
+    } catch (error) {
+      setWorkspaceSwitchError(getWorkspaceSwitchError(error));
+    } finally {
+      setSwitchingWorkspace(false);
+    }
+  }, [profile.activeWorkspaceId, router, switchingWorkspace]);
 
   return (
     <div className={styles.shell}>
@@ -116,7 +175,10 @@ export function AppShell({
           mobileNavigationOpen={mobileNavigationOpen}
           onLogout={() => void logout()}
           onOpenMenu={() => setMobileNavigationOpen(true)}
+        onSwitchWorkspace={(workspace) => void switchWorkspace(workspace)}
           profile={profile}
+        switchingWorkspace={switchingWorkspace}
+        workspaceSwitchError={workspaceSwitchError}
         />
         <main className={styles.main}>
           <div className={styles.content}>{children}</div>

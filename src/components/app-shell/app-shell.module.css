@@ -257,6 +257,34 @@
   min-width: 0;
 }
 
+.workspaceSwitcher {
+  position: relative;
+}
+
+.workspaceTrigger {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--alos-radius-button);
+  color: var(--alos-text-primary);
+  cursor: pointer;
+  display: flex;
+  gap: var(--alos-space-2);
+  max-width: min(52vw, 520px);
+  min-height: 40px;
+  padding: var(--alos-space-1) var(--alos-space-2);
+  text-align: left;
+}
+
+.workspaceTrigger:hover:not(:disabled),
+.workspaceTrigger:focus-visible {
+  background: var(--alos-primary-very-soft);
+}
+
+.workspaceTrigger:disabled {
+  cursor: default;
+}
+
 .workspaceLabel {
   color: var(--alos-text-muted);
   font-size: 12px;
@@ -270,6 +298,88 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.workspaceMenu {
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border-strong);
+  border-radius: var(--alos-radius-panel);
+  box-shadow: 0 12px 28px rgb(23 33 29 / 13%);
+  left: 0;
+  min-width: 300px;
+  padding: var(--alos-space-2);
+  position: absolute;
+  top: calc(100% + var(--alos-space-2));
+  z-index: 4;
+}
+
+.workspaceMenuHeader {
+  border-bottom: 1px solid var(--alos-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-1);
+  padding: var(--alos-space-2) var(--alos-space-3) var(--alos-space-3);
+}
+
+.workspaceMenuTitle {
+  color: var(--alos-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.workspaceMenuHint,
+.workspaceMenuItemMeta {
+  color: var(--alos-text-muted);
+  font-size: 11px;
+}
+
+.workspaceMenuItem {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: var(--alos-radius-button);
+  color: var(--alos-text-primary);
+  cursor: pointer;
+  display: flex;
+  gap: var(--alos-space-3);
+  justify-content: space-between;
+  margin-top: var(--alos-space-1);
+  min-height: 48px;
+  padding: var(--alos-space-2) var(--alos-space-3);
+  text-align: left;
+  width: 100%;
+}
+
+.workspaceMenuItem:hover:not(:disabled),
+.workspaceMenuItemActive {
+  background: var(--alos-primary-very-soft);
+}
+
+.workspaceMenuItem:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.workspaceMenuItemCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.workspaceMenuItemName {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspaceMenuError {
+  color: var(--alos-danger, #b42318);
+  font-size: 12px;
+  line-height: 18px;
+  margin: var(--alos-space-2) var(--alos-space-3) var(--alos-space-1);
 }
 
 .profileMenuWrapper {

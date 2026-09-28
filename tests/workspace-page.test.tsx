@@ -6,11 +6,13 @@ import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import { ApiError } from "@/lib/api";
 import * as api from "@/lib/api";
 
+const mockPush = vi.fn();
 const mockReplace = vi.fn();
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/workspace",
   useRouter: () => ({
+    push: mockPush,
     refresh: vi.fn(),
     replace: mockReplace,
   }),
@@ -137,6 +139,60 @@ describe("WorkspacePage and ALOS App Shell", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Ruang kerja belum dipilih")).toBeInTheDocument();
+    });
+  });
+
+  it("menampilkan workspace yang tersedia dan lekatkan pilihan ke endpoint Backend", async () => {
+    const property = {
+      active: true,
+      data_scope: "WORKSPACE" as const,
+      permission_refs: [],
+      role_refs: ["WORKSPACE_MEMBER" as const],
+      scope_refs: ["workspace_property"],
+      workspace: {
+        active: true,
+        division_code: "PROPERTY",
+        organization_id: "org_1",
+        workspace_id: "workspace_property",
+        workspace_key: "property",
+        workspace_name: "Property",
+        workspace_type: "BUSINESS" as const,
+      },
+    };
+    const finance = {
+      ...property,
+      scope_refs: ["workspace_finance"],
+      workspace: {
+        ...property.workspace,
+        workspace_id: "workspace_finance",
+        workspace_key: "finance",
+        workspace_name: "Finance",
+        division_code: "FINANCE",
+      },
+    };
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(
+      authenticatedSession(makePrincipal({ active_workspace: property, workspace_access: [property, finance] })),
+    );
+    const activeWorkspaceRequest = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({
+      actor_id: "actor_1",
+      organization_id: "org_1",
+      workspace: finance.workspace,
+      membership: finance,
+    });
+
+    render(<WorkspacePage />);
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "Pilih workspace" })).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: "Pilih workspace" }));
+    expect(screen.getByRole("menuitemradio", { name: /Finance/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("menuitemradio", { name: /Finance/ }));
+
+    await waitFor(() => {
+      expect(activeWorkspaceRequest).toHaveBeenCalledWith("/api/v1/auth/active-workspace", {
+        body: { workspace_id: "workspace_finance" },
+        method: "PUT",
+      });
+      expect(mockPush).toHaveBeenCalledWith("/workspace/finance/projects");
     });
   });
 

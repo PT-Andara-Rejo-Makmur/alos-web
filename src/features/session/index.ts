@@ -14,3 +14,4 @@ export {
   loadSessionContext,
   projectSessionContext,
 } from "./protected-session";
+export { selectActiveWorkspace } from "./workspace-api";
