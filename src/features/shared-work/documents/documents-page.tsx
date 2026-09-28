@@ -50,6 +50,7 @@ export function DocumentsPage({ workspaceKey }: DocumentsPageProps) {
   const [documentsLoading, setDocumentsLoading] = useState(true);
   const [backendConnected, setBackendConnected] = useState(true);
   const [backendMessage, setBackendMessage] = useState<string | null>(null);
+  const [sourceState, setSourceState] = useState<"available" | "unavailable" | "error">("available");
 
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
@@ -97,6 +98,7 @@ export function DocumentsPage({ workspaceKey }: DocumentsPageProps) {
 
       setBackendConnected(response.connected);
       setBackendMessage(response.message ?? null);
+      setSourceState(response.sourceState ?? (response.connected ? "available" : "unavailable"));
       setDocuments(response.data);
       setDocumentsLoading(false);
     }
@@ -242,7 +244,7 @@ export function DocumentsPage({ workspaceKey }: DocumentsPageProps) {
 
   return (
     <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
+      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey, false, session)}
       session={session}
     >
       <div className={styles.pageContainer}>
@@ -252,7 +254,11 @@ export function DocumentsPage({ workspaceKey }: DocumentsPageProps) {
           title="Dokumen"
         />
 
-        {!backendConnected ? (
+        {sourceState === "error" ? (
+          <div className={styles.noticeContainer}>
+            <Alert message={backendMessage ?? "Data dokumen belum dapat dimuat. Silakan coba kembali."} title="Data Dokumen Belum Dapat Dimuat" variant="danger" />
+          </div>
+        ) : !backendConnected ? (
           <div className={styles.noticeContainer}>
             <Alert
               icon={<AlertCircle size={18} strokeWidth={2} />}
@@ -297,6 +303,7 @@ export function DocumentsPage({ workspaceKey }: DocumentsPageProps) {
           getRowKey={(d) => d.id}
           loading={documentsLoading}
           loadingLabel="Memuat daftar dokumen…"
+          unavailable={!backendConnected || sourceState === "error"}
           onRowClick={(d) => {
             setSelectedDocument(d);
             setDrawerOpen(true);
@@ -318,7 +325,7 @@ export function DocumentsPage({ workspaceKey }: DocumentsPageProps) {
 
         <DocumentDrawer
           document={selectedDocument}
-          isConnected={backendConnected}
+          isConnected={backendConnected && sourceState !== "error"}
           onClose={() => {
             setDrawerOpen(false);
             setSelectedDocument(null);

@@ -71,7 +71,7 @@ export default function WorkspaceDocumentDetailPageRoute({
 
   return (
     <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, workspaceKey)}
+      navigationSections={navigationForSession(canOpenExecutive, workspaceKey, false, session)}
       session={session}
     >
       {document ? (

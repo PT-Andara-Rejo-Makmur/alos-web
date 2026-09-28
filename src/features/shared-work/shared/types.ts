@@ -125,6 +125,8 @@ export interface EvidenceItem {
 export interface SourceHonestResponse<T> {
   readonly connected: boolean;
   readonly data: T;
+  /** Distinguishes an absent integration from a temporary/request failure. */
+  readonly sourceState?: "available" | "unavailable" | "error";
   readonly message?: string;
   readonly errorCode?: number;
 }

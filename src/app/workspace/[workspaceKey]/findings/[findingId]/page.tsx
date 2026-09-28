@@ -71,7 +71,7 @@ export default function WorkspaceFindingDetailPageRoute({
 
   return (
     <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, workspaceKey)}
+      navigationSections={navigationForSession(canOpenExecutive, workspaceKey, false, session)}
       session={session}
     >
       {finding ? (

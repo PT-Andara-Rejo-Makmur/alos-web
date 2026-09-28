@@ -53,6 +53,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
   const [projectsLoading, setProjectsLoading] = useState(true);
   const [backendConnected, setBackendConnected] = useState(true);
   const [backendMessage, setBackendMessage] = useState<string | null>(null);
+  const [sourceState, setSourceState] = useState<"available" | "unavailable" | "error">("available");
 
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
@@ -100,6 +101,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
 
       setBackendConnected(response.connected);
       setBackendMessage(response.message ?? null);
+      setSourceState(response.sourceState ?? (response.connected ? "available" : "unavailable"));
       setProjects(response.data);
       setProjectsLoading(false);
     }
@@ -238,7 +240,11 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
           title="Proyek"
         />
 
-        {!backendConnected ? (
+        {sourceState === "error" ? (
+          <div className={styles.noticeContainer}>
+            <Alert message={backendMessage ?? "Data proyek belum dapat dimuat. Silakan coba kembali."} title="Data Proyek Belum Dapat Dimuat" variant="danger" />
+          </div>
+        ) : !backendConnected ? (
           <div className={styles.noticeContainer}>
             <Alert
               icon={<AlertCircle size={18} strokeWidth={2} />}
@@ -284,6 +290,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
           getRowKey={(p) => p.id}
           loading={projectsLoading}
           loadingLabel="Memuat daftar proyek…"
+          unavailable={!backendConnected || sourceState === "error"}
           onRowClick={(p) => {
             setSelectedProject(p);
             setDrawerOpen(true);
@@ -304,7 +311,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
         />
 
         <ProjectDrawer
-          isConnected={backendConnected}
+          isConnected={backendConnected && sourceState !== "error"}
           onClose={() => {
             setDrawerOpen(false);
             setSelectedProject(null);
@@ -322,7 +329,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
 
   return (
     <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
+      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey, false, session)}
       session={session}
     >
       {innerContent}

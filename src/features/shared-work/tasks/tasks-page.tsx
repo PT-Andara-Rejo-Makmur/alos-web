@@ -36,6 +36,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
   const [tasksLoading, setTasksLoading] = useState(true);
   const [backendConnected, setBackendConnected] = useState(true);
   const [backendMessage, setBackendMessage] = useState<string | null>(null);
+  const [sourceState, setSourceState] = useState<"available" | "unavailable" | "error">("available");
 
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
@@ -85,6 +86,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
 
       setBackendConnected(response.connected);
       setBackendMessage(response.message ?? null);
+      setSourceState(response.sourceState ?? (response.connected ? "available" : "unavailable"));
       setTasks(response.data);
       setTasksLoading(false);
     }
@@ -253,7 +255,11 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
           title="Tugas"
         />
 
-        {!backendConnected ? (
+        {sourceState === "error" ? (
+          <div className={styles.noticeContainer}>
+            <Alert message={backendMessage ?? "Data tugas belum dapat dimuat. Silakan coba kembali."} title="Data Tugas Belum Dapat Dimuat" variant="danger" />
+          </div>
+        ) : !backendConnected ? (
           <div className={styles.noticeContainer}>
             <Alert
               icon={<AlertCircle size={18} strokeWidth={2} />}
@@ -312,6 +318,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
           getRowKey={(t) => t.id}
           loading={tasksLoading}
           loadingLabel="Memuat daftar tugas…"
+          unavailable={!backendConnected || sourceState === "error"}
           onRowClick={(t) => {
             setSelectedTask(t);
             setDrawerOpen(true);
@@ -332,7 +339,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
         />
 
         <TaskDrawer
-          isConnected={backendConnected}
+          isConnected={backendConnected && sourceState !== "error"}
           onClose={() => {
             setDrawerOpen(false);
             setSelectedTask(null);
@@ -350,7 +357,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
 
   return (
     <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
+      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey, false, session)}
       session={session}
     >
       {innerContent}

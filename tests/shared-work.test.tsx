@@ -126,7 +126,7 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
   });
 
   describe("Source Honesty & Backend Connection Boundary", () => {
-    it("menampilkan status Belum Terhubung dan empty state jujur ketika Backend API belum siap", async () => {
+    it("menampilkan satu state Belum Terhubung tanpa empty state ketika sumber proyek belum tersedia", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
       // Backend returns 404 for /api/v1/projects
       vi.spyOn(api, "authenticatedApiRequest").mockRejectedValueOnce(
@@ -141,8 +141,8 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
 
       expect(screen.getByText("Data Proyek Belum Terhubung")).toBeInTheDocument();
       expect(
-        screen.getByText("Belum ada proyek yang dapat Anda akses."),
-      ).toBeInTheDocument();
+        screen.queryByText("Belum ada proyek yang dapat Anda akses."),
+      ).not.toBeInTheDocument();
       expect(screen.queryByText(/fake|mock|dummy/i)).not.toBeInTheDocument();
     });
 

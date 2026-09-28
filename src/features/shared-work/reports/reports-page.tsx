@@ -54,12 +54,14 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
   const [resultsLoading, setResultsLoading] = useState(true);
   const [resultsConnected, setResultsConnected] = useState(true);
   const [resultsMessage, setResultsMessage] = useState<string | null>(null);
+  const [resultsSourceState, setResultsSourceState] = useState<"available" | "unavailable" | "error">("available");
 
   // Definitions state
   const [reportDefinitions, setReportDefinitions] = useState<readonly WorkReportDefinition[]>([]);
   const [definitionsLoading, setDefinitionsLoading] = useState(true);
   const [definitionsConnected, setDefinitionsConnected] = useState(true);
   const [definitionsMessage, setDefinitionsMessage] = useState<string | null>(null);
+  const [definitionsSourceState, setDefinitionsSourceState] = useState<"available" | "unavailable" | "error">("available");
 
   // Quick view drawer
   const [selectedResult, setSelectedResult] = useState<WorkReportResult | null>(null);
@@ -105,6 +107,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
 
       setResultsConnected(response.connected);
       setResultsMessage(response.message ?? null);
+      setResultsSourceState(response.sourceState ?? (response.connected ? "available" : "unavailable"));
       setReportResults(response.data);
       setResultsLoading(false);
     }
@@ -130,6 +133,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
 
       setDefinitionsConnected(response.connected);
       setDefinitionsMessage(response.message ?? null);
+      setDefinitionsSourceState(response.sourceState ?? (response.connected ? "available" : "unavailable"));
       setReportDefinitions(response.data);
       setDefinitionsLoading(false);
     }
@@ -304,6 +308,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
   const isConnected = isResultsView ? resultsConnected : definitionsConnected;
   const connectionMessage = isResultsView ? resultsMessage : definitionsMessage;
   const isLoading = isResultsView ? resultsLoading : definitionsLoading;
+  const sourceState = isResultsView ? resultsSourceState : definitionsSourceState;
 
   const innerContent = (
     <div className={styles.pageContainer}>
@@ -313,7 +318,15 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
           title="Laporan"
         />
 
-        {!isConnected ? (
+        {sourceState === "error" ? (
+          <div className={styles.noticeContainer}>
+            <Alert
+              message={connectionMessage ?? "Data laporan belum dapat dimuat. Silakan coba kembali."}
+              title="Data Laporan Belum Dapat Dimuat"
+              variant="danger"
+            />
+          </div>
+        ) : !isConnected ? (
           <div className={styles.noticeContainer}>
             <Alert
               icon={<AlertCircle size={18} strokeWidth={2} />}
@@ -350,6 +363,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
             getRowKey={(r) => r.id}
             loading={isLoading}
             loadingLabel="Memuat hasil laporan…"
+            unavailable={!isConnected || sourceState === "error"}
             onRowClick={(row) => {
               setSelectedResult(row);
               setSelectedDefinition(null);
@@ -378,6 +392,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
             getRowKey={(d) => d.id}
             loading={isLoading}
             loadingLabel="Memuat definisi laporan…"
+            unavailable={!isConnected || sourceState === "error"}
             onRowClick={(row) => {
               setSelectedDefinition(row);
               setSelectedResult(null);
@@ -402,7 +417,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
 
         <ReportDrawer
           definition={selectedDefinition}
-          isConnected={isConnected}
+          isConnected={isConnected && sourceState !== "error"}
           onClose={() => {
             setDrawerOpen(false);
             setSelectedResult(null);
@@ -421,7 +436,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
 
   return (
     <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
+      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey, false, session)}
       session={session}
     >
       {innerContent}

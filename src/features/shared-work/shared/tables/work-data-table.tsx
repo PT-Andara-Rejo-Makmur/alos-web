@@ -16,6 +16,8 @@ export interface WorkDataTableProps<Row> {
   readonly onRowClick?: (row: Row) => void;
   readonly rowAction?: (row: Row, index: number) => ReactNode;
   readonly rows: readonly Row[];
+  /** A disconnected source is not an empty result and must not render an empty state. */
+  readonly unavailable?: boolean;
 }
 
 export function WorkDataTable<Row>({
@@ -28,7 +30,10 @@ export function WorkDataTable<Row>({
   onRowClick,
   rowAction,
   rows,
+  unavailable = false,
 }: WorkDataTableProps<Row>) {
+  if (unavailable) return null;
+
   return (
     <div className={[styles.tableWrapper, onRowClick ? styles.clickableTable : ""].filter(Boolean).join(" ")}>
       <DataTable

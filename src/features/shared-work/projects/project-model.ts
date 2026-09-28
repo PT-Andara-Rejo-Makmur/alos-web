@@ -1,5 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
+import { sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkProject } from "./project-types";
 
 export interface FetchProjectsOptions {
@@ -27,14 +28,17 @@ export async function fetchProjects(
       connected: true,
       data: Array.isArray(data) ? data : [],
     };
-  } catch {
+  } catch (error) {
     // Source honesty: If the Backend has not yet exposed the public projects endpoint (e.g. 404/501),
     // report "Belum Terhubung" without creating fake fallback records or crashing.
+    const sourceState = sourceStateFor(error);
     return {
       connected: false,
       data: [],
-      message:
-        "Data proyek belum terhubung. Daftar proyek akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceState === "unavailable"
+        ? "Data proyek belum terhubung. Daftar proyek akan ditampilkan setelah sumber data tersedia."
+        : "Data proyek belum dapat dimuat. Silakan coba kembali.",
     };
   }
 }

@@ -1,5 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
+import { sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkTask } from "./task-types";
 
 export interface FetchTasksOptions {
@@ -29,13 +30,17 @@ export async function fetchTasks(
       connected: true,
       data: Array.isArray(data) ? data : [],
     };
-  } catch {
+  } catch (error) {
     // Source honesty: If the Backend has not yet exposed the public tasks endpoint,
     // report unconnected state with user-facing message and empty data without crashing.
+    const sourceState = sourceStateFor(error);
     return {
       connected: false,
       data: [],
-      message: "Data tugas belum terhubung. Daftar tugas akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceState === "unavailable"
+        ? "Data tugas belum terhubung. Daftar tugas akan ditampilkan setelah sumber data tersedia."
+        : "Data tugas belum dapat dimuat. Silakan coba kembali.",
     };
   }
 }

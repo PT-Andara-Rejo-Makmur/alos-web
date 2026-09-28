@@ -1,5 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
+import { sourceStateFor } from "../shared/source-state";
 import type {
   SourceHonestResponse,
   WorkReportDefinition,
@@ -40,11 +41,15 @@ export async function fetchReportResults(
       connected: true,
       data: Array.isArray(data) ? data : [],
     };
-  } catch {
+  } catch (error) {
+    const sourceState = sourceStateFor(error);
     return {
       connected: false,
       data: [],
-      message: "Data laporan belum terhubung. Hasil laporan akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceState === "unavailable"
+        ? "Data laporan belum terhubung. Hasil laporan akan ditampilkan setelah sumber data tersedia."
+        : "Hasil laporan belum dapat dimuat. Silakan coba kembali.",
     };
   }
 }
@@ -67,11 +72,15 @@ export async function fetchReportDefinitions(
       connected: true,
       data: Array.isArray(data) ? data : [],
     };
-  } catch {
+  } catch (error) {
+    const sourceState = sourceStateFor(error);
     return {
       connected: false,
       data: [],
-      message: "Data laporan belum terhubung. Definisi laporan akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceState === "unavailable"
+        ? "Data laporan belum terhubung. Definisi laporan akan ditampilkan setelah sumber data tersedia."
+        : "Definisi laporan belum dapat dimuat. Silakan coba kembali.",
     };
   }
 }

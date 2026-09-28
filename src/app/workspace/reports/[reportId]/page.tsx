@@ -71,7 +71,7 @@ export default function GlobalReportDetailPageRoute({
 
   return (
     <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, null)}
+      navigationSections={navigationForSession(canOpenExecutive, null, false, session)}
       session={session}
     >
       {report ? (

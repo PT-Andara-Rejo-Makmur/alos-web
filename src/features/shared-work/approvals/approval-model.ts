@@ -1,5 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
+import { sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkApproval } from "./approval-types";
 
 export interface FetchApprovalsOptions {
@@ -29,11 +30,15 @@ export async function fetchApprovals(
       connected: true,
       data: Array.isArray(data) ? data : [],
     };
-  } catch {
+  } catch (error) {
+    const sourceState = sourceStateFor(error);
     return {
       connected: false,
       data: [],
-      message: "Data persetujuan belum terhubung. Daftar persetujuan akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceState === "unavailable"
+        ? "Data persetujuan belum terhubung. Daftar persetujuan akan ditampilkan setelah sumber data tersedia."
+        : "Data persetujuan belum dapat dimuat. Silakan coba kembali.",
     };
   }
 }

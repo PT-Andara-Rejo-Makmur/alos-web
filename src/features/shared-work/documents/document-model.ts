@@ -1,5 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
+import { sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkDocument } from "./document-types";
 
 export interface FetchDocumentsOptions {
@@ -31,11 +32,15 @@ export async function fetchDocuments(
       connected: true,
       data: Array.isArray(data) ? data : [],
     };
-  } catch {
+  } catch (error) {
+    const sourceState = sourceStateFor(error);
     return {
       connected: false,
       data: [],
-      message: "Data dokumen belum terhubung. Daftar dokumen akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceState === "unavailable"
+        ? "Data dokumen belum terhubung. Daftar dokumen akan ditampilkan setelah sumber data tersedia."
+        : "Data dokumen belum dapat dimuat. Silakan coba kembali.",
     };
   }
 }

@@ -341,6 +341,24 @@ describe("Shared Work / FASE D3 sampai D6", () => {
           "Data dokumen belum terhubung. Daftar dokumen akan ditampilkan setelah sumber data tersedia.",
         ),
       ).toBeInTheDocument();
+      expect(screen.queryByText("Belum ada dokumen yang dapat Anda akses.")).not.toBeInTheDocument();
+    });
+
+    it("membedakan kegagalan pemuatan dari sumber dokumen yang belum terhubung", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
+      vi.spyOn(api, "authenticatedApiRequest").mockRejectedValueOnce(
+        new ApiError(500, "Internal Server Error", "corr_500"),
+      );
+
+      render(<DocumentsPage workspaceKey="property" />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Data Dokumen Belum Dapat Dimuat")).toBeInTheDocument();
+      });
+
+      expect(screen.getByText("Data dokumen belum dapat dimuat. Silakan coba kembali.")).toBeInTheDocument();
+      expect(screen.queryByText("Data Dokumen Belum Terhubung")).not.toBeInTheDocument();
+      expect(screen.queryByText("Belum ada dokumen yang dapat Anda akses.")).not.toBeInTheDocument();
     });
 
     it("menjaga versi immutable dan TIDAK ADA tombol 'Edit Versi'", () => {

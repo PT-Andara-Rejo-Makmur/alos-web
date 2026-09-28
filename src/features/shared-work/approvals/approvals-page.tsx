@@ -54,6 +54,7 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
   const [approvalsLoading, setApprovalsLoading] = useState(true);
   const [backendConnected, setBackendConnected] = useState(true);
   const [backendMessage, setBackendMessage] = useState<string | null>(null);
+  const [sourceState, setSourceState] = useState<"available" | "unavailable" | "error">("available");
 
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
@@ -101,6 +102,7 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
 
       setBackendConnected(response.connected);
       setBackendMessage(response.message ?? null);
+      setSourceState(response.sourceState ?? (response.connected ? "available" : "unavailable"));
       setApprovals(response.data);
       setApprovalsLoading(false);
     }
@@ -260,7 +262,11 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
           title="Persetujuan"
         />
 
-        {!backendConnected ? (
+        {sourceState === "error" ? (
+          <div className={styles.noticeContainer}>
+            <Alert message={backendMessage ?? "Data persetujuan belum dapat dimuat. Silakan coba kembali."} title="Data Persetujuan Belum Dapat Dimuat" variant="danger" />
+          </div>
+        ) : !backendConnected ? (
           <div className={styles.noticeContainer}>
             <Alert
               icon={<AlertCircle size={18} strokeWidth={2} />}
@@ -305,6 +311,7 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
           getRowKey={(a) => a.id}
           loading={approvalsLoading}
           loadingLabel="Memuat daftar persetujuan…"
+          unavailable={!backendConnected || sourceState === "error"}
           onRowClick={(a) => {
             setSelectedApproval(a);
             setDrawerOpen(true);
@@ -326,7 +333,7 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
 
         <ApprovalDrawer
           approval={selectedApproval}
-          isConnected={backendConnected}
+          isConnected={backendConnected && sourceState !== "error"}
           onClose={() => {
             setDrawerOpen(false);
             setSelectedApproval(null);
@@ -343,7 +350,7 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
 
   return (
     <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
+      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey, false, session)}
       session={session}
     >
       {innerContent}

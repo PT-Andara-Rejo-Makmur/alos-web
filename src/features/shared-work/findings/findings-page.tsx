@@ -50,6 +50,7 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
   const [findingsLoading, setFindingsLoading] = useState(true);
   const [backendConnected, setBackendConnected] = useState(true);
   const [backendMessage, setBackendMessage] = useState<string | null>(null);
+  const [sourceState, setSourceState] = useState<"available" | "unavailable" | "error">("available");
 
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
@@ -97,6 +98,7 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
 
       setBackendConnected(response.connected);
       setBackendMessage(response.message ?? null);
+      setSourceState(response.sourceState ?? (response.connected ? "available" : "unavailable"));
       setFindings(response.data);
       setFindingsLoading(false);
     }
@@ -248,7 +250,11 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
           title="Temuan"
         />
 
-        {!backendConnected ? (
+        {sourceState === "error" ? (
+          <div className={styles.noticeContainer}>
+            <Alert message={backendMessage ?? "Data temuan belum dapat dimuat. Silakan coba kembali."} title="Data Temuan Belum Dapat Dimuat" variant="danger" />
+          </div>
+        ) : !backendConnected ? (
           <div className={styles.noticeContainer}>
             <Alert
               icon={<AlertCircle size={18} strokeWidth={2} />}
@@ -295,6 +301,7 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
           getRowKey={(f) => f.id}
           loading={findingsLoading}
           loadingLabel="Memuat daftar temuan…"
+          unavailable={!backendConnected || sourceState === "error"}
           onRowClick={(f) => {
             setSelectedFinding(f);
             setDrawerOpen(true);
@@ -316,7 +323,7 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
 
         <FindingDrawer
           finding={selectedFinding}
-          isConnected={backendConnected}
+          isConnected={backendConnected && sourceState !== "error"}
           onClose={() => {
             setDrawerOpen(false);
             setSelectedFinding(null);
@@ -333,7 +340,7 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
 
   return (
     <AppShell
-      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey)}
+      navigationSections={navigationForSession(canOpenExecutive, effectiveWorkspaceKey, false, session)}
       session={session}
     >
       {innerContent}

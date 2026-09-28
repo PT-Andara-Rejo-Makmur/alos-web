@@ -1,5 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
+import { sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkFinding } from "./finding-types";
 
 export interface FetchFindingsOptions {
@@ -33,11 +34,15 @@ export async function fetchFindings(
       connected: true,
       data: Array.isArray(data) ? data : [],
     };
-  } catch {
+  } catch (error) {
+    const sourceState = sourceStateFor(error);
     return {
       connected: false,
       data: [],
-      message: "Data temuan belum terhubung. Daftar temuan akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceState === "unavailable"
+        ? "Data temuan belum terhubung. Daftar temuan akan ditampilkan setelah sumber data tersedia."
+        : "Data temuan belum dapat dimuat. Silakan coba kembali.",
     };
   }
 }
