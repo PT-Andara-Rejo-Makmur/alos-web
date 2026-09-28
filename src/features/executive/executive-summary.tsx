@@ -127,7 +127,7 @@ function CorporateTargetTable({ targets }: Readonly<{ targets: readonly Business
       { header: "Capaian", key: "achievement", render: () => "—" },
       { header: "Status", key: "performance", render: (target: BusinessTarget) => <Status label={performanceLabel(target.performance_state)} variant={performanceVariant(target.performance_state)} /> },
       { header: "Verifikasi", key: "verification", render: (target: BusinessTarget) => verificationLabel(observationFor(target, "ACTUAL")?.verification_state) },
-      { header: "Owner", key: "owner", render: (target: BusinessTarget) => target.owner_role_ref || "—" },
+      { header: "Penanggung Jawab", key: "owner", render: (target: BusinessTarget) => target.owner_role_ref || "—" },
     ]}
     getRowKey={(target) => `${target.target_id}-${target.version}`}
     rowAction={(target) => <Link className={styles.detailLink} href={`/workspace/executive/performance?target=${encodeURIComponent(target.target_id)}`}>Lihat Detail</Link>}

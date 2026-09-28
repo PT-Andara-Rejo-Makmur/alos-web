@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 
-import { Button, DataTable, Drawer, PageHeader, Section, Status } from "@/components/ui";
+import { Button, DataTable, Drawer, EmptyState, PageHeader, Section, Status } from "@/components/ui";
 
 import { ExecutiveLayout } from "./executive-layout";
 import styles from "./executive.module.css";
 
-interface StrategicInitiative {
+export interface StrategicInitiative {
   readonly id: string;
   readonly name: string;
   readonly description?: string | null;
@@ -21,44 +21,19 @@ interface StrategicInitiative {
   readonly evidenceRef?: string | null;
 }
 
-const readinessInitiatives: readonly StrategicInitiative[] = [
-  {
-    id: "init_1",
-    name: "Akselerasi Penjualan Unit Residensial",
-    description: "Inisiatif strategis untuk mempercepat penyerapan inventaris perumahan tahap 2.",
-    relatedTargetName: "Target Penjualan Tahunan",
-    ownerRole: "EXECUTIVE",
-    workspace: "Pusat Kendali",
-    lifecycleState: "ACTIVE",
-    relatedProject: "Kampanye Promo Q2",
-    progress: "—",
-    sourceRef: "SK Direksi No. 04/2026",
-    evidenceRef: null,
-  },
-  {
-    id: "init_2",
-    name: "Efisiensi Biaya Operasional dan Pengadaan",
-    description: "Program perbaikan margin melalui konsolidasi vendor material dan digitalisasi PO.",
-    relatedTargetName: "Margin Operasional Bersih",
-    ownerRole: "EXECUTIVE",
-    workspace: "Pusat Kendali",
-    lifecycleState: "UNDER_REVIEW",
-    relatedProject: null,
-    progress: "—",
-    sourceRef: null,
-    evidenceRef: null,
-  },
-];
-
-export function ExecutiveInitiativesPage() {
+export function ExecutiveInitiativesPage({
+  initiatives = [],
+}: Readonly<{ initiatives?: readonly StrategicInitiative[] }> = {}) {
   return (
     <ExecutiveLayout>
-      {() => <InitiativesContent />}
+      {() => <InitiativesContent initiatives={initiatives} />}
     </ExecutiveLayout>
   );
 }
 
-function InitiativesContent() {
+function InitiativesContent({
+  initiatives = [],
+}: Readonly<{ initiatives?: readonly StrategicInitiative[] }>) {
   const [selectedInitiative, setSelectedInitiative] = useState<StrategicInitiative | null>(null);
 
   return (
@@ -73,41 +48,48 @@ function InitiativesContent() {
         description="Daftar inisiatif prioritas korporasi yang terhubung dengan target kinerja."
         title="Inisiatif Prioritas"
       >
-        <DataTable
-          caption="Inisiatif strategis korporasi"
-          columns={[
-            { header: "Nama Inisiatif", key: "name", render: (item) => item.name },
-            { header: "Target Terkait", key: "target", render: (item) => item.relatedTargetName },
-            { header: "Penanggung Jawab", key: "owner", render: (item) => item.ownerRole },
-            {
-              header: "Status",
-              key: "status",
-              render: (item) => (
-                <Status
-                  label={lifecycleLabel(item.lifecycleState)}
-                  variant={item.lifecycleState === "ACTIVE" ? "success" : "neutral"}
-                />
-              ),
-            },
-            {
-              header: "Proyek Terkait",
-              key: "project",
-              render: (item) => item.relatedProject ?? "—",
-            },
-            {
-              header: "Progres",
-              key: "progress",
-              render: (item) => item.progress ?? "—",
-            },
-          ]}
-          getRowKey={(item) => item.id}
-          rowAction={(item) => (
-            <Button onClick={() => setSelectedInitiative(item)} size="sm" variant="ghost">
-              Lihat Detail
-            </Button>
-          )}
-          rows={readinessInitiatives}
-        />
+        {initiatives.length > 0 ? (
+          <DataTable
+            caption="Inisiatif strategis korporasi"
+            columns={[
+              { header: "Nama Inisiatif", key: "name", render: (item) => item.name },
+              { header: "Target Terkait", key: "target", render: (item) => item.relatedTargetName },
+              { header: "Penanggung Jawab", key: "owner", render: (item) => item.ownerRole },
+              {
+                header: "Status",
+                key: "status",
+                render: (item) => (
+                  <Status
+                    label={lifecycleLabel(item.lifecycleState)}
+                    variant={item.lifecycleState === "ACTIVE" ? "success" : "neutral"}
+                  />
+                ),
+              },
+              {
+                header: "Proyek Terkait",
+                key: "project",
+                render: (item) => item.relatedProject ?? "—",
+              },
+              {
+                header: "Progres",
+                key: "progress",
+                render: (item) => item.progress ?? "—",
+              },
+            ]}
+            getRowKey={(item) => item.id}
+            rowAction={(item) => (
+              <Button onClick={() => setSelectedInitiative(item)} size="sm" variant="ghost">
+                Lihat Detail
+              </Button>
+            )}
+            rows={initiatives}
+          />
+        ) : (
+          <EmptyState
+            description="Data inisiatif strategis belum terhubung. Inisiatif akan tampil setelah modul pelaksanaan dan kontrak integrasi aktif."
+            title="Belum ada inisiatif yang dapat ditampilkan."
+          />
+        )}
       </Section>
 
       <Section title="Kesiapan Data Pelaksanaan">

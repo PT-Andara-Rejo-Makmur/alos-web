@@ -6,5 +6,12 @@ export { ExecutiveInitiativesPage } from "./executive-initiatives";
 export { ExecutivePerformancePage } from "./executive-performance";
 export { ExecutivePlanningPage } from "./executive-planning";
 export { ExecutiveReviewsPage } from "./executive-reviews";
-export { hasExecutiveContext } from "./executive-model";
+export {
+  hasExecutiveContext,
+  generateCanonicalId,
+  valueForObservation,
+  formatValue,
+  performanceLabel,
+  performanceVariant,
+} from "./executive-model";
 export type { ExecutiveStrategyData } from "./executive-model";

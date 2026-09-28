@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { Alert, Button, DataTable, LoadingState, PageHeader, Section, Status, Tabs, type TabItem } from "@/components/ui";
+import { Alert, Button, DataTable, EmptyState, LoadingState, PageHeader, Section, Status, Tabs, type TabItem } from "@/components/ui";
 import type { BusinessTarget } from "@/lib/contracts";
 import { strategyApi } from "@/modules/strategy";
 
@@ -11,16 +11,13 @@ import { ExecutiveLayout } from "./executive-layout";
 import { useExecutiveStrategyData } from "./executive-data";
 import {
   corporateTargets,
-  formatValue,
-  observationFor,
   performanceLabel,
   performanceVariant,
   periodLabel,
-  valueForObservation,
 } from "./executive-model";
 import styles from "./executive.module.css";
 
-interface PerformanceReviewItem {
+export interface PerformanceReviewItem {
   readonly id: string;
   readonly periodLabel: string;
   readonly targetName: string;
@@ -33,15 +30,19 @@ interface PerformanceReviewItem {
   readonly evidenceRef: string | null;
 }
 
-export function ExecutiveReviewsPage() {
+export interface ExecutiveReviewsProps {
+  readonly initialReviewItems?: readonly PerformanceReviewItem[];
+}
+
+export function ExecutiveReviewsPage({ initialReviewItems }: ExecutiveReviewsProps = {}) {
   return (
     <ExecutiveLayout>
-      {() => <ReviewsContent />}
+      {() => <ReviewsContent initialReviewItems={initialReviewItems} />}
     </ExecutiveLayout>
   );
 }
 
-function ReviewsContent() {
+function ReviewsContent({ initialReviewItems }: ExecutiveReviewsProps) {
   const { data, error, loading } = useExecutiveStrategyData();
   const [tab, setTab] = useState("performance");
 
@@ -54,7 +55,6 @@ function ReviewsContent() {
 
   const targets = corporateTargets(data?.targets ?? []);
   const authorizedActions = data?.authority?.authorized_actions ?? [];
-  const canMutate = authorizedActions.includes("CREATE_COMPANY_PLAN");
 
   // Form state for Revisi Target
   const [selectedTargetId, setSelectedTargetId] = useState(targets[0]?.target_id ?? "");
@@ -63,27 +63,16 @@ function ReviewsContent() {
   const [revisionFeedback, setRevisionFeedback] = useState<string | null>(null);
 
   const selectedTarget = targets.find((t) => t.target_id === selectedTargetId);
+  const canRevise = Boolean(
+    selectedTarget &&
+    (selectedTarget.scope.type === "COMPANY"
+      ? authorizedActions.includes("CREATE_COMPANY_PLAN")
+      : authorizedActions.includes("CREATE_DIVISION_PLAN"))
+  );
 
-  // Synthesize review items from actual targets
-  const reviewItems: readonly PerformanceReviewItem[] = targets.map((t) => {
-    const act = observationFor(t, "ACTUAL");
-    const fct = observationFor(t, "FORECAST");
-    return {
-      id: `rev_${t.target_id}`,
-      periodLabel: periodLabel(t.period),
-      targetName: t.name,
-      actualValue: valueForObservation(act, formatValue),
-      forecastValue: valueForObservation(fct, formatValue),
-      performanceState: t.performance_state ?? "ON_TRACK",
-      findingsCount: t.performance_state === "AT_RISK" ? 1 : 0,
-      reviewComment:
-        t.performance_state === "AT_RISK"
-          ? "Deviasi dari rencana awal memerlukan mitigasi penyesuaian belanja dan strategi pemasaran."
-          : "Kinerja berjalan selaras dengan proyeksi periode berjalan.",
-      owner: t.owner_role_ref || "EXECUTIVE",
-      evidenceRef: t.evidence_refs[0] ?? null,
-    };
-  });
+  // Source-honest review items: only use authoritative items passed from caller or canonical source.
+  // In production runtime without canonical review source, this remains empty.
+  const reviewItems: readonly PerformanceReviewItem[] = initialReviewItems ?? [];
 
   async function handleRevisionSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -96,8 +85,8 @@ function ReviewsContent() {
       return;
     }
 
-    if (!canMutate) {
-      setRevisionFeedback("Pengajuan revisi memerlukan kewenangan yang berlaku.");
+    if (!canRevise) {
+      setRevisionFeedback("Anda belum memiliki kewenangan untuk melakukan tindakan ini.");
       return;
     }
 
@@ -129,7 +118,7 @@ function ReviewsContent() {
       {/* Tab 1: Review Kinerja */}
       {!loading && tab === "performance" ? (
         <Section
-          description="Evaluasi berkala terhadap target strategis, kesenjangan capaian, dan komentar telaah direksi."
+          description="Evaluasi berkala terhadap target strategis, kesenjangan capaian, dan telaah resmi pimpinan."
           title="Review Kinerja Eksekutif"
         >
           <DataTable
@@ -152,16 +141,22 @@ function ReviewsContent() {
               {
                 header: "Temuan",
                 key: "findings",
-                render: (r) => (r.findingsCount > 0 ? `${r.findingsCount} Perhatian` : "Nihil"),
+                render: (r) => (r.findingsCount > 0 ? `${r.findingsCount} Perhatian` : "Belum Tersedia"),
               },
               { header: "Komentar Review", key: "comment", render: (r) => r.reviewComment },
-              { header: "Penanggung Jawab", key: "owner", render: (r) => r.owner },
+              { header: "Penanggung Jawab", key: "owner", render: (r) => r.owner || "—" },
               {
                 header: "Bukti",
                 key: "evidence",
                 render: (r) => (r.evidenceRef ? "Bukti Terlampir" : "—"),
               },
             ]}
+            emptyState={
+              <EmptyState
+                description="Data evaluasi berkala dan telaah kinerja belum diterbitkan oleh sistem tata kelola strategi."
+                title="Review kinerja belum tersedia."
+              />
+            }
             getRowKey={(r) => r.id}
             rows={reviewItems}
           />
@@ -191,7 +186,7 @@ function ReviewsContent() {
         </Section>
       ) : null}
 
-      {/* Tab 3: Revisi Target (Blocker 11 Flow) */}
+      {/* Tab 3: Revisi Target */}
       {tab === "revision" ? (
         <Section
           description="Pengajuan revisi target menciptakan draf versi baru secara bertahap tanpa menimpa target aktif."
@@ -222,11 +217,15 @@ function ReviewsContent() {
                     required
                     value={selectedTargetId}
                   >
-                    {targets.map((t) => (
-                      <option key={t.target_id} value={t.target_id}>
-                        {t.name} ({t.code}) · v{t.version} · {periodLabel(t.period)}
-                      </option>
-                    ))}
+                    {targets.length === 0 ? (
+                      <option value="">Belum ada target aktif untuk direvisi</option>
+                    ) : (
+                      targets.map((t) => (
+                        <option key={t.target_id} value={t.target_id}>
+                          {t.name} ({t.code}) · v{t.version} · {periodLabel(t.period)}
+                        </option>
+                      ))
+                    )}
                   </select>
                   {selectedTarget ? (
                     <p style={{ margin: "var(--alos-space-1) 0 0", fontSize: "12px", color: "var(--alos-text-secondary)" }}>
@@ -250,13 +249,19 @@ function ReviewsContent() {
               </div>
 
               <div className={styles.formActions}>
-                <Button
-                  disabled={!selectedTargetId || !revisionReason.trim() || submittingRevision}
-                  type="submit"
-                  variant="primary"
-                >
-                  {submittingRevision ? "Mengirimkan Pengajuan…" : "Ajukan Revisi Target"}
-                </Button>
+                {canRevise ? (
+                  <Button
+                    disabled={!selectedTargetId || !revisionReason.trim() || submittingRevision}
+                    type="submit"
+                    variant="primary"
+                  >
+                    {submittingRevision ? "Mengirimkan Pengajuan…" : "Ajukan Revisi Target"}
+                  </Button>
+                ) : (
+                  <div className={styles.briefNotice}>
+                    Anda belum memiliki kewenangan untuk melakukan tindakan ini.
+                  </div>
+                )}
               </div>
             </form>
           </div>

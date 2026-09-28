@@ -45,6 +45,9 @@ function ExecutiveBriefContent({ session }: BriefProps) {
 
   const onTrackCount = targets.filter((t) => t.performance_state === "ON_TRACK" || t.performance_state === "ACHIEVED").length;
   const atRiskCount = targets.filter((t) => t.performance_state === "AT_RISK" || t.performance_state === "OFF_TRACK").length;
+  const unassessedCount = targets.filter(
+    (t) => !t.performance_state || !["ON_TRACK", "ACHIEVED", "AT_RISK", "OFF_TRACK"].includes(t.performance_state),
+  ).length;
 
   return (
     <div className={styles.page}>
@@ -70,7 +73,7 @@ function ExecutiveBriefContent({ session }: BriefProps) {
           {currentPlan ? (
             <p className={styles.briefTimelineText}>
               Perusahaan beroperasi mengacu pada <strong>{currentPlan.name}</strong> ({periodLabel(currentPlan.period)}).
-              Dari {targets.length} sasaran perusahaan terpantau: {onTrackCount} sesuai target, {atRiskCount} perlu perhatian khusus.
+              Dari {targets.length} sasaran perusahaan terpantau: {onTrackCount} sesuai target, {atRiskCount} perlu perhatian khusus{unassessedCount > 0 ? `, ${unassessedCount} belum dinilai` : ""}.
             </p>
           ) : (
             <div className={styles.inlineReadiness}>
@@ -135,8 +138,8 @@ function ExecutiveBriefContent({ session }: BriefProps) {
             </ul>
           ) : (
             <div className={styles.inlineReadiness}>
-              <Status label="Nihil" variant="neutral" />
-              <span>Tidak ada temuan kritis atau target yang memerlukan intervensi darurat saat ini.</span>
+              <Status label="Belum Tersedia" variant="neutral" />
+              <span>Data temuan belum tersedia. Tidak ada target korporasi yang terindikasi berisiko dari data rencana saat ini.</span>
             </div>
           )}
         </section>
@@ -158,17 +161,9 @@ function ExecutiveBriefContent({ session }: BriefProps) {
           <div className={styles.briefHeader}>
             <h2 id="brief-deadlines">F. Agenda & Tenggat</h2>
           </div>
-          <div className={styles.briefTimeline}>
-            <div className={styles.briefTimelineItem}>
-              <span className={styles.briefTimelineDate}>Akhir Periode Berjalan</span>
-              <p className={styles.briefTimelineText}>
-                {currentPlan ? `Batas evaluasi capaian periode ${periodLabel(currentPlan.period)}` : "Tenggat periode evaluasi rencana."}
-              </p>
-            </div>
-            <div className={styles.briefTimelineItem}>
-              <span className={styles.briefTimelineDate}>Pelaporan Triwulan</span>
-              <p className={styles.briefTimelineText}>Sinkronisasi dan telaah kinerja antar direktorat.</p>
-            </div>
+          <div className={styles.inlineReadiness}>
+            <Status label="Belum Tersedia" variant="neutral" />
+            <span>Agenda dan tenggat belum terhubung.</span>
           </div>
         </section>
 

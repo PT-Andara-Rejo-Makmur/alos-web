@@ -93,3 +93,10 @@ export function periodLabel(period: StrategyPlan["period"] | BusinessTarget["per
   const formatter = new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" });
   return `${formatter.format(new Date(period.starts_at))} – ${formatter.format(new Date(period.ends_at))}`;
 }
+
+export function generateCanonicalId(prefix: string): string {
+  const uuid = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : "00000000-0000-4000-8000-000000000000";
+  return `${prefix}-${uuid}`;
+}

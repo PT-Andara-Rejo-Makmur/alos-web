@@ -25,6 +25,7 @@ import { useExecutiveStrategyData } from "./executive-data";
 import {
   corporateTargets,
   formatValue,
+  generateCanonicalId,
   observationFor,
   performanceLabel,
   performanceVariant,
@@ -309,7 +310,7 @@ function TargetPerformanceDetail({
             {
               header: "Nilai",
               key: "value",
-              render: (obs) => formatValue(obs.value ?? 0, obs.unit),
+              render: (obs) => (obs.value === null || obs.value === undefined ? "—" : formatValue(obs.value, obs.unit)),
             },
             { header: "Satuan", key: "unit", render: (obs) => obs.unit },
             {
@@ -410,15 +411,15 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
     }
 
     if (!canSubmit) {
-      setFeedback("Pencatatan observasi memerlukan kewenangan yang berlaku.");
+      setFeedback("Anda belum memiliki kewenangan untuk melakukan tindakan ini.");
       return;
     }
 
     setSubmitting(true);
     setFeedback(null);
     try {
-      const generatedObservationId = `obs_${target.target_id}_${Date.now()}`;
-      // Canonical rule: Never immediately VERIFIED. Must default to UNVERIFIED or PENDING_VERIFICATION.
+      const generatedObservationId = generateCanonicalId("obs");
+      // Initial verification state: Never immediately VERIFIED. Must default to UNVERIFIED or PENDING_VERIFICATION.
       const initialVerificationState = "PENDING_VERIFICATION";
 
       await strategyApi.createObservation(target.target_id, {
@@ -445,7 +446,7 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
 
   return (
     <Drawer
-      description={`Formulir canonical untuk mencatat data ${isActual ? "aktual pencapaian" : "proyeksi perkiraan"} kinerja target.`}
+      description={`Formulir untuk mencatat data ${isActual ? "aktual pencapaian" : "proyeksi perkiraan"} kinerja target.`}
       onClose={onClose}
       open
       title={title}
@@ -453,7 +454,7 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
       <form onSubmit={handleSubmit}>
         {!canSubmit ? (
           <div className={styles.briefNotice}>
-            Kewenangan mutasi data belum aktif. Formulir berjalan dalam mode pratinjau kebutuhan.
+            Anda belum memiliki kewenangan untuk mencatat observasi target ini. Formulir berjalan dalam mode pratinjau kebutuhan.
           </div>
         ) : null}
         {feedback ? <Alert message={feedback} title="Perhatian" variant="warning" /> : null}
@@ -518,9 +519,15 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
 
         <div className={styles.formActions}>
           <Button onClick={onClose} type="button" variant="ghost">Batal</Button>
-          <Button disabled={!canSubmit || submitting} type="submit" variant="primary">
-            {submitting ? "Menyimpan…" : `Simpan ${isActual ? "Aktual" : "Perkiraan"}`}
-          </Button>
+          {canSubmit ? (
+            <Button disabled={submitting} type="submit" variant="primary">
+              {submitting ? "Menyimpan…" : `Simpan ${isActual ? "Aktual" : "Perkiraan"}`}
+            </Button>
+          ) : (
+            <div className={styles.briefNotice}>
+              Anda belum memiliki kewenangan untuk melakukan tindakan ini.
+            </div>
+          )}
         </div>
       </form>
     </Drawer>
@@ -550,7 +557,7 @@ function TargetRevisionDrawer({ target, canSubmit, onClose }: TargetRevisionDraw
     }
 
     if (!canSubmit) {
-      setFeedback("Pengajuan revisi memerlukan kewenangan yang berlaku.");
+      setFeedback("Anda belum memiliki kewenangan untuk melakukan tindakan ini.");
       return;
     }
 
@@ -575,7 +582,7 @@ function TargetRevisionDrawer({ target, canSubmit, onClose }: TargetRevisionDraw
     >
       <form onSubmit={handleRevisionSubmit}>
         <div className={styles.briefNotice} style={{ marginBottom: "var(--alos-space-4)" }}>
-          Siklus: Target Aktif → Ajukan Revisi → Alasan Revisi → Draf Versi Baru → Review → Approval → Aktif. Versi aktif tetap terlindungi.
+          Siklus: Target Aktif → Ajukan Revisi → Alasan Revisi → Draf Versi Baru → Review → Persetujuan → Aktif. Versi aktif tetap terlindungi.
         </div>
         {feedback ? <Alert message={feedback} title="Perhatian" variant="warning" /> : null}
 
@@ -601,9 +608,15 @@ function TargetRevisionDrawer({ target, canSubmit, onClose }: TargetRevisionDraw
 
         <div className={styles.formActions}>
           <Button onClick={onClose} type="button" variant="ghost">Batal</Button>
-          <Button disabled={!canSubmit || submitting} type="submit" variant="primary">
-            {submitting ? "Mengajukan…" : "Kirim Pengajuan Revisi"}
-          </Button>
+          {canSubmit ? (
+            <Button disabled={submitting} type="submit" variant="primary">
+              {submitting ? "Mengajukan…" : "Kirim Pengajuan Revisi"}
+            </Button>
+          ) : (
+            <div className={styles.briefNotice}>
+              Anda belum memiliki kewenangan untuk melakukan tindakan ini.
+            </div>
+          )}
         </div>
       </form>
     </Drawer>
