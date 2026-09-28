@@ -3,12 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 import { Avatar } from "@/components/ui";
 
 import type { AppNavigationSection, AppShellProfile } from "./app-shell";
 import styles from "./app-shell.module.css";
+
+const navigationScrollKey = "alos.app-shell.navigation-scroll";
 
 interface AppSidebarProps {
   readonly collapsed?: boolean;
@@ -33,6 +36,26 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const pathname = usePathname() ?? "";
   const visuallyCollapsed = collapsed && !mobile;
+  const navigationRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const navigation = navigationRef.current;
+    if (!navigation || mobile) return;
+
+    const savedPosition = window.sessionStorage.getItem(navigationScrollKey);
+    if (savedPosition === null) return;
+
+    const restore = window.requestAnimationFrame(() => {
+      navigation.scrollTop = Number.parseInt(savedPosition, 10) || 0;
+    });
+    return () => window.cancelAnimationFrame(restore);
+  }, [mobile]);
+
+  function saveNavigationScroll() {
+    if (!mobile && navigationRef.current) {
+      window.sessionStorage.setItem(navigationScrollKey, String(navigationRef.current.scrollTop));
+    }
+  }
 
   return (
     <aside
@@ -72,7 +95,7 @@ export function AppSidebar({
         </div>
       </div>
 
-      <nav aria-label="Menu aplikasi" className={styles.navigation}>
+      <nav aria-label="Menu aplikasi" className={styles.navigation} onScroll={saveNavigationScroll} ref={navigationRef}>
         {navigationSections.map((section) => (
           <div className={styles.navigationSection} key={section.label}>
             <p className={styles.sectionLabel}>{section.label}</p>

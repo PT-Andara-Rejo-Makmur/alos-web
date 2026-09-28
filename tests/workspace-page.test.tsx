@@ -43,6 +43,7 @@ function authenticatedSession(principal = makePrincipal()) {
 describe("WorkspacePage and ALOS App Shell", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -110,6 +111,21 @@ describe("WorkspacePage and ALOS App Shell", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Buka sidebar" }));
     expect(screen.getByRole("button", { name: "Tutup sidebar" })).toBeInTheDocument();
+  });
+
+  it("memulihkan posisi scroll navigasi setelah App Shell dimuat kembali", async () => {
+    const session = authenticatedSession();
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(session);
+
+    const firstRender = render(<WorkspacePage />);
+    const firstNavigation = await screen.findByRole("navigation", { name: "Menu aplikasi" });
+    Object.defineProperty(firstNavigation, "scrollTop", { configurable: true, value: 184, writable: true });
+    fireEvent.scroll(firstNavigation);
+    firstRender.unmount();
+
+    render(<WorkspacePage />);
+    const restoredNavigation = await screen.findByRole("navigation", { name: "Menu aplikasi" });
+    await waitFor(() => expect(restoredNavigation.scrollTop).toBe(184));
   });
 
   it("menampilkan status netral ketika Backend belum memilih workspace", async () => {
