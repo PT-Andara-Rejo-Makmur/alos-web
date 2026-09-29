@@ -486,7 +486,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
 
     render(<ExecutivePlanningPage />);
     fireEvent.click(await screen.findByRole("tab", { name: "Cascade" }));
-    fireEvent.click(screen.getByRole("button", { name: "Jalankan Pratinjau Cascade" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Jalankan Pratinjau Cascade" }));
 
     expect(await screen.findByText("Identitas organisasi belum tersedia. Pratinjau cascade belum dapat dijalankan.")).toBeInTheDocument();
     expect(previewSpy).not.toHaveBeenCalled();
@@ -503,7 +503,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
 
     render(<ExecutivePlanningPage />);
     fireEvent.click(await screen.findByRole("tab", { name: "Cascade" }));
-    fireEvent.click(screen.getByRole("button", { name: "Jalankan Pratinjau Cascade" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Jalankan Pratinjau Cascade" }));
 
     expect(await screen.findByText("Identitas organisasi belum tersedia. Pratinjau cascade belum dapat dijalankan.")).toBeInTheDocument();
     expect(previewSpy).not.toHaveBeenCalled();
