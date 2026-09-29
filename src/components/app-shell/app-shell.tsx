@@ -99,7 +99,7 @@ export function workspaceDestination(pathname: string, workspace: WorkspaceAcces
 
   if (canKeepSection) return `/workspace/${workspaceKey}${suffix}`;
 
-  const landing = domain === "EXECUTIVE" || domain === "SALES" ? "summary" : "projects";
+  const landing = domain === "EXECUTIVE" || domain === "SALES" || domain === "HR_GA" ? "summary" : "projects";
   return `/workspace/${workspaceKey}/${landing}`;
 }
 

@@ -17,6 +17,8 @@ import { propertyNavigation } from "@/features/property/navigation";
 import { salesNavigation } from "@/features/sales/navigation";
 import { financeNavigation } from "@/features/finance/navigation";
 import { legalNavigation } from "@/features/legal/navigation";
+import { hrNavigation } from "@/features/hr/navigation";
+import { hasGaScope } from "@/features/hr/hr-model";
 import type { SessionProjection } from "@/features/session";
 import { resolveWorkspaceDomain } from "@/features/session";
 
@@ -54,6 +56,9 @@ export function navigationForSession(
     }
     if (resolution.domain === "LEGAL") {
       return legalNavigation(resolution.activeWorkspaceKey!);
+    }
+    if (resolution.domain === "HR_GA") {
+      return hrNavigation(resolution.activeWorkspaceKey!, hasGaScope(session));
     }
   }
 
