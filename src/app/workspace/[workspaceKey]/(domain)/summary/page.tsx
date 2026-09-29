@@ -8,6 +8,7 @@ import { resolveWorkspaceDomain, type WorkspaceDomainResolution } from "@/featur
 import { ExecutiveSummaryPage } from "@/features/executive";
 import { SalesSummaryPage } from "@/features/sales";
 import { PropertySummaryPage } from "@/features/property";
+import { FinanceSummaryPage } from "@/features/finance";
 import styles from "@/features/sales/sales.module.css";
 
 export default function WorkspaceSummaryPageRoute({
@@ -65,6 +66,10 @@ export default function WorkspaceSummaryPageRoute({
 
   if (resolution?.valid && resolution.domain === "PROPERTY") {
     return <PropertySummaryPage workspaceKey={workspaceKey} />;
+  }
+
+  if (resolution?.valid && resolution.domain === "FINANCE") {
+    return <FinanceSummaryPage workspaceKey={workspaceKey} />;
   }
 
   return (
