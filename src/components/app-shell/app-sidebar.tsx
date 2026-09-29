@@ -9,7 +9,6 @@ import { usePathname } from "next/navigation";
 import { Avatar } from "@/components/ui";
 
 import type { AppNavigationSection, AppShellProfile } from "./app-shell";
-import { GlobalUserNavigation } from "./global-user-navigation";
 import styles from "./app-shell.module.css";
 
 const navigationScrollKey = "alos.app-shell.navigation-scroll";
@@ -120,7 +119,6 @@ export function AppSidebar({
             })}
           </div>
         ))}
-        <GlobalUserNavigation collapsed={visuallyCollapsed} onNavigate={onNavigate} />
       </nav>
 
       <div className={styles.sidebarFooter}>

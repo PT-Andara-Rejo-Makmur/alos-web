@@ -4,9 +4,9 @@ import { House, type LucideIcon } from "lucide-react";
 import { useCallback, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
-import { endCurrentSession, selectActiveWorkspace, type SessionProjection, workspaceDomainFromMetadata } from "@/features/session";
+import { selectActiveWorkspace, type SessionProjection, workspaceDomainFromMetadata } from "@/features/session";
 import type { WorkspaceAccessProjection } from "@/lib/contracts";
-import { ApiError } from "@/lib/api";
+import { ApiError, sessionApiRequest } from "@/lib/api";
 
 import { AppSidebar } from "./app-sidebar";
 import { AppTopbar } from "./app-topbar";
@@ -87,9 +87,7 @@ export function getAppShellProfile(session: SessionProjection): AppShellProfile 
 
 const sharedWorkSections = new Set(["projects", "tasks", "approvals", "documents", "reports", "findings"]);
 
-export function workspaceDestination(pathname: string, workspace: WorkspaceAccessProjection, preservePathOnWorkspaceSwitch = false): string {
-  if (preservePathOnWorkspaceSwitch) return pathname;
-
+export function workspaceDestination(pathname: string, workspace: WorkspaceAccessProjection): string {
   const workspaceKey = encodeURIComponent(workspace.workspace.workspace_key);
   const match = pathname.match(/^\/workspace\/[^/]+(\/.*)?$/);
   const suffix = match?.[1] ?? "";
@@ -118,14 +116,10 @@ function getWorkspaceSwitchError(error: unknown): string {
 export function AppShell({
   children,
   navigationSections = defaultNavigation,
-  onWorkspaceSwitchComplete,
-  preservePathOnWorkspaceSwitch = false,
   session,
 }: Readonly<{
   children: ReactNode;
   navigationSections?: readonly AppNavigationSection[];
-  onWorkspaceSwitchComplete?: () => void;
-  preservePathOnWorkspaceSwitch?: boolean;
   session: SessionProjection;
 }>) {
   const router = useRouter();
@@ -141,7 +135,7 @@ export function AppShell({
     if (loggingOut) return;
     setLoggingOut(true);
     try {
-      await endCurrentSession();
+      await sessionApiRequest("/", { method: "DELETE" });
     } finally {
       router.replace("/login");
       router.refresh?.();
@@ -151,7 +145,7 @@ export function AppShell({
   const switchWorkspace = useCallback(async (workspace: WorkspaceAccessProjection) => {
     if (switchingWorkspace) return;
     if (workspace.workspace.workspace_id === profile.activeWorkspaceId) {
-      const destination = workspaceDestination(window.location.pathname, workspace, preservePathOnWorkspaceSwitch);
+      const destination = workspaceDestination(window.location.pathname, workspace);
       if (destination !== window.location.pathname) router.push(destination);
       return;
     }
@@ -159,15 +153,14 @@ export function AppShell({
     setWorkspaceSwitchError(null);
     try {
       await selectActiveWorkspace(workspace.workspace.workspace_id);
-      onWorkspaceSwitchComplete?.();
-      router.push(workspaceDestination(window.location.pathname, workspace, preservePathOnWorkspaceSwitch));
+      router.push(workspaceDestination(window.location.pathname, workspace));
       router.refresh();
     } catch (error) {
       setWorkspaceSwitchError(getWorkspaceSwitchError(error));
     } finally {
       setSwitchingWorkspace(false);
     }
-  }, [onWorkspaceSwitchComplete, preservePathOnWorkspaceSwitch, profile.activeWorkspaceId, router, switchingWorkspace]);
+  }, [profile.activeWorkspaceId, router, switchingWorkspace]);
 
   return (
     <div className={styles.shell}>

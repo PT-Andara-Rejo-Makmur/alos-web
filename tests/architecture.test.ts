@@ -44,12 +44,6 @@ describe("frontend architecture boundary", () => {
   it("menyediakan route utama dalam satu Next.js application", () => {
     for (const route of [
       "login",
-      "settings",
-      join("settings", "profile"),
-      join("settings", "security"),
-      join("settings", "sessions"),
-      join("settings", "notifications"),
-      join("settings", "preferences"),
       "workspace",
       join("workspace", "executive"),
       join("workspace", "sales"),

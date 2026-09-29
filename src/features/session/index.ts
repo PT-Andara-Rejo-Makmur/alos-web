@@ -15,7 +15,6 @@ export {
   projectSessionContext,
 } from "./protected-session";
 export { selectActiveWorkspace } from "./workspace-api";
-export { endCurrentSession } from "./session-api";
 export {
   resolveWorkspaceDomain,
   workspaceDomainFromMetadata,
