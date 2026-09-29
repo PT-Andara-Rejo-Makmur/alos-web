@@ -7,6 +7,7 @@ import type { SessionProjection } from "@/features/session";
 import { resolveWorkspaceDomain, type WorkspaceDomainResolution } from "@/features/session";
 import { ExecutivePerformancePage } from "@/features/executive";
 import { SalesPerformancePage } from "@/features/sales";
+import { PropertyPerformancePage } from "@/features/property";
 import styles from "@/features/sales/sales.module.css";
 
 
@@ -63,6 +64,10 @@ export default function WorkspacePerformancePageRoute({
     return (
       <SalesPerformancePage workspaceKey={workspaceKey} />
     );
+  }
+
+  if (resolution?.valid && resolution.domain === "PROPERTY") {
+    return <PropertyPerformancePage workspaceKey={workspaceKey} />;
   }
 
   return (

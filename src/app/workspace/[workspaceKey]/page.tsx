@@ -25,7 +25,7 @@ export default function WorkspaceKeyRoot({
       }
 
       const base = `/workspace/${encodeURIComponent(workspaceKey)}`;
-      if (resolution.domain === "EXECUTIVE" || resolution.domain === "SALES") {
+      if (resolution.domain === "EXECUTIVE" || resolution.domain === "SALES" || resolution.domain === "PROPERTY") {
         router.replace(`${base}/summary`);
       } else {
         router.replace(`${base}/projects`);

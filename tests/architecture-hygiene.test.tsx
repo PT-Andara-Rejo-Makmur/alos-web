@@ -243,14 +243,14 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
       expect(screen.queryByText("Target & Kinerja Perusahaan")).not.toBeInTheDocument();
     });
 
-    it("Property /summary does NOT enter Sales Summary and fails closed", async () => {
+    it("Property /summary resolves to Property Summary and does not enter Sales Summary", async () => {
       const propertySession = createSession("property-utama", "PROPERTY", "BUSINESS");
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession);
 
       render(<SummaryRoute params={{ workspaceKey: "property-utama" }} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Ringkasan Property" })).toBeInTheDocument();
       });
       expect(screen.queryByText("Ringkasan target, pipeline, aktivitas, dan hasil penjualan.")).not.toBeInTheDocument();
       expect(screen.queryByText("Target & Kinerja Perusahaan")).not.toBeInTheDocument();
@@ -305,14 +305,14 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
       });
     });
 
-    it("redirects other workspaces (Property, IT, Finance) to projects", async () => {
+    it("redirects Property workspace to its canonical summary landing", async () => {
       const propertySession = createSession("property-utama", "PROPERTY", "BUSINESS");
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession);
 
       render(<WorkspaceKeyRoot params={{ workspaceKey: "property-utama" }} />);
 
       await waitFor(() => {
-        expect(mockReplace).toHaveBeenCalledWith("/workspace/property-utama/projects");
+        expect(mockReplace).toHaveBeenCalledWith("/workspace/property-utama/summary");
       });
     });
   });

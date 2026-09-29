@@ -1,0 +1,39 @@
+.page { display: grid; gap: var(--alos-space-5); }
+.contextBar { align-items: stretch; background: var(--alos-surface); border: 1px solid var(--alos-border); display: grid; grid-template-columns: repeat(4, 1fr); }
+.contextItem { border-right: 1px solid var(--alos-border); display: grid; gap: 3px; padding: var(--alos-space-3) var(--alos-space-4); }
+.contextItem:last-child { border-right: 0; }
+.contextLabel { color: var(--alos-text-muted); font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
+.contextValue { color: var(--alos-text); font-size: 14px; font-weight: 600; }
+.sourceNote { align-items: center; background: var(--alos-surface-alt); border: 1px solid var(--alos-border); color: var(--alos-text-secondary); display: flex; gap: var(--alos-space-3); padding: var(--alos-space-3) var(--alos-space-4); }
+.metricGrid { display: grid; gap: var(--alos-space-3); grid-template-columns: repeat(6, 1fr); }
+.summaryGrid { display: grid; gap: var(--alos-space-4); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.filterBar { background: var(--alos-surface); border: 1px solid var(--alos-border); display: grid; gap: var(--alos-space-3); padding: var(--alos-space-4); }
+.filterGrid { display: grid; gap: var(--alos-space-3); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.search { max-width: 440px; width: 100%; }
+.search input { width: 100%; }
+.actionBar { align-items: center; display: flex; flex-wrap: wrap; gap: var(--alos-space-2); }
+.sourceState { display: grid; gap: var(--alos-space-2); }
+.detailList { display: grid; gap: var(--alos-space-2) var(--alos-space-4); grid-template-columns: minmax(120px, .75fr) 1.25fr; margin: 0; }
+.detailList dt { color: var(--alos-text-muted); font-size: 12px; font-weight: 700; }
+.detailList dd { color: var(--alos-text); margin: 0; }
+.formStack { display: grid; gap: var(--alos-space-4); }
+.form { display: grid; gap: var(--alos-space-4); }
+.formGrid { display: grid; gap: var(--alos-space-3); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.formFeedback { color: var(--alos-text-secondary); font-size: 13px; margin: 0; }
+.extractionGrid { display: grid; gap: var(--alos-space-4); grid-template-columns: 1fr 1fr; }
+.extractionPanel { border: 1px solid var(--alos-border); display: grid; gap: var(--alos-space-3); padding: var(--alos-space-4); }
+.extractionPanel h3 { font-size: 14px; margin: 0; }
+.candidateList { display: grid; gap: var(--alos-space-2); }
+.candidateRow { border-bottom: 1px solid var(--alos-border); display: grid; gap: var(--alos-space-2); padding-bottom: var(--alos-space-3); }
+.candidateRow > div:first-child { display: grid; gap: 2px; }
+.candidateRow span { color: var(--alos-text-muted); }
+.candidateActions { display: flex; flex-wrap: wrap; gap: var(--alos-space-1); }
+.accessState { align-items: center; background: var(--alos-app-bg); display: flex; justify-content: center; min-height: 100vh; padding: var(--alos-space-6); }
+.accessCard { background: var(--alos-surface); border: 1px solid var(--alos-border); max-width: 440px; padding: var(--alos-space-8); width: 100%; }
+.accessBrand { color: var(--alos-primary); font-size: 13px; font-weight: 800; letter-spacing: .16em; margin: 0 0 var(--alos-space-5); }
+.accessTitle { color: var(--alos-text); font-size: 22px; margin: 0 0 var(--alos-space-3); }
+.accessText { color: var(--alos-text-secondary); line-height: 1.6; }
+.accessButton { background: var(--alos-primary); border: 0; color: white; cursor: pointer; font: inherit; padding: 10px 14px; }
+@media (max-width: 1100px) { .metricGrid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 760px) { .contextBar, .extractionGrid, .summaryGrid { grid-template-columns: 1fr; } .contextItem { border-bottom: 1px solid var(--alos-border); border-right: 0; } .contextItem:last-child { border-bottom: 0; } .filterGrid, .formGrid { grid-template-columns: 1fr; } .metricGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 430px) { .metricGrid { grid-template-columns: 1fr; } .detailList { grid-template-columns: 1fr; } }

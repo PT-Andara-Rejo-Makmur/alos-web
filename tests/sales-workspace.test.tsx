@@ -370,11 +370,11 @@ describe("Sales workspace", () => {
     });
   });
 
-  it("WorkspaceKeyRoot mengarahkan ke /projects untuk non-Sales", async () => {
+  it("WorkspaceKeyRoot mengarahkan Property ke /summary", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession("property"));
     render(<WorkspaceKeyRoot params={{ workspaceKey: "property" }} />);
     await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith("/workspace/property/projects");
+      expect(mockReplace).toHaveBeenCalledWith("/workspace/property/summary");
     });
   });
 
@@ -418,14 +418,12 @@ describe("Sales workspace", () => {
     );
 
     it.each([
-      ["summary", SummaryRoute],
       ["pipeline", PipelineRoute],
       ["leads", LeadsRoute],
       ["activities", ActivitiesRoute],
       ["bookings", BookingsRoute],
       ["kpr", KprRoute],
       ["campaigns", CampaignsRoute],
-      ["performance", PerformanceRoute],
     ] as const)(
       "Property workspace session fails closed / is denied on Sales-specific page %s",
       async (_routeName, RouteComponent) => {
@@ -440,6 +438,22 @@ describe("Sales workspace", () => {
         ).toBeInTheDocument();
       },
     );
+
+    it("Property workspace session is allowed on the shared Property summary route", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession("property"));
+      render(<SummaryRoute params={{ workspaceKey: "property" }} />);
+
+      expect(await screen.findByRole("heading", { name: "Ringkasan Property" })).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Sales & Marketing" })).not.toBeInTheDocument();
+    });
+
+    it("Property workspace session is allowed on the shared Property performance route", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession("property"));
+      render(<PerformanceRoute params={{ workspaceKey: "property" }} />);
+
+      expect(await screen.findByRole("heading", { name: "Target & Kinerja" })).toBeInTheDocument();
+      expect(screen.queryByText("SALES & MARKETING")).not.toBeInTheDocument();
+    });
 
     it("workspace key mismatch denies access even for an authenticated Sales session", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession("penjualan-utama"));

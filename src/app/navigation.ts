@@ -13,6 +13,7 @@ import {
 
 import type { AppNavigationSection } from "@/components/app-shell/app-shell";
 import { executiveNavigation } from "@/features/executive/navigation";
+import { propertyNavigation } from "@/features/property/navigation";
 import { salesNavigation } from "@/features/sales/navigation";
 import type { SessionProjection } from "@/features/session";
 import { resolveWorkspaceDomain } from "@/features/session";
@@ -42,6 +43,9 @@ export function navigationForSession(
     }
     if (resolution.domain === "SALES") {
       return salesNavigation(resolution.activeWorkspaceKey!);
+    }
+    if (resolution.domain === "PROPERTY") {
+      return propertyNavigation(resolution.activeWorkspaceKey!);
     }
   }
 

@@ -7,6 +7,7 @@ import type { SessionProjection } from "@/features/session";
 import { resolveWorkspaceDomain, type WorkspaceDomainResolution } from "@/features/session";
 import { ExecutiveSummaryPage } from "@/features/executive";
 import { SalesSummaryPage } from "@/features/sales";
+import { PropertySummaryPage } from "@/features/property";
 import styles from "@/features/sales/sales.module.css";
 
 export default function WorkspaceSummaryPageRoute({
@@ -60,6 +61,10 @@ export default function WorkspaceSummaryPageRoute({
 
   if (resolution?.valid && resolution.domain === "SALES") {
     return <SalesSummaryPage workspaceKey={workspaceKey} />;
+  }
+
+  if (resolution?.valid && resolution.domain === "PROPERTY") {
+    return <PropertySummaryPage workspaceKey={workspaceKey} />;
   }
 
   return (
