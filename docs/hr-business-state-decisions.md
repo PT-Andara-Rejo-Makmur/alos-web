@@ -74,3 +74,22 @@ Lifecycle berikut belum canonical dan tidak boleh disimpulkan dari status UI:
 - unavailable, connected-empty, connected-data, loading, dan error adalah state yang berbeda.
 - Conflict atau HTTP 409 tidak boleh dianggap berhasil; frontend hanya menampilkan readiness/error manusiawi sampai aturan retry, merge, dan verifikasi ditetapkan.
 - Conflict resolution, optimistic concurrency, dan version conflict tetap **NEEDS CONTRACT / NEEDS BACKEND**.
+
+## Freeze guard invariants
+
+Register ini menjadi invariant regression untuk frontend readiness. Semua keputusan authoritative tetap berada pada source domain dan governance.
+
+- Headcount, payroll, attendance, dan HR Case yang belum bersumber tidak boleh diubah menjadi `0`, `Rp0`, `Hadir`, atau `Tidak Ada Kasus`.
+- Candidate extraction bukan keputusan employment; AI tidak boleh hire, reject, promote, terminate, atau menetapkan rating akhir.
+- Protected attributes (race/ethnicity, religion, health, political belief, sexual orientation, family status) bukan input ranking atau keputusan employment.
+- Employment document tersedia bukan berarti kontrak sah secara Legal.
+- Payroll preparation HR bukan payment execution; `Paid`, `Settled`, dan `Reconciled` adalah state Finance-owned.
+- Joiner/Mover/Leaver HR bukan provisioning atau revocation teknis; Provision, Revoke, System Access, dan Admin Permission adalah IT/Identity-owned.
+- Checklist onboarding tetap readiness sampai sumber authoritative tersedia; hasil probation memerlukan human review.
+- Koreksi attendance merupakan record terpisah dan tidak menimpa event asli; leave balance dan approval policy bukan konstanta frontend.
+- Promotion, termination, dan final performance rating tidak ditentukan AI.
+- Employment change effective-dated; compensation change versioned; history employment, compensation, dan offboarding tidak ditimpa.
+- Frontend tidak menetapkan classification PUBLIC, INTERNAL, CONFIDENTIAL, atau RESTRICTED tanpa source/governance.
+- Search dan readiness tidak boleh membocorkan salary, bank, tax, government ID, atau restricted HR Case.
+- Entity relation memakai sumber pilihan resmi; user tidak memasukkan raw internal ID.
+- HTTP 409/version conflict bukan success dan tidak boleh menimpa data yang lebih baru.
