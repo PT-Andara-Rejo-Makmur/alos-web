@@ -15,6 +15,51 @@ describe("HR / GA master freeze matrix", () => {
     expect(source).not.toMatch(/headcount[^\n]*(?:=|:)\s*0/i);
   });
 
+  it("keeps HR user-facing labels in natural Indonesian", () => {
+    const pages = read("src/features/hr/hr-pages.tsx");
+    const detail = read("src/features/hr/shared/hr-detail-page.tsx");
+    const navigation = read("src/features/hr/navigation.ts");
+    const expectedLabels = [
+      "Karyawan", "Posisi", "Divisi", "Manajer", "Jenis Kepegawaian", "Tanggal Bergabung",
+      "Status Kepegawaian", "Akhir Kontrak", "Tanggal", "Jadwal", "Jam Masuk", "Jam Keluar",
+      "Status Kehadiran", "Sumber", "Verifikasi", "Kebutuhan", "Tindakan", "Penanggung Jawab",
+      "Tenggat", "Bukti", "Pelatihan", "Kompetensi / Persyaratan", "Hasil", "Periode",
+      "Hak Karyawan", "Tunjangan", "Instruksi Potongan", "Dampak Kehadiran", "Dampak Lembur",
+      "Dampak Cuti", "Fasilitas Kantor", "Portofolio", "Alasan", "Hari Kerja Terakhir", "Jenis Perubahan",
+      "Tanggal Berlaku", "Serah Terima Pengetahuan", "Pengembalian Aset", "Pencabutan Akses", "Dokumen Akhir",
+    ];
+    for (const label of expectedLabels) expect(`${pages}\n${detail}`).toContain(`"${label}"`);
+
+    const genericEnglishLabels = [
+      "Employee", "Employee ID", "Position", "Division", "Manager", "Employment Type", "Join Date",
+      "Employment Status", "Contract End", "Date", "Schedule", "Check In", "Check Out", "Attendance State",
+      "Source", "Verification", "Need", "Action", "Owner", "Target Date", "Evidence", "Training",
+      "Skill / Requirement", "Result", "Period", "Employee Entitlement", "Allowance", "Deduction Instruction",
+      "Attendance Impact", "Overtime Impact", "Leave Impact", "Office Facility", "Reason", "Last Working Date",
+      "Change Type", "Effective Date", "Knowledge Transfer", "Asset Return", "Access Revocation", "Final Documents",
+      "Headcount", "Interview", "Offer", "Benefit",
+    ];
+    for (const label of genericEnglishLabels) {
+      expect(`${pages}\n${detail}`).not.toContain(`"${label}"`);
+      expect(`${pages}\n${detail}`).not.toContain(`'${label}'`);
+    }
+    expect(navigation).toContain('label: "Kompensasi & Tunjangan"');
+    expect(navigation).not.toContain('label: "Kompensasi & Benefit"');
+  });
+
+  it("maps internal source states to human labels without leaking raw enum values", () => {
+    const ui = read("src/features/hr/shared/hr-ui.tsx");
+    expect(ui).toContain('"Belum Terhubung"');
+    expect(ui).toContain('"Gagal Memuat"');
+    expect(ui).toContain('"Belum ada data"');
+    expect(ui).not.toContain("IN_REVIEW");
+    expect(ui).not.toContain("CONNECTED_EMPTY");
+    expect(ui).not.toContain("CONNECTED_DATA");
+    expect(ui).not.toContain("RESTRICTED");
+    expect(ui).not.toContain("CONFIDENTIAL");
+    expect(ui).not.toContain("HR_GA");
+  });
+
   it("locks recruitment, AI, and protected-attribute boundaries", () => {
     const decisions = read("docs/hr-business-state-decisions.md");
     expect(decisions).toContain("Candidate extraction bukan keputusan employment");

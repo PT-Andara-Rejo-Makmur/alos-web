@@ -184,7 +184,7 @@ describe("HR / GA workspace", () => {
   });
 
   it("preserves distinct values for every HR table column beyond five columns", () => {
-    const headers = ["Nama", "Employee ID", "Position", "Division", "Manager", "Employment Type", "Join Date", "Employment Status", "Contract End", "Status"];
+    const headers = ["Nama", "ID Karyawan", "Posisi", "Divisi", "Manajer", "Jenis Kepegawaian", "Tanggal Bergabung", "Status Kepegawaian", "Akhir Kontrak", "Status"];
     const row = createHrRow("employee-1", headers, ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]);
     const columns = columnsFor(headers);
     expect(columns).toHaveLength(10);

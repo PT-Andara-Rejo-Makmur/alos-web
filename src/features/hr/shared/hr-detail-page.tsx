@@ -8,7 +8,7 @@ import styles from "../hr.module.css";
 
 const detailTabs: Record<string, readonly TabItem[]> = {
   employee: ["Ringkasan", "Pekerjaan", "Dokumen", "Kehadiran", "Cuti", "Kinerja", "Pengembangan", "Kompensasi", "Akses", "Perubahan", "Riwayat"].map((label) => ({ id: label, label })),
-  candidate: ["Ringkasan", "CV & Dokumen", "Aktivitas", "Interview", "Assessment", "Offer", "Catatan", "Riwayat"].map((label) => ({ id: label, label })),
+  candidate: ["Ringkasan", "CV & Dokumen", "Aktivitas", "Wawancara", "Penilaian", "Penawaran", "Catatan", "Riwayat"].map((label) => ({ id: label, label })),
   onboarding: ["Ringkasan", "Checklist", "Dokumen", "Akses", "Peralatan", "Orientasi", "Masa Percobaan", "Riwayat"].map((label) => ({ id: label, label })),
   review: ["Ringkasan", "Sasaran", "Kompetensi", "Umpan Balik", "Pengembangan", "Riwayat"].map((label) => ({ id: label, label })),
 };
@@ -18,7 +18,7 @@ const detailDescriptions: Record<string, string> = {
   "Kompensasi": "Informasi kompensasi memerlukan kewenangan khusus dan sumber resmi.",
   Akses: "Status akses dijalankan oleh IT/Identity dan belum tersedia di HR.",
   Peralatan: "Status peralatan berasal dari GA/IT dan belum tersedia.",
-  Offer: "Offer dan persetujuannya belum tersedia dari sumber rekrutmen resmi.",
+  Penawaran: "Penawaran dan persetujuannya belum tersedia dari sumber rekrutmen resmi.",
 };
 
 const employeeReadiness: readonly { readonly label: string; readonly fields: readonly HrFormField[]; readonly restricted?: boolean; readonly description?: string }[] = [
