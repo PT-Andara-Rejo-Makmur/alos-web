@@ -431,7 +431,8 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
 
     it("src/features/sales does not implement duplicate shared work or ARA", () => {
       const salesDir = resolve("src/features/sales");
-      const files = readdirSync(salesDir);
+      const files = readdirSync(salesDir, { recursive: true })
+        .filter((file): file is string => typeof file === "string" && /\.(ts|tsx)$/.test(file));
       for (const file of files) {
         expect(file).not.toMatch(/ara/i);
         const content = readFileSync(resolve(salesDir, file), "utf-8");

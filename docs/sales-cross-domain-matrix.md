@@ -11,3 +11,14 @@
 | Document extraction candidate | Governed extraction | Human review; bukan record bisnis authoritative |
 
 Sales may propose booking and maintain relationship data when permissions and contracts are available. It cannot bypass Finance, Legal, or Property verification.
+
+## Sales UI boundary
+
+Booking request, cancellation request, follow-up, document completion, dan campaign maintenance hanya disediakan sebagai struktur UX. Selama capability canonical belum tersedia, submit disabled dan tidak menghasilkan success state. Sales tidak memiliki action frontend untuk menerima booking fee, membayar refund, memvalidasi SPK final, approve KPR, issue SP3K, menyelesaikan akad, atau menetapkan official closing.
+
+## Deferred until dashboard phase complete
+
+- Contracts required.
+- Backend services/projections required.
+- Cross-domain authority.
+- GENESIS extraction integration.

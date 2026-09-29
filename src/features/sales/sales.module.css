@@ -9,6 +9,33 @@
 .summaryGrid { display: grid; gap: var(--alos-space-6); grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .pipelineSourceNote { align-items: center; background: var(--alos-surface); border: 1px solid var(--alos-border); color: var(--alos-text-secondary); display: flex; font-size: 13px; gap: var(--alos-space-3); line-height: 20px; padding: var(--alos-space-3) var(--alos-space-4); }
 .pipelineFilters { display: grid; gap: var(--alos-space-4); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.salesActionBar { align-items: center; display: flex; flex-wrap: wrap; gap: var(--alos-space-2); }
+.salesFilterBar { display: flex; flex-direction: column; gap: var(--alos-space-4); }
+.salesSearch { max-width: 420px; width: 100%; }
+.salesSearch input { width: 100%; }
+.salesFilterGrid { display: grid; gap: var(--alos-space-4); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.sourceState { align-items: flex-start; display: flex; flex-direction: column; gap: var(--alos-space-3); min-width: 220px; }
+.sourceState :global(.emptyState) { padding: 0; text-align: left; }
+.formStack { display: flex; flex-direction: column; gap: var(--alos-space-5); }
+.salesForm { display: flex; flex-direction: column; gap: var(--alos-space-5); }
+.formGrid { display: grid; gap: var(--alos-space-4); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.formGrid > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+.formActions { display: flex; justify-content: flex-end; gap: var(--alos-space-2); }
+.formFeedback { color: var(--alos-text-secondary); font-size: 13px; margin: 0; }
+.journey { display: grid; gap: var(--alos-space-3); grid-template-columns: repeat(7, minmax(0, 1fr)); list-style: none; margin: 0; padding: 0; }
+.journey li { align-items: center; color: var(--alos-text-secondary); display: flex; flex-direction: column; font-size: 12px; gap: var(--alos-space-2); line-height: 17px; text-align: center; }
+.journeyIndex { align-items: center; background: var(--alos-primary-very-soft); border: 1px solid var(--alos-border); border-radius: 50%; color: var(--alos-primary-dark); display: inline-flex; font-size: 12px; font-weight: 700; height: 28px; justify-content: center; width: 28px; }
+.extractionGrid { display: grid; gap: var(--alos-space-5); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.extractionPanel { border: 1px solid var(--alos-border); display: flex; flex-direction: column; gap: var(--alos-space-4); padding: var(--alos-space-4); }
+.extractionPanel h3 { font-size: 15px; margin: 0; }
+.candidateList { display: flex; flex-direction: column; gap: var(--alos-space-3); }
+.candidateRow { border-bottom: 1px solid var(--alos-border); display: flex; flex-wrap: wrap; gap: var(--alos-space-2); padding-bottom: var(--alos-space-3); }
+.candidateRow > div:first-child { display: flex; flex: 1 1 180px; flex-direction: column; gap: 2px; }
+.candidateRow > div:first-child span { color: var(--alos-text-muted); font-size: 13px; }
+.candidateActions { display: flex; flex-wrap: wrap; gap: var(--alos-space-1); width: 100%; }
+.metricReadOnly { background: var(--alos-surface); border: 1px solid var(--alos-border); display: flex; flex-direction: column; gap: var(--alos-space-2); min-width: 0; padding: var(--alos-space-4); }
+.metricReadOnly span { color: var(--alos-text-secondary); font-size: 13px; }
+.metricReadOnly strong { color: var(--alos-text-primary); font-size: 24px; line-height: 30px; }
 .pipelineViewState { display: flex; flex-direction: column; gap: var(--alos-space-4); }
 .quickViewList { display: grid; gap: var(--alos-space-3) var(--alos-space-4); grid-template-columns: minmax(110px, .7fr) minmax(0, 1.3fr); margin: 0; }
 .quickViewList dt { color: var(--alos-text-muted); font-size: 12px; font-weight: 600; }
@@ -21,5 +48,5 @@
 .accessTitle { font-size: 20px; line-height: 28px; margin: 0 0 var(--alos-space-2); }.accessText { color: var(--alos-text-secondary); margin: 0; }
 .accessButton { background: var(--alos-primary); border: 0; border-radius: var(--alos-radius-button); color: white; cursor: pointer; font: inherit; margin-top: var(--alos-space-4); padding: var(--alos-space-2) var(--alos-space-3); }
 @media (max-width: 1023px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 1023px) { .contextBar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pipelineFilters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .summaryGrid { grid-template-columns: 1fr; } }
-@media (max-width: 639px) { .metrics { grid-template-columns: 1fr; } .sourceStrip { align-items: flex-start; flex-direction: column; } .contextBar { grid-template-columns: 1fr; } .pipelineFilters { grid-template-columns: 1fr; } .pipelineSourceNote { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 1023px) { .contextBar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pipelineFilters, .salesFilterGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .summaryGrid { grid-template-columns: 1fr; } .journey { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 639px) { .metrics { grid-template-columns: 1fr; } .sourceStrip { align-items: flex-start; flex-direction: column; } .contextBar { grid-template-columns: 1fr; } .pipelineFilters, .salesFilterGrid, .formGrid { grid-template-columns: 1fr; } .pipelineSourceNote { align-items: flex-start; flex-direction: column; } .journey { grid-template-columns: repeat(2, minmax(0, 1fr)); } .extractionGrid { grid-template-columns: 1fr; } .formGrid > :last-child:nth-child(odd) { grid-column: auto; } .salesActionBar { align-items: stretch; flex-direction: column; } }

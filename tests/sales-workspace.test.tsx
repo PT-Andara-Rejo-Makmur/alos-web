@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { navigationForSession } from "@/app/navigation";
@@ -15,7 +15,15 @@ import CampaignsRoute from "@/app/workspace/[workspaceKey]/(domain)/campaigns/pa
 import PerformanceRoute from "@/app/workspace/[workspaceKey]/(domain)/performance/page";
 import AraRoute from "@/app/workspace/[workspaceKey]/(assistant)/ara/page";
 import WorkspaceProjectsPageRoute from "@/app/workspace/[workspaceKey]/(shared-work)/projects/page";
-import { SalesPipelinePage } from "@/features/sales";
+import {
+  SalesActivitiesPage,
+  SalesBookingsPage,
+  SalesCampaignsPage,
+  SalesKprPage,
+  SalesLeadsPage,
+  SalesPerformancePage,
+  SalesPipelinePage,
+} from "@/features/sales";
 import {
   ApprovalsPage,
   DocumentsPage,
@@ -182,6 +190,43 @@ describe("Sales workspace", () => {
     expect(screen.queryByRole("button", { name: /Tandai|Buat.*Closing|Closing Resmi/i })).not.toBeInTheDocument();
     expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
     expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
+  });
+
+  it.each([
+    ["Prospek & Lead", SalesLeadsPage],
+    ["Aktivitas & Tindak Lanjut", SalesActivitiesPage],
+    ["Booking & Closing", SalesBookingsPage],
+    ["KPR & Akad", SalesKprPage],
+    ["Campaign & Channel", SalesCampaignsPage],
+    ["Target & Kinerja", SalesPerformancePage],
+  ])("%s memiliki UI final source-unavailable dan satu AppShell", async (title, Page) => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession());
+
+    render(<Page workspaceKey="penjualan-utama" />);
+
+    expect(await screen.findByRole("heading", { name: title })).toBeInTheDocument();
+    expect(screen.getAllByText("Belum Terhubung").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Belum ada data")).not.toBeInTheDocument();
+    expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
+    expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
+  });
+
+  it("form Sales tidak menghasilkan fake success dan extraction review tetap unavailable", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession());
+
+    render(<SalesLeadsPage workspaceKey="penjualan-utama" />);
+    expect(await screen.findByRole("heading", { name: "Prospek & Lead" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Tambah Lead" }));
+    expect(screen.getByRole("dialog", { name: "Tambah Lead" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Simpan Lead" })).toBeDisabled();
+    expect(screen.queryByText("Perubahan berhasil disimpan")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Batal" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ambil dari Dokumen" }));
+    expect(screen.getByRole("dialog", { name: "Extraction Lead" })).toBeInTheDocument();
+    expect(screen.getAllByText("Perlu Diperiksa").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: "Simpan Draft" })).toBeDisabled();
   });
 
   it("Sales Shared Work Documents renders inside a single AppShell", async () => {

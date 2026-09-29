@@ -1,8 +1,7 @@
 "use client";
 import { use } from "react";
-import { SalesModuleReadinessPage } from "@/features/sales";
-const tabs = [{ id: "all", label: "Semua" }, { id: "mine", label: "Milik Saya" }, { id: "new", label: "Baru" }, { id: "follow-up", label: "Perlu Follow-up" }, { id: "qualified", label: "Qualified" }, { id: "inactive", label: "Tidak Aktif" }] as const;
+import { SalesLeadsPage } from "@/features/sales";
 export default function Page({ params }: Readonly<{ params: Promise<{ workspaceKey: string }> | { workspaceKey: string } }>) {
   const resolved = "then" in params ? use(params) : params;
-  return <SalesModuleReadinessPage workspaceKey={resolved.workspaceKey} title="Prospek & Lead" description="Kelola prospek sesuai kewenangan dan klasifikasi data." detail="Data lead, deduplikasi, dan formulir pencatatan menunggu contract Sales." tabs={tabs} />;
+  return <SalesLeadsPage workspaceKey={resolved.workspaceKey} />;
 }

@@ -6,18 +6,9 @@ import { sessionApiRequest, ApiError } from "@/lib/api";
 import type { SessionProjection } from "@/features/session";
 import { resolveWorkspaceDomain, type WorkspaceDomainResolution } from "@/features/session";
 import { ExecutivePerformancePage } from "@/features/executive";
-import { SalesModuleReadinessPage } from "@/features/sales";
+import { SalesPerformancePage } from "@/features/sales";
 import styles from "@/features/sales/sales.module.css";
 
-const salesTabs = [
-  { id: "summary", label: "Ringkasan" },
-  { id: "targets", label: "Target" },
-  { id: "kpi", label: "KPI" },
-  { id: "owner", label: "Per Sales" },
-  { id: "project", label: "Per Project" },
-  { id: "channel", label: "Per Channel" },
-  { id: "history", label: "Riwayat" },
-] as const;
 
 export default function WorkspacePerformancePageRoute({
   params,
@@ -70,13 +61,7 @@ export default function WorkspacePerformancePageRoute({
 
   if (resolution?.valid && resolution.domain === "SALES") {
     return (
-      <SalesModuleReadinessPage
-        workspaceKey={workspaceKey}
-        title="Target & Kinerja"
-        description="Target dan kinerja Sales ditampilkan dari sumber Strategy yang berwenang."
-        detail="Target Sales dan closing resmi memerlukan projection Strategy serta outcome lintas domain."
-        tabs={salesTabs}
-      />
+      <SalesPerformancePage workspaceKey={workspaceKey} />
     );
   }
 
