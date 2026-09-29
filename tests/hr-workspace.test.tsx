@@ -61,6 +61,9 @@ describe("HR / GA workspace", () => {
     expect(ga.flatMap((section) => section.items)).toHaveLength(19);
     expect(ga.flatMap((section) => section.items.map((item) => item.href))).toContain("/workspace/sdm%20%26%20utama/summary");
     expect(ga.flatMap((section) => section.items.map((item) => item.href)).some((href) => href.startsWith("/workspace/hr/"))).toBe(false);
+    expect(ga.map((section) => section.label)).not.toContain("GA");
+    expect(ga.find((section) => section.label === "OPERASIONAL SDM")?.items.map((item) => item.label)).toContain("GA & Fasilitas");
+    expect(ga.flatMap((section) => section.items.map((item) => item.label))).toContain("Kompensasi & Benefit");
   });
 
   it("root and summary dispatch HR to canonical summary using actual key", async () => {

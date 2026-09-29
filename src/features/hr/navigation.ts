@@ -33,12 +33,12 @@ export function hrNavigation(workspaceKey: string, includeGa: boolean): readonly
     { label: "OPERASIONAL SDM", items: [
       { href: `${base}/attendance`, icon: CalendarDays, label: "Kehadiran & Cuti" },
       { href: `${base}/people-performance`, icon: ClipboardCheck, label: "Kinerja & Pengembangan" },
-      { href: `${base}/compensation`, icon: WalletCards, label: "Kompensasi & Tunjangan" },
+      { href: `${base}/compensation`, icon: WalletCards, label: "Kompensasi & Benefit" },
       { href: `${base}/compliance`, icon: FileText, label: "Dokumen & Kepatuhan" },
       { href: `${base}/offboarding`, icon: Archive, label: "Perubahan & Offboarding" },
+      ...(includeGa ? [{ href: `${base}/ga`, icon: BriefcaseBusiness, label: "GA & Fasilitas" }] : []),
     ] },
   ];
-  if (includeGa) sections.push({ label: "GA", items: [{ href: `${base}/ga`, icon: BriefcaseBusiness, label: "GA & Fasilitas" }] });
   sections.push(
     { label: "KINERJA", items: [{ href: `${base}/performance`, icon: BarChart3, label: "Target & Kinerja" }] },
     { label: "PEKERJAAN", items: [

@@ -37,14 +37,24 @@ describe("HR / GA master freeze matrix", () => {
       "Skill / Requirement", "Result", "Period", "Employee Entitlement", "Allowance", "Deduction Instruction",
       "Attendance Impact", "Overtime Impact", "Leave Impact", "Office Facility", "Reason", "Last Working Date",
       "Change Type", "Effective Date", "Knowledge Transfer", "Asset Return", "Access Revocation", "Final Documents",
-      "Headcount", "Interview", "Offer", "Benefit",
+      "Headcount",
     ];
     for (const label of genericEnglishLabels) {
       expect(`${pages}\n${detail}`).not.toContain(`"${label}"`);
       expect(`${pages}\n${detail}`).not.toContain(`'${label}'`);
     }
-    expect(navigation).toContain('label: "Kompensasi & Tunjangan"');
-    expect(navigation).not.toContain('label: "Kompensasi & Benefit"');
+    expect(navigation).toContain('label: "Kompensasi & Benefit"');
+  });
+
+  it("preserves master HR/GA terminology where it is intentionally domain-specific", () => {
+    const pages = read("src/features/hr/hr-pages.tsx");
+    const detail = read("src/features/hr/shared/hr-detail-page.tsx");
+    const navigation = read("src/features/hr/navigation.ts");
+    for (const term of ["Interview", "Offer", "Benefit", "Payroll Preparation"]) {
+      expect(`${pages}\n${detail}`).toContain(`"${term}"`);
+    }
+    expect(navigation).not.toContain('{ label: "GA",');
+    expect(navigation).toContain('label: "GA & Fasilitas"');
   });
 
   it("maps internal source states to human labels without leaking raw enum values", () => {
