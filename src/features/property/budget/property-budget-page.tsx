@@ -8,15 +8,15 @@ import { PropertyLayout } from "../property-layout";
 import { PropertyExtractionReviewDrawer, PropertyFilterBar, PropertySelect, PropertySourceNote, PropertyUnavailableFormDrawer, PropertyUnavailableState, type PropertyFormField } from "../shared/property-ui";
 import styles from "../property.module.css";
 
-const tabs: readonly TabItem[] = [{ id: "rab", label: "RAB" }, { id: "boq", label: "BOQ" }, { id: "actual", label: "Finance Actual" }];
+const tabs: readonly TabItem[] = [{ id: "rab", label: "RAB Draft / Revisi" }, { id: "boq", label: "BOQ" }, { id: "actual", label: "Aktual Keuangan" }];
 interface BudgetRow { readonly recordId: string; readonly project: string; readonly category: string; readonly planned: string; readonly revision: string; readonly actual: string; readonly status: string; }
 const budgetRows: readonly BudgetRow[] = [];
 const budgetColumns: readonly DataTableColumn<BudgetRow>[] = [
-  { header: "Project", key: "project", render: (row) => row.project }, { header: "Category", key: "category", render: (row) => row.category },
-  { header: "Planned", key: "planned", render: (row) => row.planned }, { header: "Revision", key: "revision", render: (row) => row.revision },
-  { header: "Finance Actual", key: "actual", render: (row) => row.actual }, { header: "Status", key: "status", render: (row) => row.status },
+  { header: "Proyek", key: "project", render: (row) => row.project }, { header: "Kategori", key: "category", render: (row) => row.category },
+  { header: "Rencana", key: "planned", render: (row) => row.planned }, { header: "Revisi", key: "revision", render: (row) => row.revision },
+  { header: "Aktual Keuangan", key: "actual", render: (row) => row.actual }, { header: "Status", key: "status", render: (row) => row.status },
 ];
-const budgetFields: readonly PropertyFormField[] = [{ label: "Project", name: "project" }, { label: "RAB / BOQ item", name: "item" }, { label: "Nilai draft", name: "amount", type: "number" }, { label: "Catatan revisi", name: "notes", type: "textarea" }];
+const budgetFields: readonly PropertyFormField[] = [{ label: "RAB", name: "rab" }, { label: "Section", name: "section" }, { label: "Work Item", name: "work-item" }, { label: "Volume", name: "volume", type: "number" }, { label: "Unit", name: "unit" }, { label: "Harga Satuan", name: "unit-price", type: "number" }, { label: "Jumlah", name: "total", type: "number" }, { label: "Catatan Revisi", name: "notes", type: "textarea" }];
 
 export function PropertyBudgetPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) { return <PropertyLayout workspaceKey={workspaceKey}>{(session) => <PropertyBudget session={session} />}</PropertyLayout>; }
 
@@ -27,13 +27,13 @@ function PropertyBudget({ session }: Readonly<{ session: SessionProjection }>) {
   const [extractionOpen, setExtractionOpen] = useState(false);
   const activeKey = session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_key : null;
   return <div className={styles.page}>
-    <PageHeader description="RAB dan BOQ sebagai struktur technical planning; Finance actual selalu read-only projection." eyebrow="PROPERTY OPERATIONS" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Anggaran & RAB" />
-    <PropertySourceNote>Budget source belum tersedia. Property tidak menetapkan payment, paid status, cash, bank settlement, atau financial actual.</PropertySourceNote>
+    <PageHeader description="RAB dan BOQ sebagai struktur perencanaan teknis; aktual keuangan selalu projection read-only." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Anggaran & RAB" />
+    <PropertySourceNote>Source anggaran belum tersedia. Property tidak menetapkan pembayaran, status dibayar, kas, penyelesaian bank, atau aktual keuangan.</PropertySourceNote>
     <Tabs ariaLabel="Tampilan budget property" items={tabs} onValueChange={setTab} value={tab} />
-    <Section title="Filter Budget"><PropertyFilterBar ariaLabel="Filter budget property"><PropertySelect label="Project" name="budget-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua project"]]} value={filters.project} /><PropertySelect label="Category" name="budget-category" onChange={(value) => setFilters((current) => ({ ...current, category: value }))} options={[["all", "Semua category"]]} value={filters.category} /></PropertyFilterBar></Section>
-    <Section title={tabs.find((item) => item.id === tab)?.label ?? "RAB"}><DataTable caption="RAB, BOQ, dan Finance actual" columns={budgetColumns} emptyState={<PropertyUnavailableState description="Budget projection belum tersedia." />} getRowKey={(row) => row.recordId} rows={budgetRows} /></Section>
+    <Section title="Filter Anggaran"><PropertyFilterBar ariaLabel="Filter anggaran Property"><PropertySelect label="Proyek" name="budget-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua proyek"]]} value={filters.project} /><PropertySelect label="Kategori" name="budget-category" onChange={(value) => setFilters((current) => ({ ...current, category: value }))} options={[["all", "Semua kategori"]]} value={filters.category} /></PropertyFilterBar></Section>
+    <Section title={tabs.find((item) => item.id === tab)?.label ?? "RAB Draft / Revisi"}><DataTable caption="RAB, BOQ, dan aktual keuangan" columns={budgetColumns} emptyState={<PropertyUnavailableState description="Projection anggaran belum tersedia." />} getRowKey={(row) => row.recordId} rows={budgetRows} /></Section>
     <div className={styles.actionBar}><Button onClick={() => setFormOpen(true)} variant="primary">Buat RAB Draft</Button><Button onClick={() => setExtractionOpen(true)} variant="ghost">Ambil dari Dokumen</Button></div>
-    <PropertyUnavailableFormDrawer description="RAB draft mutation belum memiliki contract authoritative." fields={budgetFields} onClose={() => setFormOpen(false)} open={formOpen} submitLabel="Simpan Draft" title="Buat RAB Draft" />
-    <PropertyExtractionReviewDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} title="Extraction RAB / BOQ" />
+    <PropertyUnavailableFormDrawer description="Mutation draft/revisi RAB belum memiliki contract authoritative." fields={budgetFields} onClose={() => setFormOpen(false)} open={formOpen} submitLabel="Simpan Draft" title="Buat RAB Draft / Revisi" />
+    <PropertyExtractionReviewDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} title="Ekstraksi RAB / BOQ" />
   </div>;
 }

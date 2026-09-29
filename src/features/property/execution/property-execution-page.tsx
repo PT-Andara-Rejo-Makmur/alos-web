@@ -14,28 +14,32 @@ const tabs: readonly TabItem[] = [
 interface ExecutionRow { readonly recordId: string; readonly project: string; readonly package: string; readonly contractor: string; readonly progress: string; readonly due: string; readonly status: string; }
 const executionRows: readonly ExecutionRow[] = [];
 const executionColumns: readonly DataTableColumn<ExecutionRow>[] = [
-  { header: "Project", key: "project", render: (row) => row.project }, { header: "Work Package", key: "package", render: (row) => row.package },
-  { header: "Kontraktor", key: "contractor", render: (row) => row.contractor }, { header: "Progress", key: "progress", render: (row) => row.progress },
-  { header: "Due", key: "due", render: (row) => row.due }, { header: "Status", key: "status", render: (row) => row.status },
+  { header: "Proyek", key: "project", render: (row) => row.project }, { header: "Work Package", key: "package", render: (row) => row.package },
+  { header: "Kontraktor", key: "contractor", render: (row) => row.contractor }, { header: "Progres", key: "progress", render: (row) => row.progress },
+  { header: "Tenggat", key: "due", render: (row) => row.due }, { header: "Status", key: "status", render: (row) => row.status },
 ];
-const workFields: readonly PropertyFormField[] = [{ label: "Project", name: "project" }, { label: "Work Package", name: "work-package" }, { label: "Catatan", name: "notes", type: "textarea" }];
+const workFields: readonly PropertyFormField[] = [{ label: "Proyek *", name: "project" }, { label: "Work Package *", name: "work-package" }, { label: "Catatan", name: "notes", type: "textarea" }];
+const milestoneFields: readonly PropertyFormField[] = [{ label: "Nama *", name: "name" }, { label: "Proyek *", name: "project" }, { label: "Tanggal Rencana *", name: "planned-date", type: "date" }, { label: "Owner *", name: "owner" }, { label: "Work Package", name: "work-package" }, { label: "Dependency", name: "dependency" }, { label: "Persyaratan Evidence", name: "evidence-requirement" }, { label: "Deskripsi", name: "description", type: "textarea" }];
+const opnameFields: readonly PropertyFormField[] = [{ label: "Proyek", name: "project" }, { label: "Kontraktor", name: "contractor" }, { label: "Work Package", name: "work-package" }, { label: "Periode", name: "period" }, { label: "Kuantitas Terukur", name: "measured-quantity", type: "number" }, { label: "Progres Klaim", name: "claimed-progress", type: "number" }, { label: "Progres Terverifikasi", name: "verified-progress", type: "number" }, { label: "Evidence", name: "evidence" }, { label: "Inspektur", name: "inspector" }, { label: "Status", name: "status" }];
 
 export function PropertyExecutionPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) { return <PropertyLayout workspaceKey={workspaceKey}>{(session) => <PropertyExecution session={session} />}</PropertyLayout>; }
 
 function PropertyExecution({ session }: Readonly<{ session: SessionProjection }>) {
   const [tab, setTab] = useState("work");
   const [filters, setFilters] = useState({ project: "all", contractor: "all", status: "all" });
-  const [formOpen, setFormOpen] = useState(false);
+  const [form, setForm] = useState<"work" | "milestone" | "opname" | null>(null);
   const [extractionOpen, setExtractionOpen] = useState(false);
   const activeKey = session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_key : null;
   return <div className={styles.page}>
-    <PageHeader description="Work Package, milestone, opname, dan aktivitas lapangan; Work Package bukan Task Shared Work." eyebrow="PROPERTY OPERATIONS" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Pekerjaan & Milestone" />
-    <PropertySourceNote>Execution source belum tersedia. Tidak ada progress, schedule, atau status contractor yang dibuat frontend.</PropertySourceNote>
-    <Tabs ariaLabel="Tampilan execution property" items={tabs} onValueChange={setTab} value={tab} />
-    <Section title="Filter Execution"><PropertyFilterBar ariaLabel="Filter execution property"><PropertySelect label="Project" name="execution-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua project"]]} value={filters.project} /><PropertySelect label="Kontraktor" name="execution-contractor" onChange={(value) => setFilters((current) => ({ ...current, contractor: value }))} options={[["all", "Semua kontraktor"]]} value={filters.contractor} /><PropertySelect label="Status" name="execution-status" onChange={(value) => setFilters((current) => ({ ...current, status: value }))} options={[["all", "Semua status"]]} value={filters.status} /></PropertyFilterBar></Section>
-    <Section title={tabs.find((item) => item.id === tab)?.label ?? "Pekerjaan"}><DataTable caption={`Property ${tabs.find((item) => item.id === tab)?.label ?? "Pekerjaan"}`} columns={executionColumns} emptyState={<PropertyUnavailableState description="Data execution belum terhubung." />} getRowKey={(row) => row.recordId} rows={executionRows} /></Section>
-    <div className={styles.actionBar}><Button onClick={() => setFormOpen(true)} variant="primary">Tambah Pekerjaan</Button><Button onClick={() => setExtractionOpen(true)} variant="ghost">Ambil dari Dokumen</Button></div>
-    <PropertyUnavailableFormDrawer description="Work Package mutation belum memiliki contract authoritative." fields={workFields} onClose={() => setFormOpen(false)} open={formOpen} submitLabel="Simpan Draft" title="Tambah Work Package" />
-    <PropertyExtractionReviewDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} title="Extraction Work Package / Milestone" />
+    <PageHeader description="Work Package, milestone, opname, dan aktivitas lapangan; Work Package bukan Task Shared Work." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Pekerjaan & Milestone" />
+    <PropertySourceNote>Source pelaksanaan belum tersedia. Tidak ada progres, jadwal, atau status kontraktor yang dibuat frontend.</PropertySourceNote>
+    <Tabs ariaLabel="Tampilan pelaksanaan Property" items={tabs} onValueChange={setTab} value={tab} />
+    <Section title="Filter Pelaksanaan"><PropertyFilterBar ariaLabel="Filter pelaksanaan Property"><PropertySelect label="Proyek" name="execution-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua proyek"]]} value={filters.project} /><PropertySelect label="Kontraktor" name="execution-contractor" onChange={(value) => setFilters((current) => ({ ...current, contractor: value }))} options={[["all", "Semua kontraktor"]]} value={filters.contractor} /><PropertySelect label="Status" name="execution-status" onChange={(value) => setFilters((current) => ({ ...current, status: value }))} options={[["all", "Semua status"]]} value={filters.status} /></PropertyFilterBar></Section>
+    <Section title={tabs.find((item) => item.id === tab)?.label ?? "Pekerjaan"}><DataTable caption={`Property ${tabs.find((item) => item.id === tab)?.label ?? "Pekerjaan"}`} columns={executionColumns} emptyState={<PropertyUnavailableState description="Data pelaksanaan belum terhubung." />} getRowKey={(row) => row.recordId} rows={executionRows} /></Section>
+    <div className={styles.actionBar}><Button onClick={() => setForm("work")} variant="primary">Tambah Pekerjaan</Button><Button onClick={() => setForm("milestone")} variant="secondary">Tambah Milestone</Button><Button onClick={() => setForm("opname")} variant="secondary">Catat Opname</Button><Button onClick={() => setExtractionOpen(true)} variant="ghost">Ambil dari Dokumen</Button></div>
+    <PropertyUnavailableFormDrawer description="Mutation Work Package belum memiliki contract authoritative." fields={workFields} onClose={() => setForm(null)} open={form === "work"} submitLabel="Simpan Draft" title="Tambah Work Package" />
+    <PropertyUnavailableFormDrawer description="Mutation milestone belum memiliki contract authoritative." fields={milestoneFields} onClose={() => setForm(null)} open={form === "milestone"} submitLabel="Simpan Milestone" title="Tambah Milestone" />
+    <PropertyUnavailableFormDrawer description="Mutation opname belum memiliki contract authoritative." fields={opnameFields} onClose={() => setForm(null)} open={form === "opname"} submitLabel="Simpan Opname" title="Catat Opname" />
+    <PropertyExtractionReviewDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} title="Ekstraksi Work Package / Milestone" />
   </div>;
 }

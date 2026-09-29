@@ -18,6 +18,8 @@ import {
   PropertyProgressPage,
   PropertyQualityPage,
   PropertySummaryPage,
+  PropertyContractorDetailPage,
+  PropertyUnitDetailPage,
   PropertyUnitsPage,
   hasPropertyContext,
 } from "@/features/property";
@@ -141,12 +143,84 @@ describe("Property workspace", () => {
     render(<PropertyProgressPage workspaceKey="proyek-utama" />);
     expect(await screen.findByRole("heading", { name: "Progres & Jadwal" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Tambah Progres" }));
-    expect(screen.getByRole("dialog", { name: "Tambah Progress" })).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Tambah Progres" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Simpan Progres" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "Batal" }));
     fireEvent.click(screen.getByRole("button", { name: "Ambil dari Dokumen" }));
-    expect(screen.getAllByText("Perlu Diperiksa").length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: "Simpan Draft" })).toBeDisabled();
+    expect(screen.getByText("Belum ada kandidat ekstraksi.")).toBeInTheDocument();
+    expect(screen.getByText("Hasil pembacaan dokumen akan tampil setelah layanan ekstraksi tersedia.")).toBeInTheDocument();
+    expect(screen.queryByText("Perlu Diperiksa")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Simpan Draft" })).not.toBeInTheDocument();
+  });
+
+  it("summary exposes the complete source status strip and readiness drawer", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
+    render(<PropertySummaryPage workspaceKey="proyek-utama" />);
+    expect(await screen.findByRole("heading", { name: "Ringkasan Property" })).toBeInTheDocument();
+    const strip = screen.getByRole("region", { name: "Status sumber data Property" });
+    for (const source of ["Project", "Progress", "Unit", "Contractor", "Finance", "Sales", "Legal", "Material"]) {
+      expect(strip).toHaveTextContent(source);
+    }
+    expect(screen.queryByText("Belum ada data")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Lihat Status Data" }));
+    expect(screen.getByRole("dialog", { name: "Status Data Property" })).toBeInTheDocument();
+  });
+
+  it("exposes the final Property form field matrix without enabling mutations", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
+
+    render(<PropertyProgressPage workspaceKey="proyek-utama" />);
+    expect(await screen.findByRole("heading", { name: "Progres & Jadwal" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Tambah Progres" }));
+    for (const label of ["Proyek *", "Work Package *", "Periode / Tanggal *", "Rencana %", "Aktual %", "Kuantitas", "Unit", "Evidence *", "Catatan"]) expect(screen.getByLabelText(label)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Batal" }));
+    cleanup();
+
+    render(<PropertyQualityPage workspaceKey="proyek-utama" />);
+    expect(await screen.findByRole("heading", { name: "Inspeksi & Kualitas" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Tambah Inspeksi" }));
+    for (const label of ["Proyek *", "Unit / Work Package *", "Jenis Inspeksi *", "Tanggal *", "Inspektur *", "Checklist", "Hasil *", "Evidence *", "Catatan"]) expect(screen.getByLabelText(label)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Batal" }));
+    cleanup();
+
+    render(<PropertyMaterialsPage workspaceKey="proyek-utama" />);
+    expect(await screen.findByRole("heading", { name: "Material & Pengadaan" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Ajukan Permintaan Material" }));
+    for (const label of ["Proyek *", "Work Package *", "Material *", "Kuantitas *", "Unit *", "Tanggal Kebutuhan *", "Alasan *", "Spesifikasi", "Evidence"]) expect(screen.getByLabelText(label)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Simpan Permintaan" })).toBeDisabled();
+  });
+
+  it("keeps Unit and Contractor detail information separated with final tabs", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
+    render(<PropertyUnitDetailPage unitId="unit-1" workspaceKey="proyek-utama" />);
+    expect(await screen.findByRole("heading", { name: "Detail Unit" })).toBeInTheDocument();
+    for (const label of ["Ringkasan", "Progres", "Milestone", "Inspeksi", "Dokumen", "Temuan", "Booking / Sales", "Serah Terima", "Aktivitas"]) expect(screen.getByRole("tab", { name: label })).toBeInTheDocument();
+    expect(screen.getByText("Status Komersial")).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Booking Status/i)).not.toBeInTheDocument();
+    cleanup();
+
+    render(<PropertyContractorDetailPage contractorId="contractor-1" workspaceKey="proyek-utama" />);
+    expect(await screen.findByRole("heading", { name: "Detail Kontraktor" })).toBeInTheDocument();
+    for (const label of ["Ringkasan", "Pekerjaan", "Progres", "Dokumen", "Inspeksi", "Temuan", "Opname", "Riwayat"]) expect(screen.getByRole("tab", { name: label })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Paid|Approve Contract/i })).not.toBeInTheDocument();
+  });
+
+  it("quality flow points to Shared Work and keeps failed inspection actions unavailable", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
+    render(<PropertyQualityPage workspaceKey="proyek-utama" />);
+    expect(await screen.findByRole("heading", { name: "Inspeksi & Kualitas" })).toBeInTheDocument();
+    for (const step of ["Inspeksi", "Temuan", "Tindakan Korektif", "Bukti", "Verifikasi", "Tutup"]) expect(screen.getAllByText(step).length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: "Buat Temuan" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Buat Tindakan Korektif" })).toBeDisabled();
+    const qualitySource = readFileSync(resolve("src/features/property/quality/property-quality-page.tsx"), "utf8");
+    expect(qualitySource).toContain("/findings");
+    expect(qualitySource).toContain("/tasks");
+  });
+
+  it("portfolio preserves the canonical Shared Work Project destination", () => {
+    const portfolioSource = readFileSync(resolve("src/features/property/portfolio/property-portfolio-page.tsx"), "utf8");
+    expect(portfolioSource).toContain("/projects/");
+    expect(portfolioSource).toContain("Buka Proyek");
   });
 
   it("has canonical Property routes and no static Property route tree or duplicate ownership", () => {

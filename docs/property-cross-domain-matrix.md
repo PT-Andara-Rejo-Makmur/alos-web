@@ -21,6 +21,10 @@ Property dan Sales tidak membuat dua source unit availability. Technical readine
 
 Frontend form/action Property tidak memiliki authority untuk cross-domain state. Jika capability belum canonical, action disabled/unavailable.
 
+Pada halaman Unit, Status Komersial/Booking dan pada halaman Kontraktor, Status Legal serta Pembayaran hanya projection read-only. Property tidak boleh menampilkan action `Paid`, `Approve Contract`, mengubah booking Sales, atau menyimpulkan status gabungan `Available`. Pada Summary, Financial Visibility juga hanya menampilkan Rencana Anggaran, Committed, Aktual, dan Deviasi jika projection Finance tersedia.
+
+Quality menghubungkan Inspection ke Shared Work Finding dan Shared Work Task secara kontekstual. Property tidak membuat entity Finding atau Task baru.
+
 ## Deferred until dashboard phase complete
 
 - Canonical projection contracts.

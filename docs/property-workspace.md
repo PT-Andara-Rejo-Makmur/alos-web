@@ -25,6 +25,14 @@ Portfolio mereferensikan canonical Shared Work Project. Tombol `Buka Proyek` men
 
 Cross-domain state Finance, Legal, Sales, Strategy, dan approval ditampilkan sebagai projection read-only. Property frontend tidak memanggil endpoint domain speculative dan tidak mengarang record.
 
+Ringkasan menampilkan context bar, status source untuk Project, Progress, Unit, Contractor, Finance, Sales, Legal, dan Material, enam metric ringkas, Kondisi Proyek, Perhatian Utama, Kesiapan Unit, Ringkasan Kontraktor, Ringkasan Anggaran, serta Persetujuan & Temuan. Tombol `Lihat Status Data` membuka detail kesiapan source.
+
+Portfolio memiliki quick view teknis dan tombol `Buka Proyek` menuju `/workspace/{workspaceKey}/projects/{projectId}`; tidak ada entity Project kedua di `src/features/property`. Detail Unit dan Kontraktor memiliki tab kesiapan yang tetap source-honest dan tervalidasi oleh PropertyLayout.
+
+Quality memakai alur `Inspeksi → Temuan → Tindakan Korektif → Bukti → Verifikasi → Tutup`. Temuan tetap Shared Work Finding dan tindakan korektif tetap Shared Work Task. Semua command Property masih disabled/unavailable sampai capability authoritative tersedia.
+
+Ekstraksi dokumen hanya menampilkan source unavailable dan pesan bahwa kandidat belum tersedia ketika layanan ekstraksi belum terhubung. Frontend tidak membuat kandidat, confidence, atau hasil ekstraksi sintetis.
+
 ## Deferred until dashboard phase complete
 
 - Property projection dan command contracts.

@@ -15,6 +15,8 @@ Dokumen ini mencatat state yang belum memiliki canonical source yang siap dipaka
 | Material Request lifecycle | NEEDS DECISION | Perlu definisi requirement, reservation, procurement projection, dan payment boundary. |
 | Handover lifecycle | NEEDS DECISION | Perlu definisi readiness, evidence, Legal/Finance dependency, dan approval. |
 
+UI yang tersedia saat ini adalah struktur readiness, bukan keputusan lifecycle: field form, tab detail, alur quality, dan review ekstraksi tidak menetapkan state authoritative. Candidate ekstraksi tidak menjadi draft atau active tanpa human review dan verification dari service yang canonical.
+
 ## Deferred until dashboard phase complete
 
 - Contracts decision dan schema.

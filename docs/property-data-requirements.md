@@ -18,6 +18,10 @@
 
 Null atau unavailable tidak diterjemahkan menjadi angka nol, `Tepat Waktu`, `Aman`, `Available`, atau status operasional lain. UI menggunakan `—`, `Belum Terhubung`, `Belum Dinilai`, atau `Belum ada data` sesuai source state.
 
+Source state harus mutually exclusive: `loading`, `unavailable`, `error`, `connected-empty`, atau `connected-data`. Ringkasan tidak menghitung deviasi, readiness, target, actual, atau status lintas domain jika baseline/source authoritative belum tersedia. Financial, Legal, dan Sales pada Summary, Unit, dan Kontraktor selalu read-only projection.
+
+Portfolio dan detail teknis memakai canonical Shared Work Project sebagai identity. Unit memisahkan Status Konstruksi, Kesiapan Teknis, Status Komersial, dan Serah Terima; Status Komersial berasal dari Sales. Contractor memisahkan Pelaksanaan Teknis, Status Legal, dan Pembayaran. S-Curve hanya boleh dirender bila observasi progres authoritative tersedia.
+
 ## Required projection properties
 
 Projection masa depan harus membawa workspace scope, canonical record identity, source, freshness, period, classification, verification, evidence, dan permission/capability context. Candidate extraction bukan authoritative state.
