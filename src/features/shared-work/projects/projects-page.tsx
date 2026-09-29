@@ -15,6 +15,7 @@ import { WorkErrorState } from "../shared/errors/work-error-state";
 import { WorkToolbar } from "../shared/filters/work-toolbar";
 import { WorkLoading } from "../shared/loading/work-loading";
 import { canCreateProject } from "../shared/permissions/authority";
+import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
 import { ProjectStatusBadge } from "../shared/status/project-status";
 import { WorkDataTable } from "../shared/tables/work-data-table";
 import { ProjectDrawer } from "./project-drawer";
@@ -85,16 +86,21 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
     };
   }, []);
 
-  // Load Projects from Backend
+  const authoritativeWorkspaceKey = authoritativeSharedWorkKey(session, embed ? undefined : workspaceKey);
+
+  // Load Projects from Backend only after the session has validated the route boundary.
   useEffect(() => {
     let cancelled = false;
 
     async function loadData() {
+      if (!session || !authoritativeWorkspaceKey) {
+        return;
+      }
       setProjectsLoading(true);
       const response = await fetchProjects({
         search,
         status: statusFilter,
-        workspaceKey: workspaceKey ?? undefined,
+        workspaceKey: authoritativeWorkspaceKey,
       });
 
       if (cancelled) return;
@@ -110,13 +116,9 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
     return () => {
       cancelled = true;
     };
-  }, [search, statusFilter, workspaceKey]);
+  }, [authoritativeWorkspaceKey, search, session, statusFilter]);
 
-  const effectiveWorkspaceKey =
-    workspaceKey ??
-    (session?.principal && "actor" in session.principal && session.principal.active_workspace
-      ? session.principal.active_workspace.workspace.workspace_key
-      : null);
+  const effectiveWorkspaceKey = authoritativeWorkspaceKey;
 
   const canCreate = useMemo(() => canCreateProject(session), [session]);
 
@@ -221,6 +223,10 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
         title="Autentikasi Diperlukan"
       />
     );
+  }
+
+  if (!effectiveWorkspaceKey) {
+    return <WorkErrorState error={new Error("Workspace route tidak sesuai dengan active workspace.")} title="Akses Ditolak" />;
   }
 
   const canOpenExecutive = hasExecutiveContext(session);

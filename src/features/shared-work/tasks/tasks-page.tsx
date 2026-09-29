@@ -15,6 +15,7 @@ import { WorkErrorState } from "../shared/errors/work-error-state";
 import { WorkToolbar } from "../shared/filters/work-toolbar";
 import { WorkLoading } from "../shared/loading/work-loading";
 import { canCreateTask } from "../shared/permissions/authority";
+import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
 import { WorkDataTable } from "../shared/tables/work-data-table";
 import { TaskDrawer } from "./task-drawer";
 import { fetchTasks } from "./task-model";
@@ -69,17 +70,22 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
     };
   }, []);
 
-  // Load Tasks from Backend
+  const authoritativeWorkspaceKey = authoritativeSharedWorkKey(session, embed ? undefined : workspaceKey);
+
+  // Load Tasks from Backend only after the session has validated the route boundary.
   useEffect(() => {
     let cancelled = false;
 
     async function loadData() {
+      if (!session || !authoritativeWorkspaceKey) {
+        return;
+      }
       setTasksLoading(true);
       const response = await fetchTasks({
         priority: priorityFilter,
         search,
         status: statusFilter,
-        workspaceKey: workspaceKey ?? undefined,
+        workspaceKey: authoritativeWorkspaceKey,
       });
 
       if (cancelled) return;
@@ -95,13 +101,9 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
     return () => {
       cancelled = true;
     };
-  }, [priorityFilter, search, statusFilter, workspaceKey]);
+  }, [authoritativeWorkspaceKey, priorityFilter, search, session, statusFilter]);
 
-  const effectiveWorkspaceKey =
-    workspaceKey ??
-    (session?.principal && "actor" in session.principal && session.principal.active_workspace
-      ? session.principal.active_workspace.workspace.workspace_key
-      : null);
+  const effectiveWorkspaceKey = authoritativeWorkspaceKey;
 
   const currentActorId =
     session?.principal && "actor" in session.principal ? session.principal.actor.actor_id : null;
@@ -232,6 +234,10 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
         title="Akses Ditolak"
       />
     );
+  }
+
+  if (!effectiveWorkspaceKey) {
+    return <WorkErrorState error={new Error("Workspace route tidak sesuai dengan active workspace.")} title="Akses Ditolak" />;
   }
 
   const canOpenExecutive = hasExecutiveContext(session);

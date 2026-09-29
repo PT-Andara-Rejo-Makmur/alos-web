@@ -85,4 +85,14 @@ describe("IT account management authority boundary", () => {
     const provisionCall = request.mock.calls.find(([path, options]) => path === "/api/v1/identity/accounts" && options?.method === "POST");
     expect(provisionCall?.[1]?.body).toEqual(expect.objectContaining({ workspace_id: "workspace_it_ops", role_refs: ["WORKSPACE_MEMBER"] }));
   });
+
+  it("fails closed on an IT route mismatch without changing active workspace", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(session);
+    const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue([] as never);
+
+    render(<AccountManagementPage workspaceKey="it-secondary" />);
+
+    await waitFor(() => expect(screen.getByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument());
+    expect(request).not.toHaveBeenCalledWith("/api/v1/auth/active-workspace", expect.anything());
+  });
 });

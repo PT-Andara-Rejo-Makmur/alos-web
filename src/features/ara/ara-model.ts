@@ -1,4 +1,4 @@
-import type { SessionProjection } from "@/features/session";
+import { resolveWorkspaceDomain, type SessionProjection } from "@/features/session";
 import type { DataClassification } from "@/lib/contracts";
 
 /** Context representation supplied to ARA derived strictly from authoritative session. */
@@ -30,6 +30,10 @@ export function extractAraContext(
   requestedWorkspaceKey?: string | null,
 ): AraContext | null {
   if (!session?.authenticated || !session.principal || !("actor" in session.principal)) {
+    return null;
+  }
+
+  if (!resolveWorkspaceDomain(session, requestedWorkspaceKey).valid) {
     return null;
   }
 

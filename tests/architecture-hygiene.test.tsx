@@ -3,6 +3,7 @@ import { render, screen, waitFor, cleanup } from "@testing-library/react";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
+import { resolveWorkspaceDomain } from "@/features/session";
 import * as api from "@/lib/api";
 
 // Universal navigation and features
@@ -24,10 +25,10 @@ import { SalesSummaryPage } from "@/features/sales";
 
 // Routes under [workspaceKey]
 import WorkspaceKeyRoot from "@/app/workspace/[workspaceKey]/page";
-import SummaryRoute from "@/app/workspace/[workspaceKey]/summary/page";
-import PerformanceRoute from "@/app/workspace/[workspaceKey]/performance/page";
-import UniversalAraRoute from "@/app/workspace/[workspaceKey]/ara/page";
-import UniversalProjectsRoute from "@/app/workspace/[workspaceKey]/projects/page";
+import SummaryRoute from "@/app/workspace/[workspaceKey]/(domain)/summary/page";
+import PerformanceRoute from "@/app/workspace/[workspaceKey]/(domain)/performance/page";
+import UniversalAraRoute from "@/app/workspace/[workspaceKey]/(assistant)/ara/page";
+import UniversalProjectsRoute from "@/app/workspace/[workspaceKey]/(shared-work)/projects/page";
 
 const mockReplace = vi.fn();
 
@@ -82,6 +83,26 @@ function createSession(
 describe("Final Architecture Consistency & Hygiene Guard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("rejects an unrecognized workspace domain instead of treating it as generic", () => {
+    const unknownSession = createSession("workspace-tidak-dikenal", "UNRECOGNIZED", "BUSINESS");
+    const resolution = resolveWorkspaceDomain(unknownSession, "workspace-tidak-dikenal");
+
+    expect(resolution).toMatchObject({
+      valid: false,
+      domain: "UNKNOWN",
+      failureReason: "unknown_domain",
+    });
+  });
+
+  it("does not synthesize workspace authority from executive or sales literals", () => {
+    const navigation = readFileSync(resolve("src/app/navigation.ts"), "utf8");
+    const shell = readFileSync(resolve("src/components/app-shell/app-shell.tsx"), "utf8");
+
+    expect(navigation).not.toMatch(/effectiveWorkspaceKey\s*===\s*["'](?:executive|sales)["']/);
+    expect(navigation).not.toMatch(/\?\?\s*["'](?:executive|sales)["']/);
+    expect(shell).not.toMatch(/workspaceKey\s*===\s*["'](?:executive|sales|it)["']/);
   });
 
   afterEach(() => {
@@ -356,17 +377,22 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
       expect(execFiles).toEqual(["page.tsx"]);
     });
 
-    it("src/app/workspace/[workspaceKey] contains canonical feature routes for all domains", () => {
+    it("uses route groups without changing canonical public URLs", () => {
       const base = "src/app/workspace/[workspaceKey]";
-      const requiredRoutes = [
-        "summary", "performance", "brief", "planning", "initiatives",
-        "reviews", "divisions", "pipeline", "leads", "activities",
-        "bookings", "kpr", "campaigns", "accounts", "projects",
-        "tasks", "approvals", "documents", "reports", "findings", "ara",
+      const sharedRoutes = ["projects", "tasks", "approvals", "documents", "reports", "findings"];
+      const domainRoutes = [
+        "summary", "performance", "brief", "planning", "initiatives", "reviews", "divisions",
+        "pipeline", "leads", "activities", "bookings", "kpr", "campaigns",
       ];
-      for (const route of requiredRoutes) {
-        expect(existsSync(resolve(`${base}/${route}/page.tsx`))).toBe(true);
+      for (const route of sharedRoutes) {
+        expect(existsSync(resolve(`${base}/(shared-work)/${route}/page.tsx`))).toBe(true);
       }
+      for (const route of domainRoutes) {
+        expect(existsSync(resolve(`${base}/(domain)/${route}/page.tsx`))).toBe(true);
+      }
+      expect(existsSync(resolve(`${base}/(assistant)/ara/page.tsx`))).toBe(true);
+      expect(existsSync(resolve(`${base}/(administration)/accounts/page.tsx`))).toBe(true);
+      expect(existsSync(resolve(`${base}/shared-work`))).toBe(false);
     });
 
     it("src/features/sales does not implement duplicate shared work or ARA", () => {
@@ -385,10 +411,7 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
       const execDir = resolve("src/features/executive");
       const files = readdirSync(execDir);
       expect(files).not.toContain("executive-shared-work.tsx");
-      const araWrapper = readFileSync(resolve(execDir, "executive-ara.tsx"), "utf-8");
-      // Must only delegate to Universal ARA
-      expect(araWrapper).toContain("@/features/ara");
-      expect(araWrapper).not.toContain("useState");
+      expect(files).not.toContain("executive-ara.tsx");
     });
   });
 });

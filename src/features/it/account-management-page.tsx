@@ -35,10 +35,10 @@ import {
   listIdentityWorkspaces,
   provisionIdentityAccount,
   revokeAccountMembership,
-  selectActiveWorkspace,
   setAccountActive,
 } from "./account-management-api";
 import { activeWorkspaceKey, hasItAccountManagementAccess } from "./account-management-model";
+import { resolveWorkspaceDomain } from "@/features/session";
 import styles from "./account-management-page.module.css";
 
 type PageState = "loading" | "ready" | "denied" | "session_expired" | "error";
@@ -113,21 +113,14 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
     let cancelled = false;
     async function preparePage() {
       try {
-        let nextSession = await sessionApiRequest<SessionProjection>("/");
+        const nextSession = await sessionApiRequest<SessionProjection>("/");
         if (cancelled) return;
-        const targetMembership = nextSession.principal && "actor" in nextSession.principal
-          ? nextSession.principal.workspace_access.find((access) => access.workspace.workspace_key === workspaceKey)
-          : null;
-        const allowed = hasItAccountManagementAccess(nextSession, workspaceKey);
-        if (!allowed || !targetMembership) {
+        const resolution = resolveWorkspaceDomain(nextSession, workspaceKey);
+        const allowed = resolution.valid && resolution.domain === "IT" && hasItAccountManagementAccess(nextSession);
+        if (!allowed) {
           setSession(nextSession);
           setPageState("denied");
           return;
-        }
-        const active = activeMembership(nextSession);
-        if (active?.workspace.workspace_key !== workspaceKey) {
-          await selectActiveWorkspace(targetMembership.workspace.workspace_id);
-          nextSession = await sessionApiRequest<SessionProjection>("/");
         }
         if (cancelled) return;
         setSession(nextSession);

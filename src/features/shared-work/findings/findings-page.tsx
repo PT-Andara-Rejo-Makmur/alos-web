@@ -14,6 +14,7 @@ import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { WorkErrorState } from "../shared/errors/work-error-state";
 import { WorkToolbar } from "../shared/filters/work-toolbar";
 import { WorkLoading } from "../shared/loading/work-loading";
+import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
 import { WorkDataTable } from "../shared/tables/work-data-table";
 import { FindingDrawer } from "./finding-drawer";
 import { fetchFindings } from "./finding-model";
@@ -83,15 +84,20 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
   }, []);
 
   // Load Findings from Backend
+  const authoritativeWorkspaceKey = authoritativeSharedWorkKey(session, embed ? undefined : workspaceKey);
+
   useEffect(() => {
     let cancelled = false;
 
     async function loadData() {
+      if (!session || !authoritativeWorkspaceKey) {
+        return;
+      }
       setFindingsLoading(true);
       const response = await fetchFindings({
         search,
         status: statusFilter,
-        workspaceKey: workspaceKey ?? undefined,
+        workspaceKey: authoritativeWorkspaceKey,
       });
 
       if (cancelled) return;
@@ -107,13 +113,9 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
     return () => {
       cancelled = true;
     };
-  }, [search, statusFilter, workspaceKey]);
+  }, [authoritativeWorkspaceKey, search, session, statusFilter]);
 
-  const effectiveWorkspaceKey =
-    workspaceKey ??
-    (session?.principal && "actor" in session.principal && session.principal.active_workspace
-      ? session.principal.active_workspace.workspace.workspace_key
-      : null);
+  const effectiveWorkspaceKey = authoritativeWorkspaceKey;
 
   const currentActorId =
     session?.principal && "actor" in session.principal ? session.principal.actor.actor_id : null;
@@ -238,6 +240,10 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
         title="Akses Ditolak"
       />
     );
+  }
+
+  if (!effectiveWorkspaceKey) {
+    return <WorkErrorState error={new Error("Workspace route tidak sesuai dengan active workspace.")} title="Akses Ditolak" />;
   }
 
   const canOpenExecutive = hasExecutiveContext(session);

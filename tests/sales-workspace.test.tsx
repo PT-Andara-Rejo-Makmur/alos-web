@@ -5,16 +5,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { navigationForSession } from "@/app/navigation";
 import { WorkspaceModuleRedirect } from "@/app/workspace/workspace-redirect";
 import WorkspaceKeyRoot from "@/app/workspace/[workspaceKey]/page";
-import SummaryRoute from "@/app/workspace/[workspaceKey]/summary/page";
-import PipelineRoute from "@/app/workspace/[workspaceKey]/pipeline/page";
-import LeadsRoute from "@/app/workspace/[workspaceKey]/leads/page";
-import ActivitiesRoute from "@/app/workspace/[workspaceKey]/activities/page";
-import BookingsRoute from "@/app/workspace/[workspaceKey]/bookings/page";
-import KprRoute from "@/app/workspace/[workspaceKey]/kpr/page";
-import CampaignsRoute from "@/app/workspace/[workspaceKey]/campaigns/page";
-import PerformanceRoute from "@/app/workspace/[workspaceKey]/performance/page";
-import AraRoute from "@/app/workspace/[workspaceKey]/ara/page";
-import WorkspaceProjectsPageRoute from "@/app/workspace/[workspaceKey]/projects/page";
+import SummaryRoute from "@/app/workspace/[workspaceKey]/(domain)/summary/page";
+import PipelineRoute from "@/app/workspace/[workspaceKey]/(domain)/pipeline/page";
+import LeadsRoute from "@/app/workspace/[workspaceKey]/(domain)/leads/page";
+import ActivitiesRoute from "@/app/workspace/[workspaceKey]/(domain)/activities/page";
+import BookingsRoute from "@/app/workspace/[workspaceKey]/(domain)/bookings/page";
+import KprRoute from "@/app/workspace/[workspaceKey]/(domain)/kpr/page";
+import CampaignsRoute from "@/app/workspace/[workspaceKey]/(domain)/campaigns/page";
+import PerformanceRoute from "@/app/workspace/[workspaceKey]/(domain)/performance/page";
+import AraRoute from "@/app/workspace/[workspaceKey]/(assistant)/ara/page";
+import WorkspaceProjectsPageRoute from "@/app/workspace/[workspaceKey]/(shared-work)/projects/page";
 import { SalesReadinessPage } from "@/features/sales";
 import {
   ApprovalsPage,
@@ -193,10 +193,10 @@ describe("Sales workspace", () => {
     expect(screen.getAllByRole("button", { name: "Pilih workspace" })).toHaveLength(1);
 
     // Source honesty: unavailable message present, empty state absent
-    expect(screen.getByText("Data Dokumen Belum Terhubung")).toBeInTheDocument();
-    expect(
+    await waitFor(() => expect(screen.getByText("Data Dokumen Belum Terhubung")).toBeInTheDocument());
+    await waitFor(() => expect(
       screen.getByText("Data dokumen belum terhubung. Daftar dokumen akan ditampilkan setelah sumber data tersedia."),
-    ).toBeInTheDocument();
+    ).toBeInTheDocument());
     expect(screen.queryByText("Belum ada dokumen yang dapat Anda akses.")).not.toBeInTheDocument();
   });
 

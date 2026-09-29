@@ -46,8 +46,8 @@ export function ExecutiveReviewsPage({ initialReviewItems, workspaceKey }: Execu
 function ReviewsContent({
   initialReviewItems,
   workspaceKey,
-}: ExecutiveReviewsProps & { readonly workspaceKey?: string }) {
-  const base = `/workspace/${encodeURIComponent(workspaceKey ?? "executive")}`;
+}: ExecutiveReviewsProps & { readonly workspaceKey: string }) {
+  const base = `/workspace/${encodeURIComponent(workspaceKey)}`;
   const { data, error, loading } = useExecutiveStrategyData();
   const [tab, setTab] = useState("performance");
 

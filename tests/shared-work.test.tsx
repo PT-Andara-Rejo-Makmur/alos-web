@@ -139,7 +139,7 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
         expect(screen.getByRole("heading", { name: "Proyek", level: 1 })).toBeInTheDocument();
       });
 
-      expect(screen.getByText("Data Proyek Belum Terhubung")).toBeInTheDocument();
+      await waitFor(() => expect(screen.getByText("Data Proyek Belum Terhubung")).toBeInTheDocument());
       expect(
         screen.queryByText("Belum ada proyek yang dapat Anda akses."),
       ).not.toBeInTheDocument();

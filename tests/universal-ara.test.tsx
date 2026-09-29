@@ -1,8 +1,7 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import AraRoute from "@/app/workspace/[workspaceKey]/ara/page";
-import { ExecutiveAraPage } from "@/features/executive";
+import AraRoute from "@/app/workspace/[workspaceKey]/(assistant)/ara/page";
 import {
   buildAraThreadKey,
   extractAraContext,
@@ -268,13 +267,13 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
 
   describe("Executive & Sales Migration to Universal ARA", () => {
     it("renders Universal ARA on executive route with authoritative Executive context", async () => {
-      const execSession = makeSession("executive", "", "Pusat Kendali", "EXECUTIVE", [
+      const execSession = makeSession("pusat-kendali", "", "Pusat Kendali", "EXECUTIVE", [
         "strategy.company.manage",
         "restricted.access",
       ]);
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(execSession);
 
-      render(<AraRoute params={{ workspaceKey: "executive" }} />);
+      render(<AraRoute params={{ workspaceKey: "pusat-kendali" }} />);
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
@@ -285,32 +284,12 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       // Executive navigation is rendered
       expect(screen.getByRole("link", { name: "Brief Eksekutif" })).toHaveAttribute(
         "href",
-        "/workspace/executive/brief",
+        "/workspace/pusat-kendali/brief",
       );
       expect(screen.getByRole("link", { name: "Tanya ARA" })).toHaveAttribute(
         "href",
-        "/workspace/executive/ara",
+        "/workspace/pusat-kendali/ara",
       );
-    });
-
-    it("ExecutiveAraPage delegates to Universal AraPage without duplicate UI implementation", async () => {
-      const execSession = makeSession("executive", "", "Pusat Kendali", "EXECUTIVE", [
-        "strategy.company.manage",
-      ]);
-      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(execSession);
-
-      render(<ExecutiveAraPage />);
-
-      await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
-      });
-      expect(screen.getByText("ARA belum terhubung.")).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          "ARA hanya dapat membaca data sesuai ruang kerja, hak akses, ruang lingkup, dan klasifikasi yang berlaku.",
-        ),
-      ).toBeInTheDocument();
-      expect(screen.getByText("Thread Terisolasi Berdasarkan Ruang Kerja")).toBeInTheDocument();
     });
 
     it("fails closed when a non-executive session attempts to access Executive ARA route", async () => {
@@ -364,10 +343,10 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       unmount();
 
       // 2. Render Executive
-      const execSession = makeSession("executive", "", "Pusat Kendali", "EXECUTIVE");
+      const execSession = makeSession("pusat-kendali", "", "Pusat Kendali", "EXECUTIVE");
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(execSession);
 
-      render(<AraRoute params={{ workspaceKey: "executive" }} />);
+      render(<AraRoute params={{ workspaceKey: "pusat-kendali" }} />);
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();

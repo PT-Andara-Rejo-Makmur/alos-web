@@ -14,6 +14,7 @@ import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { WorkErrorState } from "../shared/errors/work-error-state";
 import { WorkToolbar } from "../shared/filters/work-toolbar";
 import { WorkLoading } from "../shared/loading/work-loading";
+import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
 import { WorkDataTable } from "../shared/tables/work-data-table";
 import { ReportDrawer } from "./report-drawer";
 import { fetchReportDefinitions, fetchReportResults } from "./report-model";
@@ -92,15 +93,20 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
     };
   }, []);
 
-  // Load Results
+  const authoritativeWorkspaceKey = authoritativeSharedWorkKey(session, embed ? undefined : workspaceKey);
+
+  // Load Results only after the session has validated the route boundary.
   useEffect(() => {
     let cancelled = false;
 
     async function loadResults() {
+      if (!session || !authoritativeWorkspaceKey) {
+        return;
+      }
       setResultsLoading(true);
       const response = await fetchReportResults({
         search,
-        workspaceKey: workspaceKey ?? undefined,
+        workspaceKey: authoritativeWorkspaceKey,
       });
 
       if (cancelled) return;
@@ -116,17 +122,20 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
     return () => {
       cancelled = true;
     };
-  }, [search, workspaceKey]);
+  }, [authoritativeWorkspaceKey, search, session]);
 
   // Load Definitions
   useEffect(() => {
     let cancelled = false;
 
     async function loadDefs() {
+      if (!session || !authoritativeWorkspaceKey) {
+        return;
+      }
       setDefinitionsLoading(true);
       const response = await fetchReportDefinitions({
         search,
-        workspaceKey: workspaceKey ?? undefined,
+        workspaceKey: authoritativeWorkspaceKey,
       });
 
       if (cancelled) return;
@@ -142,13 +151,9 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
     return () => {
       cancelled = true;
     };
-  }, [search, workspaceKey]);
+  }, [authoritativeWorkspaceKey, search, session]);
 
-  const effectiveWorkspaceKey =
-    workspaceKey ??
-    (session?.principal && "actor" in session.principal && session.principal.active_workspace
-      ? session.principal.active_workspace.workspace.workspace_key
-      : null);
+  const effectiveWorkspaceKey = authoritativeWorkspaceKey;
 
   const primaryTabs: readonly TabItem[] = useMemo(
     () => [
@@ -300,6 +305,10 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
         title="Akses Ditolak"
       />
     );
+  }
+
+  if (!effectiveWorkspaceKey) {
+    return <WorkErrorState error={new Error("Workspace route tidak sesuai dengan active workspace.")} title="Akses Ditolak" />;
   }
 
   const canOpenExecutive = hasExecutiveContext(session);

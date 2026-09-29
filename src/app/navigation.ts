@@ -30,33 +30,32 @@ export function navigationForSession(
   const effectiveWorkspaceKey = workspaceKey ?? activeKey;
 
   const resolution = session ? resolveWorkspaceDomain(session, effectiveWorkspaceKey) : null;
+  const navigationWorkspaceKey = resolution?.valid
+    ? resolution.activeWorkspaceKey
+    : session
+      ? activeKey
+      : effectiveWorkspaceKey;
 
   if (resolution?.valid) {
     if (resolution.domain === "EXECUTIVE") {
-      return executiveNavigation(resolution.activeWorkspaceKey ?? effectiveWorkspaceKey ?? "executive");
+      return executiveNavigation(resolution.activeWorkspaceKey!);
     }
     if (resolution.domain === "SALES") {
-      return salesNavigation(resolution.activeWorkspaceKey ?? effectiveWorkspaceKey ?? "sales");
+      return salesNavigation(resolution.activeWorkspaceKey!);
     }
   }
 
-  if (includeExecutive && effectiveWorkspaceKey && effectiveWorkspaceKey === "executive") {
-    return executiveNavigation("executive");
-  }
-
-  const base = effectiveWorkspaceKey ? `/workspace/${effectiveWorkspaceKey}` : "/workspace";
+  const base = navigationWorkspaceKey ? `/workspace/${encodeURIComponent(navigationWorkspaceKey)}` : "/workspace";
   const executiveHref =
     resolution?.domain === "EXECUTIVE" && resolution.activeWorkspaceKey
-      ? `/workspace/${resolution.activeWorkspaceKey}/summary`
-      : effectiveWorkspaceKey
-        ? `/workspace/${effectiveWorkspaceKey}/summary`
-        : "/workspace/executive";
+      ? `/workspace/${encodeURIComponent(resolution.activeWorkspaceKey)}/summary`
+      : null;
 
   const sections: AppNavigationSection[] = [
     {
       items: [
         { href: "/workspace", icon: House, label: "Beranda" },
-        ...(includeExecutive
+        ...(includeExecutive && executiveHref
           ? [{ href: executiveHref, icon: LayoutDashboard, label: "Pusat Kendali" }]
           : []),
       ],
@@ -80,8 +79,8 @@ export function navigationForSession(
       label: "ARA",
     },
   ];
-  return includeAccountManagement && workspaceKey
-    ? [...sections, { items: [{ href: `/workspace/${workspaceKey}/accounts`, icon: Users, label: "Pengguna & Akses" }], label: "ADMINISTRASI" }]
+  return includeAccountManagement && navigationWorkspaceKey
+    ? [...sections, { items: [{ href: `${base}/accounts`, icon: Users, label: "Pengguna & Akses" }], label: "ADMINISTRASI" }]
     : sections;
 }
 

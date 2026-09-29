@@ -87,14 +87,16 @@ export function getAppShellProfile(session: SessionProjection): AppShellProfile 
 
 const workspaceSections = new Set(["projects", "tasks", "approvals", "documents", "reports", "findings", "accounts"]);
 
-function workspaceDestination(pathname: string, workspaceKey: string): string {
+function workspaceDestination(pathname: string, workspace: WorkspaceAccessProjection): string {
+  const workspaceKey = workspace.workspace.workspace_key;
   const match = pathname.match(/^\/workspace\/[^/]+(\/.*)?$/);
   const suffix = match?.[1] ?? "";
   const section = suffix.split("/").filter(Boolean)[0];
-  const canKeepSection = Boolean(section && workspaceSections.has(section) && (section !== "accounts" || workspaceKey === "it"));
+  const canManageAccounts = workspace.workspace.workspace_type === "IT_OPERATIONS"
+    && workspace.permission_refs.includes("identity.accounts.manage");
+  const canKeepSection = Boolean(section && workspaceSections.has(section) && (section !== "accounts" || canManageAccounts));
 
   if (canKeepSection) return `/workspace/${workspaceKey}${suffix}`;
-  if (workspaceKey === "executive") return "/workspace/executive";
   return `/workspace/${workspaceKey}/projects`;
 }
 
@@ -140,7 +142,7 @@ export function AppShell({
   const switchWorkspace = useCallback(async (workspace: WorkspaceAccessProjection) => {
     if (switchingWorkspace) return;
     if (workspace.workspace.workspace_id === profile.activeWorkspaceId) {
-      const destination = workspaceDestination(window.location.pathname, workspace.workspace.workspace_key);
+      const destination = workspaceDestination(window.location.pathname, workspace);
       if (destination !== window.location.pathname) router.push(destination);
       return;
     }
@@ -148,7 +150,7 @@ export function AppShell({
     setWorkspaceSwitchError(null);
     try {
       await selectActiveWorkspace(workspace.workspace.workspace_id);
-      router.push(workspaceDestination(window.location.pathname, workspace.workspace.workspace_key));
+      router.push(workspaceDestination(window.location.pathname, workspace));
       router.refresh();
     } catch (error) {
       setWorkspaceSwitchError(getWorkspaceSwitchError(error));

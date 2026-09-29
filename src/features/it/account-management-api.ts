@@ -9,8 +9,6 @@ import type {
   WorkspaceProjection,
 } from "@/lib/contracts";
 
-export { selectActiveWorkspace } from "@/features/session";
-
 export function listIdentityAccounts(): Promise<IdentityAccountProjection[]> {
   return authenticatedApiRequest<IdentityAccountProjection[]>("/api/v1/identity/accounts");
 }
@@ -71,4 +69,3 @@ export function setAccountActive(actorId: string, active: boolean): Promise<Acco
     { method: "POST" },
   );
 }
-

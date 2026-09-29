@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { sessionApiRequest } from "@/lib/api";
-import type { SessionProjection } from "@/features/session";
+import { resolveWorkspaceDomain, type SessionProjection } from "@/features/session";
 
 export function WorkspaceModuleRedirect({ module }: { readonly module: string }) {
   const router = useRouter();
@@ -17,7 +17,7 @@ export function WorkspaceModuleRedirect({ module }: { readonly module: string })
           session?.principal && "actor" in session.principal && session.principal.active_workspace
             ? session.principal.active_workspace.workspace.workspace_key
             : null;
-        if (workspaceKey) {
+        if (workspaceKey && resolveWorkspaceDomain(session, workspaceKey).valid) {
           router.replace(`/workspace/${encodeURIComponent(workspaceKey)}/${module}`);
         } else {
           router.replace("/workspace");

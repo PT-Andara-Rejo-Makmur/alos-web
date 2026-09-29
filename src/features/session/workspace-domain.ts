@@ -82,9 +82,10 @@ export function resolveWorkspaceDomain(
 
   return {
     authenticated: true,
-    valid: true,
+    valid: domain !== "UNKNOWN",
     domain,
     activeWorkspaceKey: activeKey,
     workspaceName: workspace.workspace_name,
+    ...(domain === "UNKNOWN" ? { failureReason: "unknown_domain" as const } : {}),
   };
 }

@@ -10,4 +10,5 @@ export * from "./loading";
 export * from "./errors";
 export * from "./permissions";
 export * from "./drawers";
+export { SharedWorkDetailRoute, type SharedWorkDetailRouteProps } from "./detail-route";
 export { ModulePlaceholder } from "./module-placeholder";
