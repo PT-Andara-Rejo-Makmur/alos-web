@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Settings } from "lucide-react";
+import { Bot, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import styles from "./app-shell.module.css";
@@ -13,7 +13,10 @@ interface GlobalUserNavigationProps {
 
 export function GlobalUserNavigation({ collapsed = false, onNavigate }: GlobalUserNavigationProps) {
   const pathname = usePathname() ?? "";
-  const items = [{ href: "/settings/profile", icon: Settings, label: "Pengaturan" }] as const;
+  const items = [
+    { href: "/workspace", icon: Bot, label: "AI Workspace" },
+    { href: "/settings/profile", icon: Settings, label: "Pengaturan" },
+  ] as const;
 
   return (
     <div className={styles.navigationSection}>

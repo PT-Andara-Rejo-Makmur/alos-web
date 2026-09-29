@@ -17,11 +17,10 @@ export function SettingsSecurityPage() {
       <Section description="Perubahan kata sandi menunggu layanan resmi." title="Kata Sandi">
         <form className={styles.formStack} onSubmit={(event) => event.preventDefault()}>
           <div className={styles.formGrid}>
-            <FormField description="Metode autentikasi akun belum dapat diverifikasi." htmlFor="settings-current-password" label="Kata Sandi Saat Ini" required><input autoComplete="current-password" className={styles.formControl} disabled id="settings-current-password" type="password" /></FormField>
-            <FormField description="Metode autentikasi akun belum dapat diverifikasi." htmlFor="settings-new-password" label="Kata Sandi Baru" required><input autoComplete="new-password" className={styles.formControl} disabled id="settings-new-password" type="password" /></FormField>
-            <FormField description="Metode autentikasi akun belum dapat diverifikasi." htmlFor="settings-confirm-password" label="Konfirmasi Kata Sandi Baru" required><input autoComplete="new-password" className={styles.formControl} disabled id="settings-confirm-password" type="password" /></FormField>
+            <FormField htmlFor="settings-current-password" label="Kata Sandi Saat Ini" required><input autoComplete="current-password" className={styles.formControl} id="settings-current-password" type="password" /></FormField>
+            <FormField htmlFor="settings-new-password" label="Kata Sandi Baru" required><input autoComplete="new-password" className={styles.formControl} id="settings-new-password" type="password" /></FormField>
+            <FormField htmlFor="settings-confirm-password" label="Konfirmasi Kata Sandi Baru" required><input autoComplete="new-password" className={styles.formControl} id="settings-confirm-password" type="password" /></FormField>
           </div>
-          <p className={styles.formHint}>Perubahan kata sandi tersedia setelah metode autentikasi akun dapat diverifikasi.</p>
           <div className={styles.actions}><Button disabled type="submit">Ubah Kata Sandi</Button></div>
         </form>
       </Section>

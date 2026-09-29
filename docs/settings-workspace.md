@@ -17,8 +17,6 @@ Authority utama adalah principal dari session BFF saat ini. Workspace aktif hany
 
 Settings memakai satu `AppShell` dan global user navigation di bawah navigasi domain. Link Pengaturan tidak ditambahkan ke sidebar Executive, Sales, Property, Finance, Legal, HR/GA, atau IT, sehingga menu domain yang sudah dibekukan tidak berubah. Mobile memakai `AppSidebar` yang sama.
 
-Global navigation saat ini hanya menampilkan **Pengaturan**. AI Workspace belum tersedia dan tidak memakai `/workspace` sebagai placeholder; link AI baru boleh ditambahkan setelah route `/ai` tersedia.
-
 ## Menu
 
 - AKUN: Profil, Keamanan, Sesi & Perangkat
@@ -32,7 +30,7 @@ Email login bersifat read-only. Profil tidak melakukan fake persistence, tidak m
 
 ## Keamanan, sesi, dan preferensi
 
-Perubahan kata sandi, metode autentikasi, registry sesi jarak jauh, pencabutan sesi jarak jauh, notifikasi, dan preferensi tampilan masih readiness-only. Karena metode autentikasi belum dapat diverifikasi, seluruh field kata sandi dinonaktifkan dan tetap kosong. Sesi saat ini hanya menampilkan metadata yang ada dari session (`issued_at`, `expires_at`, dan status). Logout sesi saat ini memakai boundary `DELETE /api/session` yang sudah digunakan AppShell; kegagalan tidak dianggap logout berhasil dan tidak mengarahkan pengguna keluar.
+Perubahan kata sandi, metode autentikasi, registry sesi jarak jauh, pencabutan sesi jarak jauh, notifikasi, dan preferensi tampilan masih readiness-only. Sesi saat ini hanya menampilkan metadata yang ada dari session (`issued_at`, `expires_at`, dan status). Logout sesi saat ini memakai boundary `DELETE /api/session` yang sudah digunakan AppShell; tidak ada implementasi logout kedua.
 
 Password, hash, reset token, activation token, session token, cookie secret, dan kredensial tidak pernah ditampilkan atau disimpan oleh UI. Notification dan preference tidak disimpan ke localStorage sebagai authority.
 

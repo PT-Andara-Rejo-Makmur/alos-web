@@ -128,14 +128,11 @@ describe("Global Settings workspace surface", () => {
   it("menyediakan global link yang ikut dipakai oleh mobile AppSidebar", () => {
     const sidebarSource = readFileSync(join(process.cwd(), "src", "components", "app-shell", "app-sidebar.tsx"), "utf8");
     const mobileSource = readFileSync(join(process.cwd(), "src", "components", "app-shell", "mobile-navigation.tsx"), "utf8");
-    const globalNavigationSource = readFileSync(join(process.cwd(), "src", "components", "app-shell", "global-user-navigation.tsx"), "utf8");
     expect(sidebarSource).toContain("GlobalUserNavigation");
     expect(mobileSource).toContain("<AppSidebar");
-    expect(globalNavigationSource).not.toContain("AI Workspace");
-    expect(globalNavigationSource).not.toContain('href: "/workspace"');
 
     render(<GlobalUserNavigation />);
-    expect(screen.queryByRole("link", { name: "AI Workspace" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "AI Workspace" })).toHaveAttribute("href", "/workspace");
     expect(screen.getByRole("link", { name: "Pengaturan" })).toHaveAttribute("href", "/settings/profile");
   });
 

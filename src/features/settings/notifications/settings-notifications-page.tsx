@@ -20,8 +20,8 @@ const notificationCategories: readonly NotificationCategory[] = [
 
 const notificationColumns: readonly DataTableColumn<NotificationCategory>[] = [
   { header: "Kategori", key: "category", render: (row) => row.label },
-  { header: "Dalam Aplikasi", key: "in-app", render: (row) => <NotificationChannelControl channel="Dalam Aplikasi" category={row.label} /> },
-  { header: "Email", key: "email", render: (row) => <NotificationChannelControl channel="Email" category={row.label} /> },
+  { header: "Dalam Aplikasi", key: "in-app", render: () => <Status label="Belum Terhubung" variant="neutral" /> },
+  { header: "Email", key: "email", render: () => <Status label="Belum Terhubung" variant="neutral" /> },
   { header: "WhatsApp", key: "whatsapp", render: () => <Status label="Belum Terhubung" variant="neutral" /> },
   { header: "Telegram", key: "telegram", render: () => <Status label="Belum Terhubung" variant="neutral" /> },
 ];
@@ -34,19 +34,9 @@ export function SettingsNotificationsPage() {
         <SettingsSourceStateView description="Sumber preferensi notifikasi belum tersedia." state="unavailable" title="Notifikasi" />
         <DataTable caption="Preferensi notifikasi" columns={notificationColumns} getRowKey={(row) => row.id} rows={notificationCategories} />
       </Section>
-      <Section description="Kewajiban notifikasi keamanan, tata kelola, dan kepatuhan menunggu kebijakan resmi." title="Notifikasi Wajib">
-        <p className={styles.formHint}>Sebagian notifikasi dapat diwajibkan oleh kebijakan sistem.</p>
+      <Section description="Kewajiban notifikasi keamanan, governance, dan kepatuhan menunggu kebijakan resmi." title="Notifikasi Wajib">
         <SettingsSourceStateView description="Kebijakan notifikasi wajib belum ditentukan." state="unavailable" title="Kebijakan" />
       </Section>
     </div>
-  );
-}
-
-function NotificationChannelControl({ channel, category }: Readonly<{ channel: string; category: string }>) {
-  return (
-    <label className={styles.channelControl}>
-      <input aria-label={`${channel} untuk ${category}`} className={styles.channelControlInput} disabled type="checkbox" />
-      <span>Belum Terhubung</span>
-    </label>
   );
 }
