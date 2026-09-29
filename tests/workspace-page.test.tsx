@@ -214,6 +214,32 @@ describe("WorkspacePage and ALOS App Shell", () => {
     });
   });
 
+  it("/workspace mengarahkan IT ke summary dengan actual workspace_key", async () => {
+    const itWorkspace = {
+      active: true,
+      data_scope: "COMPANY" as const,
+      permission_refs: [],
+      role_refs: ["IT_ADMIN" as const],
+      scope_refs: ["workspace_it_ops"],
+      workspace: {
+        active: true,
+        division_code: "IT",
+        organization_id: "org_1",
+        workspace_id: "workspace_it_ops",
+        workspace_key: "it/utama",
+        workspace_name: "IT Operasional",
+        workspace_type: "IT_OPERATIONS" as const,
+      },
+    };
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession(makePrincipal({ active_workspace: itWorkspace, workspace_access: [itWorkspace] })));
+
+    render(<WorkspacePage />);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith(`/workspace/${encodeURIComponent("it/utama")}/summary`);
+    });
+  });
+
   it("/workspace unknown domain fail closed tanpa redirect canonical", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(
       authenticatedSession(

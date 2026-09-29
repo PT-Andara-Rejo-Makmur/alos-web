@@ -11,6 +11,7 @@ import { PropertyPerformancePage } from "@/features/property";
 import { FinancePerformancePage } from "@/features/finance";
 import { LegalPerformancePage } from "@/features/legal";
 import { HrPerformancePage } from "@/features/hr";
+import { ItPerformancePage } from "@/features/it";
 import styles from "@/features/sales/sales.module.css";
 
 
@@ -83,6 +84,10 @@ export default function WorkspacePerformancePageRoute({
 
   if (resolution?.valid && resolution.domain === "HR_GA") {
     return <HrPerformancePage workspaceKey={workspaceKey} />;
+  }
+
+  if (resolution?.valid && resolution.domain === "IT") {
+    return <ItPerformancePage workspaceKey={workspaceKey} />;
   }
 
   return (

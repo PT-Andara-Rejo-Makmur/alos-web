@@ -11,6 +11,7 @@ import { PropertySummaryPage } from "@/features/property";
 import { FinanceSummaryPage } from "@/features/finance";
 import { LegalSummaryPage } from "@/features/legal";
 import { HrSummaryPage } from "@/features/hr";
+import { ItSummaryPage } from "@/features/it";
 import styles from "@/features/sales/sales.module.css";
 
 export default function WorkspaceSummaryPageRoute({
@@ -80,6 +81,10 @@ export default function WorkspaceSummaryPageRoute({
 
   if (resolution?.valid && resolution.domain === "HR_GA") {
     return <HrSummaryPage workspaceKey={workspaceKey} />;
+  }
+
+  if (resolution?.valid && resolution.domain === "IT") {
+    return <ItSummaryPage workspaceKey={workspaceKey} />;
   }
 
   return (

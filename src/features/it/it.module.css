@@ -1,0 +1,20 @@
+.page { display: flex; flex-direction: column; gap: var(--alos-space-5); }
+.contextBar { display: grid; gap: var(--alos-space-3); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.contextItem { background: var(--alos-surface); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-button); display: flex; flex-direction: column; gap: 3px; padding: var(--alos-space-3); }
+.contextLabel { color: var(--alos-text-muted); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+.contextValue { color: var(--alos-text-primary); font-size: 13px; font-weight: 600; }
+.metricGrid { display: grid; gap: var(--alos-space-3); grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.moduleColumns { display: flex; flex-wrap: wrap; gap: var(--alos-space-2); margin: 0; padding: 0; list-style: none; }
+.moduleColumn { background: var(--alos-primary-very-soft); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-badge); color: var(--alos-primary-dark); font-size: 12px; padding: 6px 9px; }
+.sourceState { align-items: flex-start; background: var(--alos-alt-surface); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-button); display: flex; flex-direction: column; gap: 4px; padding: var(--alos-space-4); }
+.sourceState strong { color: var(--alos-text-primary); font-size: 14px; }
+.sourceState span { color: var(--alos-text-secondary); font-size: 13px; line-height: 19px; }
+.accessState { align-items: center; background: var(--alos-app-background); display: flex; justify-content: center; min-height: 100dvh; padding: var(--alos-space-4); }
+.accessCard { background: var(--alos-surface); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-panel); max-width: 440px; padding: var(--alos-space-8); width: 100%; }
+.accessBrand { color: var(--alos-primary); font-size: 12px; font-weight: 700; letter-spacing: .14em; margin: 0 0 var(--alos-space-3); }
+.accessTitle { font-size: 20px; line-height: 28px; margin: 0 0 var(--alos-space-2); }
+.accessText { color: var(--alos-text-secondary); line-height: 21px; margin: 0; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--alos-space-2); }
+@media (max-width: 1024px) { .metricGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 639px) { .contextBar, .metricGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 390px) { .contextBar, .metricGrid { grid-template-columns: 1fr; } }

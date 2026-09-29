@@ -36,7 +36,7 @@ export default function WorkspacePage() {
           const resolution = resolveWorkspaceDomain(nextSession);
           if (resolution.valid && resolution.activeWorkspaceKey) {
             const base = `/workspace/${encodeURIComponent(resolution.activeWorkspaceKey)}`;
-            const landing = resolution.domain === "EXECUTIVE" || resolution.domain === "SALES" || resolution.domain === "FINANCE" || resolution.domain === "LEGAL" || resolution.domain === "HR_GA" ? "summary" : "projects";
+            const landing = resolution.domain === "EXECUTIVE" || resolution.domain === "SALES" || resolution.domain === "FINANCE" || resolution.domain === "LEGAL" || resolution.domain === "HR_GA" || resolution.domain === "IT" ? "summary" : "projects";
             routerRef.current.replace(`${base}/${landing}`);
             setSession(null);
             setState("loading");

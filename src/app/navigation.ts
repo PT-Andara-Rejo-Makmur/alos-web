@@ -19,6 +19,7 @@ import { financeNavigation } from "@/features/finance/navigation";
 import { legalNavigation } from "@/features/legal/navigation";
 import { hrNavigation } from "@/features/hr/navigation";
 import { hasGaScope } from "@/features/hr/hr-model";
+import { itNavigation } from "@/features/it/navigation";
 import type { SessionProjection } from "@/features/session";
 import { resolveWorkspaceDomain } from "@/features/session";
 
@@ -59,6 +60,9 @@ export function navigationForSession(
     }
     if (resolution.domain === "HR_GA") {
       return hrNavigation(resolution.activeWorkspaceKey!, hasGaScope(session));
+    }
+    if (resolution.domain === "IT") {
+      return itNavigation(resolution.activeWorkspaceKey!);
     }
   }
 
@@ -103,5 +107,5 @@ export function navigationForSession(
 
 /** Navigation for the IT identity surface; callers must already have passed the authoritative access check. */
 export function navigationForItWorkspace(workspaceKey: string): readonly AppNavigationSection[] {
-  return navigationForSession(false, workspaceKey, true);
+  return itNavigation(workspaceKey);
 }

@@ -1,4 +1,4 @@
-import type { SessionProjection } from "@/features/session";
+import { resolveWorkspaceDomain, type SessionProjection } from "@/features/session";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 
 function principalOf(session: SessionProjection | null): AuthenticatedPrincipalProjection | null {
@@ -7,15 +7,16 @@ function principalOf(session: SessionProjection | null): AuthenticatedPrincipalP
 }
 
 /** UI gate derived from the Backend-selected membership; it grants no authority. */
-export function hasItAccountManagementAccess(session: SessionProjection | null, workspaceKey?: string): boolean {
+export function hasItAccountManagementAccess(session: SessionProjection | null, requestedWorkspaceKey?: string): boolean {
   const principal = principalOf(session);
-  const membership = workspaceKey
-    ? principal?.workspace_access.find((access) => access.workspace.workspace_key === workspaceKey)
-    : principal?.active_workspace;
+  const membership = principal?.active_workspace;
+  const resolution = resolveWorkspaceDomain(session, requestedWorkspaceKey);
   return Boolean(
+    resolution.valid &&
+      resolution.domain === "IT" &&
     principal?.actor.active &&
       membership?.active &&
-      membership.workspace.workspace_type === "IT_OPERATIONS" &&
+      (!requestedWorkspaceKey || resolution.activeWorkspaceKey === requestedWorkspaceKey) &&
       membership.permission_refs.includes("identity.accounts.manage"),
   );
 }
