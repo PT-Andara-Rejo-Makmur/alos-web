@@ -9,9 +9,11 @@ Form Executive membedakan field bisnis dari field internal atau yang dibuat sist
 
 - **Field bisnis** dapat diisi atau dipilih pengguna melalui label operasional, misalnya nama rencana, sasaran, target, periode, peran/jabatan, sumber, dan bukti pendukung.
 - **Field internal/generated** tidak diketik pengguna: `workspace_id`, ID entitas canonical, ID target turunan, ID definisi KPI, ID dokumen internal, `created_by`, `actor_id`, `correlation_id`, versi, dan identifier lain yang dibuat atau divalidasi sistem.
+- Enum ruang lingkup adalah nilai internal; UI selalu memakai label manusiawi seperti **Korporasi**, **Divisi**, atau **Proyek**. Nilai yang belum dikenali ditampilkan sebagai **Belum Dinilai**.
 - Workspace penanggung jawab dipilih melalui nama ruang kerja dari `active_workspace` dan `workspace_access` pada session authoritative. Nilai internal `workspace_id` hanya diteruskan setelah pilihan tersebut dibuat; jika pilihan belum tersedia, form fail closed.
 - Referensi KPI tidak ditampilkan sebagai input ID sampai katalog definisi KPI authoritative tersedia. Bukti dan sumber menggunakan nomor arsip, nomor dokumen, atau tautan referensi yang dipahami pengguna operasional.
 - Identifier target turunan pada Cascade dibuat otomatis oleh sistem. Preview menggunakan nama target yang dipilih atau menampilkan `Target tidak tersedia`, bukan ID internal.
+- Identitas tenant dan organisasi untuk Cascade hanya berasal dari actor pada session authoritative. Frontend tidak boleh memakai nilai hardcode atau fallback; jika identitas tersebut tidak tersedia, pratinjau Cascade fail closed.
 - Lifecycle internal tetap dipetakan ke label Bahasa Indonesia pada UI, misalnya `DRAFT` menjadi **Draf**, `UNDER_REVIEW` menjadi **Dalam Peninjauan**, `APPROVED` menjadi **Disetujui**, dan `ACTIVE` menjadi **Aktif**.
 
 1. **Form ID**: Identifier unik formulir

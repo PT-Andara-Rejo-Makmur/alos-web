@@ -2,6 +2,7 @@ import { resolveWorkspaceDomain, type SessionProjection } from "@/features/sessi
 import type {
   BusinessTarget,
   MetricObservation,
+  StrategyBusinessScope as BusinessScope,
   StrategyPlan,
   StrategyVerificationState,
 } from "@/lib/contracts";
@@ -28,6 +29,19 @@ export function activePlan(plans: readonly StrategyPlan[]): StrategyPlan | null 
 
 export function corporateTargets(targets: readonly BusinessTarget[]): readonly BusinessTarget[] {
   return targets.filter((target) => target.scope.type === "COMPANY");
+}
+
+export function scopeLabel(scope: BusinessScope | null | undefined): string {
+  if (scope?.label && !["COMPANY", "DIVISION", "PROJECT"].includes(scope.label)) {
+    return scope.label;
+  }
+
+  switch (scope?.type) {
+    case "COMPANY": return "Korporasi";
+    case "DIVISION": return "Divisi";
+    case "PROJECT": return "Proyek";
+    default: return "Belum Dinilai";
+  }
 }
 
 export function observationFor(

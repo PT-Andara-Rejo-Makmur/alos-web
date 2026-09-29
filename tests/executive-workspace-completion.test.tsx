@@ -347,6 +347,14 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     fireEvent.click(previewBtn);
 
     expect(previewSpy).toHaveBeenCalled();
+    expect(previewSpy.mock.calls[0]?.[0]).toEqual(expect.objectContaining({
+      rules: expect.arrayContaining([
+        expect.objectContaining({
+          organization_id: "org_1",
+          tenant_id: "tenant_1",
+        }),
+      ]),
+    }));
     expect(await screen.findByText("Hasil Pratinjau Cascade")).toBeInTheDocument();
     expect(screen.getByText("Kapasitas anggaran mencukupi")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Terapkan Cascade/ })).toBeInTheDocument();

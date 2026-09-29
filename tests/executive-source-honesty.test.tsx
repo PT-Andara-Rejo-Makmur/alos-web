@@ -22,6 +22,7 @@ import type {
 import * as api from "@/lib/api";
 import { strategyApi } from "@/modules/strategy";
 import { executiveWorkspaceOptions } from "@/features/executive/executive-form-fields";
+import { scopeLabel } from "@/features/executive/executive-model";
 
 const push = vi.fn();
 const replace = vi.fn();
@@ -466,6 +467,48 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     expect(await screen.findByText("Anda belum memiliki kewenangan untuk melakukan tindakan ini.")).toBeInTheDocument();
   });
 
+  it("Scenario 19b: Scope labels never expose raw enum values", () => {
+    expect(scopeLabel({ label: null, ref: null, type: "COMPANY" })).toBe("Korporasi");
+    expect(scopeLabel({ label: null, ref: null, type: "DIVISION" })).toBe("Divisi");
+    expect(scopeLabel({ label: null, ref: null, type: "SYSTEM" })).toBe("Belum Dinilai");
+    expect(scopeLabel({ label: "COMPANY", ref: null, type: "COMPANY" })).toBe("Korporasi");
+    expect(scopeLabel(null)).toBe("Belum Dinilai");
+  });
+
+  it("Scenario 19c: Cascade fails closed when tenant identity is unavailable", async () => {
+    const previewSpy = vi.spyOn(strategyApi, "previewCascade").mockImplementation(() => {
+      throw new Error("preview must not be called");
+    });
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession({
+      ...executivePrincipal,
+      actor: { ...executivePrincipal.actor, tenant_id: "" },
+    }));
+
+    render(<ExecutivePlanningPage />);
+    fireEvent.click(await screen.findByRole("tab", { name: "Cascade" }));
+    fireEvent.click(screen.getByRole("button", { name: "Jalankan Pratinjau Cascade" }));
+
+    expect(await screen.findByText("Identitas organisasi belum tersedia. Pratinjau cascade belum dapat dijalankan.")).toBeInTheDocument();
+    expect(previewSpy).not.toHaveBeenCalled();
+  });
+
+  it("Scenario 19d: Cascade fails closed when organization identity is unavailable", async () => {
+    const previewSpy = vi.spyOn(strategyApi, "previewCascade").mockImplementation(() => {
+      throw new Error("preview must not be called");
+    });
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession({
+      ...executivePrincipal,
+      actor: { ...executivePrincipal.actor, organization_id: "" },
+    }));
+
+    render(<ExecutivePlanningPage />);
+    fireEvent.click(await screen.findByRole("tab", { name: "Cascade" }));
+    fireEvent.click(screen.getByRole("button", { name: "Jalankan Pratinjau Cascade" }));
+
+    expect(await screen.findByText("Identitas organisasi belum tersedia. Pratinjau cascade belum dapat dijalankan.")).toBeInTheDocument();
+    expect(previewSpy).not.toHaveBeenCalled();
+  });
+
   // 20. No raw permission codes in UI
   it("Scenario 20: No raw permission codes leak into user-facing UI", async () => {
     render(<ExecutivePlanningPage />);
@@ -519,6 +562,9 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
       expect(content).not.toContain("Date.now()");
       expect(content).not.toContain("mockCandidates");
       expect(content).not.toContain("readinessInitiatives");
+      expect(content).not.toContain("tenant.default");
+      expect(content).not.toContain("org.default");
+      expect(content).not.toContain("scope.label ?? scope.type");
       // Hardcoded workspace_exec as form default
       expect(content).not.toMatch(/useState\(["']workspace_exec["']\)/);
       // Hardcoded EXECUTIVE as form default

@@ -30,6 +30,7 @@ import {
   performanceLabel,
   performanceVariant,
   periodLabel,
+  scopeLabel,
   valueForObservation,
   verificationLabel,
 } from "./executive-model";
@@ -283,7 +284,7 @@ function TargetPerformanceDetail({
         <div className={styles.candidateCard}>
           <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Ruang Lingkup & Penanggung Jawab</span>
           <p style={{ margin: "var(--alos-space-1) 0 0", fontSize: "13px" }}>
-            Lingkup: {target.scope.label ?? target.scope.type}
+            Lingkup: {scopeLabel(target.scope)}
             <br />
             Penanggung Jawab: {target.owner_role_ref || "—"}
           </p>

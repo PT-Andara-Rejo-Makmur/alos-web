@@ -30,7 +30,7 @@ import { strategyApi } from "@/modules/strategy";
 import { ExecutiveLayout } from "./executive-layout";
 import { useExecutiveStrategyData } from "./executive-data";
 import { activeExecutiveWorkspaceId, ExecutiveWorkspacePicker } from "./executive-form-fields";
-import { corporateTargets, generateCanonicalId, periodLabel } from "./executive-model";
+import { corporateTargets, generateCanonicalId, periodLabel, scopeLabel } from "./executive-model";
 import styles from "./executive.module.css";
 
 export interface ExecutivePlanningPageProps {
@@ -151,6 +151,7 @@ function PlanningContent({
         <CascadeSection
           assumptions={assumptions}
           canCascade={canCreate}
+          session={session}
           targets={targets}
         />
       ) : null}
@@ -508,7 +509,7 @@ function ObjectivesSection({ plans, canCreate, onOpenForm }: ObjectivesSectionPr
           { header: "Kode", key: "code", render: (item) => item.code },
           { header: "Nama Sasaran", key: "name", render: (item) => item.name },
           { header: "Rencana", key: "plan", render: () => selectedPlan?.name ?? "—" },
-          { header: "Ruang Lingkup", key: "scope", render: (item) => item.scope.label ?? item.scope.type },
+          { header: "Ruang Lingkup", key: "scope", render: (item) => scopeLabel(item.scope) },
           { header: "Penanggung Jawab", key: "owner", render: (item) => item.owner_role_ref || "—" },
           { header: "Status", key: "status", render: (item) => <Status label={lifecycleLabel(item.lifecycle_state)} variant="neutral" /> },
         ]}
@@ -670,7 +671,7 @@ function TargetsSection({ plans, targets, canCreate, onOpenForm }: TargetsSectio
             key: "plan",
             render: (target) => plans.find((p) => p.plan_id === target.plan_ref.id)?.name ?? "Rencana Terkait",
           },
-          { header: "Ruang Lingkup", key: "scope", render: (target) => target.scope.label ?? target.scope.type },
+          { header: "Ruang Lingkup", key: "scope", render: (target) => scopeLabel(target.scope) },
           { header: "Penanggung Jawab", key: "owner", render: (target) => target.owner_role_ref || "—" },
           { header: "Status", key: "status", render: (target) => <Status label={lifecycleLabel(target.lifecycle_state)} variant="neutral" /> },
         ]}
@@ -1056,7 +1057,7 @@ function AssumptionsSection({ assumptions, canCreate, onOpenForm }: AssumptionsS
           { header: "Kategori", key: "category", render: (item) => assumptionCategoryLabel(item.category) },
           { header: "Nilai", key: "value", render: (item) => item.value ?? "—" },
           { header: "Satuan", key: "unit", render: (item) => item.unit },
-          { header: "Ruang Lingkup", key: "scope", render: (item) => item.scope.label ?? item.scope.type },
+          { header: "Ruang Lingkup", key: "scope", render: (item) => scopeLabel(item.scope) },
           { header: "Status", key: "status", render: (item) => <Status label={lifecycleLabel(item.lifecycle_state)} variant="neutral" /> },
           { header: "Verifikasi", key: "verification", render: (item) => verificationLabel(item.verification_state) },
         ]}
@@ -1281,9 +1282,10 @@ interface CascadeSectionProps {
   readonly targets: readonly BusinessTarget[];
   readonly assumptions: readonly PlanningAssumption[];
   readonly canCascade?: boolean;
+  readonly session: SessionProjection;
 }
 
-function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSectionProps) {
+function CascadeSection({ targets, assumptions, canCascade = false, session }: CascadeSectionProps) {
   const [rootTargetId, setRootTargetId] = useState(targets[0]?.target_id ?? "");
   const [ruleType, setRuleType] = useState<"SPLIT_PERCENT" | "SPLIT_FIXED" | "DIRECT" | "RATIO_MULTIPLY" | "SUM_ROLLUP" | "RATIO_DIVIDE_CEIL" | "LIMIT_CHECK">("SPLIT_PERCENT");
   const [ratioInput, setRatioInput] = useState("");
@@ -1306,6 +1308,21 @@ function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSec
       setErrorMsg("Anda belum memiliki kewenangan untuk melakukan tindakan ini.");
       return;
     }
+
+    const principal = session.principal;
+    if (
+      !session.authenticated ||
+      !principal ||
+      !("actor" in principal) ||
+      !principal.actor.active ||
+      !principal.actor.tenant_id ||
+      !principal.actor.organization_id
+    ) {
+      setErrorMsg("Identitas organisasi belum tersedia. Pratinjau cascade belum dapat dijalankan.");
+      return;
+    }
+
+    const { organization_id: organizationId, tenant_id: tenantId } = principal.actor;
 
     const derivedTargetId = generateCanonicalId("target");
     const ruleId = generateCanonicalId("rule");
@@ -1340,8 +1357,8 @@ function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSec
         rules: [
           {
             cascade_rule_id: ruleId,
-            tenant_id: "tenant.default",
-            organization_id: "org.default",
+            tenant_id: tenantId,
+            organization_id: organizationId,
             rule_type: ruleType,
             input_target_refs: [{
               target_id: selectedTarget?.target_id ?? rootTargetId,
