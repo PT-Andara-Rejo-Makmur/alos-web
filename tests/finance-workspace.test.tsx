@@ -1,11 +1,12 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { financeNavigation } from "@/features/finance/navigation";
-import { activeFinanceWorkspaceKey, formatFinancialValue, hasFinanceContext, maskAccountNumber } from "@/features/finance/finance-model";
-import { FinanceReceivablesPage } from "@/features/finance";
+import { activeFinanceWorkspaceKey, formatFinancePeriod, formatFinancialValue, hasFinanceContext, maskAccountNumber } from "@/features/finance/finance-model";
+import { FinanceLiquidityPage, FinancePayablesPage, FinanceReceivablesPage, FinanceTaxPage } from "@/features/finance";
+import { FinanceSourceStateView } from "@/features/finance/shared/finance-ui";
 import WorkspaceKeyRoot from "@/app/workspace/[workspaceKey]/page";
 import SummaryRoute from "@/app/workspace/[workspaceKey]/(domain)/summary/page";
 import PerformanceRoute from "@/app/workspace/[workspaceKey]/(domain)/performance/page";
@@ -62,6 +63,8 @@ describe("Finance & Pajak workspace", () => {
   it("keeps unknown financial values distinct from actual zero and masks accounts", () => {
     expect(formatFinancialValue(null)).toBe("—");
     expect(formatFinancialValue(0)).toBe("Rp0");
+    expect(formatFinancialValue(1250000)).toBe("Rp1.250.000");
+    expect(formatFinancePeriod({ granularity: "MONTHLY", starts_at: "2026-01-01T00:00:00Z", ends_at: "2026-01-31T00:00:00Z", label: "Januari 2026" })).toBe("Januari 2026");
     expect(maskAccountNumber("1234 5678 7821")).toBe("**** 7821");
     expect(maskAccountNumber(null)).toBe("—");
   });
@@ -88,21 +91,82 @@ describe("Finance & Pajak workspace", () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
     vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue([] as never);
     render(<PerformanceRoute params={{ workspaceKey: "finance-utama" }} />);
-    expect(await screen.findByRole("heading", { name: "Target & Kinerja" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /Target & Kinerja/ })).toBeInTheDocument();
 
     cleanup();
     vi.clearAllMocks();
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
     render(<BudgetRoute params={{ workspaceKey: "finance-utama" }} />);
-    expect(await screen.findByRole("heading", { name: "Anggaran & Realisasi" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Anggaran", level: 1 })).toBeInTheDocument();
   });
 
   it("renders source-unavailable receipt form without fake submit success", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
     render(<FinanceReceivablesPage workspaceKey="finance-utama" />);
-    expect(await screen.findByRole("heading", { name: "Penerimaan & Piutang" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Penerimaan", level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Tambah Penerimaan" })).toBeInTheDocument();
-    expect(screen.getByText("Penerimaan dan piutang belum tersedia.")).toBeInTheDocument();
+    expect(screen.getByText("Penerimaan belum tersedia.")).toBeInTheDocument();
+  });
+
+  it("changes receivables view and contextual action with the selected tab", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
+    render(<FinanceReceivablesPage workspaceKey="finance-utama" />);
+    await screen.findByRole("heading", { name: "Penerimaan", level: 1 });
+    expect(screen.getByRole("button", { name: "Tambah Penerimaan" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tambah Piutang" })).not.toBeInTheDocument();
+    screen.getByRole("tab", { name: "Piutang" }).click();
+    expect(await screen.findByRole("button", { name: "Tambah Piutang" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tambah Penerimaan" })).not.toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Outstanding" })).toBeInTheDocument();
+  });
+
+  it("renders required relation fields as unavailable selectors", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
+    render(<FinanceReceivablesPage workspaceKey="finance-utama" />);
+    await screen.findByRole("button", { name: "Tambah Penerimaan" });
+    screen.getByRole("tab", { name: "Piutang" }).click();
+    (await screen.findByRole("button", { name: "Tambah Piutang" })).click();
+    const dialog = await screen.findByRole("dialog", { name: "Tambah Piutang" });
+    expect(within(dialog).getByLabelText(/Pihak/)).toBeRequired();
+    expect(within(dialog).getByLabelText("Proyek")).toBeDisabled();
+    expect(screen.getAllByText("Pilihan belum tersedia.").length).toBeGreaterThan(0);
+  });
+
+  it("keeps non-Finance access closed for Finance-only modules", async () => {
+    const pages = [
+      <FinanceLiquidityPage key="liquidity" workspaceKey="sales-utama" />,
+      <FinanceReceivablesPage key="receivables" workspaceKey="sales-utama" />,
+      <FinancePayablesPage key="payables" workspaceKey="sales-utama" />,
+      <FinanceTaxPage key="tax" workspaceKey="sales-utama" />,
+    ];
+    for (const page of pages) {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession("sales-utama", "SALES"));
+      const view = render(page);
+      expect(await screen.findByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+      view.unmount();
+      vi.clearAllMocks();
+    }
+  });
+
+  it("presents source states as mutually exclusive", () => {
+    const cases = [
+      ["loading", "Memuat data"],
+      ["unavailable", "Belum Terhubung"],
+      ["error", "Data belum dapat dimuat"],
+      ["connected-empty", "Belum ada data"],
+    ] as const;
+    for (const [state, label] of cases) {
+      const view = render(<FinanceSourceStateView description="Status sumber" state={state} />);
+      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
+      view.unmount();
+    }
+  });
+
+  it("keeps Finance target, actual, and forecast authority separate", () => {
+    const performance = readFileSync(resolve("src/features/finance/performance/finance-performance-page.tsx"), "utf8");
+    expect(performance).toContain('actual: "—"');
+    expect(performance).toContain('forecast: "—"');
+    expect(performance).not.toContain('String(target.period)');
   });
 
   it("does not create a static Finance route tree or duplicate universal features", () => {

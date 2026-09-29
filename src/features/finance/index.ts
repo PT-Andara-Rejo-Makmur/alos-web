@@ -1,6 +1,6 @@
 export { FinanceLayout } from "./finance-layout";
 export { financeNavigation } from "./navigation";
-export { activeFinanceWorkspaceKey, formatFinancialValue, hasFinanceContext, maskAccountNumber } from "./finance-model";
+export { activeFinanceWorkspaceKey, formatFinancePeriod, formatFinancialValue, hasFinanceContext, maskAccountNumber, strategyTargetValue } from "./finance-model";
 export { FinanceSummaryPage } from "./summary";
 export { FinanceLiquidityPage } from "./liquidity";
 export { FinanceReceivablesPage } from "./receivables";
