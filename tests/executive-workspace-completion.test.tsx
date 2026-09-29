@@ -24,7 +24,7 @@ const replace = vi.fn();
 let mockSearchParams = new URLSearchParams();
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/workspace/executive",
+  usePathname: () => "/workspace/pusat-kendali-direksi",
   useRouter: () => ({ push, replace, refresh: vi.fn() }),
   useSearchParams: () => mockSearchParams,
 }));
@@ -55,7 +55,7 @@ const executivePrincipal: AuthenticatedPrincipalProjection = {
       division_code: null,
       organization_id: "org_1",
       workspace_id: "workspace_exec",
-      workspace_key: "executive",
+      workspace_key: "pusat-kendali-direksi",
       workspace_name: "Pusat Kendali",
       workspace_type: "EXECUTIVE",
     },
@@ -462,8 +462,8 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(screen.getByLabelText("Alasan Revisi Target *")).toBeInTheDocument();
   });
 
-  // 12. Division tabs actually switch content and reuse Shared Work
-  it("switches division tabs and reuses Shared Work modules with division scope", async () => {
+  // 12. Division Shared Work tabs remain readiness-only until governed cross-workspace projection exists
+  it("switches division tabs without using a division key as Shared Work workspace scope", async () => {
     render(<ExecutiveDivisionDetailPage divisionKey="sales" />);
 
     expect(await screen.findByRole("heading", { name: "Sales & Marketing" })).toBeInTheDocument();
@@ -474,15 +474,12 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     fireEvent.click(perfTab);
     expect(screen.getByText("Kinerja Sales & Marketing")).toBeInTheDocument();
 
-    // Click Proyek
-    const projTab = screen.getByRole("tab", { name: "Proyek" });
-    fireEvent.click(projTab);
-    expect(await screen.findByRole("heading", { name: "Proyek" })).toBeInTheDocument();
-
-    // Click Tugas
-    const taskTab = screen.getByRole("tab", { name: "Tugas" });
-    fireEvent.click(taskTab);
-    expect(await screen.findByRole("heading", { name: "Tugas" })).toBeInTheDocument();
+    for (const label of ["Proyek", "Tugas", "Persetujuan", "Temuan", "Laporan"]) {
+      fireEvent.click(screen.getByRole("tab", { name: label }));
+      expect(await screen.findByRole("heading", { name: label })).toBeInTheDocument();
+      expect(screen.getByText(new RegExp(`Data ${label} Sales & Marketing belum terhubung ke tampilan Executive`))).toBeInTheDocument();
+      expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
+    }
   });
 
   // 13. UI Hygiene: No technical words and no raw IDs

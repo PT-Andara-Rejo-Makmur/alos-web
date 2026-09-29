@@ -9,7 +9,7 @@ import { strategyApi } from "@/modules/strategy";
 const replace = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/workspace/executive/summary",
+  usePathname: () => "/workspace/pusat-kendali-direksi/summary",
   useRouter: () => ({ replace, push: vi.fn(), refresh: vi.fn() }),
 }));
 
@@ -39,7 +39,7 @@ const executivePrincipal: AuthenticatedPrincipalProjection = {
       division_code: null,
       organization_id: "org_1",
       workspace_id: "workspace_exec",
-      workspace_key: "executive",
+      workspace_key: "pusat-kendali-direksi",
       workspace_name: "Pusat Kendali",
       workspace_type: "EXECUTIVE",
     },

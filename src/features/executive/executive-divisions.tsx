@@ -13,14 +13,6 @@ import {
   Tabs,
   type TabItem,
 } from "@/components/ui";
-import {
-  ApprovalsPage,
-  FindingsPage,
-  ProjectsPage,
-  ReportsPage,
-  TasksPage,
-} from "@/features/shared-work";
-
 import { ExecutiveLayout } from "./executive-layout";
 import { useExecutiveStrategyData } from "./executive-data";
 import {
@@ -41,6 +33,19 @@ const divisionRows = [
   ["HR/GA", "hr"],
   ["IT", "it"],
 ] as const;
+
+function DivisionSharedWorkReadiness({ divisionName, label }: Readonly<{ divisionName: string; label: string }>) {
+  return (
+    <Section title={label}>
+      <div className={styles.readinessRow}>
+        <Status label="Belum Terhubung" variant="neutral" />
+        <p>
+          Data {label} {divisionName} belum terhubung ke tampilan Executive. Data lintas ruang kerja akan tampil setelah sumber resmi tersedia.
+        </p>
+      </div>
+    </Section>
+  );
+}
 
 export function ExecutiveDivisionsPage({ workspaceKey }: Readonly<{ workspaceKey?: string }> = {}) {
   return (
@@ -180,8 +185,8 @@ export function ExecutiveDivisionDetailPage({
                     <div className={styles.readinessRow}>
                       <Status label="Belum Terhubung" variant="neutral" />
                       <p>
-                        Integrasi data operasional divisi {division[0]} dalam proses penyambungan.
-                        Gunakan tab di atas untuk menginspeksi Proyek, Tugas, Persetujuan, Temuan, dan Laporan divisi.
+                        Data operasional divisi {division[0]} belum terhubung.
+                        Gunakan tab di atas untuk melihat status kesiapan Proyek, Tugas, Persetujuan, Temuan, dan Laporan divisi.
                       </p>
                     </div>
                   </Section>
@@ -249,29 +254,21 @@ export function ExecutiveDivisionDetailPage({
                 </Section>
               ) : null}
 
-              {/* Tab 3: Proyek (Reuses Shared Work ProjectsPage with workspaceKey and embed) */}
+              {/* Tab 3–7: Shared Work lintas ruang kerja tetap readiness-only sampai projection resmi tersedia. */}
               {activeTab === "projects" ? (
-                <ProjectsPage embed workspaceKey={divisionKey} />
+                <DivisionSharedWorkReadiness divisionName={division[0]} label="Proyek" />
               ) : null}
-
-              {/* Tab 4: Tugas (Reuses Shared Work TasksPage with workspaceKey and embed) */}
               {activeTab === "tasks" ? (
-                <TasksPage embed workspaceKey={divisionKey} />
+                <DivisionSharedWorkReadiness divisionName={division[0]} label="Tugas" />
               ) : null}
-
-              {/* Tab 5: Persetujuan (Reuses Shared Work ApprovalsPage with workspaceKey and embed) */}
               {activeTab === "approvals" ? (
-                <ApprovalsPage embed workspaceKey={divisionKey} />
+                <DivisionSharedWorkReadiness divisionName={division[0]} label="Persetujuan" />
               ) : null}
-
-              {/* Tab 6: Temuan (Reuses Shared Work FindingsPage with workspaceKey and embed) */}
               {activeTab === "findings" ? (
-                <FindingsPage embed workspaceKey={divisionKey} />
+                <DivisionSharedWorkReadiness divisionName={division[0]} label="Temuan" />
               ) : null}
-
-              {/* Tab 7: Laporan (Reuses Shared Work ReportsPage with workspaceKey and embed) */}
               {activeTab === "reports" ? (
-                <ReportsPage embed workspaceKey={divisionKey} />
+                <DivisionSharedWorkReadiness divisionName={division[0]} label="Laporan" />
               ) : null}
             </>
           )}

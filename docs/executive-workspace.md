@@ -1,6 +1,6 @@
 # Executive Workspace
 
-Executive Workspace adalah pusat pengendalian perusahaan di `/workspace/executive`. Route dasar mengarahkan pengguna ke `/workspace/executive/summary`.
+Executive Workspace adalah pusat pengendalian perusahaan pada boundary canonical `/workspace/[workspaceKey]`. Route dasar mengarahkan workspace Executive aktif ke `/workspace/[workspaceKey]/summary`.
 
 ## Authority dan batasan
 
@@ -12,16 +12,20 @@ Browser → ALOS Web/BFF → ALOS Backend → GENESIS/internal systems. GENESIS 
 
 | Menu | Route | Ketersediaan |
 | --- | --- | --- |
-| Ringkasan | `/workspace/executive/summary` | UI READY (Strategy Plan/Target; domain lain READINESS ONLY / NOT CONNECTED) |
-| Brief Eksekutif | `/workspace/executive/brief` | READINESS ONLY (Agenda/Tenggat & Temuan NOT CONNECTED) |
-| Rencana & Target | `/workspace/executive/planning` | UI READY (Strategy Plan, Target, Asumsi, Cascade; Ekstraksi Dokumen UI READY / NEEDS BACKEND) |
-| Kinerja | `/workspace/executive/performance` | UI READY (Target & Observasi Aktif/Forecast) |
-| Inisiatif Strategis | `/workspace/executive/initiatives` | UI READY / NEEDS BACKEND (data kosong jujur tanpa dummy) |
-| Review & Revisi | `/workspace/executive/reviews` | UI READY (Revisi Target); Review Kinerja UI READY / NEEDS CONTRACT |
-| Divisi | `/workspace/executive/divisions` | UI READY (Fail-closed scoping) |
-| Detail Divisi | `/workspace/executive/divisions/[divisionKey]` | UI READY (Tautan ke Shared Work universal) |
-| Proyek, Tugas, Persetujuan, Dokumen, Laporan, Temuan | `/workspace/executive/{module}` | UI READY / NEEDS BACKEND (Universal Shared Work — UI siap, koneksi backend belum aktif) |
-| Tanya ARA | `/workspace/executive/ara` | NOT CONNECTED / READINESS ONLY (Tanpa percakapan simulasi) |
+| Ringkasan | `/workspace/[workspaceKey]/summary` | UI READY (Strategy Plan/Target; domain lain READINESS ONLY / NOT CONNECTED) |
+| Brief Eksekutif | `/workspace/[workspaceKey]/brief` | READINESS ONLY (Agenda/Tenggat & Temuan NOT CONNECTED) |
+| Rencana & Target | `/workspace/[workspaceKey]/planning` | UI READY (Strategy Plan, Target, Asumsi, Cascade; Ekstraksi Dokumen UI READY / NEEDS BACKEND) |
+| Kinerja | `/workspace/[workspaceKey]/performance` | UI READY (Target & Observasi Aktif/Forecast) |
+| Inisiatif Strategis | `/workspace/[workspaceKey]/initiatives` | UI READY / NEEDS BACKEND (data kosong jujur tanpa dummy) |
+| Review & Revisi | `/workspace/[workspaceKey]/reviews` | UI READY (Revisi Target); Review Kinerja UI READY / NEEDS CONTRACT |
+| Divisi | `/workspace/[workspaceKey]/divisions` | UI READY (Fail-closed scoping) |
+| Detail Divisi | `/workspace/[workspaceKey]/divisions/[divisionKey]` | UI READY (Shared Work lintas ruang kerja READINESS ONLY) |
+| Proyek, Tugas, Persetujuan, Dokumen, Laporan, Temuan | `/workspace/[workspaceKey]/{module}` | UI READY / NEEDS BACKEND (Universal Shared Work — UI siap, koneksi backend belum aktif) |
+| Tanya ARA | `/workspace/[workspaceKey]/ara` | NOT CONNECTED / READINESS ONLY (Tanpa percakapan simulasi) |
+
+`[workspaceKey]` berasal dari `active_workspace.workspace.workspace_key` pada session Executive yang authoritative. `/workspace/executive` hanya compatibility alias yang memuat session lalu mengarahkan ke key aktual; alias tersebut bukan workspace authority dan bukan route tree kedua.
+
+Detail Divisi mempertahankan tab Proyek, Tugas, Persetujuan, Temuan, dan Laporan sebagai readiness only. Detail tersebut belum memiliki governed cross-workspace Shared Work projection, sehingga tidak menampilkan Shared Work dari active workspace Executive dan tidak menebak workspace berdasarkan `divisionKey`.
 
 Sidebar desktop tetap 248px saat terbuka dan 72px saat ringkas. Toggle berada di header sidebar. Mobile menggunakan drawer.
 
@@ -31,7 +35,7 @@ Sidebar desktop tetap 248px saat terbuka dan 72px saat ringkas. Toggle berada di
 | --- | --- | --- |
 | Executive lama | Ringkasan Strategy tersedia | Dipecah menjadi halaman berdasarkan fungsi bisnis |
 | Strategy | Plan, objective, target, observation, assumption, cascade, lifecycle tersedia pada Backend | Initiative dan performance review belum memiliki endpoint public yang digunakan Web |
-| Shared Work | Proyek, tugas, persetujuan, dokumen, laporan, temuan universal tersedia | Ringkasan hanya menautkan saat aggregate executive belum tersedia |
+| Shared Work | Proyek, tugas, persetujuan, dokumen, laporan, temuan universal tersedia | Top-level memakai workspace aktif; tab Shared Work pada Detail Divisi readiness only sampai projection lintas ruang kerja tersedia |
 | Contracts | Strategy contract mencakup plan/target/observation/assumption/cascade | Initiative belum diekspor facade Web |
 | GENESIS/ARA | Tidak ada surface public yang dapat dipakai Executive | Readiness tanpa hasil atau rekomendasi buatan |
 | Document extraction | Belum ada governed extraction endpoint untuk Web | UX dinyatakan belum terhubung |

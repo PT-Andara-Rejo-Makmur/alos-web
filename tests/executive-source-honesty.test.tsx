@@ -27,7 +27,7 @@ const replace = vi.fn();
 let mockSearchParams = new URLSearchParams();
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/workspace/executive",
+  usePathname: () => "/workspace/pusat-kendali-direksi",
   useRouter: () => ({ push, replace, refresh: vi.fn() }),
   useSearchParams: () => mockSearchParams,
 }));
@@ -58,7 +58,7 @@ const executivePrincipal: AuthenticatedPrincipalProjection = {
       division_code: null,
       organization_id: "org_1",
       workspace_id: "workspace_exec",
-      workspace_key: "executive",
+      workspace_key: "pusat-kendali-direksi",
       workspace_name: "Pusat Kendali",
       workspace_type: "EXECUTIVE",
     },

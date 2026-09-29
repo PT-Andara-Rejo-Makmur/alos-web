@@ -1,4 +1,4 @@
-import type { SessionProjection } from "@/features/session";
+import { resolveWorkspaceDomain, type SessionProjection } from "@/features/session";
 import type {
   BusinessTarget,
   MetricObservation,
@@ -12,17 +12,8 @@ export interface ExecutiveStrategyData {
 }
 
 export function hasExecutiveContext(session: SessionProjection): boolean {
-  const principal = session.principal;
-  if (!session.authenticated || !principal || !("actor" in principal)) return false;
-
-  const activeWs = principal.active_workspace;
-  if (!principal.actor.active || !activeWs?.active) return false;
-
-  const workspace = activeWs.workspace;
-  return Boolean(
-    workspace?.active &&
-      workspace.workspace_type === "EXECUTIVE",
-  );
+  const resolution = resolveWorkspaceDomain(session);
+  return resolution.valid && resolution.domain === "EXECUTIVE";
 }
 
 export function activeExecutiveWorkspaceKey(session: SessionProjection): string | null {

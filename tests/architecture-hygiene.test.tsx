@@ -9,6 +9,7 @@ import * as api from "@/lib/api";
 // Universal navigation and features
 import { navigationForSession } from "@/app/navigation";
 import { executiveNavigation } from "@/features/executive/navigation";
+import { hasExecutiveContext } from "@/features/executive/executive-model";
 import { salesNavigation } from "@/features/sales/navigation";
 import { workspaceDestination } from "@/components/app-shell/app-shell";
 import {
@@ -26,6 +27,7 @@ import { SalesSummaryPage } from "@/features/sales";
 
 // Routes under [workspaceKey]
 import WorkspaceKeyRoot from "@/app/workspace/[workspaceKey]/page";
+import ExecutiveRoute from "@/app/workspace/executive/page";
 import SummaryRoute from "@/app/workspace/[workspaceKey]/(domain)/summary/page";
 import PerformanceRoute from "@/app/workspace/[workspaceKey]/(domain)/performance/page";
 import UniversalAraRoute from "@/app/workspace/[workspaceKey]/(assistant)/ara/page";
@@ -158,6 +160,25 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
       expect(sessionHrefs).toContain(`/workspace/${customKey}/summary`);
     });
 
+    it("compatibility Executive route redirects to the actual active workspace key", async () => {
+      const execKey = "pusat-kendali-direksi";
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(createSession(execKey, "", "EXECUTIVE"));
+
+      render(<ExecutiveRoute />);
+
+      await waitFor(() => {
+        expect(mockReplace).toHaveBeenCalledWith(`/workspace/${execKey}/summary`);
+      });
+    });
+
+    it("hasExecutiveContext uses the same canonical resolver as Executive routing", () => {
+      const executive = createSession("pusat-kendali-direksi", "", "EXECUTIVE");
+      const sales = createSession("penjualan-utama", "SALES", "BUSINESS");
+
+      expect(hasExecutiveContext(executive)).toBe(resolveWorkspaceDomain(executive).valid && resolveWorkspaceDomain(executive).domain === "EXECUTIVE");
+      expect(hasExecutiveContext(sales)).toBe(resolveWorkspaceDomain(sales).valid && resolveWorkspaceDomain(sales).domain === "EXECUTIVE");
+    });
+
     it("Sales actual workspace_key is used in salesNavigation and navigationForSession", () => {
       const salesKey = "penjualan-cabang-bandung";
       const sections = salesNavigation(salesKey);
@@ -205,11 +226,11 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
       expect(screen.queryByText("Sales & Marketing")).not.toBeInTheDocument();
     });
 
-    it("No URL-only authority: string 'executive' in URL fails closed if session is not executive", async () => {
-      const salesSessionData = createSession("executive", "SALES", "BUSINESS");
+    it("No URL-only authority: an Executive-looking route fails closed for a non-Executive session", async () => {
+      const salesSessionData = createSession("penjualan-utama", "SALES", "BUSINESS");
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSessionData);
 
-      render(<ExecutiveSummaryPage workspaceKey="executive" />);
+      render(<ExecutiveSummaryPage workspaceKey="pusat-kendali-direksi" />);
 
       await waitFor(() => {
         expect(screen.getByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
