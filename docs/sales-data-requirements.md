@@ -2,8 +2,8 @@
 
 | Component ID | Purpose | Authority/source | Current availability |
 | --- | --- | --- | --- |
-| `sales.summary.headline` | Target, closing, pipeline, conversion | Strategy dan closing terverifikasi | NEEDS BACKEND / INTEGRATION |
-| `sales.pipeline.table` | Pipeline dan tindak lanjut | Sales pipeline authoritative | NEEDS CONTRACT |
+| `sales.summary.headline` | Target, closing, pipeline, conversion | Strategy dan closing terverifikasi | STRUCTURE READY / NEEDS BACKEND / INTEGRATION |
+| `sales.pipeline.table` | Pipeline dan tindak lanjut | Sales pipeline authoritative | STRUCTURE READY / NEEDS CONTRACT / NEEDS BACKEND |
 | `sales.leads.table` | Prospek sesuai scope dan klasifikasi | Lead service | NEEDS CONTRACT |
 | `sales.booking.table` | Booking dan status lintas domain | Sales, Finance, Legal, Property | NEEDS CONTRACT |
 | `sales.campaign.table` | Atribusi channel dan CPL | Campaign service | NEEDS CONTRACT |

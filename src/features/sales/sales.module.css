@@ -1,7 +1,18 @@
 .page { display: flex; flex-direction: column; gap: var(--alos-space-6); }
 .sourceStrip { align-items: center; border: 1px solid var(--alos-border); display: flex; flex-wrap: wrap; gap: var(--alos-space-2); padding: var(--alos-space-2) var(--alos-space-3); }
 .sourceItem { align-items: center; color: var(--alos-text-secondary); display: inline-flex; font-size: 12px; gap: var(--alos-space-2); white-space: nowrap; }
+.contextBar { background: var(--alos-surface); border: 1px solid var(--alos-border); display: grid; gap: var(--alos-space-3); grid-template-columns: repeat(4, minmax(0, 1fr)); padding: var(--alos-space-3) var(--alos-space-4); }
+.contextItem { display: flex; flex-direction: column; gap: var(--alos-space-1); min-width: 0; }
+.contextLabel { color: var(--alos-text-muted); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.contextValue { color: var(--alos-text-primary); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .metrics { display: grid; gap: var(--alos-space-2); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.summaryGrid { display: grid; gap: var(--alos-space-6); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pipelineSourceNote { align-items: center; background: var(--alos-surface); border: 1px solid var(--alos-border); color: var(--alos-text-secondary); display: flex; font-size: 13px; gap: var(--alos-space-3); line-height: 20px; padding: var(--alos-space-3) var(--alos-space-4); }
+.pipelineFilters { display: grid; gap: var(--alos-space-4); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.pipelineViewState { display: flex; flex-direction: column; gap: var(--alos-space-4); }
+.quickViewList { display: grid; gap: var(--alos-space-3) var(--alos-space-4); grid-template-columns: minmax(110px, .7fr) minmax(0, 1.3fr); margin: 0; }
+.quickViewList dt { color: var(--alos-text-muted); font-size: 12px; font-weight: 600; }
+.quickViewList dd { color: var(--alos-text-primary); font-size: 14px; margin: 0; }
 .readinessRow { align-items: flex-start; display: flex; gap: var(--alos-space-3); }
 .readinessRow p { color: var(--alos-text-secondary); font-size: 14px; line-height: 21px; margin: 0; }
 .accessState { align-items: center; background: var(--alos-app-background); display: flex; justify-content: center; min-height: 100dvh; padding: var(--alos-space-4); }
@@ -10,4 +21,5 @@
 .accessTitle { font-size: 20px; line-height: 28px; margin: 0 0 var(--alos-space-2); }.accessText { color: var(--alos-text-secondary); margin: 0; }
 .accessButton { background: var(--alos-primary); border: 0; border-radius: var(--alos-radius-button); color: white; cursor: pointer; font: inherit; margin-top: var(--alos-space-4); padding: var(--alos-space-2) var(--alos-space-3); }
 @media (max-width: 1023px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 639px) { .metrics { grid-template-columns: 1fr; } .sourceStrip { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 1023px) { .contextBar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pipelineFilters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .summaryGrid { grid-template-columns: 1fr; } }
+@media (max-width: 639px) { .metrics { grid-template-columns: 1fr; } .sourceStrip { align-items: flex-start; flex-direction: column; } .contextBar { grid-template-columns: 1fr; } .pipelineFilters { grid-template-columns: 1fr; } .pipelineSourceNote { align-items: flex-start; flex-direction: column; } }

@@ -15,7 +15,7 @@ import CampaignsRoute from "@/app/workspace/[workspaceKey]/(domain)/campaigns/pa
 import PerformanceRoute from "@/app/workspace/[workspaceKey]/(domain)/performance/page";
 import AraRoute from "@/app/workspace/[workspaceKey]/(assistant)/ara/page";
 import WorkspaceProjectsPageRoute from "@/app/workspace/[workspaceKey]/(shared-work)/projects/page";
-import { SalesReadinessPage } from "@/features/sales";
+import { SalesPipelinePage } from "@/features/sales";
 import {
   ApprovalsPage,
   DocumentsPage,
@@ -138,10 +138,7 @@ describe("Sales workspace", () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(salesSession());
 
     render(
-      <SalesReadinessPage
-        description="Uji akses"
-        detail="Sumber data belum tersedia."
-        title="Pipeline Penjualan"
+      <SalesPipelinePage
         workspaceKey="workspace-lain"
       />,
     );
@@ -154,10 +151,7 @@ describe("Sales workspace", () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(salesSession());
 
     render(
-      <SalesReadinessPage
-        description="Uji tampilan"
-        detail="Pipeline belum terhubung."
-        title="Pipeline Penjualan"
+      <SalesPipelinePage
         workspaceKey="penjualan-utama"
       />,
     );
@@ -165,8 +159,29 @@ describe("Sales workspace", () => {
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: "Pipeline Penjualan" })).toBeInTheDocument();
     });
-    expect(screen.getByText("Belum Terhubung")).toBeInTheDocument();
+    expect(screen.getAllByText("Belum Terhubung").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Belum ada data")).not.toBeInTheDocument();
     expect(screen.queryByText(/Rp\s*0|0%|Aman/i)).not.toBeInTheDocument();
+  });
+
+  it("menampilkan Pipeline final sebagai table-first, filterable, responsive structure tanpa authority closing", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(salesSession());
+
+    render(<SalesPipelinePage workspaceKey="penjualan-utama" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Pipeline Penjualan" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("group", { name: "Filter pipeline penjualan" })).toBeInTheDocument();
+    expect(screen.getAllByRole("combobox")).toHaveLength(7);
+    expect(screen.getByRole("table", { name: "Daftar pipeline penjualan" })).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Ringkasan tahap pipeline" })).toBeInTheDocument();
+    expect(screen.getAllByText("Belum Terhubung").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Belum ada data")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Tandai|Buat.*Closing|Closing Resmi/i })).not.toBeInTheDocument();
+    expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
+    expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
   });
 
   it("Sales Shared Work Documents renders inside a single AppShell", async () => {
@@ -248,10 +263,7 @@ describe("Sales workspace", () => {
   it("fail closed jika session non-sales mencoba membuka halaman Sales", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(propertySession());
     render(
-      <SalesReadinessPage
-        description="Uji hak akses Sales"
-        detail="Pipeline belum terhubung."
-        title="Pipeline Penjualan"
+      <SalesPipelinePage
         workspaceKey="property"
       />,
     );
