@@ -13,6 +13,7 @@ import ComplianceRoute from "@/app/workspace/[workspaceKey]/(domain)/compliance/
 import RecruitmentRoute from "@/app/workspace/[workspaceKey]/(domain)/recruitment/page";
 import CandidateDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/recruitment/[candidateId]/page";
 import EmployeeDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/employees/[employeeId]/page";
+import { columnsFor, createHrRow } from "@/features/hr/hr-pages";
 import { hasGaScope, hasHrContext, activeHrWorkspaceKey } from "@/features/hr/hr-model";
 import { HrSourceStateView } from "@/features/hr/shared/hr-ui";
 import { hrNavigation } from "@/features/hr/navigation";
@@ -78,6 +79,13 @@ describe("HR / GA workspace", () => {
     expect(await screen.findByRole("heading", { name: "HR" })).toBeInTheDocument();
   });
 
+  it("does not render HR content for a workspace key mismatch", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession("sdm-utama"));
+    render(<EmployeesRoute {...params({ workspaceKey: "sdm-lain" })} />);
+    expect(await screen.findByRole("heading", { name: "Anda tidak memiliki akses ke halaman ini." })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /Karyawan/ })).not.toBeInTheDocument();
+  });
+
   it("keeps Target & Kinerja separate from employee review", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession());
     render(<PerformanceRoute {...params({ workspaceKey: "sdm-utama" })} />);
@@ -112,6 +120,10 @@ describe("HR / GA workspace", () => {
     render(<EmployeeDetailRoute {...params({ workspaceKey: "sdm-utama", employeeId: "employee-1" })} />);
     expect(await screen.findByRole("heading", { name: "Detail Karyawan" })).toBeInTheDocument();
     expect(screen.getByText(/ID pada URL tidak menentukan akses/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Data Pribadi" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Bank" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Pajak" })).toBeDisabled();
+    expect(screen.queryByText(/Gaji|Nomor Rekening|NPWP|KTP/)).not.toBeInTheDocument();
   });
 
   it("offers document review only as unavailable extraction readiness", async () => {
@@ -148,6 +160,36 @@ describe("HR / GA workspace", () => {
     rerender(<HrSourceStateView description="Belum ada data" state="connected-empty" />);
     expect(screen.getAllByText("Belum ada data").length).toBeGreaterThan(0);
     expect(screen.queryByText("Belum Terhubung")).not.toBeInTheDocument();
+    rerender(<HrSourceStateView description="Gagal membaca sumber" state="error" />);
+    expect(screen.getByText("Data belum dapat dimuat")).toBeInTheDocument();
+    rerender(<HrSourceStateView description="Memuat sumber" state="loading" />);
+    expect(screen.getByText("Memuat data")).toBeInTheDocument();
+    rerender(<HrSourceStateView description="Sumber siap" state="connected-data"><span>Data terhubung</span></HrSourceStateView>);
+    expect(screen.getByText("Data terhubung")).toBeInTheDocument();
+  });
+
+  it("preserves distinct values for every HR table column beyond five columns", () => {
+    const headers = ["Nama", "Employee ID", "Position", "Division", "Manager", "Employment Type", "Join Date", "Employment Status", "Contract End", "Status"];
+    const row = createHrRow("employee-1", headers, ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]);
+    const columns = columnsFor(headers);
+    expect(columns).toHaveLength(10);
+    expect(columns.map((column) => column.key)).toHaveLength(10);
+    expect(columns[4]?.render(row, 4)).toBe("E");
+    expect(columns[5]?.render(row, 5)).toBe("F");
+    expect(columns[8]?.render(row, 8)).toBe("I");
+    expect(columns[9]?.render(row, 9)).toBe("J");
+  });
+
+  it("keeps HR authority boundaries and privacy source-honest", () => {
+    const source = readFileSync(resolve("src/features/hr/hr-pages.tsx"), "utf8");
+    const detailSource = readFileSync(resolve("src/features/hr/shared/hr-detail-page.tsx"), "utf8");
+    expect(source).not.toContain("Rp0");
+    expect(source).not.toMatch(/AI.*(hire|reject|promote|terminate)/i);
+    expect(source).not.toMatch(/Proceed|Hold|Reject/);
+    expect(detailSource).toContain("Informasi kompensasi memerlukan kewenangan khusus");
+    expect(detailSource).toContain("Data rekening dibatasi");
+    expect(detailSource).toContain("Data pajak dibatasi");
+    expect(readFileSync(resolve("docs/hr-business-state-decisions.md"), "utf8")).toContain("Siapa pemilik perhitungan payroll?");
   });
 
   it("does not create HR duplicate Shared Work or ARA features", () => {

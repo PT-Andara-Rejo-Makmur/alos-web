@@ -37,3 +37,17 @@ The following fields are represented by readiness UI. Required markers are rende
 | hr.employment.change | Karyawan, Jenis Perubahan, Tanggal Berlaku, Status Baru, Alasan | Status Lama, Bukti Pendukung | effective-dated; history is not overwritten |
 | hr.offboarding.start | Karyawan, Alasan, Tanggal Kerja Terakhir, Manager | Knowledge Transfer, Asset Return, Access Revocation, Final Documents, Finance Settlement, Catatan | settlement Finance-owned; access IT-owned |
 | hr.document.extract | Dokumen sumber | Catatan telaah | candidate is not authoritative; no fake candidate |
+
+### Employee readiness sub-forms
+
+These are separate readiness surfaces, not one giant edit form. They remain **NEEDS CONTRACT / NEEDS BACKEND** and do not expose sensitive values without authority.
+
+| Form ID | Required UI fields | Optional UI fields | Availability / boundary |
+|---|---|---|---|
+| hr.employee.personal-data | Karyawan, Nama | Kontak | Disabled until employee source is available |
+| hr.employee.employment-assignment | Karyawan, Posisi, Divisi, Tanggal Berlaku | Jenis Kepegawaian | Effective-dated; history is retained |
+| hr.employee.compensation | Karyawan, Tanggal Berlaku | — | Restricted readiness; no salary value rendered |
+| hr.employee.documents | Karyawan, Dokumen Pendukung | — | Shared Work Document authority; SOURCE UNAVAILABLE |
+| hr.employee.emergency-contact | Karyawan, Nama Kontak, Hubungan, Kontak | — | Sensitive contact policy NEEDS DECISION |
+| hr.employee.bank | Karyawan | — | Restricted readiness; Finance/source authority required |
+| hr.employee.tax | Karyawan | — | Restricted readiness; policy and source NEEDS DECISION |
