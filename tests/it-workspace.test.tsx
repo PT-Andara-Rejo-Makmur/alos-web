@@ -193,6 +193,23 @@ describe("IT frontend master matrix", () => {
     expect(modules).toContain("Aset Ditugaskan");
   });
 
+  it("defines concrete source-honest structures for every IT operations module", () => {
+    const modules = source("src/features/it/modules/it-module-page.tsx");
+    for (const tab of [
+      "Problem / Root Cause", "Staging / Uji", "Compute", "Database", "Backup", "Monitoring",
+      "Runtime", "Capability", "Provider", "Evaluasi", "Penggunaan", "Internal", "Eksternal",
+      "Keanggotaan Workspace", "Penetapan Peran", "Kerentanan", "Change", "Release", "Deployment",
+      "Rollback", "Tersedia", "Milik Saya", "Tim",
+    ]) expect(modules).toContain(`"${tab}"`);
+    for (const column of [
+      "Availability", "Insiden Terakhir", "Root Cause", "Repository", "Deployment Terakhir",
+      "Status Backup", "Run Aktif", "Status Kredensial", "Sinkronisasi Terakhir",
+      "Jenis Autentikasi", "Severity", "Persetujuan", "Kode Aset", "Garansi", "Aset Terkait",
+    ]) expect(modules).toContain(column);
+    expect(modules).toContain("Tidak ada data operasional yang dibuat oleh antarmuka");
+    expect(modules).not.toMatch(/credential value|api[_ -]?key value|secret value/i);
+  });
+
   it("keeps privileged role and security boundaries source-honest", () => {
     const account = source("src/features/it/account-management-page.tsx");
     const docs = source("docs/it-access-governance.md");

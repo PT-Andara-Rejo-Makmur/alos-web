@@ -1,22 +1,24 @@
 "use client";
 
-import { AlertCircle, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { navigationForSession } from "@/app/navigation";
 import { AppShell } from "@/components/app-shell/app-shell";
-import { Alert, Button, PageHeader, Tabs, type DataTableColumn, type TabItem } from "@/components/ui";
+import { Button, PageHeader, Tabs, type DataTableColumn, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
 import { hasExecutiveContext } from "@/features/executive";
 import { ApiError, sessionApiRequest } from "@/lib/api";
 
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { WorkErrorState } from "../shared/errors/work-error-state";
+import { WorkSourceNotice } from "../shared/errors/work-source-notice";
 import { WorkToolbar } from "../shared/filters/work-toolbar";
 import { WorkLoading } from "../shared/loading/work-loading";
 import { canCreateProject } from "../shared/permissions/authority";
 import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
 import { ProjectStatusBadge } from "../shared/status/project-status";
+import type { SourceState } from "../shared/source-state";
 import { WorkDataTable } from "../shared/tables/work-data-table";
 import { ProjectDrawer } from "./project-drawer";
 import { fetchProjects } from "./project-model";
@@ -54,7 +56,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
   const [projectsLoading, setProjectsLoading] = useState(true);
   const [backendConnected, setBackendConnected] = useState(true);
   const [backendMessage, setBackendMessage] = useState<string | null>(null);
-  const [sourceState, setSourceState] = useState<"available" | "unavailable" | "error">("available");
+  const [sourceState, setSourceState] = useState<SourceState>("available");
 
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
@@ -236,8 +238,8 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
         <PageHeader
           actions={
             canCreate ? (
-              <Button iconBefore={<Plus size={16} strokeWidth={2} />} variant="primary">
-                Tambah Proyek
+              <Button disabled iconBefore={<Plus size={16} strokeWidth={2} />} variant="primary">
+                Tambah Proyek — Belum Tersedia
               </Button>
             ) : undefined
           }
@@ -246,23 +248,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
           title="Proyek"
         />
 
-        {sourceState === "error" ? (
-          <div className={styles.noticeContainer}>
-            <Alert message={backendMessage ?? "Data proyek belum dapat dimuat. Silakan coba kembali."} title="Data Proyek Belum Dapat Dimuat" variant="danger" />
-          </div>
-        ) : !backendConnected ? (
-          <div className={styles.noticeContainer}>
-            <Alert
-              icon={<AlertCircle size={18} strokeWidth={2} />}
-              message={
-                backendMessage ??
-                "Data proyek belum terhubung. Daftar proyek akan ditampilkan setelah sumber data tersedia."
-              }
-              title="Data Proyek Belum Terhubung"
-              variant="neutral"
-            />
-          </div>
-        ) : null}
+        <WorkSourceNotice message={backendMessage} state={sourceState} subject="Proyek" />
 
         <div className={styles.tabsContainer}>
           <Tabs
@@ -296,7 +282,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
           getRowKey={(p) => p.id}
           loading={projectsLoading}
           loadingLabel="Memuat daftar proyek…"
-          unavailable={!backendConnected || sourceState === "error"}
+          unavailable={!backendConnected || sourceState !== "available"}
           onRowClick={(p) => {
             setSelectedProject(p);
             setDrawerOpen(true);
@@ -317,7 +303,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
         />
 
         <ProjectDrawer
-          isConnected={backendConnected && sourceState !== "error"}
+          isConnected={backendConnected && sourceState === "available"}
           onClose={() => {
             setDrawerOpen(false);
             setSelectedProject(null);

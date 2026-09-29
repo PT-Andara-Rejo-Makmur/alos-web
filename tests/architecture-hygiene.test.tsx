@@ -109,25 +109,32 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
   });
 
   it("workspace switcher preserves Shared Work and uses canonical domain landing", () => {
-    const salesAccess = createSession("penjualan-utama", "SALES", "BUSINESS").principal!.active_workspace!;
     const propertyAccess = createSession("property-utama", "PROPERTY", "BUSINESS").principal!.active_workspace!;
     const encodedFinanceAccess = createSession("finance & ops", "FINANCE", "BUSINESS").principal!.active_workspace!;
+    const domainAccess = [
+      createSession("executive-utama", "", "EXECUTIVE").principal!.active_workspace!,
+      createSession("penjualan-utama", "SALES", "BUSINESS").principal!.active_workspace!,
+      propertyAccess,
+      encodedFinanceAccess,
+      createSession("legal-utama", "LEGAL", "BUSINESS").principal!.active_workspace!,
+      createSession("hr-ga-utama", "HR_GA", "BUSINESS").principal!.active_workspace!,
+      createSession("it-utama", "IT", "IT_OPERATIONS").principal!.active_workspace!,
+    ];
 
-    expect(workspaceDestination("/workspace/current/documents/project-1", salesAccess)).toBe(
-      "/workspace/penjualan-utama/documents/project-1",
-    );
     expect(workspaceDestination("/workspace/current/tasks", propertyAccess)).toBe(
       "/workspace/property-utama/tasks",
     );
-    expect(workspaceDestination("/workspace/current/brief", salesAccess)).toBe(
-      "/workspace/penjualan-utama/summary",
+    expect(workspaceDestination("/workspace/current/documents/project-1", encodedFinanceAccess)).toBe(
+      "/workspace/finance%20%26%20ops/summary",
     );
-    expect(workspaceDestination("/workspace/current/pipeline", propertyAccess)).toBe(
-      "/workspace/property-utama/projects",
+    expect(workspaceDestination("/workspace/current/documents", encodedFinanceAccess)).toBe(
+      "/workspace/finance%20%26%20ops/documents",
     );
-    expect(workspaceDestination("/workspace/current/performance", encodedFinanceAccess)).toBe(
-      "/workspace/finance%20%26%20ops/projects",
-    );
+    for (const access of domainAccess) {
+      expect(workspaceDestination("/workspace/current/domain-module", access)).toBe(
+        `/workspace/${encodeURIComponent(access.workspace.workspace_key)}/summary`,
+      );
+    }
   });
 
   afterEach(() => {
@@ -334,6 +341,21 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
 
       await waitFor(() => {
         expect(mockReplace).toHaveBeenCalledWith("/workspace/property-utama/summary");
+      });
+    });
+
+    it.each([
+      ["Finance", "finance-utama", "FINANCE", "BUSINESS"],
+      ["Legal", "legal-utama", "LEGAL", "BUSINESS"],
+      ["HR & GA", "hr-ga-utama", "HR_GA", "BUSINESS"],
+      ["IT", "it-utama", "IT", "IT_OPERATIONS"],
+    ] as const)("redirects %s workspace to summary", async (_label, key, division, type) => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(createSession(key, division, type));
+
+      render(<WorkspaceKeyRoot params={{ workspaceKey: key }} />);
+
+      await waitFor(() => {
+        expect(mockReplace).toHaveBeenCalledWith(`/workspace/${key}/summary`);
       });
     });
   });

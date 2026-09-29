@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { navigationForSession } from "@/app/navigation";
@@ -12,11 +12,13 @@ import { ApiError, sessionApiRequest } from "@/lib/api";
 
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { WorkErrorState } from "../shared/errors/work-error-state";
+import { WorkSourceNotice } from "../shared/errors/work-source-notice";
 import { WorkToolbar } from "../shared/filters/work-toolbar";
 import { WorkLoading } from "../shared/loading/work-loading";
 import { canCreateTask } from "../shared/permissions/authority";
 import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
 import { WorkDataTable } from "../shared/tables/work-data-table";
+import type { SourceState } from "../shared/source-state";
 import { TaskDrawer } from "./task-drawer";
 import { fetchTasks } from "./task-model";
 import { formatTaskDueDate, isTaskOverdue, TaskPriorityBadge, TaskStatusBadge } from "./task-status";
@@ -37,7 +39,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
   const [tasksLoading, setTasksLoading] = useState(true);
   const [backendConnected, setBackendConnected] = useState(true);
   const [backendMessage, setBackendMessage] = useState<string | null>(null);
-  const [sourceState, setSourceState] = useState<"available" | "unavailable" | "error">("available");
+  const [sourceState, setSourceState] = useState<SourceState>("available");
 
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
@@ -111,6 +113,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
   const canCreate = useMemo(() => canCreateTask(session), [session]);
 
   const filteredTasks = useMemo(() => {
+    if (activeTab === "team") return [];
     return tasks.filter((t) => {
       // Tab category filtering (source-honest)
       if (activeTab === "my_tasks") {
@@ -248,11 +251,11 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
           actions={
             canCreate ? (
               <Button
+                disabled
                 iconBefore={<Plus size={16} strokeWidth={2} />}
-                onClick={() => {}}
                 variant="primary"
               >
-                Tambah Tugas
+                Tambah Tugas — Belum Tersedia
               </Button>
             ) : undefined
           }
@@ -261,23 +264,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
           title="Tugas"
         />
 
-        {sourceState === "error" ? (
-          <div className={styles.noticeContainer}>
-            <Alert message={backendMessage ?? "Data tugas belum dapat dimuat. Silakan coba kembali."} title="Data Tugas Belum Dapat Dimuat" variant="danger" />
-          </div>
-        ) : !backendConnected ? (
-          <div className={styles.noticeContainer}>
-            <Alert
-              icon={<AlertCircle size={18} strokeWidth={2} />}
-              message={
-                backendMessage ??
-                "Data tugas belum terhubung. Daftar tugas akan ditampilkan setelah sumber data tersedia."
-              }
-              title="Data Tugas Belum Terhubung"
-              variant="neutral"
-            />
-          </div>
-        ) : null}
+        <WorkSourceNotice message={backendMessage} state={sourceState} subject="Tugas" />
 
         <div className={styles.tabsContainer}>
           <Tabs
@@ -287,6 +274,16 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
             value={activeTab}
           />
         </div>
+
+        {activeTab === "team" ? (
+          <div className={styles.noticeContainer}>
+            <Alert
+              message="Data tugas tim akan tersedia setelah sumber scope tim terhubung."
+              title="Tugas Tim Belum Terhubung"
+              variant="neutral"
+            />
+          </div>
+        ) : null}
 
         <WorkToolbar
           onPriorityChange={setPriorityFilter}
@@ -324,7 +321,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
           getRowKey={(t) => t.id}
           loading={tasksLoading}
           loadingLabel="Memuat daftar tugas…"
-          unavailable={!backendConnected || sourceState === "error"}
+          unavailable={!backendConnected || sourceState !== "available" || activeTab === "team"}
           onRowClick={(t) => {
             setSelectedTask(t);
             setDrawerOpen(true);
@@ -345,7 +342,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
         />
 
         <TaskDrawer
-          isConnected={backendConnected && sourceState !== "error"}
+          isConnected={backendConnected && sourceState === "available"}
           onClose={() => {
             setDrawerOpen(false);
             setSelectedTask(null);

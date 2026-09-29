@@ -46,24 +46,23 @@ describe("HR / GA workspace", () => {
     expect(resolveWorkspaceDomain(hrSession(), "sdm-lain")).toMatchObject({ valid: false, failureReason: "key_mismatch" });
   });
 
-  it("distinguishes HR scope from HR/GA scope", () => {
-    expect(hasGaScope(hrSession("sdm-utama", "HR"))).toBe(false);
+  it("treats Backend-recognized HR metadata as one HR & GA domain", () => {
+    expect(hasGaScope(hrSession("sdm-utama", "HR"))).toBe(true);
     expect(hasGaScope(hrSession("hr-ga-utama", "HR_GA"))).toBe(true);
     expect(hasGaScope(hrSession("hrga-utama", "HRGA"))).toBe(true);
+    expect(hasGaScope(hrSession("sales-utama", "SALES"))).toBe(false);
   });
 
-  it("builds exact HR and HR/GA menu counts with encoded actual workspace key", () => {
-    const hr = hrNavigation("sdm & utama", false);
-    const ga = hrNavigation("sdm & utama", true);
-    const labels = hr.flatMap((section) => section.items.map((item) => item.label));
-    expect(labels).toHaveLength(18);
-    expect(labels).not.toContain("GA & Fasilitas");
-    expect(ga.flatMap((section) => section.items)).toHaveLength(19);
-    expect(ga.flatMap((section) => section.items.map((item) => item.href))).toContain("/workspace/sdm%20%26%20utama/summary");
-    expect(ga.flatMap((section) => section.items.map((item) => item.href)).some((href) => href.startsWith("/workspace/hr/"))).toBe(false);
-    expect(ga.map((section) => section.label)).not.toContain("GA");
-    expect(ga.find((section) => section.label === "OPERASIONAL SDM")?.items.map((item) => item.label)).toContain("GA & Fasilitas");
-    expect(ga.flatMap((section) => section.items.map((item) => item.label))).toContain("Kompensasi & Benefit");
+  it("builds the combined HR & GA menu with encoded actual workspace key", () => {
+    const navigation = hrNavigation("sdm & utama", hasGaScope(hrSession("sdm & utama", "HR")));
+    const labels = navigation.flatMap((section) => section.items.map((item) => item.label));
+    expect(labels).toHaveLength(19);
+    expect(labels).toContain("GA & Fasilitas");
+    expect(navigation.flatMap((section) => section.items.map((item) => item.href))).toContain("/workspace/sdm%20%26%20utama/summary");
+    expect(navigation.flatMap((section) => section.items.map((item) => item.href)).some((href) => href.startsWith("/workspace/hr/"))).toBe(false);
+    expect(navigation.map((section) => section.label)).not.toContain("GA");
+    expect(navigation.find((section) => section.label === "OPERASIONAL SDM")?.items.map((item) => item.label)).toContain("GA & Fasilitas");
+    expect(labels).toContain("Kompensasi & Benefit");
   });
 
   it("root and summary dispatch HR to canonical summary using actual key", async () => {
@@ -96,10 +95,10 @@ describe("HR / GA workspace", () => {
     expect(screen.queryByText("Review Kinerja Karyawan")).not.toBeInTheDocument();
   });
 
-  it("allows GA only from authoritative HR/GA metadata", async () => {
+  it("allows GA consistently for the canonical combined HR & GA domain", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession("sdm-utama", "HR"));
     render(<GaRoute {...params({ workspaceKey: "sdm-utama" })} />);
-    expect(await screen.findByRole("heading", { name: "Anda tidak memiliki akses ke halaman ini." })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /GA & Fasilitas/ })).toBeInTheDocument();
     cleanup();
     vi.clearAllMocks();
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession("hr-ga-utama", "HR_GA"));

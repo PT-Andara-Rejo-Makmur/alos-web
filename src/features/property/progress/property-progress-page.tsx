@@ -11,14 +11,14 @@ import styles from "../property.module.css";
 interface ProgressRow { readonly recordId: string; readonly project: string; readonly package: string; readonly reportedDate: string; readonly progress: string; readonly evidence: string; readonly status: string; }
 const progressRows: readonly ProgressRow[] = [];
 const progressColumns: readonly DataTableColumn<ProgressRow>[] = [
-  { header: "Proyek", key: "project", render: (row) => row.project }, { header: "Work Package", key: "package", render: (row) => row.package },
+  { header: "Proyek", key: "project", render: (row) => row.project }, { header: "Paket Pekerjaan", key: "package", render: (row) => row.package },
   { header: "Tanggal", key: "reportedDate", render: (row) => row.reportedDate }, { header: "Progres", key: "progress", render: (row) => row.progress },
-  { header: "Evidence", key: "evidence", render: (row) => row.evidence }, { header: "Status", key: "status", render: (row) => row.status },
+  { header: "Bukti", key: "evidence", render: (row) => row.evidence }, { header: "Status", key: "status", render: (row) => row.status },
 ];
 const progressFields: readonly PropertyFormField[] = [
-  { label: "Proyek *", name: "project" }, { label: "Work Package *", name: "work-package" }, { label: "Periode / Tanggal *", name: "date", type: "date" },
+  { label: "Proyek *", name: "project" }, { label: "Paket Pekerjaan *", name: "work-package" }, { label: "Periode / Tanggal *", name: "date", type: "date" },
   { label: "Rencana %", name: "planned-progress", type: "number" }, { label: "Aktual %", name: "actual-progress", type: "number" }, { label: "Kuantitas", name: "quantity", type: "number" },
-  { label: "Unit", name: "unit" }, { label: "Evidence *", name: "evidence" }, { label: "Catatan", name: "notes", type: "textarea" },
+  { label: "Unit", name: "unit" }, { label: "Bukti *", name: "evidence" }, { label: "Catatan", name: "notes", type: "textarea" },
 ];
 
 export function PropertyProgressPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) { return <PropertyLayout workspaceKey={workspaceKey}>{(session) => <PropertyProgress session={session} />}</PropertyLayout>; }

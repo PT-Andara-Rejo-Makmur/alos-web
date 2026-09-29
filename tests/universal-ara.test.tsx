@@ -189,6 +189,16 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       });
       expect(screen.queryByText(rawSecretPermission)).not.toBeInTheDocument();
     });
+
+    it("does not infer RESTRICTED classification from Executive workspace or role", () => {
+      const session = makeSession("pusat-kendali", "", "Pusat Kendali", "EXECUTIVE", [
+        "strategy.company.manage",
+      ]);
+      const context = extractAraContext(session, "pusat-kendali");
+
+      expect(context?.maxClassification).toBe("INTERNAL");
+      expect(context?.classificationLabel).toBe("Internal Perusahaan");
+    });
   });
 
   describe("Fail Closed on Mismatch or Unauthenticated", () => {
@@ -224,14 +234,16 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       const identity: AraThreadIdentity = {
         actorId: "actor_123",
         classification: "INTERNAL",
+        organizationId: "org_andara",
         scopeRefs: ["scope_finance", "scope_general"],
+        tenantId: "tenant_andara",
         threadId: "th_abc456",
         workspaceId: "ws_keuangan",
         workspaceKey: "keuangan",
       };
 
       const key = buildAraThreadKey(identity);
-      expect(key).toBe("ara:keuangan:actor_123:INTERNAL:scope_finance,scope_general:th_abc456");
+      expect(key).toBe("ara:tenant_andara:org_andara:keuangan:actor_123:INTERNAL:scope_finance,scope_general:th_abc456");
     });
 
     it("validates whether thread is within authoritative boundary", () => {
@@ -242,7 +254,9 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       const validThread: AraThreadIdentity = {
         actorId: context!.actor.actorId,
         classification: "INTERNAL",
+        organizationId: context!.organizationId,
         scopeRefs: ["scope_property"],
+        tenantId: context!.tenantId,
         threadId: "th_prop_1",
         workspaceId: context!.activeWorkspace.workspaceId,
         workspaceKey: "property",
@@ -259,9 +273,33 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
         workspaceKey: "sales",
       };
 
+      const invalidThreadDiffTenant: AraThreadIdentity = {
+        ...validThread,
+        tenantId: "tenant_other",
+      };
+
+      const invalidThreadDiffOrganization: AraThreadIdentity = {
+        ...validThread,
+        organizationId: "org_other",
+      };
+
+      const invalidThreadOutsideScope: AraThreadIdentity = {
+        ...validThread,
+        scopeRefs: ["scope_other"],
+      };
+
+      const invalidThreadHigherClassification: AraThreadIdentity = {
+        ...validThread,
+        classification: "RESTRICTED",
+      };
+
       expect(isThreadWithinBoundary(validThread, context!)).toBe(true);
       expect(isThreadWithinBoundary(invalidThreadDiffActor, context!)).toBe(false);
       expect(isThreadWithinBoundary(invalidThreadDiffWorkspace, context!)).toBe(false);
+      expect(isThreadWithinBoundary(invalidThreadDiffTenant, context!)).toBe(false);
+      expect(isThreadWithinBoundary(invalidThreadDiffOrganization, context!)).toBe(false);
+      expect(isThreadWithinBoundary(invalidThreadOutsideScope, context!)).toBe(false);
+      expect(isThreadWithinBoundary(invalidThreadHigherClassification, context!)).toBe(false);
     });
   });
 

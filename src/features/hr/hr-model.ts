@@ -12,11 +12,13 @@ export function activeHrWorkspaceKey(session: SessionProjection | null | undefin
   return session.principal.active_workspace?.workspace.workspace_key ?? null;
 }
 
-/** GA is a governed scope of the HR/GA workspace, not a URL or role decision. */
+/**
+ * Stage 3 canonical UI treats HR & GA as one Backend-recognized business domain.
+ * NEEDS CONTRACT / NEEDS DECISION: canonical HR-GA workspace metadata can replace
+ * the current HR/HR_GA/HRGA compatibility vocabulary in a later contract stage.
+ */
 export function hasGaScope(session: SessionProjection | null | undefined): boolean {
-  if (!hasHrContext(session) || !session?.principal || !("actor" in session.principal)) return false;
-  const divisionCode = session.principal.active_workspace?.workspace.division_code?.toUpperCase();
-  return divisionCode === "HR_GA" || divisionCode === "HRGA";
+  return hasHrContext(session);
 }
 
 export function hrValue(value: string | number | null | undefined): string {

@@ -1,21 +1,22 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { navigationForSession } from "@/app/navigation";
 import { AppShell } from "@/components/app-shell/app-shell";
-import { Alert, Button, PageHeader, Tabs, type DataTableColumn, type TabItem } from "@/components/ui";
+import { Button, PageHeader, Tabs, type DataTableColumn, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
 import { hasExecutiveContext } from "@/features/executive";
 import { ApiError, sessionApiRequest } from "@/lib/api";
 
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { WorkErrorState } from "../shared/errors/work-error-state";
+import { WorkSourceNotice } from "../shared/errors/work-source-notice";
 import { WorkToolbar } from "../shared/filters/work-toolbar";
 import { WorkLoading } from "../shared/loading/work-loading";
 import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
 import { WorkDataTable } from "../shared/tables/work-data-table";
+import type { SourceState } from "../shared/source-state";
 import { ReportDrawer } from "./report-drawer";
 import { fetchReportDefinitions, fetchReportResults } from "./report-model";
 import { ReportFrequencyBadge, ReportStatusBadge } from "./report-status";
@@ -55,14 +56,14 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
   const [resultsLoading, setResultsLoading] = useState(true);
   const [resultsConnected, setResultsConnected] = useState(true);
   const [resultsMessage, setResultsMessage] = useState<string | null>(null);
-  const [resultsSourceState, setResultsSourceState] = useState<"available" | "unavailable" | "error">("available");
+  const [resultsSourceState, setResultsSourceState] = useState<SourceState>("available");
 
   // Definitions state
   const [reportDefinitions, setReportDefinitions] = useState<readonly WorkReportDefinition[]>([]);
   const [definitionsLoading, setDefinitionsLoading] = useState(true);
   const [definitionsConnected, setDefinitionsConnected] = useState(true);
   const [definitionsMessage, setDefinitionsMessage] = useState<string | null>(null);
-  const [definitionsSourceState, setDefinitionsSourceState] = useState<"available" | "unavailable" | "error">("available");
+  const [definitionsSourceState, setDefinitionsSourceState] = useState<SourceState>("available");
 
   // Quick view drawer
   const [selectedResult, setSelectedResult] = useState<WorkReportResult | null>(null);
@@ -327,27 +328,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
           title="Laporan"
         />
 
-        {sourceState === "error" ? (
-          <div className={styles.noticeContainer}>
-            <Alert
-              message={connectionMessage ?? "Data laporan belum dapat dimuat. Silakan coba kembali."}
-              title="Data Laporan Belum Dapat Dimuat"
-              variant="danger"
-            />
-          </div>
-        ) : !isConnected ? (
-          <div className={styles.noticeContainer}>
-            <Alert
-              icon={<AlertCircle size={18} strokeWidth={2} />}
-              message={
-                connectionMessage ??
-                "Data laporan belum terhubung. Data akan ditampilkan setelah sumber tersedia."
-              }
-              title="Data Laporan Belum Terhubung"
-              variant="neutral"
-            />
-          </div>
-        ) : null}
+        <WorkSourceNotice message={connectionMessage} state={sourceState} subject="Laporan" />
 
         <div className={styles.primaryTabsContainer}>
           <Tabs
@@ -372,7 +353,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
             getRowKey={(r) => r.id}
             loading={isLoading}
             loadingLabel="Memuat hasil laporan…"
-            unavailable={!isConnected || sourceState === "error"}
+            unavailable={!isConnected || sourceState !== "available"}
             onRowClick={(row) => {
               setSelectedResult(row);
               setSelectedDefinition(null);
@@ -401,7 +382,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
             getRowKey={(d) => d.id}
             loading={isLoading}
             loadingLabel="Memuat definisi laporan…"
-            unavailable={!isConnected || sourceState === "error"}
+            unavailable={!isConnected || sourceState !== "available"}
             onRowClick={(row) => {
               setSelectedDefinition(row);
               setSelectedResult(null);
@@ -426,7 +407,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
 
         <ReportDrawer
           definition={selectedDefinition}
-          isConnected={isConnected && sourceState !== "error"}
+          isConnected={isConnected && sourceState === "available"}
           onClose={() => {
             setDrawerOpen(false);
             setSelectedResult(null);

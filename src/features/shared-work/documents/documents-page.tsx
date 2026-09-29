@@ -1,22 +1,23 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { navigationForSession } from "@/app/navigation";
 import { AppShell } from "@/components/app-shell/app-shell";
-import { Alert, Button, PageHeader, Tabs, type DataTableColumn, type TabItem } from "@/components/ui";
+import { Button, PageHeader, Tabs, type DataTableColumn, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
 import { hasExecutiveContext } from "@/features/executive";
 import { ApiError, sessionApiRequest } from "@/lib/api";
 
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { WorkErrorState } from "../shared/errors/work-error-state";
+import { WorkSourceNotice } from "../shared/errors/work-source-notice";
 import { WorkToolbar } from "../shared/filters/work-toolbar";
 import { WorkLoading } from "../shared/loading/work-loading";
 import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
 import { DataClassificationBadge } from "../shared/status/work-status";
 import { WorkDataTable } from "../shared/tables/work-data-table";
+import type { SourceState } from "../shared/source-state";
 import { DocumentDrawer } from "./document-drawer";
 import { fetchDocuments } from "./document-model";
 import { DocumentStatusBadge, isDocumentExpired } from "./document-status";
@@ -52,7 +53,7 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
   const [documentsLoading, setDocumentsLoading] = useState(true);
   const [backendConnected, setBackendConnected] = useState(true);
   const [backendMessage, setBackendMessage] = useState<string | null>(null);
-  const [sourceState, setSourceState] = useState<"available" | "unavailable" | "error">("available");
+  const [sourceState, setSourceState] = useState<SourceState>("available");
 
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
@@ -257,23 +258,7 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
         title="Dokumen"
       />
 
-      {sourceState === "error" ? (
-        <div className={styles.noticeContainer}>
-          <Alert message={backendMessage ?? "Data dokumen belum dapat dimuat. Silakan coba kembali."} title="Data Dokumen Belum Dapat Dimuat" variant="danger" />
-        </div>
-      ) : !backendConnected ? (
-        <div className={styles.noticeContainer}>
-          <Alert
-            icon={<AlertCircle size={18} strokeWidth={2} />}
-            message={
-              backendMessage ??
-              "Data dokumen belum terhubung. Daftar dokumen akan ditampilkan setelah sumber data tersedia."
-            }
-            title="Data Dokumen Belum Terhubung"
-            variant="neutral"
-          />
-        </div>
-      ) : null}
+      <WorkSourceNotice message={backendMessage} state={sourceState} subject="Dokumen" />
 
       <div className={styles.tabsContainer}>
         <Tabs
@@ -306,7 +291,7 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
         getRowKey={(d) => d.id}
         loading={documentsLoading}
         loadingLabel="Memuat daftar dokumen…"
-        unavailable={!backendConnected || sourceState === "error"}
+        unavailable={!backendConnected || sourceState !== "available"}
         onRowClick={(d) => {
           setSelectedDocument(d);
           setDrawerOpen(true);
@@ -328,7 +313,7 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
 
       <DocumentDrawer
         document={selectedDocument}
-        isConnected={backendConnected && sourceState !== "error"}
+        isConnected={backendConnected && sourceState === "available"}
         onClose={() => {
           setDrawerOpen(false);
           setSelectedDocument(null);

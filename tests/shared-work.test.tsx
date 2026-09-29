@@ -8,6 +8,7 @@ import {
   ProjectsPage,
   canCreateProject,
   humanizeWorkError,
+  sourceStateFor,
   type WorkProject,
 } from "@/features/shared-work";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
@@ -228,6 +229,24 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
       );
       expect(canCreateProject(leadSession)).toBe(true);
     });
+
+    it("shows a disabled source-honest create action when project.create is granted", async () => {
+      const principal = makePrincipal({
+        active_workspace: {
+          ...makePrincipal().active_workspace!,
+          permission_refs: ["project.create"],
+        },
+      });
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession(principal));
+      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([]);
+
+      render(<ProjectsPage workspaceKey="property" />);
+
+      const action = await screen.findByRole("button", { name: "Tambah Proyek — Belum Tersedia" });
+      expect(action).toBeDisabled();
+      expect(screen.queryByText("Berhasil disimpan")).not.toBeInTheDocument();
+      expect(screen.queryByText("Proyek baru")).not.toBeInTheDocument();
+    });
   });
 
   describe("Table-First Listing & Quick View Drawer", () => {
@@ -312,9 +331,24 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
       expect(humanizeWorkError(new ApiError(409, "conflict", null))).toBe(
         "Data telah berubah sejak halaman ini dibuka. Muat versi terbaru sebelum melanjutkan.",
       );
+      expect(humanizeWorkError(new ApiError(422, "validation", null))).toBe(
+        "Data belum memenuhi aturan yang berlaku.",
+      );
       expect(humanizeWorkError(new Error("Network failed"))).toBe(
         "Data belum dapat dimuat. Silakan coba kembali.",
       );
+    });
+
+    it("classifies collection and detail failures without flattening authority states", () => {
+      expect(sourceStateFor(new ApiError(401, "unauthorized", null))).toBe("unauthorized");
+      expect(sourceStateFor(new ApiError(403, "forbidden", null))).toBe("forbidden");
+      expect(sourceStateFor(new ApiError(404, "missing capability", null))).toBe("unavailable");
+      expect(sourceStateFor(new ApiError(404, "missing object", null), "detail")).toBe("not_found");
+      expect(sourceStateFor(new ApiError(501, "not implemented", null))).toBe("unavailable");
+      expect(sourceStateFor(new ApiError(409, "conflict", null))).toBe("conflict");
+      expect(sourceStateFor(new ApiError(422, "validation", null))).toBe("validation");
+      expect(sourceStateFor(new ApiError(503, "unavailable", null))).toBe("error");
+      expect(sourceStateFor(new Error("network"))).toBe("error");
     });
   });
 });

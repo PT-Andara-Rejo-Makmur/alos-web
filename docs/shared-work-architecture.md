@@ -349,44 +349,39 @@ Sesuai `src/alos/documents/models.py`:
 
 ```
 /workspace
-/workspace/executive
 
 # Proyek
-/workspace/projects
-/workspace/projects/[projectId]
 /workspace/[workspaceKey]/projects
 /workspace/[workspaceKey]/projects/[projectId]
 
 # Tugas
-/workspace/tasks
-/workspace/tasks/[taskId]
 /workspace/[workspaceKey]/tasks
 /workspace/[workspaceKey]/tasks/[taskId]
 
 # Persetujuan
-/workspace/approvals
-/workspace/approvals/[approvalId]
 /workspace/[workspaceKey]/approvals
 /workspace/[workspaceKey]/approvals/[approvalId]
 
 # Dokumen
-/workspace/documents
-/workspace/documents/[documentId]
 /workspace/[workspaceKey]/documents
 /workspace/[workspaceKey]/documents/[documentId]
 
 # Laporan
-/workspace/reports
-/workspace/reports/[reportId]
 /workspace/[workspaceKey]/reports
 /workspace/[workspaceKey]/reports/[reportId]
 
 # Temuan
-/workspace/findings
-/workspace/findings/[findingId]
 /workspace/[workspaceKey]/findings
 /workspace/[workspaceKey]/findings/[findingId]
 ```
+
+Route list lama `/workspace/{projects|tasks|approvals|documents|reports|findings}` hanya dipertahankan
+sebagai compatibility redirect ke active workspace. Route canonical dan seluruh detail selalu
+memakai `/workspace/[workspaceKey]/...`.
+
+Action create Proyek/Tugas hanya terlihat bila permission authoritative tersedia. Selama mutation
+belum tersedia, action tersebut disabled dan tidak membuat row atau success state lokal. Scope tab
+Tim tetap `Belum Terhubung` sampai Backend menyediakan team boundary canonical.
 
 ---
 

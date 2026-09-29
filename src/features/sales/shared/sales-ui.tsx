@@ -193,7 +193,7 @@ export function SalesExtractionReviewDrawer({
             {[
               ["Nama / Subjek", "—"],
               ["Kontak", "—"],
-              ["Project / Unit", "—"],
+              ["Proyek / Unit", "—"],
               ["Tanggal", "—"],
             ].map(([label, value]) => (
               <div className={styles.candidateRow} key={label}>

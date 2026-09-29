@@ -13,11 +13,11 @@ interface ContractorRow { readonly recordId: string; readonly name: string; read
 const contractorRows: readonly ContractorRow[] = [];
 const contractorColumns: readonly DataTableColumn<ContractorRow>[] = [
   { header: "Kontraktor", key: "name", render: (row) => row.name }, { header: "Proyek", key: "project", render: (row) => row.project },
-  { header: "Work Package", key: "package", render: (row) => row.package }, { header: "Pelaksanaan Teknis", key: "delivery", render: (row) => row.delivery },
+  { header: "Paket Pekerjaan", key: "package", render: (row) => row.package }, { header: "Pelaksanaan Teknis", key: "delivery", render: (row) => row.delivery },
   { header: "Status Legal", key: "legalStatus", render: (row) => row.legalStatus }, { header: "Pembayaran", key: "paymentStatus", render: (row) => row.paymentStatus },
   { header: "Status", key: "status", render: (row) => row.status },
 ];
-const contractorFields: readonly PropertyFormField[] = [{ label: "Kontraktor", name: "contractor" }, { label: "Proyek", name: "project" }, { label: "Work Package", name: "work-package" }, { label: "Catatan", name: "notes", type: "textarea" }];
+const contractorFields: readonly PropertyFormField[] = [{ label: "Kontraktor", name: "contractor" }, { label: "Proyek", name: "project" }, { label: "Paket Pekerjaan", name: "work-package" }, { label: "Catatan", name: "notes", type: "textarea" }];
 
 export function PropertyContractorsPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) { return <PropertyLayout workspaceKey={workspaceKey}>{(session) => <PropertyContractors session={session} />}</PropertyLayout>; }
 

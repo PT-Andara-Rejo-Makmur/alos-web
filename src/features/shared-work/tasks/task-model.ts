@@ -1,6 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
-import { sourceStateFor } from "../shared/source-state";
+import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkTask } from "./task-types";
 
 export interface FetchTasksOptions {
@@ -38,9 +38,7 @@ export async function fetchTasks(
       connected: false,
       data: [],
       sourceState,
-      message: sourceState === "unavailable"
-        ? "Data tugas belum terhubung. Daftar tugas akan ditampilkan setelah sumber data tersedia."
-        : "Data tugas belum dapat dimuat. Silakan coba kembali.",
+      message: sourceStateCopy(sourceState, "Tugas").message,
     };
   }
 }
@@ -50,7 +48,7 @@ export async function fetchTaskDetail(
   signal?: AbortSignal,
 ): Promise<SourceHonestResponse<WorkTask | null>> {
   if (!taskId) {
-    return { connected: false, data: null, message: "ID Tugas tidak valid." };
+    return { connected: false, data: null, sourceState: "validation", message: "ID Tugas tidak valid." };
   }
 
   try {
@@ -61,11 +59,13 @@ export async function fetchTaskDetail(
       connected: true,
       data,
     };
-  } catch {
+  } catch (error) {
+    const sourceState = sourceStateFor(error, "detail");
     return {
       connected: false,
       data: null,
-      message: "Data tugas belum terhubung. Detail tugas akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceStateCopy(sourceState, "Tugas").message,
     };
   }
 }

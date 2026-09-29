@@ -4,7 +4,7 @@ Status: **UI FINAL / SOURCE UNAVAILABLE**. Frontend HR/GA menggunakan `workspace
 
 Route utama:
 
-`/workspace/[workspaceKey]/summary`, `/organization`, `/recruitment`, `/onboarding`, `/employees`, `/attendance`, `/people-performance`, `/compensation`, `/compliance`, `/offboarding`, `/performance`, serta `/ga` hanya untuk scope GA. Detail karyawan, kandidat, onboarding, dan review memakai ID URL sebagai identifier saja, bukan authority.
+`/workspace/[workspaceKey]/summary`, `/organization`, `/recruitment`, `/onboarding`, `/employees`, `/attendance`, `/people-performance`, `/compensation`, `/compliance`, `/offboarding`, `/performance`, serta `/ga`. Stage 3 memperlakukan metadata kompatibilitas `HR`, `HR_GA`, dan `HRGA` sebagai satu domain HR & GA melalui resolver canonical, sehingga navigation dan route GA konsisten. Workspace GA terpisah tidak dibuat. Vocabulary metadata tunggal tetap **NEEDS CONTRACT / NEEDS DECISION: Canonical HR-GA workspace metadata**. Detail karyawan, kandidat, onboarding, dan review memakai ID URL sebagai identifier saja, bukan authority.
 
 `/performance` adalah Target & Kinerja berbasis sumber Strategi; `/people-performance` adalah review dan pengembangan karyawan. Projects, Tasks, Approvals, Documents, Reports, Findings tetap Shared Work universal. ARA tetap universal.
 

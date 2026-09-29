@@ -1,6 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
-import { sourceStateFor } from "../shared/source-state";
+import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkDocument } from "./document-types";
 
 export interface FetchDocumentsOptions {
@@ -38,9 +38,7 @@ export async function fetchDocuments(
       connected: false,
       data: [],
       sourceState,
-      message: sourceState === "unavailable"
-        ? "Data dokumen belum terhubung. Daftar dokumen akan ditampilkan setelah sumber data tersedia."
-        : "Data dokumen belum dapat dimuat. Silakan coba kembali.",
+      message: sourceStateCopy(sourceState, "Dokumen").message,
     };
   }
 }
@@ -50,7 +48,7 @@ export async function fetchDocumentDetail(
   signal?: AbortSignal,
 ): Promise<SourceHonestResponse<WorkDocument | null>> {
   if (!documentId) {
-    return { connected: false, data: null, message: "ID Dokumen tidak valid." };
+    return { connected: false, data: null, sourceState: "validation", message: "ID Dokumen tidak valid." };
   }
 
   try {
@@ -61,11 +59,13 @@ export async function fetchDocumentDetail(
       connected: true,
       data,
     };
-  } catch {
+  } catch (error) {
+    const sourceState = sourceStateFor(error, "detail");
     return {
       connected: false,
       data: null,
-      message: "Data dokumen belum terhubung. Detail dokumen akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceStateCopy(sourceState, "Dokumen").message,
     };
   }
 }

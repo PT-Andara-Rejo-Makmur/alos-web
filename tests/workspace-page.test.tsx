@@ -176,7 +176,7 @@ describe("WorkspacePage and ALOS App Shell", () => {
         body: { workspace_id: "workspace_finance" },
         method: "PUT",
       });
-      expect(mockPush).toHaveBeenCalledWith("/workspace/finance%20%26%20ops/documents/project-1");
+      expect(mockPush).toHaveBeenCalledWith("/workspace/finance%20%26%20ops/summary");
     });
   });
 

@@ -91,16 +91,16 @@ export function workspaceDestination(pathname: string, workspace: WorkspaceAcces
   const workspaceKey = encodeURIComponent(workspace.workspace.workspace_key);
   const match = pathname.match(/^\/workspace\/[^/]+(\/.*)?$/);
   const suffix = match?.[1] ?? "";
-  const section = suffix.split("/").filter(Boolean)[0];
-  const canKeepSection = Boolean(section && sharedWorkSections.has(section));
+  const segments = suffix.split("/").filter(Boolean);
+  const section = segments[0];
+  const canKeepSection = Boolean(section && segments.length === 1 && sharedWorkSections.has(section));
   const domain = workspaceDomainFromMetadata(workspace.workspace);
 
   if (domain === "UNKNOWN") return "/workspace";
 
   if (canKeepSection) return `/workspace/${workspaceKey}${suffix}`;
 
-  const landing = domain === "EXECUTIVE" || domain === "SALES" || domain === "HR_GA" ? "summary" : "projects";
-  return `/workspace/${workspaceKey}/${landing}`;
+  return `/workspace/${workspaceKey}/summary`;
 }
 
 function getWorkspaceSwitchError(error: unknown): string {

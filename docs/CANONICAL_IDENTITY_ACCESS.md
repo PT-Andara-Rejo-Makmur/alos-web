@@ -16,9 +16,17 @@ The token is never exposed to browser JavaScript. Production uses a secure cooki
 
 ## Workspace projection
 
-UI workspace lama, termasuk selector dan navigation lama, telah dihapus sebagai bagian dari UI
-Reset. Dokumen ini tidak menyatakan bahwa selector atau navigation tersebut masih aktif.
+Selector dan navigation dari tree UI lama telah dihapus sebagai bagian dari UI Reset. AppShell,
+workspace switcher, dan navigation canonical yang sekarang tersedia adalah implementasi pengganti;
+semuanya dibangun dari `active workspace projection` Backend dan route publik
+`/workspace/[workspaceKey]/...`.
 
-Canonical session dan `active workspace projection` tetap dipertahankan pada contract/data boundary
-untuk rebuild berikutnya. Projection tersebut bukan alasan untuk menghidupkan kembali UI lama dan
-tidak membuat frontend menjadi authority.
+Perpindahan workspace mempertahankan root modul Shared Work bila aman, tetapi tidak membawa ID
+resource lintas workspace. Landing default setiap domain adalah `/summary`. Workspace key di URL
+tidak pernah menjadi sumber authority dan selalu divalidasi terhadap session projection.
+
+Role tidak sama dengan classification grant. ARA default ke `INTERNAL`; `RESTRICTED` hanya dapat
+digunakan ketika exact authoritative permission yang sudah tersedia diproyeksikan Backend.
+`CONFIDENTIAL` ceiling dan vocabulary grant canonical masih **NEEDS CONTRACT — ARA Classification
+Ceiling**. Boundary konsep thread memeriksa tenant, organisasi, actor, workspace, scope, dan
+classification secara fail-closed.

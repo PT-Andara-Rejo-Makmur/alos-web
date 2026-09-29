@@ -9,19 +9,127 @@ import styles from "../it.module.css";
 
 export type ItModule = "services" | "systems" | "infrastructure" | "alos-genesis" | "integrations" | "access" | "security" | "changes" | "assets" | "support";
 
-type ModuleConfig = { readonly title: string; readonly description: string; readonly columns: readonly string[]; readonly tabs: readonly string[]; readonly action?: string };
+type ModuleConfig = {
+  readonly title: string;
+  readonly description: string;
+  readonly tabs: readonly string[];
+  readonly columnsByTab: Readonly<Record<string, readonly string[]>>;
+  readonly action?: string;
+};
+
+const historyColumns = ["Objek", "Tanggal", "Perubahan", "Sumber", "Status"] as const;
 
 const configs: Record<ItModule, ModuleConfig> = {
-  services: { title: "Layanan & Insiden", description: "Pantau layanan dan insiden IT tanpa menyimpulkan status dari ketiadaan data.", columns: ["Layanan", "Status Layanan", "Penanggung Jawab", "Pembaruan Terakhir", "Sumber"], tabs: ["Layanan", "Insiden", "Problem / Root Cause", "Permintaan", "Riwayat"], action: "Catat Insiden" },
-  systems: { title: "Sistem & Aplikasi", description: "Daftar sistem dan aplikasi yang dapat diakses dari ruang kerja IT.", columns: ["Sistem / Aplikasi", "Penanggung Jawab", "Versi", "Status", "Sumber"], tabs: ["Semua", "Produksi", "Uji", "Riwayat"] },
-  infrastructure: { title: "Infrastruktur & Lingkungan", description: "Kesiapan infrastruktur dan lingkungan menunggu sumber teknis resmi.", columns: ["Komponen", "Lingkungan", "Lokasi", "Status", "Sumber"], tabs: ["Komponen", "Lingkungan", "Insiden", "Riwayat"] },
-  "alos-genesis": { title: "ALOS & GENESIS", description: "Pantau komponen platform dan kesiapan integrasi tanpa menampilkan rahasia sistem.", columns: ["Komponen", "Fungsi", "Versi", "Status", "Sumber"], tabs: ["ALOS", "GENESIS", "Kapasitas", "Riwayat"] },
-  integrations: { title: "Integrasi & Connector", description: "Daftar koneksi sistem yang terdaftar; rahasia akses tidak pernah ditampilkan.", columns: ["Integrasi", "Arah", "Sistem Terkait", "Status", "Sumber"], tabs: ["Semua", "Aktif", "Perlu Perhatian", "Riwayat"] },
-  access: { title: "Akses & Identitas", description: "Kelola kesiapan akses berdasarkan sumber identitas dan ruang kerja resmi.", columns: ["Karyawan", "Ruang Kerja", "Peran", "Status Akses", "Sumber"], tabs: ["Akun", "Ruang Kerja", "Peran", "Riwayat"], action: "Ajukan Akses" },
-  security: { title: "Keamanan & Kepatuhan", description: "Status kontrol keamanan dan kepatuhan belum disimpulkan sebelum sumber resmi tersedia.", columns: ["Kontrol", "Area", "Status Pemeriksaan", "Penanggung Jawab", "Sumber"], tabs: ["Kontrol", "Kejadian", "Sesi", "Review", "Riwayat"] },
-  changes: { title: "Perubahan & Rilis", description: "Catatan perubahan dan rilis ditampilkan setelah sumber change management terhubung.", columns: ["Perubahan", "Dampak", "Penanggung Jawab", "Jadwal", "Status"], tabs: ["Direncanakan", "Berjalan", "Selesai", "Riwayat"] },
-  assets: { title: "Aset IT", description: "Katalog aset IT menunggu sumber aset resmi; kepemilikan dan kondisi tidak ditebak dari URL.", columns: ["Aset", "Jenis", "Penanggung Jawab", "Lokasi", "Status"], tabs: ["Semua", "Ditugaskan", "Perlu Perhatian", "Riwayat"] },
-  support: { title: "Dukungan & Permintaan", description: "Permintaan dukungan IT dan prioritasnya akan tampil setelah sumber dukungan tersedia.", columns: ["Permintaan", "Kategori", "Prioritas", "Penanggung Jawab", "Status"], tabs: ["Terbuka", "Saya", "Selesai", "Riwayat"] },
+  services: {
+    title: "Layanan & Insiden",
+    description: "Pantau layanan, insiden, dan akar masalah tanpa menyimpulkan status dari ketiadaan data.",
+    tabs: ["Layanan", "Insiden", "Problem / Root Cause", "Permintaan", "Riwayat"],
+    columnsByTab: {
+      Layanan: ["Nama Layanan", "Kategori", "Penanggung Jawab", "Sistem Terkait", "Lingkungan", "Status", "Availability", "Insiden Terakhir", "Pemeriksaan Terakhir", "Sumber"],
+      Insiden: ["ID", "Judul", "Layanan Terdampak", "Severity", "Status", "Penanggung Jawab", "Mulai", "Durasi", "Dampak", "Root Cause", "Bukti"],
+      "Problem / Root Cause": ["Problem", "Layanan Terdampak", "Insiden Terkait", "Penyebab", "Tindakan Korektif", "Penanggung Jawab", "Status"],
+      Permintaan: ["Permintaan", "Pemohon", "Kategori", "Prioritas", "Penanggung Jawab", "Tenggat", "Status"],
+      Riwayat: historyColumns,
+    },
+    action: "Catat Insiden",
+  },
+  systems: {
+    title: "Sistem & Aplikasi",
+    description: "Inventaris sistem dan aplikasi tanpa menampilkan rahasia atau kredensial.",
+    tabs: ["Semua", "Produksi", "Staging / Uji", "Tidak Aktif", "Riwayat"],
+    columnsByTab: {
+      default: ["Nama Sistem", "Jenis", "Penanggung Jawab", "Lingkungan", "Versi", "Repository", "Service", "Status", "Health", "Dependency", "Deployment Terakhir", "Sumber"],
+      Riwayat: historyColumns,
+    },
+  },
+  infrastructure: {
+    title: "Infrastruktur & Lingkungan",
+    description: "Kapasitas dan kondisi infrastruktur menunggu sumber observability resmi; nilai teknis tidak dibuat oleh UI.",
+    tabs: ["Ringkasan", "Compute", "Database", "Storage", "Network", "Backup", "Monitoring", "Riwayat"],
+    columnsByTab: {
+      default: ["Lingkungan", "Provider", "Resource", "Region / Lokasi", "Service", "Status", "Health", "Capacity", "Usage", "Status Backup", "Backup Terakhir", "Status Monitoring", "Penanggung Jawab", "Bukti", "Sumber"],
+      Riwayat: historyColumns,
+    },
+  },
+  "alos-genesis": {
+    title: "ALOS & GENESIS",
+    description: "Kesiapan platform, runtime, capability, dan provider tanpa menampilkan kredensial atau angka penggunaan buatan.",
+    tabs: ["ALOS", "GENESIS", "Runtime", "Capability", "Provider", "Evaluasi", "Penggunaan", "Riwayat"],
+    columnsByTab: {
+      ALOS: ["Komponen", "Repository", "Versi", "Lingkungan", "Status", "Deployment Terakhir", "Health"],
+      GENESIS: ["Komponen", "Fungsi", "Runtime", "Versi", "Status", "Pemeriksaan Terakhir", "Sumber"],
+      Runtime: ["Runtime Engine", "Lingkungan", "Status", "Run Aktif", "Run Gagal", "Queue / Workload", "Health"],
+      Capability: ["Capability", "Jenis", "Versi", "Lifecycle", "Penanggung Jawab", "Runtime", "Evaluasi Terakhir", "Status Rilis"],
+      Provider: ["Provider", "Model", "Tujuan", "Status", "Status Kredensial", "Pemeriksaan Terakhir"],
+      Evaluasi: ["Evaluasi", "Capability / Agent", "Versi", "Hasil", "Bukti", "Tanggal", "Status"],
+      Penggunaan: ["Provider", "Model", "Requests", "Tokens", "Biaya", "Periode", "Sumber"],
+      Riwayat: historyColumns,
+    },
+  },
+  integrations: {
+    title: "Integrasi & Connector",
+    description: "Koneksi sistem dan jenis autentikasi dapat ditampilkan, tetapi nilai kredensial tidak pernah ditampilkan.",
+    tabs: ["Semua", "Internal", "Eksternal", "Aktif", "Perlu Perhatian", "Riwayat"],
+    columnsByTab: {
+      default: ["Connector", "Kategori", "Sistem Sumber", "Tujuan", "Arah", "Penanggung Jawab", "Lingkungan", "Status", "Sinkronisasi Terakhir", "Berhasil Terakhir", "Error Terakhir", "Jenis Autentikasi", "Sumber"],
+      Riwayat: historyColumns,
+    },
+  },
+  access: {
+    title: "Akses & Identitas",
+    description: "Permintaan akses, membership, role, dan revokasi tetap terpisah dari pengelolaan data karyawan HR.",
+    tabs: ["Permintaan Akses", "Keanggotaan Workspace", "Penetapan Peran", "Joiner", "Mover", "Leaver", "Sesi / Revokasi", "Audit"],
+    columnsByTab: {
+      "Permintaan Akses": ["Permintaan", "Pemohon", "Workspace / Sistem", "Akses Diminta", "Alasan", "Persetujuan", "Status"],
+      "Keanggotaan Workspace": ["Workspace", "Akun", "Peran", "Cakupan", "Berlaku", "Status Akses"],
+      "Penetapan Peran": ["Peran", "Akun", "Cakupan", "Persetujuan", "Sumber", "Status"],
+      Joiner: ["Karyawan", "Akun", "Workspace", "Akses Awal", "Status"],
+      Mover: ["Karyawan", "Perubahan Organisasi", "Akses Lama", "Akses Baru", "Status Review"],
+      Leaver: ["Karyawan", "Hari Kerja Terakhir", "Akses Saat Ini", "Status Revokasi", "Penanggung Jawab"],
+      "Sesi / Revokasi": ["Akun", "Sesi", "Dibuat", "Aktivitas Terakhir", "Status Revokasi"],
+      Audit: historyColumns,
+    },
+    action: "Ajukan Akses",
+  },
+  security: {
+    title: "Keamanan & Kepatuhan",
+    description: "Status kontrol, kejadian, dan kerentanan tidak disimpulkan sebelum sumber resmi tersedia.",
+    tabs: ["Kontrol", "Kejadian", "Kerentanan", "Sesi", "Review", "Audit", "Riwayat"],
+    columnsByTab: {
+      default: ["Kontrol", "Area", "Sistem", "Severity", "Status", "Penanggung Jawab", "Bukti", "Review Terakhir", "Sumber"],
+      Riwayat: historyColumns,
+    },
+  },
+  changes: {
+    title: "Perubahan & Rilis",
+    description: "Perubahan produksi tetap governed; UI tidak menetapkan state rilis secara mandiri.",
+    tabs: ["Change", "Release", "Deployment", "Rollback", "Riwayat"],
+    columnsByTab: {
+      Change: ["Change ID", "Judul", "Sistem", "Lingkungan", "Risiko", "Penanggung Jawab", "Jadwal", "Status", "Persetujuan"],
+      Release: ["Release", "Versi", "Komponen", "Lingkungan", "Status", "Disetujui Oleh", "Waktu Rilis"],
+      Deployment: ["Komponen", "Versi", "Lingkungan", "Mulai", "Selesai", "Status", "Korelasi"],
+      Rollback: ["Release", "Alasan", "Diminta Oleh", "Keputusan", "Status", "Mulai", "Selesai"],
+      Riwayat: historyColumns,
+    },
+  },
+  assets: {
+    title: "Aset IT",
+    description: "Katalog aset IT terpisah dari aset Legal dan menunggu sumber aset resmi.",
+    tabs: ["Semua", "Ditugaskan", "Tersedia", "Perlu Perhatian", "Riwayat"],
+    columnsByTab: {
+      default: ["Aset", "Kode Aset", "Jenis", "Pengguna", "Workspace", "Lokasi", "Kondisi", "Status", "Tanggal Perolehan", "Garansi", "Penanggung Jawab", "Sumber"],
+      Riwayat: historyColumns,
+    },
+  },
+  support: {
+    title: "Dukungan & Permintaan",
+    description: "Permintaan dukungan akan tampil setelah sumber resmi tersedia; scope Tim belum diasumsikan oleh UI.",
+    tabs: ["Terbuka", "Milik Saya", "Tim", "Selesai", "Riwayat"],
+    columnsByTab: {
+      default: ["Permintaan", "Pemohon", "Kategori", "Prioritas", "Penanggung Jawab", "SLA", "Dibuat", "Tenggat", "Status", "Sistem Terkait", "Aset Terkait"],
+      Riwayat: historyColumns,
+    },
+  },
 };
 
 export function ItModulePage({ module, workspaceKey }: Readonly<{ module: ItModule; workspaceKey?: string }>) {
@@ -42,15 +150,7 @@ export function ItModulePage({ module, workspaceKey }: Readonly<{ module: ItModu
 }
 
 function columnsForTab(config: ModuleConfig, tab: string): readonly string[] {
-  if (tab === "Riwayat") return ["Objek", "Tanggal", "Perubahan", "Sumber", "Status"];
-  if (tab === "Insiden") return ["Insiden", "Dampak", "Penanggung Jawab", "Dibuka", "Status"];
-  if (tab === "Permintaan") return ["Permintaan", "Pemohon", "Kategori", "Tenggat", "Status"];
-  if (tab === "Ruang Kerja") return ["Ruang Kerja", "Akun", "Peran", "Berlaku", "Status Akses"];
-  if (tab === "Peran") return ["Peran", "Cakupan", "Persetujuan", "Sumber", "Status"];
-  if (tab === "Kejadian") return ["Kejadian", "Waktu", "Dampak", "Penanganan", "Status"];
-  if (tab === "Sesi") return ["Perangkat", "Peramban", "Dibuat", "Aktivitas Terakhir", "Status"];
-  if (tab === "Problem / Root Cause") return ["Problem", "Layanan Terdampak", "Penyebab", "Penanggung Jawab", "Status"];
-  return config.columns;
+  return config.columnsByTab[tab] ?? config.columnsByTab.default ?? [];
 }
 
 function IdentityFlowReadiness() {

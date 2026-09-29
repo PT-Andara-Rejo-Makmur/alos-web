@@ -173,21 +173,21 @@ describe("Property workspace", () => {
     render(<PropertyProgressPage workspaceKey="proyek-utama" />);
     expect(await screen.findByRole("heading", { name: "Progres & Jadwal" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Tambah Progres" }));
-    for (const label of ["Proyek *", "Work Package *", "Periode / Tanggal *", "Rencana %", "Aktual %", "Kuantitas", "Unit", "Evidence *", "Catatan"]) expect(screen.getByLabelText(label)).toBeInTheDocument();
+    for (const label of ["Proyek *", "Paket Pekerjaan *", "Periode / Tanggal *", "Rencana %", "Aktual %", "Kuantitas", "Unit", "Bukti *", "Catatan"]) expect(screen.getByLabelText(label)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Batal" }));
     cleanup();
 
     render(<PropertyQualityPage workspaceKey="proyek-utama" />);
     expect(await screen.findByRole("heading", { name: "Inspeksi & Kualitas" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Tambah Inspeksi" }));
-    for (const label of ["Proyek *", "Unit / Work Package *", "Jenis Inspeksi *", "Tanggal *", "Inspektur *", "Checklist", "Hasil *", "Evidence *", "Catatan"]) expect(screen.getByLabelText(label)).toBeInTheDocument();
+    for (const label of ["Proyek *", "Unit / Paket Pekerjaan *", "Jenis Inspeksi *", "Tanggal *", "Inspektur *", "Daftar Periksa", "Hasil *", "Bukti *", "Catatan"]) expect(screen.getByLabelText(label)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Batal" }));
     cleanup();
 
     render(<PropertyMaterialsPage workspaceKey="proyek-utama" />);
     expect(await screen.findByRole("heading", { name: "Material & Pengadaan" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Ajukan Permintaan Material" }));
-    for (const label of ["Proyek *", "Work Package *", "Material *", "Kuantitas *", "Unit *", "Tanggal Kebutuhan *", "Alasan *", "Spesifikasi", "Evidence"]) expect(screen.getByLabelText(label)).toBeInTheDocument();
+    for (const label of ["Proyek *", "Paket Pekerjaan *", "Material *", "Kuantitas *", "Unit *", "Tanggal Kebutuhan *", "Alasan *", "Spesifikasi", "Bukti"]) expect(screen.getByLabelText(label)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Simpan Permintaan" })).toBeDisabled();
   });
 

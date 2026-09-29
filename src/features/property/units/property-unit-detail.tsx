@@ -18,7 +18,7 @@ const tabs: readonly TabItem[] = [
 const handoverFields: readonly PropertyFormField[] = [
   { label: "Proyek / Unit", name: "project-unit" }, { label: "Penyelesaian Teknis", name: "technical-completion" },
   { label: "Inspeksi Akhir", name: "final-inspection" }, { label: "Penyelesaian Cacat", name: "defect-resolution" },
-  { label: "Kesiapan", name: "readiness" }, { label: "Evidence", name: "evidence" }, { label: "Referensi Dokumen BAST", name: "bast-reference" }, { label: "Catatan", name: "notes", type: "textarea" },
+  { label: "Kesiapan", name: "readiness" }, { label: "Bukti", name: "evidence" }, { label: "Referensi Dokumen BAST", name: "bast-reference" }, { label: "Catatan", name: "notes", type: "textarea" },
 ];
 
 export function PropertyUnitDetailPage({ unitId, workspaceKey }: Readonly<{ unitId: string; workspaceKey?: string }>) {

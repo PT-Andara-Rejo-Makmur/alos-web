@@ -6,3 +6,4 @@ export { activeItWorkspaceKey, hasItContext, identityRoleLabel, mvpRoleOptions }
 export { ItSummaryPage } from "./summary/it-summary-page";
 export { ItPerformancePage } from "./performance/it-performance-page";
 export { ItModulePage, type ItModule } from "./modules/it-module-page";
+export { ItAssetDetailPage } from "./assets/it-asset-detail-page";

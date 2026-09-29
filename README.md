@@ -14,21 +14,25 @@ Browser
            -> GENESIS / internal systems
 ```
 
-Runtime frontend saat ini hanya mencakup:
+Runtime frontend saat ini mencakup:
 
 - login melalui `/login`;
 - pemeriksaan dan pengelolaan session melalui `/api/session/*`;
-- `/workspace` sebagai temporary landing setelah pemeriksaan session;
+- `/workspace` sebagai landing setelah pemeriksaan session;
+- AppShell canonical dan route publik `/workspace/[workspaceKey]/...` untuk tujuh domain;
+- UI final Stage 3 untuk Executive, Sales, Property, Finance, Legal, HR & GA, dan IT;
+- Shared Work universal dan ARA universal dalam keadaan source-honest;
 - `/api/backend/*` sebagai API/BFF boundary untuk request yang sudah terautentikasi.
 
 Root `/` mengarahkan pengguna ke `/workspace`. Frontend tidak memanggil GENESIS secara langsung,
 tidak menyimpan secret, dan tidak membuat authority baru.
 
-## UI reset
+## Status UI Stage 3
 
-Dashboard Executive, Sales, Property, Finance, Legal, HR, IT, Strategy UI, Shared Work, ARA, dan
-GENESIS UI lama telah dihapus sebagai bagian dari UI Reset. UI baru akan dibangun setelah Visual
-Design System ditetapkan.
+Tree dashboard lama telah dihapus pada fase UI Reset. Penggantinya sekarang tersedia melalui
+AppShell dan navigation canonical berdasarkan active workspace projection. UI tidak membuat data
+bisnis, jawaban ARA, atau status keberhasilan ketika source atau mutation Backend belum tersedia.
+Canonical contracts dan integrasi domain Backend lanjutan tetap menjadi pekerjaan Stage 4.
 
 ## Contract boundary
 

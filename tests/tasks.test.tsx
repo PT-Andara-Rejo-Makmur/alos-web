@@ -193,6 +193,24 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
 
       expect(canCreateTask(sessionWithPerm)).toBe(true);
     });
+
+    it("menampilkan aksi tambah disabled ketika permission ada tetapi mutation belum tersedia", async () => {
+      const principal = makePrincipal({
+        active_workspace: {
+          ...makePrincipal().active_workspace!,
+          permission_refs: ["task.create"],
+        },
+      });
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession(principal));
+      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([]);
+
+      render(<TasksPage workspaceKey="property" />);
+
+      const action = await screen.findByRole("button", { name: "Tambah Tugas — Belum Tersedia" });
+      expect(action).toBeDisabled();
+      expect(screen.queryByText("Berhasil disimpan")).not.toBeInTheDocument();
+      expect(screen.queryByText("Tugas baru")).not.toBeInTheDocument();
+    });
   });
 
   describe("7. Source Honesty & Technical Message Guard", () => {
@@ -402,6 +420,20 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       expect(screen.getByText("Tim")).toBeInTheDocument();
       expect(screen.getByText("Terlambat")).toBeInTheDocument();
       expect(screen.getByPlaceholderText("Cari tugas…")).toBeInTheDocument();
+    });
+
+    it("tidak menyamakan tab Tim dengan Semua ketika scope tim belum canonical", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
+      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([sampleTask]);
+
+      render(<TasksPage workspaceKey="property" />);
+      await screen.findByText("Verifikasi dokumen site plan");
+
+      fireEvent.click(screen.getByRole("tab", { name: "Tim" }));
+
+      expect(screen.getByText("Tugas Tim Belum Terhubung")).toBeInTheDocument();
+      expect(screen.getByText("Data tugas tim akan tersedia setelah sumber scope tim terhubung.")).toBeInTheDocument();
+      expect(screen.queryByText("Verifikasi dokumen site plan")).not.toBeInTheDocument();
     });
   });
 });

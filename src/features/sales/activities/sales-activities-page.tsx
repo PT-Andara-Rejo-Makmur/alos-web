@@ -29,7 +29,7 @@ interface ActivityRow {
 const activityRows: readonly ActivityRow[] = [];
 const activityFields: readonly SalesFormField[] = [
   { label: "Lead / Customer", name: "lead-customer" }, { label: "Jenis aktivitas", name: "activity-type" },
-  { label: "Jadwal", name: "schedule", type: "date" }, { label: "Owner", name: "owner" }, { label: "Catatan", name: "notes", type: "textarea" },
+  { label: "Jadwal", name: "schedule", type: "date" }, { label: "Penanggung Jawab", name: "owner" }, { label: "Catatan", name: "notes", type: "textarea" },
 ];
 
 export function SalesActivitiesPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) {
@@ -52,7 +52,7 @@ function SalesActivities({ session }: Readonly<{ session: SessionProjection }>) 
       <Tabs ariaLabel="Filter aktivitas" items={tabs} onValueChange={setTab} value={tab} />
       <Section title="Filter Aktivitas">
         <SalesFilterBar search={<input aria-label="Cari lead atau customer" placeholder="Cari lead atau customer" />}>
-          <SalesSelect label="Owner" name="activity-owner" onChange={(value) => setFilters((current) => ({ ...current, owner: value }))} options={[["all", "Semua owner"]]} value={filters.owner} />
+          <SalesSelect label="Penanggung Jawab" name="activity-owner" onChange={(value) => setFilters((current) => ({ ...current, owner: value }))} options={[["all", "Semua penanggung jawab"]]} value={filters.owner} />
           <SalesSelect label="Jenis aktivitas" name="activity-type" onChange={(value) => setFilters((current) => ({ ...current, type: value }))} options={[["all", "Semua jenis"], ["call", "Call"], ["whatsapp", "WhatsApp"], ["meeting", "Meeting"], ["survey", "Survey"], ["follow-up", "Follow-up"], ["notes", "Notes"]]} value={filters.type} />
           <SalesSelect label="Status" name="activity-status" onChange={(value) => setFilters((current) => ({ ...current, status: value }))} options={[["all", "Semua status"]]} value={filters.status} />
         </SalesFilterBar>
@@ -65,7 +65,7 @@ function SalesActivities({ session }: Readonly<{ session: SessionProjection }>) 
       </SalesDetailDrawer>
       <SalesUnavailableFormDrawer description="Activity mutation belum memiliki contract authoritative." fields={activityFields} onClose={() => setForm(null)} open={form === "activity"} submitLabel="Catat Aktivitas" title="Tambah Aktivitas" />
       <SalesUnavailableFormDrawer description="Follow-up mutation belum memiliki contract authoritative." fields={activityFields} onClose={() => setForm(null)} open={form === "follow-up"} submitLabel="Jadwalkan" title="Jadwalkan Follow-up" />
-      <SalesUnavailableFormDrawer description={selectedActivity ? `Hasil untuk ${selectedActivity.leadCustomer} belum memiliki capability mutation authoritative.` : "Activity result mutation belum memiliki contract authoritative."} fields={[{ label: "Hasil aktivitas", name: "result", type: "textarea" }, { label: "Next Action", name: "next-action", type: "textarea" }]} onClose={() => setForm(null)} open={form === "result" && selectedActivity !== null} submitLabel="Catat Hasil" title="Catat Hasil" />
+      <SalesUnavailableFormDrawer description={selectedActivity ? `Hasil untuk ${selectedActivity.leadCustomer} belum memiliki capability mutation authoritative.` : "Mutation hasil aktivitas belum memiliki kontrak authoritative."} fields={[{ label: "Hasil aktivitas", name: "result", type: "textarea" }, { label: "Tindakan Berikutnya", name: "next-action", type: "textarea" }]} onClose={() => setForm(null)} open={form === "result" && selectedActivity !== null} submitLabel="Catat Hasil" title="Catat Hasil" />
       <SalesExtractionReviewDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} title="Extraction Aktivitas" />
     </div>
   );
@@ -75,17 +75,17 @@ const activityColumns: readonly DataTableColumn<ActivityRow>[] = [
   { header: "Lead/Customer", key: "leadCustomer", render: (row) => row.leadCustomer },
   { header: "Jenis Aktivitas", key: "activityType", render: (row) => row.activityType },
   { header: "Jadwal", key: "schedule", render: (row) => row.schedule },
-  { header: "Owner", key: "owner", render: (row) => row.owner },
+  { header: "Penanggung Jawab", key: "owner", render: (row) => row.owner },
   { header: "Hasil", key: "result", render: (row) => row.result },
-  { header: "Next Action", key: "nextAction", render: (row) => row.nextAction },
-  { header: "Due", key: "due", render: (row) => row.due },
+  { header: "Tindakan Berikutnya", key: "nextAction", render: (row) => row.nextAction },
+  { header: "Tenggat", key: "due", render: (row) => row.due },
   { header: "Status", key: "status", render: (row) => row.status },
 ];
 
 function activityDetailItems(row: ActivityRow) {
   return [
-    { label: "Record", value: row.recordId }, { label: "Lead/Customer", value: row.leadCustomer }, { label: "Jenis", value: row.activityType },
-    { label: "Jadwal", value: row.schedule }, { label: "Owner", value: row.owner }, { label: "Hasil", value: row.result },
-    { label: "Next Action", value: row.nextAction }, { label: "Due", value: row.due },
+    { label: "Rekaman", value: row.recordId }, { label: "Lead / Pelanggan", value: row.leadCustomer }, { label: "Jenis", value: row.activityType },
+    { label: "Jadwal", value: row.schedule }, { label: "Penanggung Jawab", value: row.owner }, { label: "Hasil", value: row.result },
+    { label: "Tindakan Berikutnya", value: row.nextAction }, { label: "Tenggat", value: row.due },
   ];
 }

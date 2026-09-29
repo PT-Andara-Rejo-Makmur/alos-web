@@ -134,7 +134,7 @@ describe("Sales workspace", () => {
     ]);
     expect(sections.flatMap((section) => section.items.map((item) => item.label))).toEqual([
       "Ringkasan", "Pipeline Penjualan", "Prospek & Lead", "Aktivitas & Tindak Lanjut",
-      "Booking & Closing", "KPR & Akad", "Campaign & Channel", "Target & Kinerja",
+      "Booking & Closing", "KPR & Akad", "Kampanye & Saluran", "Target & Kinerja",
       "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA",
     ]);
     expect(sections.flatMap((section) => section.items).map((item) => item.href)).toContain(
@@ -198,7 +198,7 @@ describe("Sales workspace", () => {
     ["Aktivitas & Tindak Lanjut", SalesActivitiesPage],
     ["Booking & Closing", SalesBookingsPage],
     ["KPR & Akad", SalesKprPage],
-    ["Campaign & Channel", SalesCampaignsPage],
+    ["Kampanye & Saluran", SalesCampaignsPage],
     ["Target & Kinerja", SalesPerformancePage],
   ])("%s memiliki UI final source-unavailable dan satu AppShell", async (title, Page) => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession());
@@ -249,8 +249,8 @@ describe("Sales workspace", () => {
 
     cleanup();
     render(<SalesCampaignsPage workspaceKey="penjualan-utama" />);
-    expect(await screen.findByRole("heading", { name: "Campaign & Channel" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Edit Campaign" })).toBeDisabled();
+    expect(await screen.findByRole("heading", { name: "Kampanye & Saluran" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit Kampanye" })).toBeDisabled();
   });
 
   it("Sales Shared Work Documents renders inside a single AppShell", async () => {
@@ -399,7 +399,7 @@ describe("Sales workspace", () => {
       ["activities", ActivitiesRoute, "Aktivitas & Tindak Lanjut"],
       ["bookings", BookingsRoute, "Booking & Closing"],
       ["kpr", KprRoute, "KPR & Akad"],
-      ["campaigns", CampaignsRoute, "Campaign & Channel"],
+      ["campaigns", CampaignsRoute, "Kampanye & Saluran"],
       ["performance", PerformanceRoute, "Target & Kinerja"],
       ["ara", AraRoute, "Tanya ARA"],
     ] as const)(

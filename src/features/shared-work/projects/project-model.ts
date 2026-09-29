@@ -1,6 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
-import { sourceStateFor } from "../shared/source-state";
+import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkProject } from "./project-types";
 
 export interface FetchProjectsOptions {
@@ -36,9 +36,7 @@ export async function fetchProjects(
       connected: false,
       data: [],
       sourceState,
-      message: sourceState === "unavailable"
-        ? "Data proyek belum terhubung. Daftar proyek akan ditampilkan setelah sumber data tersedia."
-        : "Data proyek belum dapat dimuat. Silakan coba kembali.",
+      message: sourceStateCopy(sourceState, "Proyek").message,
     };
   }
 }
@@ -48,7 +46,7 @@ export async function fetchProjectDetail(
   signal?: AbortSignal,
 ): Promise<SourceHonestResponse<WorkProject | null>> {
   if (!projectId) {
-    return { connected: false, data: null, message: "ID Proyek tidak valid." };
+    return { connected: false, data: null, sourceState: "validation", message: "ID Proyek tidak valid." };
   }
 
   try {
@@ -59,12 +57,13 @@ export async function fetchProjectDetail(
       connected: true,
       data,
     };
-  } catch {
+  } catch (error) {
+    const sourceState = sourceStateFor(error, "detail");
     return {
       connected: false,
       data: null,
-      message:
-        "Data detail proyek belum dapat dimuat. Informasi akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceStateCopy(sourceState, "Proyek").message,
     };
   }
 }

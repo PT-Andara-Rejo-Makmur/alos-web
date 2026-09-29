@@ -6,6 +6,13 @@ Existing `identity.accounts.manage` and `identity.memberships.manage` may be use
 
 `IT_ADMIN` bukan superuser bisnis. Role tersebut tidak otomatis memberi akses ke data atau tindakan terbatas Finance, HR, Legal, atau Executive.
 
+Permukaan IT operasional pada Stage 3 mendokumentasikan kebutuhan field dan tab untuk layanan,
+sistem, infrastruktur, ALOS/GENESIS, connector, akses, keamanan, perubahan, aset, dan dukungan.
+Seluruhnya menampilkan `Belum Terhubung` sampai source resmi tersedia; tidak ada scanner, metrik
+runtime, credential, lifecycle rilis, atau data aset yang dibuat oleh frontend. Detail
+`/workspace/[workspaceKey]/assets/[assetId]` di-dispatch dari domain workspace authoritative:
+Legal menuju detail legal, sedangkan IT menuju readiness detail Aset IT.
+
 Joiner, mover, leaver, suspension, expiry, and revocation semantics are NEEDS DECISION / NEEDS CONTRACT. A 409 access conflict is an unresolved conflict, not a successful mutation and never overwrites newer access state.
 
 ## Role MVP-2 and workspace context

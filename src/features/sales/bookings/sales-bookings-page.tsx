@@ -32,7 +32,7 @@ interface BookingRow {
 
 const bookingRows: readonly BookingRow[] = [];
 const bookingFields: readonly SalesFormField[] = [
-  { label: "Customer / Lead", name: "customer" }, { label: "Project", name: "project" }, { label: "Unit", name: "unit" },
+  { label: "Pelanggan / Lead", name: "customer" }, { label: "Proyek", name: "project" }, { label: "Unit", name: "unit" },
   { label: "Tanggal booking", name: "booking-date", type: "date" }, { label: "Nominal pengajuan", name: "booking-amount", type: "number" }, { label: "Catatan", name: "notes", type: "textarea" },
 ];
 
@@ -61,8 +61,8 @@ function SalesBookings({ session }: Readonly<{ session: SessionProjection }>) {
       </Section>
       <Section title="Filter Booking">
         <SalesFilterBar search={<input aria-label="Cari customer atau unit" placeholder="Cari customer atau unit" />}>
-          <SalesSelect label="Project" name="booking-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua project"]]} value={filters.project} />
-          <SalesSelect label="Owner" name="booking-owner" onChange={(value) => setFilters((current) => ({ ...current, owner: value }))} options={[["all", "Semua owner"]]} value={filters.owner} />
+          <SalesSelect label="Proyek" name="booking-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua proyek"]]} value={filters.project} />
+          <SalesSelect label="Penanggung Jawab" name="booking-owner" onChange={(value) => setFilters((current) => ({ ...current, owner: value }))} options={[["all", "Semua penanggung jawab"]]} value={filters.owner} />
           <SalesSelect label="Status" name="booking-status" onChange={(value) => setFilters((current) => ({ ...current, status: value }))} options={[["all", "Semua status"]]} value={filters.status} />
         </SalesFilterBar>
       </Section>
@@ -78,7 +78,7 @@ function SalesBookings({ session }: Readonly<{ session: SessionProjection }>) {
 }
 
 const bookingColumns: readonly DataTableColumn<BookingRow>[] = [
-  { header: "Customer", key: "customer", render: (row) => row.customer }, { header: "Project", key: "project", render: (row) => row.project },
+  { header: "Pelanggan", key: "customer", render: (row) => row.customer }, { header: "Proyek", key: "project", render: (row) => row.project },
   { header: "Unit", key: "unit", render: (row) => row.unit }, { header: "Booking Date", key: "bookingDate", render: (row) => row.bookingDate },
   { header: "Booking Amount", key: "bookingAmount", render: (row) => row.bookingAmount }, { header: "Sales Owner", key: "salesOwner", render: (row) => row.salesOwner },
   { header: "Finance Verification", key: "financeVerification", render: (row) => <Status label={row.financeVerification} variant="neutral" /> },
@@ -89,7 +89,7 @@ const bookingColumns: readonly DataTableColumn<BookingRow>[] = [
 
 function bookingDetailItems(row: BookingRow) {
   return [
-    { label: "Record", value: row.recordId }, { label: "Customer", value: row.customer }, { label: "Project / Unit", value: `${row.project} / ${row.unit}` },
+    { label: "Rekaman", value: row.recordId }, { label: "Pelanggan", value: row.customer }, { label: "Proyek / Unit", value: `${row.project} / ${row.unit}` },
     { label: "Booking Date", value: row.bookingDate }, { label: "Booking Amount", value: row.bookingAmount }, { label: "Finance", value: row.financeVerification },
     { label: "Legal/SPK", value: row.legalSpk }, { label: "Property", value: row.propertyReadiness }, { label: "Closing", value: row.closingState },
   ];

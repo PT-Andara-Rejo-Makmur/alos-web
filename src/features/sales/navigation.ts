@@ -21,7 +21,7 @@ export function salesNavigation(workspaceKey: string): readonly AppNavigationSec
     { href: `${base}/kpr`, icon: FileCheck2, label: "KPR & Akad" },
   ] },
   { label: "MARKETING & KINERJA", items: [
-    { href: `${base}/campaigns`, icon: Megaphone, label: "Campaign & Channel" },
+    { href: `${base}/campaigns`, icon: Megaphone, label: "Kampanye & Saluran" },
     { href: `${base}/performance`, icon: Target, label: "Target & Kinerja" },
   ] },
   { label: "PEKERJAAN", items: [

@@ -1,6 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
-import { sourceStateFor } from "../shared/source-state";
+import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkFinding } from "./finding-types";
 
 export interface FetchFindingsOptions {
@@ -40,9 +40,7 @@ export async function fetchFindings(
       connected: false,
       data: [],
       sourceState,
-      message: sourceState === "unavailable"
-        ? "Data temuan belum terhubung. Daftar temuan akan ditampilkan setelah sumber data tersedia."
-        : "Data temuan belum dapat dimuat. Silakan coba kembali.",
+      message: sourceStateCopy(sourceState, "Temuan").message,
     };
   }
 }
@@ -52,7 +50,7 @@ export async function fetchFindingDetail(
   signal?: AbortSignal,
 ): Promise<SourceHonestResponse<WorkFinding | null>> {
   if (!findingId) {
-    return { connected: false, data: null, message: "ID Temuan tidak valid." };
+    return { connected: false, data: null, sourceState: "validation", message: "ID Temuan tidak valid." };
   }
 
   try {
@@ -64,11 +62,13 @@ export async function fetchFindingDetail(
       connected: true,
       data,
     };
-  } catch {
+  } catch (error) {
+    const sourceState = sourceStateFor(error, "detail");
     return {
       connected: false,
       data: null,
-      message: "Data temuan belum terhubung. Detail temuan akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceStateCopy(sourceState, "Temuan").message,
     };
   }
 }

@@ -17,7 +17,7 @@ const inspectionColumns: readonly DataTableColumn<InspectionRow>[] = [
   { header: "Tanggal", key: "date", render: (row) => row.date }, { header: "Hasil", key: "result", render: (row) => row.result },
   { header: "Temuan", key: "finding", render: (row) => row.finding }, { header: "Status", key: "status", render: (row) => row.status },
 ];
-const inspectionFields: readonly PropertyFormField[] = [{ label: "Proyek *", name: "project" }, { label: "Unit / Work Package *", name: "unit-work-package" }, { label: "Jenis Inspeksi *", name: "inspection-type" }, { label: "Tanggal *", name: "date", type: "date" }, { label: "Inspektur *", name: "inspector" }, { label: "Checklist", name: "checklist", type: "textarea" }, { label: "Hasil *", name: "result" }, { label: "Evidence *", name: "evidence" }, { label: "Catatan", name: "notes", type: "textarea" }];
+const inspectionFields: readonly PropertyFormField[] = [{ label: "Proyek *", name: "project" }, { label: "Unit / Paket Pekerjaan *", name: "unit-work-package" }, { label: "Jenis Inspeksi *", name: "inspection-type" }, { label: "Tanggal *", name: "date", type: "date" }, { label: "Inspektur *", name: "inspector" }, { label: "Daftar Periksa", name: "checklist", type: "textarea" }, { label: "Hasil *", name: "result" }, { label: "Bukti *", name: "evidence" }, { label: "Catatan", name: "notes", type: "textarea" }];
 
 export function PropertyQualityPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) { return <PropertyLayout workspaceKey={workspaceKey}>{(session) => <PropertyQuality session={session} />}</PropertyLayout>; }
 

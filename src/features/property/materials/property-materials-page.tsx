@@ -15,7 +15,7 @@ const materialColumns: readonly DataTableColumn<MaterialRow>[] = [
   { header: "Kuantitas", key: "quantity", render: (row) => row.quantity }, { header: "Tanggal Kebutuhan", key: "needDate", render: (row) => row.needDate },
   { header: "Status Teknis", key: "technicalState", render: (row) => row.technicalState }, { header: "Status Pengadaan", key: "procurementState", render: (row) => row.procurementState },
 ];
-const materialFields: readonly PropertyFormField[] = [{ label: "Proyek *", name: "project" }, { label: "Work Package *", name: "work-package" }, { label: "Material *", name: "material" }, { label: "Kuantitas *", name: "quantity", type: "number" }, { label: "Unit *", name: "unit" }, { label: "Tanggal Kebutuhan *", name: "need-date", type: "date" }, { label: "Alasan *", name: "reason", type: "textarea" }, { label: "Spesifikasi", name: "specification", type: "textarea" }, { label: "Evidence", name: "evidence" }];
+const materialFields: readonly PropertyFormField[] = [{ label: "Proyek *", name: "project" }, { label: "Paket Pekerjaan *", name: "work-package" }, { label: "Material *", name: "material" }, { label: "Kuantitas *", name: "quantity", type: "number" }, { label: "Unit *", name: "unit" }, { label: "Tanggal Kebutuhan *", name: "need-date", type: "date" }, { label: "Alasan *", name: "reason", type: "textarea" }, { label: "Spesifikasi", name: "specification", type: "textarea" }, { label: "Bukti", name: "evidence" }];
 
 export function PropertyMaterialsPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) { return <PropertyLayout workspaceKey={workspaceKey}>{(session) => <PropertyMaterials session={session} />}</PropertyLayout>; }
 

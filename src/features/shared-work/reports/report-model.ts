@@ -1,6 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
-import { sourceStateFor } from "../shared/source-state";
+import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
 import type {
   SourceHonestResponse,
   WorkReportDefinition,
@@ -47,9 +47,7 @@ export async function fetchReportResults(
       connected: false,
       data: [],
       sourceState,
-      message: sourceState === "unavailable"
-        ? "Data laporan belum terhubung. Hasil laporan akan ditampilkan setelah sumber data tersedia."
-        : "Hasil laporan belum dapat dimuat. Silakan coba kembali.",
+      message: sourceStateCopy(sourceState, "Laporan").message,
     };
   }
 }
@@ -78,9 +76,7 @@ export async function fetchReportDefinitions(
       connected: false,
       data: [],
       sourceState,
-      message: sourceState === "unavailable"
-        ? "Data laporan belum terhubung. Definisi laporan akan ditampilkan setelah sumber data tersedia."
-        : "Definisi laporan belum dapat dimuat. Silakan coba kembali.",
+      message: sourceStateCopy(sourceState, "Laporan").message,
     };
   }
 }
@@ -90,7 +86,7 @@ export async function fetchReportDetail(
   signal?: AbortSignal,
 ): Promise<SourceHonestResponse<WorkReportResult | null>> {
   if (!reportId) {
-    return { connected: false, data: null, message: "ID Laporan tidak valid." };
+    return { connected: false, data: null, sourceState: "validation", message: "ID Laporan tidak valid." };
   }
 
   try {
@@ -102,11 +98,13 @@ export async function fetchReportDetail(
       connected: true,
       data,
     };
-  } catch {
+  } catch (error) {
+    const sourceState = sourceStateFor(error, "detail");
     return {
       connected: false,
       data: null,
-      message: "Data laporan belum terhubung. Detail laporan akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceStateCopy(sourceState, "Laporan").message,
     };
   }
 }

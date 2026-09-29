@@ -3,6 +3,8 @@ import type { DataClassification } from "@/lib/contracts";
 
 /** Context representation supplied to ARA derived strictly from authoritative session. */
 export interface AraContext {
+  readonly tenantId: string;
+  readonly organizationId: string;
   readonly actor: {
     readonly actorId: string;
     readonly displayName: string;
@@ -45,29 +47,30 @@ export function extractAraContext(
 
   const workspace = activeWs.workspace;
 
+  if (principal.actor.organization_id !== workspace.organization_id) {
+    return null;
+  }
+
   // Fail closed: requested workspace in URL must match authoritative active workspace
   if (requestedWorkspaceKey && workspace.workspace_key !== requestedWorkspaceKey) {
     return null;
   }
 
-  // Derive allowed data classification from session context
-  const isExecutive = workspace.workspace_type === "EXECUTIVE" || activeWs.role_refs.includes("EXECUTIVE");
-  const hasRestricted = isExecutive || activeWs.permission_refs.some((p) => p.includes("restricted") || p === "*");
-  const hasConfidential = hasRestricted || activeWs.permission_refs.some((p) => p.includes("confidential"));
-
-  const maxClassification: DataClassification = hasRestricted
+  // NEEDS CONTRACT — ARA Classification Ceiling.
+  // Until the Backend projects a canonical ceiling, only the existing exact grant is
+  // recognized. Roles, workspace type, wildcard permissions, and permission substrings
+  // must never be interpreted as classification authority.
+  const maxClassification: DataClassification = activeWs.permission_refs.includes("restricted.access")
     ? "RESTRICTED"
-    : hasConfidential
-      ? "CONFIDENTIAL"
-      : "INTERNAL";
+    : "INTERNAL";
 
   const classificationLabel = maxClassification === "RESTRICTED"
     ? "Sangat Rahasia (Restricted)"
-    : maxClassification === "CONFIDENTIAL"
-      ? "Rahasia (Confidential)"
-      : "Internal Perusahaan";
+    : "Internal Perusahaan";
 
   return {
+    tenantId: principal.actor.tenant_id,
+    organizationId: principal.actor.organization_id,
     actor: {
       actorId: principal.actor.actor_id,
       displayName: principal.actor.display_name,
@@ -93,6 +96,8 @@ export function extractAraContext(
  */
 export interface AraThreadIdentity {
   readonly threadId: string;
+  readonly tenantId: string;
+  readonly organizationId: string;
   readonly actorId: string;
   readonly workspaceId: string;
   readonly workspaceKey: string;
@@ -104,8 +109,9 @@ export interface AraThreadIdentity {
  * Builds an isolated deterministic key for an ARA thread ensuring multi-tenant/workspace boundary.
  */
 export function buildAraThreadKey(identity: AraThreadIdentity): string {
-  const scopeKey = [...identity.scopeRefs].sort().join(",");
-  return `ara:${identity.workspaceKey}:${identity.actorId}:${identity.classification}:${scopeKey}:${identity.threadId}`;
+  const encodePart = (value: string) => encodeURIComponent(value);
+  const scopeKey = [...identity.scopeRefs].sort().map(encodePart).join(",");
+  return `ara:${encodePart(identity.tenantId)}:${encodePart(identity.organizationId)}:${encodePart(identity.workspaceKey)}:${encodePart(identity.actorId)}:${identity.classification}:${scopeKey}:${encodePart(identity.threadId)}`;
 }
 
 /**
@@ -115,8 +121,19 @@ export function isThreadWithinBoundary(
   thread: AraThreadIdentity,
   context: AraContext,
 ): boolean {
+  if (thread.tenantId !== context.tenantId) return false;
+  if (thread.organizationId !== context.organizationId) return false;
   if (thread.actorId !== context.actor.actorId) return false;
   if (thread.workspaceId !== context.activeWorkspace.workspaceId) return false;
   if (thread.workspaceKey !== context.activeWorkspace.workspaceKey) return false;
-  return true;
+  if (thread.scopeRefs.length === 0 || context.scopeRefs.length === 0) return false;
+  if (!thread.scopeRefs.every((scopeRef) => context.scopeRefs.includes(scopeRef))) return false;
+
+  const classificationRank: Record<DataClassification, number> = {
+    PUBLIC: 0,
+    INTERNAL: 1,
+    CONFIDENTIAL: 2,
+    RESTRICTED: 3,
+  };
+  return classificationRank[thread.classification] <= classificationRank[context.maxClassification];
 }

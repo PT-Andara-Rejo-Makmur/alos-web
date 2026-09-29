@@ -1,21 +1,22 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { navigationForSession } from "@/app/navigation";
 import { AppShell } from "@/components/app-shell/app-shell";
-import { Alert, Button, PageHeader, Tabs, type DataTableColumn, type TabItem } from "@/components/ui";
+import { Button, PageHeader, Tabs, type DataTableColumn, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
 import { hasExecutiveContext } from "@/features/executive";
 import { ApiError, sessionApiRequest } from "@/lib/api";
 
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { WorkErrorState } from "../shared/errors/work-error-state";
+import { WorkSourceNotice } from "../shared/errors/work-source-notice";
 import { WorkToolbar } from "../shared/filters/work-toolbar";
 import { WorkLoading } from "../shared/loading/work-loading";
 import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
 import { WorkDataTable } from "../shared/tables/work-data-table";
+import type { SourceState } from "../shared/source-state";
 import { FindingDrawer } from "./finding-drawer";
 import { fetchFindings } from "./finding-model";
 import { FindingSeverityBadge, FindingStatusBadge } from "./finding-status";
@@ -51,7 +52,7 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
   const [findingsLoading, setFindingsLoading] = useState(true);
   const [backendConnected, setBackendConnected] = useState(true);
   const [backendMessage, setBackendMessage] = useState<string | null>(null);
-  const [sourceState, setSourceState] = useState<"available" | "unavailable" | "error">("available");
+  const [sourceState, setSourceState] = useState<SourceState>("available");
 
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
@@ -256,23 +257,7 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
           title="Temuan"
         />
 
-        {sourceState === "error" ? (
-          <div className={styles.noticeContainer}>
-            <Alert message={backendMessage ?? "Data temuan belum dapat dimuat. Silakan coba kembali."} title="Data Temuan Belum Dapat Dimuat" variant="danger" />
-          </div>
-        ) : !backendConnected ? (
-          <div className={styles.noticeContainer}>
-            <Alert
-              icon={<AlertCircle size={18} strokeWidth={2} />}
-              message={
-                backendMessage ??
-                "Data temuan belum terhubung. Daftar temuan akan ditampilkan setelah sumber data tersedia."
-              }
-              title="Data Temuan Belum Terhubung"
-              variant="neutral"
-            />
-          </div>
-        ) : null}
+        <WorkSourceNotice message={backendMessage} state={sourceState} subject="Temuan" />
 
         <div className={styles.tabsContainer}>
           <Tabs
@@ -307,7 +292,7 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
           getRowKey={(f) => f.id}
           loading={findingsLoading}
           loadingLabel="Memuat daftar temuan…"
-          unavailable={!backendConnected || sourceState === "error"}
+          unavailable={!backendConnected || sourceState !== "available"}
           onRowClick={(f) => {
             setSelectedFinding(f);
             setDrawerOpen(true);
@@ -329,7 +314,7 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
 
         <FindingDrawer
           finding={selectedFinding}
-          isConnected={backendConnected && sourceState !== "error"}
+          isConnected={backendConnected && sourceState === "available"}
           onClose={() => {
             setDrawerOpen(false);
             setSelectedFinding(null);

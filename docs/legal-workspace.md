@@ -7,7 +7,7 @@ Legal menggunakan boundary canonical `/workspace/[workspaceKey]/...`. `workspace
 Route Legal:
 
 - `/summary`, `/risks`, `/contracts`, `/reviews`, `/permits`, `/assets`, `/cases`, `/obligations`, `/performance`
-- detail `/contracts/[contractId]`, `/permits/[permitId]`, `/cases/[caseId]`, `/assets/[legalAssetId]`
+- detail `/contracts/[contractId]`, `/permits/[permitId]`, `/cases/[caseId]`, `/assets/[assetId]`
 - Shared Work tetap universal: `/projects`, `/tasks`, `/approvals`, `/documents`, `/reports`, `/findings`
 - ARA tetap universal: `/ara`
 

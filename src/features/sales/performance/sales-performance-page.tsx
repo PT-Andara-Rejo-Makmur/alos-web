@@ -36,9 +36,9 @@ function SalesPerformance({ session }: Readonly<{ session: SessionProjection }>)
       <Section title="Filter Kinerja">
         <SalesFilterBar>
           <SalesSelect label="Periode" name="performance-period" onChange={(value) => setFilters((current) => ({ ...current, period: value }))} options={[["all", "Semua periode"]]} value={filters.period} />
-          <SalesSelect label="Owner" name="performance-owner" onChange={(value) => setFilters((current) => ({ ...current, owner: value }))} options={[["all", "Semua owner"]]} value={filters.owner} />
-          <SalesSelect label="Project" name="performance-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua project"]]} value={filters.project} />
-          <SalesSelect label="Channel" name="performance-channel" onChange={(value) => setFilters((current) => ({ ...current, channel: value }))} options={[["all", "Semua channel"]]} value={filters.channel} />
+          <SalesSelect label="Penanggung Jawab" name="performance-owner" onChange={(value) => setFilters((current) => ({ ...current, owner: value }))} options={[["all", "Semua penanggung jawab"]]} value={filters.owner} />
+          <SalesSelect label="Proyek" name="performance-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua proyek"]]} value={filters.project} />
+          <SalesSelect label="Saluran" name="performance-channel" onChange={(value) => setFilters((current) => ({ ...current, channel: value }))} options={[["all", "Semua saluran"]]} value={filters.channel} />
         </SalesFilterBar>
       </Section>
       <Section title={tab === "summary" ? "Kinerja Sales" : `${tabs.find((item) => item.id === tab)?.label ?? "Kinerja"} Sales`}>

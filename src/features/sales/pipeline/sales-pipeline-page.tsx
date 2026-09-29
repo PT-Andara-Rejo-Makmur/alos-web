@@ -58,55 +58,55 @@ function SalesPipeline({ session }: Readonly<{ session: SessionProjection }>) {
       <Section title="Filter Pipeline">
           <SalesFilterBar ariaLabel="Filter pipeline penjualan">
           <SalesSelect label="Periode" name="pipeline-period" onChange={(value) => updateFilter("period", value)} options={[["all", "Semua periode"], ["30d", "30 hari"], ["90d", "90 hari"], ["year", "Tahun berjalan"]]} value={filters.period} />
-          <SalesSelect label="Project" name="pipeline-project" onChange={(value) => updateFilter("project", value)} options={[["all", "Semua project"]]} value={filters.project} />
-          <SalesSelect label="Owner" name="pipeline-owner" onChange={(value) => updateFilter("owner", value)} options={[["all", "Semua owner"]]} value={filters.owner} />
-          <SalesSelect label="Channel" name="pipeline-channel" onChange={(value) => updateFilter("channel", value)} options={[["all", "Semua channel"]]} value={filters.channel} />
-          <SalesSelect label="Stage" name="pipeline-stage" onChange={(value) => updateFilter("stage", value)} options={[["all", "Semua stage"], ...stages.map((stage) => [stage, stage] as const)]} value={filters.stage} />
-          <SalesSelect label="Status" name="pipeline-status" onChange={(value) => updateFilter("status", value)} options={[["all", "Semua status"], ["active", "Aktif"], ["pending", "Tertunda"], ["won", "Won"], ["lost", "Lost"]]} value={filters.status} />
-          <SalesSelect label="Lead age" name="pipeline-lead-age" onChange={(value) => updateFilter("leadAge", value)} options={[["all", "Semua usia"], ["0-7", "0–7 hari"], ["8-30", "8–30 hari"], ["31+", "31+ hari"]]} value={filters.leadAge} />
+          <SalesSelect label="Proyek" name="pipeline-project" onChange={(value) => updateFilter("project", value)} options={[["all", "Semua proyek"]]} value={filters.project} />
+          <SalesSelect label="Penanggung Jawab" name="pipeline-owner" onChange={(value) => updateFilter("owner", value)} options={[["all", "Semua penanggung jawab"]]} value={filters.owner} />
+          <SalesSelect label="Saluran" name="pipeline-channel" onChange={(value) => updateFilter("channel", value)} options={[["all", "Semua saluran"]]} value={filters.channel} />
+          <SalesSelect label="Tahapan" name="pipeline-stage" onChange={(value) => updateFilter("stage", value)} options={[["all", "Semua tahapan"], ...stages.map((stage) => [stage, stage] as const)]} value={filters.stage} />
+          <SalesSelect label="Status" name="pipeline-status" onChange={(value) => updateFilter("status", value)} options={[["all", "Semua status"], ["active", "Aktif"], ["pending", "Tertunda"], ["won", "Berhasil"], ["lost", "Tidak Berhasil"]]} value={filters.status} />
+          <SalesSelect label="Usia Lead" name="pipeline-lead-age" onChange={(value) => updateFilter("leadAge", value)} options={[["all", "Semua usia"], ["0-7", "0–7 hari"], ["8-30", "8–30 hari"], ["31+", "31+ hari"]]} value={filters.leadAge} />
         </SalesFilterBar>
       </Section>
-      <Section description="Tahap dapat dipilih sebagai filter. Jumlah tidak diisi sebelum pipeline authoritative tersedia." title="Stage Summary">
-        <DataTable caption="Ringkasan tahap pipeline" columns={stageColumns} getRowKey={(stage) => stage} rowAction={(stage) => <Button aria-label={`Filter stage ${stage}`} onClick={() => updateFilter("stage", stage)} size="sm" variant={filters.stage === stage ? "secondary" : "ghost"}>Pilih</Button>} rows={stages} />
+      <Section description="Tahap dapat dipilih sebagai filter. Jumlah tidak diisi sebelum pipeline authoritative tersedia." title="Ringkasan Tahapan">
+        <DataTable caption="Ringkasan tahap pipeline" columns={stageColumns} getRowKey={(stage) => stage} rowAction={(stage) => <Button aria-label={`Filter tahapan ${stage}`} onClick={() => updateFilter("stage", stage)} size="sm" variant={filters.stage === stage ? "secondary" : "ghost"}>Pilih</Button>} rows={stages} />
       </Section>
       <Section actions={<Tabs ariaLabel="Tampilan pipeline" items={pipelineTabs} onValueChange={setView} value={view} />} description="Tabel menjadi sumber kerja utama; detail dibuka melalui quick view ketika baris authoritative tersedia." title={view === "daftar" ? "Daftar Pipeline" : "Pipeline"}>
         {view === "daftar" ? <DataTable caption="Daftar pipeline penjualan" columns={pipelineColumns} emptyState={<SalesUnavailableState description="Daftar pipeline akan tampil setelah sumber Sales Pipeline terhubung." />} getRowKey={(row) => row.recordId} rowAction={(row) => <Button onClick={() => setSelectedRow(row)} size="sm" variant="secondary">Lihat cepat</Button>} rows={pipelineRows} /> : <div className={styles.pipelineViewState}><Alert message="Visual pipeline akan menggunakan stage dan data authoritative yang sama dengan Daftar Pipeline." title="Pipeline Belum Terhubung" variant="neutral" /><DataTable caption="Tahap pipeline penjualan" columns={stageColumns} getRowKey={(stage) => stage} rows={stages} /></div>}
       </Section>
       <Alert message="Sales dapat memantau dan menindaklanjuti pipeline. Booking fee, SPK validity, KPR approval, SP3K, akad, refund, dan official closing tetap read-only dari authority Finance, Legal, Property, atau outcome governed." title="Batas Authority Sales" variant="neutral" />
-      <SalesDetailDrawer description="Quick view hanya menampilkan data pipeline authoritative yang dipilih." items={selectedRow ? pipelineDetailItems(selectedRow) : []} onClose={() => setSelectedRow(null)} open={selectedRow !== null} title="Quick View Pipeline" />
+      <SalesDetailDrawer description="Tinjauan cepat hanya menampilkan data pipeline authoritative yang dipilih." items={selectedRow ? pipelineDetailItems(selectedRow) : []} onClose={() => setSelectedRow(null)} open={selectedRow !== null} title="Tinjauan Cepat Pipeline" />
     </div>
   );
 }
 
 const stageColumns: readonly DataTableColumn<(typeof stages)[number]>[] = [
-  { header: "Stage", key: "stage", render: (stage) => stage },
+  { header: "Tahapan", key: "stage", render: (stage) => stage },
   { header: "Jumlah", key: "count", render: () => "—" },
   { header: "Status Data", key: "status", render: () => <Status label="Belum Terhubung" variant="neutral" /> },
 ];
 
 const pipelineColumns: readonly DataTableColumn<PipelineRow>[] = [
-  { header: "Prospect", key: "prospect", render: (row) => row.prospect },
-  { header: "Project/Unit", key: "projectUnit", render: (row) => row.projectUnit },
-  { header: "Stage", key: "stage", render: (row) => row.stage },
-  { header: "Owner", key: "owner", render: (row) => row.owner },
-  { header: "Channel", key: "channel", render: (row) => row.channel },
-  { header: "Potential Value", key: "potentialValue", render: (row) => row.potentialValue },
-  { header: "Last Activity", key: "lastActivity", render: (row) => row.lastActivity },
-  { header: "Next Action", key: "nextAction", render: (row) => row.nextAction },
-  { header: "Due", key: "due", render: (row) => row.due },
-  { header: "Pipeline Age", key: "pipelineAge", render: (row) => row.pipelineAge },
+  { header: "Prospek", key: "prospect", render: (row) => row.prospect },
+  { header: "Proyek / Unit", key: "projectUnit", render: (row) => row.projectUnit },
+  { header: "Tahapan", key: "stage", render: (row) => row.stage },
+  { header: "Penanggung Jawab", key: "owner", render: (row) => row.owner },
+  { header: "Saluran", key: "channel", render: (row) => row.channel },
+  { header: "Nilai Potensi", key: "potentialValue", render: (row) => row.potentialValue },
+  { header: "Aktivitas Terakhir", key: "lastActivity", render: (row) => row.lastActivity },
+  { header: "Tindakan Berikutnya", key: "nextAction", render: (row) => row.nextAction },
+  { header: "Tenggat", key: "due", render: (row) => row.due },
+  { header: "Usia Pipeline", key: "pipelineAge", render: (row) => row.pipelineAge },
   { header: "Status", key: "status", render: (row) => row.status },
 ];
 
 function pipelineDetailItems(row: PipelineRow) {
   return [
-    { label: "Record", value: row.recordId },
-    { label: "Prospect", value: row.prospect },
-    { label: "Project/Unit", value: row.projectUnit },
-    { label: "Stage", value: row.stage },
-    { label: "Owner", value: row.owner },
-    { label: "Next Action", value: row.nextAction },
-    { label: "Due", value: row.due },
+    { label: "Rekaman", value: row.recordId },
+    { label: "Prospek", value: row.prospect },
+    { label: "Proyek / Unit", value: row.projectUnit },
+    { label: "Tahapan", value: row.stage },
+    { label: "Penanggung Jawab", value: row.owner },
+    { label: "Tindakan Berikutnya", value: row.nextAction },
+    { label: "Tenggat", value: row.due },
     { label: "Status", value: row.status },
   ];
 }

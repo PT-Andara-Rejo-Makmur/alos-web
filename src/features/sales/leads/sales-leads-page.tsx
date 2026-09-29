@@ -30,7 +30,7 @@ interface LeadRow {
 const leadRows: readonly LeadRow[] = [];
 const leadFormFields: readonly SalesFormField[] = [
   { label: "Nama prospek", name: "name" }, { label: "Kontak", name: "contact" }, { label: "Sumber lead", name: "source" },
-  { label: "Project interest", name: "project-interest" }, { label: "Owner", name: "owner" }, { label: "Catatan", name: "notes", type: "textarea" },
+  { label: "Minat Proyek", name: "project-interest" }, { label: "Penanggung Jawab", name: "owner" }, { label: "Catatan", name: "notes", type: "textarea" },
 ];
 
 export function SalesLeadsPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) {
@@ -61,12 +61,12 @@ function SalesLeads({ session }: Readonly<{ session: SessionProjection }>) {
       <Section title="Filter Prospek">
         <SalesFilterBar search={<input aria-label="Cari prospek" onChange={(event) => setSearch(event.target.value)} placeholder="Cari nama atau kontak" value={search} />}>
           <SalesSelect label="Status" name="lead-status" onChange={(value) => setFilters((current) => ({ ...current, status: value }))} options={[["all", "Semua status"]]} value={filters.status} />
-          <SalesSelect label="Owner" name="lead-owner" onChange={(value) => setFilters((current) => ({ ...current, owner: value }))} options={[["all", "Semua owner"]]} value={filters.owner} />
+          <SalesSelect label="Penanggung Jawab" name="lead-owner" onChange={(value) => setFilters((current) => ({ ...current, owner: value }))} options={[["all", "Semua penanggung jawab"]]} value={filters.owner} />
           <SalesSelect label="Sumber / Channel" name="lead-source" onChange={(value) => setFilters((current) => ({ ...current, source: value }))} options={[["all", "Semua sumber"]]} value={filters.source} />
-          <SalesSelect label="Project" name="lead-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua project"]]} value={filters.project} />
+          <SalesSelect label="Proyek" name="lead-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua proyek"]]} value={filters.project} />
         </SalesFilterBar>
       </Section>
-      <Section description="Record memakai conceptual record ID dari source; nama prospek bukan identity final." title="Daftar Prospek">
+      <Section description="Rekaman memakai ID konseptual dari sumber; nama prospek bukan identitas final." title="Daftar Prospek">
         <DataTable caption="Daftar prospek dan lead" columns={leadColumns} emptyState={<SalesUnavailableState description="Daftar prospek akan tampil setelah sumber Lead terhubung." />} getRowKey={(row) => row.recordId} rowAction={(row) => <Button onClick={() => setSelectedLead(row)} size="sm" variant="secondary">Lihat detail</Button>} rows={leadRows} />
       </Section>
       <SalesDetailDrawer description="Profil, kontak, aktivitas terakhir, next action, dan related documents." items={selectedLead ? leadDetailItems(selectedLead) : []} onClose={() => setSelectedLead(null)} open={selectedLead !== null} title="Detail Prospek">
@@ -83,18 +83,18 @@ const leadColumns: readonly DataTableColumn<LeadRow>[] = [
   { header: "Nama/Prospek", key: "name", render: (row) => row.name },
   { header: "Kontak", key: "contact", render: (row) => row.contact },
   { header: "Sumber", key: "source", render: (row) => row.source },
-  { header: "Project interest", key: "projectInterest", render: (row) => row.projectInterest },
-  { header: "Owner", key: "owner", render: (row) => row.owner },
+  { header: "Minat Proyek", key: "projectInterest", render: (row) => row.projectInterest },
+  { header: "Penanggung Jawab", key: "owner", render: (row) => row.owner },
   { header: "Status", key: "status", render: (row) => row.status },
-  { header: "Last Activity", key: "lastActivity", render: (row) => row.lastActivity },
+  { header: "Aktivitas Terakhir", key: "lastActivity", render: (row) => row.lastActivity },
   { header: "Next Follow-up", key: "nextFollowUp", render: (row) => row.nextFollowUp },
   { header: "Created", key: "created", render: (row) => row.created },
 ];
 
 function leadDetailItems(row: LeadRow) {
   return [
-    { label: "Record", value: row.recordId }, { label: "Profil", value: row.name }, { label: "Kontak", value: row.contact },
-    { label: "Sumber lead", value: row.source }, { label: "Minat", value: row.projectInterest }, { label: "Owner", value: row.owner },
-    { label: "Last Activity", value: row.lastActivity }, { label: "Next Action", value: row.nextFollowUp }, { label: "Related Documents", value: "—" },
+    { label: "Rekaman", value: row.recordId }, { label: "Profil", value: row.name }, { label: "Kontak", value: row.contact },
+    { label: "Sumber lead", value: row.source }, { label: "Minat", value: row.projectInterest }, { label: "Penanggung Jawab", value: row.owner },
+    { label: "Aktivitas Terakhir", value: row.lastActivity }, { label: "Tindakan Berikutnya", value: row.nextFollowUp }, { label: "Dokumen Terkait", value: "—" },
   ];
 }

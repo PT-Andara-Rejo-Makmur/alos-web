@@ -17,7 +17,7 @@ const unitColumns: readonly DataTableColumn<UnitRow>[] = [
   { header: "Status Konstruksi", key: "constructionState", render: (row) => row.constructionState }, { header: "Kesiapan Teknis", key: "technicalReadiness", render: (row) => row.technicalReadiness },
   { header: "Status Komersial", key: "commercialProjection", render: (row) => row.commercialProjection }, { header: "Serah Terima", key: "handover", render: (row) => row.handover },
 ];
-const unitFields: readonly PropertyFormField[] = [{ label: "Unit *", name: "unit" }, { label: "Status Teknis *", name: "technical-status" }, { label: "Kesiapan Teknis *", name: "technical-readiness" }, { label: "Status Inspeksi", name: "inspection-status" }, { label: "Perkiraan Siap", name: "estimated-ready", type: "date" }, { label: "Evidence *", name: "evidence" }, { label: "Catatan", name: "notes", type: "textarea" }];
+const unitFields: readonly PropertyFormField[] = [{ label: "Unit *", name: "unit" }, { label: "Status Teknis *", name: "technical-status" }, { label: "Kesiapan Teknis *", name: "technical-readiness" }, { label: "Status Inspeksi", name: "inspection-status" }, { label: "Perkiraan Siap", name: "estimated-ready", type: "date" }, { label: "Bukti *", name: "evidence" }, { label: "Catatan", name: "notes", type: "textarea" }];
 
 export function PropertyUnitsPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) { return <PropertyLayout workspaceKey={workspaceKey}>{(session) => <PropertyUnits session={session} />}</PropertyLayout>; }
 

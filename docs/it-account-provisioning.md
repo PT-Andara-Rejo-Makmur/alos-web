@@ -24,6 +24,10 @@ The primary action is `Daftarkan Akun`. The flow is intentionally simple and has
 
 The generated Identity contract currently has legacy roles and still requires a password for direct provisioning. The frontend therefore exposes the MVP-2 target vocabulary as readiness only: Direktur, Manajer / Kepala Divisi, Anggota Divisi, and Administrator IT. `DIVISION_LEAD` and `DIVISION_MEMBER` are not invented in the Web; they remain disabled until the canonical role catalog supports them. Existing legacy roles are read-only and are not silently remapped.
 
+Read operasional yang tersedia tetap berasal dari `/api/v1/identity/accounts`,
+`/api/v1/identity/workspaces`, dan `/api/v1/identity/assignable-roles`. Tidak ada POST compatibility,
+password UI, atau success state lokal yang dibuat untuk menutup gap contract.
+
 Primary Workspace is not inferred from the first or active membership. Until Identity exposes a primary marker, the list and detail render `—`. Additional workspace access is managed only after account creation from Detail Akun → Workspace & Akses through separate Tambah Workspace, Edit Akses, and Cabut Akses readiness actions.
 
 Account detail has four tabs: Ringkasan, Workspace & Akses, Sesi, and Riwayat. Role is shown within each workspace membership; access history and administrative activity are combined under Riwayat. Activation is a separate source from account state, and the account page never claims activation, delivery, or reset success without an authoritative response.

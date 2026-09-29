@@ -24,6 +24,8 @@ export function humanizeWorkError(error: unknown): string {
         return "Data yang Anda cari tidak ditemukan.";
       case 409:
         return "Data telah berubah sejak halaman ini dibuka. Muat versi terbaru sebelum melanjutkan.";
+      case 422:
+        return "Data belum memenuhi aturan yang berlaku.";
       default:
         return "Data belum dapat dimuat. Silakan coba kembali.";
     }

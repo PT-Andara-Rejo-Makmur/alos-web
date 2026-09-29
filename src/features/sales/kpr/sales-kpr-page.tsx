@@ -28,7 +28,7 @@ interface KprRow {
 
 const kprRows: readonly KprRow[] = [];
 const documentFields: readonly SalesFormField[] = [
-  { label: "Customer / KPR", name: "customer" }, { label: "Project / Unit", name: "project-unit" }, { label: "Jenis dokumen", name: "document-type" },
+  { label: "Pelanggan / KPR", name: "customer" }, { label: "Proyek / Unit", name: "project-unit" }, { label: "Jenis dokumen", name: "document-type" },
   { label: "File / Referensi", name: "file-reference" }, { label: "Catatan", name: "notes", type: "textarea" },
 ];
 
@@ -69,20 +69,20 @@ function SalesKpr({ session }: Readonly<{ session: SessionProjection }>) {
 }
 
 const kprColumns: readonly DataTableColumn<KprRow>[] = [
-  { header: "Customer", key: "customer", render: (row) => row.customer }, { header: "Project/Unit", key: "projectUnit", render: (row) => row.projectUnit },
+  { header: "Pelanggan", key: "customer", render: (row) => row.customer }, { header: "Proyek / Unit", key: "projectUnit", render: (row) => row.projectUnit },
   { header: "Bank", key: "bank", render: (row) => row.bank }, { header: "Stage", key: "stage", render: (row) => row.stage },
   { header: "Document Status", key: "documentStatus", render: (row) => <Status label={row.documentStatus} variant="neutral" /> },
   { header: "Finance Status", key: "financeStatus", render: (row) => <Status label={row.financeStatus} variant="neutral" /> },
   { header: "Legal Status", key: "legalStatus", render: (row) => <Status label={row.legalStatus} variant="neutral" /> },
   { header: "SP3K", key: "sp3k", render: (row) => <Status label={row.sp3k} variant="neutral" /> }, { header: "Akad", key: "akad", render: (row) => <Status label={row.akad} variant="neutral" /> },
-  { header: "Owner", key: "owner", render: (row) => row.owner }, { header: "Next Action", key: "nextAction", render: (row) => row.nextAction },
+  { header: "Penanggung Jawab", key: "owner", render: (row) => row.owner }, { header: "Tindakan Berikutnya", key: "nextAction", render: (row) => row.nextAction },
 ];
 
 function kprDetailItems(row: KprRow) {
   return [
-    { label: "Record", value: row.recordId }, { label: "Customer", value: row.customer }, { label: "Project / Unit", value: row.projectUnit },
+    { label: "Rekaman", value: row.recordId }, { label: "Pelanggan", value: row.customer }, { label: "Proyek / Unit", value: row.projectUnit },
     { label: "Bank", value: row.bank }, { label: "Stage", value: row.stage }, { label: "Document", value: row.documentStatus },
     { label: "Finance", value: row.financeStatus }, { label: "Legal", value: row.legalStatus }, { label: "SP3K", value: row.sp3k }, { label: "Akad", value: row.akad },
-    { label: "Next Action", value: row.nextAction },
+    { label: "Tindakan Berikutnya", value: row.nextAction },
   ];
 }

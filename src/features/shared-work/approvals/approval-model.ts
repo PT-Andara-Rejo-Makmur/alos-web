@@ -1,6 +1,6 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 
-import { sourceStateFor } from "../shared/source-state";
+import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkApproval } from "./approval-types";
 
 export interface FetchApprovalsOptions {
@@ -36,9 +36,7 @@ export async function fetchApprovals(
       connected: false,
       data: [],
       sourceState,
-      message: sourceState === "unavailable"
-        ? "Data persetujuan belum terhubung. Daftar persetujuan akan ditampilkan setelah sumber data tersedia."
-        : "Data persetujuan belum dapat dimuat. Silakan coba kembali.",
+      message: sourceStateCopy(sourceState, "Persetujuan").message,
     };
   }
 }
@@ -48,7 +46,7 @@ export async function fetchApprovalDetail(
   signal?: AbortSignal,
 ): Promise<SourceHonestResponse<WorkApproval | null>> {
   if (!approvalId) {
-    return { connected: false, data: null, message: "ID Persetujuan tidak valid." };
+    return { connected: false, data: null, sourceState: "validation", message: "ID Persetujuan tidak valid." };
   }
 
   try {
@@ -59,11 +57,13 @@ export async function fetchApprovalDetail(
       connected: true,
       data,
     };
-  } catch {
+  } catch (error) {
+    const sourceState = sourceStateFor(error, "detail");
     return {
       connected: false,
       data: null,
-      message: "Data persetujuan belum terhubung. Detail persetujuan akan ditampilkan setelah sumber data tersedia.",
+      sourceState,
+      message: sourceStateCopy(sourceState, "Persetujuan").message,
     };
   }
 }

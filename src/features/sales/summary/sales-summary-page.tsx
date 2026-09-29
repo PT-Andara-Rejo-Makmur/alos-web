@@ -31,7 +31,7 @@ function SalesSummary({ session }: Readonly<{ session: SessionProjection }>) {
       />
       <div aria-label="Konteks ringkasan Sales" className={styles.contextBar}>
         <ContextItem label="Periode" value="—" />
-        <ContextItem label="Project" value="—" />
+        <ContextItem label="Proyek" value="—" />
         <ContextItem label="Workspace" value={activeWorkspace?.workspace_name ?? "—"} />
         <ContextItem label="Status data" status value="Belum Terhubung" />
       </div>
@@ -60,7 +60,7 @@ function SalesSummary({ session }: Readonly<{ session: SessionProjection }>) {
           columns={[
             { header: "Tahap", key: "stage", render: (stage) => stage },
             { header: "Jumlah", key: "count", render: () => "—" },
-            { header: "Conversion", key: "conversion", render: () => "—" },
+            { header: "Konversi", key: "conversion", render: () => "—" },
             { header: "Usia Rata-rata", key: "age", render: () => "—" },
             { header: "Status Data", key: "status", render: () => <Status label="Belum Terhubung" variant="neutral" /> },
           ]}
@@ -70,8 +70,8 @@ function SalesSummary({ session }: Readonly<{ session: SessionProjection }>) {
       </Section>
       <Section title="Perlu Perhatian"><EmptyState description="Tindak lanjut, booking, dan closing yang memerlukan perhatian akan tampil setelah sumber resmi tersedia." title="Belum Terhubung" /></Section>
       <div className={styles.summaryGrid}>
-        <Section title="Channel"><Alert message="Atribusi channel dan biaya per lead belum tersedia dari sumber Campaign." title="Data Channel Belum Terhubung" variant="neutral" /></Section>
-        <Section title="Project/Product readiness"><Alert message="Project, unit, harga, dan ketersediaan tetap menjadi projection dari Property." title="Data Project/Product Belum Terhubung" variant="neutral" /></Section>
+        <Section title="Saluran"><Alert message="Atribusi saluran dan biaya per lead belum tersedia dari sumber Kampanye." title="Data Saluran Belum Terhubung" variant="neutral" /></Section>
+        <Section title="Kesiapan Proyek & Produk"><Alert message="Proyek, unit, harga, dan ketersediaan tetap menjadi proyeksi dari Property." title="Data Proyek & Produk Belum Terhubung" variant="neutral" /></Section>
       </div>
       <Section title="Persetujuan & Temuan"><Alert message="Ringkasan persetujuan dan temuan yang relevan akan tampil setelah sumber Shared Work tersedia." title="Data Persetujuan dan Temuan Belum Terhubung" variant="neutral" /></Section>
       <Drawer description="Ketersediaan ditampilkan dari sumber yang terhubung; tidak ada nilai bisnis yang dibuat oleh dashboard." onClose={() => setStatusOpen(false)} open={statusOpen} title="Status Data">

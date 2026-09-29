@@ -11,7 +11,7 @@ import ReviewsRoute from "@/app/workspace/[workspaceKey]/(domain)/reviews/page";
 import ContractDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/contracts/[contractId]/page";
 import PermitDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/permits/[permitId]/page";
 import CaseDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/cases/[caseId]/page";
-import AssetDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/assets/[legalAssetId]/page";
+import AssetDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/assets/[assetId]/page";
 import { hasLegalContext, activeLegalWorkspaceKey } from "@/features/legal/legal-model";
 import { legalNavigation } from "@/features/legal/navigation";
 import { LegalContractsPage, LegalPermitsPage, LegalReviewsPage, LegalRisksPage } from "@/features/legal";
@@ -27,7 +27,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: mockReplace }),
 }));
 
-function legalSession(workspaceKey = "kepatuhan-utama", divisionCode = "LEGAL", workspaceType: "BUSINESS" | "EXECUTIVE" = "BUSINESS") {
+function legalSession(workspaceKey = "kepatuhan-utama", divisionCode = "LEGAL", workspaceType: "BUSINESS" | "EXECUTIVE" | "IT_OPERATIONS" = "BUSINESS") {
   const principal: AuthenticatedPrincipalProjection = {
     actor: { actor_id: "actor_legal", active: true, display_name: "Legal Lead", organization_id: "org_1", tenant_id: "tenant_1" },
     active_workspace: {
@@ -143,8 +143,16 @@ describe("Legal workspace", () => {
     vi.clearAllMocks();
 
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
-    render(<AssetDetailRoute params={{ workspaceKey: "kepatuhan-utama", legalAssetId: "asset-1" }} />);
+    render(<AssetDetailRoute params={{ workspaceKey: "kepatuhan-utama", assetId: "asset-1" }} />);
     expect(await screen.findByRole("heading", { name: "Detail Legalitas Proyek & Aset" })).toBeInTheDocument();
+    cleanup();
+    vi.clearAllMocks();
+
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession("it-utama", "IT", "IT_OPERATIONS"));
+    render(<AssetDetailRoute params={{ workspaceKey: "it-utama", assetId: "asset-it-1" }} />);
+    expect(await screen.findByRole("heading", { name: "Detail Aset IT" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Detail Legalitas Proyek & Aset" })).not.toBeInTheDocument();
+    expect(screen.getByText(/tidak membuat data aset/i)).toBeInTheDocument();
     cleanup();
     vi.clearAllMocks();
 

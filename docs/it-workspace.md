@@ -28,7 +28,7 @@ Daftar akun memisahkan Nama, ID Karyawan, Jabatan, Workspace Utama, Role Utama, 
 
 Workspace tambahan dikelola setelah akun tersedia melalui Tambah Workspace, Edit Akses, dan Cabut Akses. Semua readiness action tetap disabled sampai sumber resmi mendukung effective dates, duplicate conflict, permission, dan audit. Revoke bukan hard delete dan tidak membuat ulang akun.
 
-Pengaturan global tetap memiliki boundary sendiri: Profil, Ganti Kata Sandi, Sesi milik sendiri, Notifikasi, dan Preferensi. IT hanya menyediakan readiness untuk pendaftaran, activation support, reset request, suspension, revocation, dan session administration; IT tidak melihat password atau token.
+Settings dan AI Workspace tidak termasuk Stage 3 dan tetap ditunda. IT hanya menyediakan readiness untuk pendaftaran, activation support, reset request, suspension, revocation, dan session administration; IT tidak melihat password atau token.
 
 Vocabulary audit yang diharapkan dari sumber audit identitas:
 
