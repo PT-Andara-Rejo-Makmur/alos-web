@@ -25,3 +25,5 @@ Status keputusan yang belum memiliki sumber canonical: **NEEDS DECISION**.
 - multi-currency
 
 Frontend tidak menetapkan lifecycle tersebut. UI mempertahankan state terpisah agar keputusan bisnis berikutnya tidak terkunci oleh tampilan.
+
+Semua lifecycle pada registry form Finance harus tetap `NEEDS DECISION` atau `Conceptual only — NEEDS CONTRACT` sampai keputusan canonical tersedia. Urutan langkah yang mungkin terlihat pada UX hanya ilustrasi, bukan keputusan lifecycle; keputusan final berada pada Contracts, Backend, dan business governance.

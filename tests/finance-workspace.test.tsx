@@ -5,7 +5,8 @@ import { resolve } from "node:path";
 
 import { financeNavigation } from "@/features/finance/navigation";
 import { activeFinanceWorkspaceKey, formatFinancePeriod, formatFinancialValue, hasFinanceContext, maskAccountNumber } from "@/features/finance/finance-model";
-import { FinanceLiquidityPage, FinancePayablesPage, FinanceReceivablesPage, FinanceTaxPage } from "@/features/finance";
+import { resolveWorkspaceDomain } from "@/features/session";
+import { FinanceBudgetPage, FinanceLiquidityPage, FinancePayablesPage, FinanceReceivablesPage, FinanceTaxPage } from "@/features/finance";
 import { FinanceSourceStateView } from "@/features/finance/shared/finance-ui";
 import WorkspaceKeyRoot from "@/app/workspace/[workspaceKey]/page";
 import SummaryRoute from "@/app/workspace/[workspaceKey]/(domain)/summary/page";
@@ -39,6 +40,10 @@ function financeSession(workspaceKey = "finance-utama", divisionCode = "finance"
     workspace_access: [],
   };
   return { authenticated: true, principal };
+}
+
+function propertySession(workspaceKey = "property-utama") {
+  return financeSession(workspaceKey, "PROPERTY");
 }
 
 describe("Finance & Pajak workspace", () => {
@@ -98,6 +103,36 @@ describe("Finance & Pajak workspace", () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
     render(<BudgetRoute params={{ workspaceKey: "finance-utama" }} />);
     expect(await screen.findByRole("heading", { name: "Anggaran", level: 1 })).toBeInTheDocument();
+  });
+
+  it("keeps the shared budget route authoritative across Finance and Property", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
+    render(<BudgetRoute params={{ workspaceKey: "finance-utama" }} />);
+    expect(await screen.findByRole("heading", { name: "Anggaran", level: 1 })).toBeInTheDocument();
+
+    cleanup();
+    vi.clearAllMocks();
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
+    render(<BudgetRoute params={{ workspaceKey: "property-utama" }} />);
+    expect(await screen.findByRole("heading", { name: "Anggaran & RAB", level: 1 })).toBeInTheDocument();
+
+    cleanup();
+    vi.clearAllMocks();
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession("sales-utama", "SALES"));
+    render(<BudgetRoute params={{ workspaceKey: "sales-utama" }} />);
+    expect(await screen.findByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+  });
+
+  it("fails closed when the requested Finance workspace key mismatches the active workspace", async () => {
+    const session = financeSession("finance-utama");
+    const resolution = resolveWorkspaceDomain(session, "finance-lain");
+    expect(resolution.valid).toBe(false);
+    expect(resolution.failureReason).toBe("key_mismatch");
+
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(session);
+    render(<FinanceBudgetPage workspaceKey="finance-lain" />);
+    expect(await screen.findByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Anggaran", level: 1 })).not.toBeInTheDocument();
   });
 
   it("renders source-unavailable receipt form without fake submit success", async () => {
