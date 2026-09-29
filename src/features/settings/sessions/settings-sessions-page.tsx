@@ -23,11 +23,12 @@ export function SettingsSessionsPage() {
     setError(null);
     try {
       await endCurrentSession();
+      router.replace("/login");
+      router.refresh?.();
     } catch {
       setError("Sesi belum dapat ditutup. Silakan coba kembali.");
     } finally {
-      router.replace("/login");
-      router.refresh?.();
+      setLoggingOut(false);
     }
   }
 
@@ -48,8 +49,8 @@ export function SettingsSessionsPage() {
         <div className={styles.actions}><Button disabled={loggingOut} onClick={() => void logoutCurrentSession()} variant="secondary">{loggingOut ? "Keluar…" : "Keluar dari sesi ini"}</Button></div>
       </Section>
       <Section description="Daftar perangkat lain dan pencabutan sesi jarak jauh belum tersedia." title="Perangkat Lain">
-        <SettingsSourceStateView description="Registry sesi jarak jauh belum terhubung." state="unavailable" title="Sesi Jarak Jauh" />
-        <div className={styles.actions}><Button disabled variant="secondary">Keluar dari perangkat lain belum tersedia</Button></div>
+        <SettingsSourceStateView description="Daftar sesi jarak jauh belum tersedia." state="unavailable" title="Sesi Jarak Jauh" />
+        <div className={styles.actions}><Button disabled variant="secondary">Keluar dari semua perangkat lain — Belum tersedia</Button></div>
       </Section>
     </div>
   );
