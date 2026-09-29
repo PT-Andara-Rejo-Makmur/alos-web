@@ -1,23 +1,23 @@
 "use client";
 
 import { Plus, UserRound, Users } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { navigationForItWorkspace } from "@/app/navigation";
 import { AppShell } from "@/components/app-shell/app-shell";
 import { Button, DataTable, Dialog as UiDialog, Drawer, EmptyState, FormField, LoadingState, Metric, PageHeader, Status, Tabs, Toolbar, type DataTableColumn } from "@/components/ui";
 import { resolveWorkspaceDomain, type SessionProjection } from "@/features/session";
 import { ApiError, sessionApiRequest } from "@/lib/api";
-import type { AuthorizationRole, IdentityAccountProjection, WorkspaceProjection } from "@/lib/contracts";
+import type { AuthorizationRole, IdentityAccountProjection, ProvisioningCandidateProjection, WorkspaceProjection } from "@/lib/contracts";
 
-import { listAssignableRoles, listIdentityAccounts, listIdentityWorkspaces } from "./account-management-api";
+import { addMembership, changeAccountState, listActorIdentityHistory, listActorSessions, listAssignableRoles, listIdentityAccounts, listIdentityWorkspaces, listProvisioningCandidates, provisionAccount, revokeActorSession, revokeMembership, updateMembership } from "./account-management-api";
 import { activeWorkspaceKey, hasItAccountManagementAccess } from "./account-management-model";
-import { activeItWorkspaceKey, identityRoleLabel, mvpRoleOptions } from "./it-model";
+import { activeItWorkspaceKey, assignableRoleOptions, identityRoleLabel } from "./it-model";
 import { ItSourceStateView } from "./shared/it-ui";
 import styles from "./account-management-page.module.css";
 
 type PageState = "loading" | "ready" | "denied" | "session_expired" | "error";
-type GovernanceAction = "suspend";
+type GovernanceAction = "suspend" | "activate";
 type MembershipAction = "add" | "edit" | "revoke";
 type AuditReadinessRow = {
   readonly id: string;
@@ -31,8 +31,6 @@ type AuditReadinessRow = {
 };
 
 const accountTabs = ["Belum Memiliki Akun", "Menunggu Aktivasi", "Aktif", "Ditangguhkan", "Dinonaktifkan", "Semua"];
-const accountSummary = ["Belum Memiliki Akun", "Menunggu Aktivasi", "Akun Aktif", "Akun Ditangguhkan", "Akses Perlu Review"];
-const auditRows: readonly AuditReadinessRow[] = [];
 const auditColumns: readonly DataTableColumn<AuditReadinessRow>[] = [
   { header: "Waktu", key: "occurred-at", render: (row) => row.occurredAt },
   { header: "Aktivitas", key: "activity", render: (row) => row.activity },
@@ -72,28 +70,22 @@ function isSupportedRole(role: string, roles: readonly AuthorizationRole[]): boo
   return roles.includes(role as AuthorizationRole);
 }
 
-function targetRoleOptionLabel(role: (typeof mvpRoleOptions)[number], roles: readonly AuthorizationRole[]): string {
-  if (!isSupportedRole(role.value, roles)) return `${role.label} — belum tersedia`;
-  if (role.value === "IT_ADMIN") return `${role.label} — memerlukan kewenangan terpisah`;
-  return role.label;
-}
-
-function primaryWorkspaceUnknown(): string {
-  return "—";
-}
-
 export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey: string }>) {
   const [pageState, setPageState] = useState<PageState>("loading");
   const [session, setSession] = useState<SessionProjection | null>(null);
   const [accounts, setAccounts] = useState<IdentityAccountProjection[]>([]);
   const [workspaces, setWorkspaces] = useState<WorkspaceProjection[]>([]);
   const [roles, setRoles] = useState<AuthorizationRole[]>([]);
+  const [candidates, setCandidates] = useState<ProvisioningCandidateProjection[]>([]);
   const [loadError, setLoadError] = useState<unknown>(null);
   const [search, setSearch] = useState("");
   const [accountTab, setAccountTab] = useState("Semua");
   const [workspaceFilter, setWorkspaceFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [accountStatusFilter, setAccountStatusFilter] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("");
+  const [activationFilter, setActivationFilter] = useState("");
+  const [employmentFilter, setEmploymentFilter] = useState("");
   const [selectedAccount, setSelectedAccount] = useState<IdentityAccountProjection | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [governanceAction, setGovernanceAction] = useState<GovernanceAction | null>(null);
@@ -105,10 +97,11 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
   const loadData = useCallback(async () => {
     setLoadError(null);
     try {
-      const [nextAccounts, nextWorkspaces, nextRoles] = await Promise.all([listIdentityAccounts(), listIdentityWorkspaces(), listAssignableRoles()]);
+      const [nextAccounts, nextWorkspaces, nextRoles, nextCandidates] = await Promise.all([listIdentityAccounts(), listIdentityWorkspaces(), listAssignableRoles(), listProvisioningCandidates()]);
       setAccounts(nextAccounts);
       setWorkspaces(nextWorkspaces);
       setRoles(nextRoles);
+      setCandidates(nextCandidates ?? []);
       setPageState("ready");
     } catch (error) {
       setLoadError(error);
@@ -144,28 +137,53 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
   const filteredAccounts = useMemo(() => {
     const query = search.trim().toLowerCase();
     return accounts.filter((account) => {
-      if (accountTab === "Aktif" && !account.active) return false;
-      if (["Belum Memiliki Akun", "Menunggu Aktivasi", "Ditangguhkan", "Dinonaktifkan"].includes(accountTab)) return false;
+      if (accountTab === "Aktif" && (!account.active || account.activation_state !== "ACTIVATED")) return false;
+      if (accountTab === "Menunggu Aktivasi" && account.activation_state !== "PENDING") return false;
+      if (accountTab === "Ditangguhkan" && account.administrative_state !== "SUSPENDED") return false;
+      if (accountTab === "Dinonaktifkan" && account.administrative_state !== "DISABLED") return false;
+      if (accountTab === "Belum Memiliki Akun") return false;
       if (accountStatusFilter === "active" && !account.active) return false;
       if (accountStatusFilter === "inactive" && account.active) return false;
+      if (departmentFilter && account.department_code !== departmentFilter) return false;
+      if (activationFilter && account.activation_state !== activationFilter) return false;
+      if (employmentFilter && account.employment_status !== employmentFilter) return false;
       if (workspaceFilter && !account.workspace_access.some((access) => access.workspace.workspace_id === workspaceFilter)) return false;
       if (roleFilter && !account.workspace_access.some((access) => access.role_refs.includes(roleFilter as AuthorizationRole))) return false;
       if (!query) return true;
-      // Employee name and Employee ID are intentionally excluded until HR linkage exists.
-      return [account.email, account.active ? "Aktif" : "Nonaktif", ...account.workspace_access.flatMap((access) => [access.workspace.workspace_name, ...access.role_refs.map(identityRoleLabel)])].join(" ").toLowerCase().includes(query);
+      return [account.display_name, account.employee_id, account.employee_number, account.position_title, account.department_code, account.email, account.administrative_state, account.activation_state, ...account.workspace_access.flatMap((access) => [access.workspace.workspace_name, ...access.role_refs.map(identityRoleLabel)])].join(" ").toLowerCase().includes(query);
     });
-  }, [accountStatusFilter, accountTab, accounts, roleFilter, search, workspaceFilter]);
+  }, [accountStatusFilter, accountTab, accounts, activationFilter, departmentFilter, employmentFilter, roleFilter, search, workspaceFilter]);
+
+  const filteredCandidates = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return candidates.filter((candidate) => {
+      if (departmentFilter && candidate.department_code !== departmentFilter) return false;
+      if (employmentFilter && candidate.employment_status !== employmentFilter) return false;
+      return !query || [candidate.full_name, candidate.employee_id, candidate.employee_number, candidate.email, candidate.position_title, candidate.department_code].join(" ").toLowerCase().includes(query);
+    });
+  }, [candidates, departmentFilter, employmentFilter, search]);
+
+  const departmentOptions = [...new Set([...accounts.map((account) => account.department_code), ...candidates.map((candidate) => candidate.department_code)].filter((value): value is string => Boolean(value)))].sort();
+  const employmentOptions = [...new Set([...accounts.map((account) => account.employment_status), ...candidates.map((candidate) => candidate.employment_status)].filter((value): value is string => Boolean(value)))].sort();
 
   const columns: readonly DataTableColumn<IdentityAccountProjection>[] = [
-    { header: "Nama", key: "employee-name", render: () => <div className={styles.cellPrimary}><strong>—</strong><span className={styles.cellSecondary}>Sumber HR belum terhubung</span></div> },
-    { header: "ID Karyawan", key: "employee-id", render: () => "—" },
-    { header: "Jabatan", key: "position", render: () => "—" },
-    { header: "Workspace Utama", key: "primary-workspace", render: () => <div className={styles.cellPrimary}><strong>{primaryWorkspaceUnknown()}</strong><span className={styles.cellSecondary}>Penanda ruang kerja utama belum tersedia</span></div> },
-    { header: "Role Utama", key: "primary-role", render: () => <div className={styles.cellPrimary}><strong>—</strong><span className={styles.cellSecondary}>Role utama belum tersedia</span></div> },
+    { header: "Nama", key: "employee-name", render: (account) => <div className={styles.cellPrimary}><strong>{account.display_name}</strong><span className={styles.cellSecondary}>{account.department_code ?? "—"}</span></div> },
+    { header: "ID Karyawan", key: "employee-id", render: (account) => account.employee_number ?? account.employee_id ?? "—" },
+    { header: "Jabatan", key: "position", render: (account) => account.position_title ?? "—" },
+    { header: "Workspace Utama", key: "primary-workspace", render: (account) => workspaceLabel(workspaces.find((item) => item.workspace_id === account.primary_workspace_id)) },
+    { header: "Role Utama", key: "primary-role", render: (account) => identityRoleLabel(account.workspace_access.find((item) => item.workspace.workspace_id === account.primary_workspace_id)?.role_refs[0] ?? "") },
     { header: "Email", key: "account-email", render: (account) => account.email || "—" },
-    { header: "Status Akun", key: "account-status", render: (account) => <Status label={account.active ? "Aktif" : "Nonaktif"} variant={account.active ? "success" : "neutral"} /> },
-    { header: "Status Aktivasi", key: "activation-status", render: () => <Status label="Belum Terhubung" variant="neutral" /> },
-    { header: "Login Terakhir", key: "last-login", render: () => "—" },
+    { header: "Status Akun", key: "account-status", render: (account) => <Status label={account.administrative_state === "ENABLED" ? "Aktif" : account.administrative_state === "SUSPENDED" ? "Ditangguhkan" : "Dinonaktifkan"} variant={account.active ? "success" : "neutral"} /> },
+    { header: "Status Aktivasi", key: "activation-status", render: (account) => <Status label={account.activation_state === "ACTIVATED" ? "Aktif" : account.activation_state === "PENDING" ? "Menunggu Aktivasi" : "Kedaluwarsa"} variant={account.activation_state === "ACTIVATED" ? "success" : "neutral"} /> },
+    { header: "Login Terakhir", key: "last-login", render: (account) => account.last_login_at ? new Date(account.last_login_at).toLocaleString("id-ID") : "—" },
+  ];
+  const candidateColumns: readonly DataTableColumn<ProvisioningCandidateProjection>[] = [
+    { header: "Nama", key: "employee-name", render: (candidate) => candidate.full_name },
+    { header: "ID Karyawan", key: "employee-id", render: (candidate) => candidate.employee_number ?? candidate.employee_id },
+    { header: "Jabatan", key: "position", render: (candidate) => candidate.position_title ?? "—" },
+    { header: "Divisi", key: "department", render: (candidate) => candidate.department_code ?? "—" },
+    { header: "Status Kepegawaian", key: "employment", render: (candidate) => candidate.employment_status },
+    { header: "Email HR", key: "employee-email", render: (candidate) => candidate.email ?? "—" },
   ];
 
   if (pageState === "loading") return <LoadingState label="Memeriksa hak akses IT…" variant="page" />;
@@ -176,34 +194,39 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
 
   const actualWorkspaceKey = activeWorkspaceKey(session) ?? workspaceKey;
   const activeWorkspaceName = activeMembership(session)?.workspace.workspace_name ?? "—";
-  const emptyTitle = ["Semua", "Aktif"].includes(accountTab) ? "Belum ada data" : "Belum Terhubung";
-  const emptyDescription = emptyTitle === "Belum Terhubung" ? "Status ini menunggu sumber lifecycle akun dan aktivasi resmi." : "Belum ada akun yang sesuai dengan tampilan saat ini.";
+  const emptyTitle = "Belum ada data";
+  const emptyDescription = accountTab === "Belum Memiliki Akun" ? "Tidak ada karyawan yang memenuhi syarat provisioning." : "Belum ada akun yang sesuai dengan tampilan saat ini.";
   const manageMemberships = canManageMemberships(session);
 
   return <AppShell navigationSections={navigationForItWorkspace(actualWorkspaceKey)} session={session}>
     <div className={styles.page}>
       <PageHeader actions={<Button iconBefore={<Plus size={16} />} onClick={() => setCreateOpen(true)} variant="primary">Daftarkan Akun</Button>} description="Daftarkan dan kelola akun sistem berdasarkan data tenaga kerja yang telah tersedia." eyebrow="AKSES & IDENTITAS" metadata={`Ruang kerja aktif: ${activeWorkspaceName}`} title="Akun Karyawan" />
-      <section aria-label="Ringkasan akun" className={styles.summaryGrid}>{accountSummary.map((label) => <Metric key={label} label={label} status="Belum Terhubung" value="—" />)}</section>
+      <section aria-label="Ringkasan akun" className={styles.summaryGrid}>
+        <Metric label="Belum Memiliki Akun" status="Kandidat HR" value={candidates.length} />
+        <Metric label="Menunggu Aktivasi" status="Identity" value={accounts.filter((account) => account.activation_state === "PENDING").length} />
+        <Metric label="Akun Aktif" status="Identity" value={accounts.filter((account) => account.active && account.activation_state === "ACTIVATED").length} />
+        <Metric label="Akun Ditangguhkan" status="Identity" value={accounts.filter((account) => account.administrative_state === "SUSPENDED").length} />
+        <Metric label="Akses Perlu Review" status="Identity" value={accounts.filter((account) => account.activation_state === "EXPIRED" || account.workspace_access.every((access) => !access.active)).length} />
+      </section>
       <Tabs ariaLabel="Filter akun karyawan" items={accountTabs.map((label) => ({ id: label, label }))} onValueChange={setAccountTab} value={accountTab} />
       <Toolbar filters={<div className={styles.filters}>
-        <label className={styles.filterGroup}><span className={styles.filterLabel}>Divisi</span><select aria-label="Divisi" className={styles.toolbarSelect} disabled value="unavailable"><option value="unavailable">Belum tersedia</option></select></label>
+        <label className={styles.filterGroup}><span className={styles.filterLabel}>Divisi</span><select aria-label="Divisi" className={styles.toolbarSelect} onChange={(event) => setDepartmentFilter(event.target.value)} value={departmentFilter}><option value="">Semua divisi</option>{departmentOptions.map((department) => <option key={department} value={department}>{department}</option>)}</select></label>
         <label className={styles.filterGroup}><span className={styles.filterLabel}>Workspace</span><select aria-label="Workspace" className={styles.toolbarSelect} disabled={workspaces.length === 0} onChange={(event) => setWorkspaceFilter(event.target.value)} value={workspaceFilter}><option value="">{workspaces.length ? "Semua workspace" : "Belum tersedia"}</option>{workspaces.map((workspace) => <option key={workspace.workspace_id} value={workspace.workspace_id}>{workspace.workspace_name}</option>)}</select></label>
         <label className={styles.filterGroup}><span className={styles.filterLabel}>Role</span><select aria-label="Role" className={styles.toolbarSelect} disabled={roles.length === 0} onChange={(event) => setRoleFilter(event.target.value)} value={roleFilter}><option value="">{roles.length ? "Semua role" : "Belum tersedia"}</option>{roles.map((role) => <option key={role} value={role}>{identityRoleLabel(role)}</option>)}</select></label>
         <label className={styles.filterGroup}><span className={styles.filterLabel}>Status Akun</span><select aria-label="Status Akun" className={styles.toolbarSelect} onChange={(event) => setAccountStatusFilter(event.target.value)} value={accountStatusFilter}><option value="">Semua status akun</option><option value="active">Aktif</option><option value="inactive">Nonaktif</option></select></label>
-        <label className={styles.filterGroup}><span className={styles.filterLabel}>Status Aktivasi</span><select aria-label="Status Aktivasi" className={styles.toolbarSelect} disabled value="unavailable"><option value="unavailable">Belum tersedia</option></select></label>
-        <label className={styles.filterGroup}><span className={styles.filterLabel}>Status Kepegawaian</span><select aria-label="Status Kepegawaian" className={styles.toolbarSelect} disabled value="unavailable"><option value="unavailable">Belum tersedia</option></select></label>
-      </div>} search={<div className={styles.toolbarSearch}><Users aria-hidden="true" size={16} /><input aria-label="Cari akun" onChange={(event) => setSearch(event.target.value)} placeholder="Cari email, ruang kerja, atau role…" type="search" value={search} /></div>} />
-      <p className={styles.formHint}>Pencarian Nama dan ID Karyawan tersedia setelah sumber HR terhubung.</p>
-      <DataTable caption={`Daftar akun karyawan — ${accountTab}`} columns={columns} emptyState={<EmptyState icon={<UserRound size={24} />} title={emptyTitle} description={emptyDescription} />} getRowKey={(account) => account.actor_id} loading={false} rowAction={(account) => <Button onClick={() => setSelectedAccount(account)} size="sm" variant="ghost">Lihat Detail</Button>} rows={filteredAccounts} />
+        <label className={styles.filterGroup}><span className={styles.filterLabel}>Status Aktivasi</span><select aria-label="Status Aktivasi" className={styles.toolbarSelect} onChange={(event) => setActivationFilter(event.target.value)} value={activationFilter}><option value="">Semua status aktivasi</option><option value="PENDING">Menunggu Aktivasi</option><option value="ACTIVATED">Aktif</option><option value="EXPIRED">Kedaluwarsa</option></select></label>
+        <label className={styles.filterGroup}><span className={styles.filterLabel}>Status Kepegawaian</span><select aria-label="Status Kepegawaian" className={styles.toolbarSelect} onChange={(event) => setEmploymentFilter(event.target.value)} value={employmentFilter}><option value="">Semua status kepegawaian</option>{employmentOptions.map((state) => <option key={state} value={state}>{state}</option>)}</select></label>
+      </div>} search={<div className={styles.toolbarSearch}><Users aria-hidden="true" size={16} /><input aria-label="Cari akun" onChange={(event) => setSearch(event.target.value)} placeholder="Cari nama, ID karyawan, email, atau role…" type="search" value={search} /></div>} />
+      {accountTab === "Belum Memiliki Akun" ? <DataTable caption="Karyawan yang belum memiliki akun" columns={candidateColumns} emptyState={<EmptyState icon={<UserRound size={24} />} title={emptyTitle} description={emptyDescription} />} getRowKey={(candidate) => candidate.employee_id} loading={false} rowAction={() => <Button onClick={() => setCreateOpen(true)} size="sm" variant="ghost">Daftarkan Akun</Button>} rows={filteredCandidates} /> : <DataTable caption={`Daftar akun karyawan — ${accountTab}`} columns={columns} emptyState={<EmptyState icon={<UserRound size={24} />} title={emptyTitle} description={emptyDescription} />} getRowKey={(account) => account.actor_id} loading={false} rowAction={(account) => <Button onClick={() => setSelectedAccount(account)} size="sm" variant="ghost">Lihat Detail</Button>} rows={filteredAccounts} />}
     </div>
-    <AccountDetailDrawer account={selectedAccount} canManageMemberships={manageMemberships} formWorkspaces={workspaces} key={selectedAccount?.actor_id ?? "empty-account"} onGovernance={(account) => { setGovernanceAction("suspend"); setGovernanceAccount(account); }} onMembership={(action, account, workspace) => { setMembershipAction(action); setMembershipAccount(account); setMembershipWorkspace(workspace ?? null); }} onClose={() => setSelectedAccount(null)} open={Boolean(selectedAccount)} />
-    <AccountReadinessDialog formRoles={roles} formWorkspaces={workspaces} onClose={() => setCreateOpen(false)} open={createOpen} />
-    <GovernanceReadinessDialog account={governanceAccount} action={governanceAction} onClose={() => { setGovernanceAction(null); setGovernanceAccount(null); }} open={Boolean(governanceAction)} />
-    <MembershipReadinessDialog action={membershipAction} account={membershipAccount} formRoles={roles} formWorkspaces={workspaces} onClose={() => { setMembershipAction(null); setMembershipAccount(null); setMembershipWorkspace(null); }} open={Boolean(membershipAction)} workspace={membershipWorkspace} />
+    <AccountDetailDrawer account={selectedAccount} canManageMemberships={manageMemberships} formWorkspaces={workspaces} key={selectedAccount?.actor_id ?? "empty-account"} onGovernance={(action, account) => { setGovernanceAction(action); setGovernanceAccount(account); }} onMembership={(action, account, workspace) => { setMembershipAction(action); setMembershipAccount(account); setMembershipWorkspace(workspace ?? null); }} onClose={() => setSelectedAccount(null)} open={Boolean(selectedAccount)} />
+    <AccountReadinessDialog candidates={candidates} formRoles={roles} formWorkspaces={workspaces} onClose={() => setCreateOpen(false)} onCreated={() => { setCreateOpen(false); void loadData(); }} open={createOpen} />
+    <GovernanceReadinessDialog account={governanceAccount} action={governanceAction} onClose={() => { setGovernanceAction(null); setGovernanceAccount(null); }} onSaved={() => { setGovernanceAction(null); setGovernanceAccount(null); setSelectedAccount(null); void loadData(); }} open={Boolean(governanceAction)} />
+    <MembershipReadinessDialog action={membershipAction} account={membershipAccount} formRoles={roles} formWorkspaces={workspaces} onClose={() => { setMembershipAction(null); setMembershipAccount(null); setMembershipWorkspace(null); }} onSaved={() => { setMembershipAction(null); setMembershipAccount(null); setMembershipWorkspace(null); void loadData(); }} open={Boolean(membershipAction)} workspace={membershipWorkspace} />
   </AppShell>;
 }
 
-function AccountDetailDrawer({ account, canManageMemberships, formWorkspaces, onClose, onGovernance, onMembership, open }: Readonly<{ account: IdentityAccountProjection | null; canManageMemberships: boolean; formWorkspaces: readonly WorkspaceProjection[]; onClose: () => void; onGovernance: (account: IdentityAccountProjection) => void; onMembership: (action: MembershipAction, account: IdentityAccountProjection, workspace?: WorkspaceProjection) => void; open: boolean }>) {
+function AccountDetailDrawer({ account, canManageMemberships, formWorkspaces, onClose, onGovernance, onMembership, open }: Readonly<{ account: IdentityAccountProjection | null; canManageMemberships: boolean; formWorkspaces: readonly WorkspaceProjection[]; onClose: () => void; onGovernance: (action: GovernanceAction, account: IdentityAccountProjection) => void; onMembership: (action: MembershipAction, account: IdentityAccountProjection, workspace?: WorkspaceProjection) => void; open: boolean }>) {
   const [activeTab, setActiveTab] = useState("Ringkasan");
   if (!account) return null;
   const memberships = account.workspace_access;
@@ -212,24 +235,24 @@ function AccountDetailDrawer({ account, canManageMemberships, formWorkspaces, on
     <Tabs ariaLabel="Detail akun karyawan" items={tabs.map((label) => ({ id: label, label }))} onValueChange={setActiveTab} value={activeTab} />
     {activeTab === "Ringkasan" ? <div className={styles.detailSection}>
       <div className={styles.detailGrid}>
-        <DetailItem label="Nama" value="—" />
+        <DetailItem label="Nama" value={account.display_name || "—"} />
         <DetailItem label="Nama Akun" value={account.display_name || "—"} />
-        <DetailItem label="ID Karyawan" value="—" />
-        <DetailItem label="Jabatan" value="—" />
-        <DetailItem label="Divisi" value="—" />
+        <DetailItem label="ID Karyawan" value={account.employee_number ?? account.employee_id ?? "—"} />
+        <DetailItem label="Jabatan" value={account.position_title ?? "—"} />
+        <DetailItem label="Divisi" value={account.department_code ?? "—"} />
         <DetailItem label="Email Akun" value={account.email || "—"} />
-        <DetailItem label="Status Akun" value={account.active ? "Aktif" : "Nonaktif"} />
-        <DetailItem label="Status Aktivasi" value="Belum Terhubung" />
-        <DetailItem label="Workspace Utama" value={primaryWorkspaceUnknown()} />
-        <DetailItem label="Status Kepegawaian" value="Belum Terhubung" />
-        <DetailItem label="Login Terakhir" value="—" />
-        <DetailItem label="Tanggal Dibuat" value="—" />
+        <DetailItem label="Status Akun" value={account.administrative_state} />
+        <DetailItem label="Status Aktivasi" value={account.activation_state} />
+        <DetailItem label="Workspace Utama" value={workspaceLabel(formWorkspaces.find((item) => item.workspace_id === account.primary_workspace_id))} />
+        <DetailItem label="Status Kepegawaian" value={account.employment_status ?? "—"} />
+        <DetailItem label="Login Terakhir" value={account.last_login_at ? new Date(account.last_login_at).toLocaleString("id-ID") : "—"} />
+        <DetailItem label="Tanggal Dibuat" value={account.created_at ? new Date(account.created_at).toLocaleDateString("id-ID") : "—"} />
       </div>
       <div className={styles.actions}>
         <Button disabled variant="secondary">Edit Akun belum tersedia</Button>
         <Button disabled variant="secondary">Kirim Ulang Aktivasi belum tersedia</Button>
         <Button disabled variant="secondary">Reset Akses belum tersedia</Button>
-        {account.active ? <Button onClick={() => onGovernance(account)} variant="secondary">Ajukan Penangguhan Akun</Button> : <Button disabled variant="secondary">Aktifkan Kembali belum tersedia</Button>}
+        {account.active ? <Button onClick={() => onGovernance("suspend", account)} variant="secondary">Tangguhkan Akun</Button> : <Button onClick={() => onGovernance("activate", account)} variant="secondary">Aktifkan Kembali</Button>}
       </div>
     </div> : null}
     {activeTab === "Workspace & Akses" ? <div className={styles.detailSection}>
@@ -243,66 +266,163 @@ function AccountDetailDrawer({ account, canManageMemberships, formWorkspaces, on
       </div>) : <ItSourceStateView description="Akun belum memiliki akses ruang kerja dari sumber yang tersedia." state="connected-empty" title="Akses" />}
       {formWorkspaces.length === 0 ? <p className={styles.formHint}>Pilihan ruang kerja belum tersedia.</p> : null}
     </div> : null}
-    {activeTab === "Sesi" ? <div className={styles.detailSection}><ItSourceStateView description="Perangkat, peramban, waktu dibuat, dan aktivitas terakhir akan tampil setelah sumber sesi tersedia." state="unavailable" title="Sesi" /><Button disabled variant="secondary">Cabut Sesi belum tersedia</Button></div> : null}
-    {activeTab === "Riwayat" ? <div className={styles.detailSection}>
-      <DataTable caption="Riwayat akses dan aktivitas administrasi akun" columns={auditColumns} emptyState={<ItSourceStateView description="Riwayat akses dan aktivitas administrasi akun belum tersedia dari sumber audit identitas." state="unavailable" title="Riwayat" />} rows={auditRows} />
-    </div> : null}
+    {activeTab === "Sesi" ? <SessionAdminSection actorId={account.actor_id} workspaces={formWorkspaces} /> : null}
+    {activeTab === "Riwayat" ? <IdentityHistorySection actorId={account.actor_id} /> : null}
   </Drawer>;
+}
+
+function SessionAdminSection({ actorId, workspaces }: Readonly<{ actorId: string; workspaces: readonly WorkspaceProjection[] }>) {
+  const [sessions, setSessions] = useState<Awaited<ReturnType<typeof listActorSessions>>>([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState("");
+  const reload = useCallback(async () => {
+    setLoading(true); setError("");
+    try { setSessions(await listActorSessions(actorId)); }
+    catch (cause) { setError(humanizeIdentityError(cause)); }
+    finally { setLoading(false); }
+  }, [actorId]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => void reload(), 0);
+    return () => window.clearTimeout(timer);
+  }, [reload]);
+  async function revoke(sessionId: string) {
+    setBusyId(sessionId); setError("");
+    try { await revokeActorSession(actorId, sessionId); await reload(); }
+    catch (cause) { setError(humanizeIdentityError(cause)); }
+    finally { setBusyId(""); }
+  }
+  if (loading) return <LoadingState label="Memuat sesi akun…" />;
+  return <div className={styles.detailSection}>
+    {error ? <p role="alert" className={styles.formHint}>{error}</p> : null}
+    {sessions.length ? sessions.map((session) => <div className={styles.membership} key={session.session_id}>
+      <div className={styles.membershipHeader}><strong>{session.session_id}</strong><Status label={session.revoked ? "Dicabut" : session.expired ? "Kedaluwarsa" : "Aktif"} variant={session.revoked || session.expired ? "neutral" : "success"} /></div>
+      <div className={styles.detailGrid}><DetailItem label="Dibuat" value={new Date(session.issued_at).toLocaleString("id-ID")} /><DetailItem label="Berakhir" value={new Date(session.expires_at).toLocaleString("id-ID")} /><DetailItem label="Workspace Aktif" value={workspaceLabel(workspaces.find((item) => item.workspace_id === session.active_workspace_id))} /><DetailItem label="Aktivitas Terakhir" value={session.last_activity_at ? new Date(session.last_activity_at).toLocaleString("id-ID") : "—"} /></div>
+      {!session.revoked && !session.expired ? <Button disabled={busyId === session.session_id} onClick={() => void revoke(session.session_id)} size="sm" variant="ghost">{busyId === session.session_id ? "Mencabut…" : "Cabut Sesi"}</Button> : null}
+    </div>) : <ItSourceStateView description="Akun ini belum memiliki sesi autentikasi." state="connected-empty" title="Sesi" />}
+  </div>;
+}
+
+function IdentityHistorySection({ actorId }: Readonly<{ actorId: string }>) {
+  const [rows, setRows] = useState<AuditReadinessRow[]>([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let cancelled = false;
+    void listActorIdentityHistory(actorId).then((history) => {
+      if (cancelled) return;
+      setRows(history.map((item) => ({ id: `${item.occurred_at}:${item.event_type}:${item.entity_id}`, occurredAt: new Date(item.occurred_at).toLocaleString("id-ID"), activity: item.event_type, object: item.entity_type, workspace: item.workspace_id ?? "—", actor: item.actor_id, result: item.outcome, source: "Backend" })));
+    }).catch((cause: unknown) => { if (!cancelled) setError(humanizeIdentityError(cause)); }).finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [actorId]);
+  return <div className={styles.detailSection}>
+    {error ? <p role="alert" className={styles.formHint}>{error}</p> : null}
+    {loading ? <LoadingState label="Memuat riwayat identitas…" /> : <DataTable caption="Riwayat akses dan aktivitas administrasi akun" columns={auditColumns} emptyState={<ItSourceStateView description="Belum ada perubahan identitas yang tercatat." state="connected-empty" title="Riwayat" />} rows={rows} />}
+  </div>;
 }
 
 function DetailItem({ label, value }: Readonly<{ label: string; value: string }>) {
   return <div><span className={styles.detailLabel}>{label}</span><span className={styles.detailValue}>{value}</span></div>;
 }
 
-function AccountReadinessDialog({ formRoles, formWorkspaces, onClose, open }: Readonly<{ formRoles: readonly AuthorizationRole[]; formWorkspaces: readonly WorkspaceProjection[]; onClose: () => void; open: boolean }>) {
-  return <UiDialog description="Pendaftaran akun menunggu sumber karyawan dan alur aktivasi resmi. Antarmuka tidak meminta kata sandi atau membuat akun secara lokal." footer={<><Button onClick={onClose} variant="secondary">Tutup</Button><Button disabled type="button">Pendaftaran akun belum tersedia</Button></>} onClose={onClose} open={open} size="lg" title="Daftarkan Akun Karyawan">
-    <form onSubmit={(event) => event.preventDefault()}>
+function AccountReadinessDialog({ candidates = [], formRoles, formWorkspaces, onClose, onCreated, open }: Readonly<{ candidates?: readonly ProvisioningCandidateProjection[]; formRoles: readonly AuthorizationRole[]; formWorkspaces: readonly WorkspaceProjection[]; onClose: () => void; onCreated: () => void; open: boolean }>) {
+  const [employeeId, setEmployeeId] = useState("");
+  const [email, setEmail] = useState("");
+  const [workspaceId, setWorkspaceId] = useState("");
+  const [role, setRole] = useState<AuthorizationRole | "">("");
+  const [effectiveDate, setEffectiveDate] = useState(new Date().toISOString().slice(0, 10));
+  const [expiresDate, setExpiresDate] = useState("");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const employee = candidates.find((candidate) => candidate.employee_id === employeeId);
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!employee || !role || !workspaceId) return;
+    setBusy(true); setError("");
+    try {
+      await provisionAccount({ employee_id: employee.employee_id, email: email || employee.email || "", workspace_id: workspaceId, role_refs: [role], effective_at: new Date(`${effectiveDate}T00:00:00Z`).toISOString(), expires_at: expiresDate ? new Date(`${expiresDate}T23:59:59Z`).toISOString() : null, note: note || null });
+      onCreated();
+    } catch (cause) { setError(humanizeIdentityError(cause)); }
+    finally { setBusy(false); }
+  }
+  return <UiDialog description="Pilih karyawan yang memenuhi syarat. Karyawan akan membuat kata sandi sendiri saat aktivasi." footer={<><Button onClick={onClose} variant="secondary">Tutup</Button><Button disabled={busy || !employee || !role || !workspaceId} form="identity-provision-form" type="submit">{busy ? "Menyimpan…" : "Daftarkan Akun"}</Button></>} onClose={onClose} open={open} size="lg" title="Daftarkan Akun Karyawan">
+    <form id="identity-provision-form" onSubmit={(event) => void submit(event)}>
       <section aria-labelledby="it-register-employee"><h3 id="it-register-employee">1. Karyawan</h3>
-        <FormField description="Karyawan hanya dapat dipilih dari sumber HR resmi." htmlFor="it-employee-ref" label="Karyawan" required><select className={styles.formControl} disabled id="it-employee-ref"><option>Pilihan karyawan belum tersedia.</option></select></FormField>
-        <div className={styles.detailGrid}><DetailItem label="Nama" value="—" /><DetailItem label="ID Karyawan" value="—" /><DetailItem label="Jabatan" value="—" /><DetailItem label="Divisi" value="—" /></div>
+        <FormField description="Pilihan hanya memuat karyawan aktif yang belum terhubung ke akun." htmlFor="it-employee-ref" label="Karyawan" required><select className={styles.formControl} id="it-employee-ref" onChange={(event) => setEmployeeId(event.target.value)} required value={employeeId}><option value="">Pilih karyawan</option>{candidates.map((candidate) => <option key={candidate.employee_id} value={candidate.employee_id}>{candidate.full_name} · {candidate.employee_number}</option>)}</select></FormField>
+        <div className={styles.detailGrid}><DetailItem label="Nama" value={employee?.full_name ?? "—"} /><DetailItem label="ID Karyawan" value={employee?.employee_number ?? employee?.employee_id ?? "—"} /><DetailItem label="Jabatan" value={employee?.position_title ?? "—"} /><DetailItem label="Divisi" value={employee?.department_code ?? "—"} /></div>
       </section>
       <section aria-labelledby="it-register-identity"><h3 id="it-register-identity">2. Identitas Akun</h3>
-        <FormField htmlFor="it-login-identifier" label="Email Akun" required><input className={styles.formControl} id="it-login-identifier" placeholder="Alamat email atau nama pengguna" /></FormField>
+        <FormField htmlFor="it-login-identifier" label="Email Akun" required><input className={styles.formControl} id="it-login-identifier" onChange={(event) => setEmail(event.target.value)} placeholder="Alamat email" required type="email" value={email || employee?.email || ""} /></FormField>
       </section>
       <section aria-labelledby="it-register-access"><h3 id="it-register-access">3. Workspace & Role</h3>
-        <FormField description={formWorkspaces.length ? "Penanda workspace utama belum tersedia dari sumber identitas resmi." : "Pilihan ruang kerja belum tersedia."} htmlFor="it-primary-workspace" label="Workspace Utama" required><select className={styles.formControl} disabled={formWorkspaces.length === 0} id="it-primary-workspace"><option value="">{formWorkspaces.length ? "Pilih workspace" : "Pilihan workspace belum tersedia."}</option>{formWorkspaces.map((workspace) => <option key={workspace.workspace_id} value={workspace.workspace_id}>{workspace.workspace_name}</option>)}</select></FormField>
-        <FormField description="Role lama yang sudah ada tidak digunakan untuk penugasan baru. Role target yang belum ada di katalog tetap dinonaktifkan." htmlFor="it-role" label="Role" required><select className={styles.formControl} disabled={formRoles.length === 0} id="it-role"><option value="">{formRoles.length ? "Pilih role" : "Pilihan role belum tersedia."}</option>{mvpRoleOptions.map((role) => <option disabled={!isSupportedRole(role.value, formRoles) || role.value === "IT_ADMIN"} key={role.value} value={role.value}>{targetRoleOptionLabel(role, formRoles)}</option>)}</select></FormField>
-        <div className={styles.formGrid}><FormField htmlFor="it-effective-date" label="Tanggal Aktif" required><input className={styles.formControl} id="it-effective-date" type="date" /></FormField><FormField htmlFor="it-expiration-date" label="Tanggal Berakhir"><input className={styles.formControl} id="it-expiration-date" type="date" /></FormField></div>
+        <FormField htmlFor="it-primary-workspace" label="Workspace Utama" required><select className={styles.formControl} id="it-primary-workspace" onChange={(event) => setWorkspaceId(event.target.value)} required value={workspaceId}><option value="">Pilih workspace</option>{formWorkspaces.map((workspace) => <option key={workspace.workspace_id} value={workspace.workspace_id}>{workspace.workspace_name}</option>)}</select></FormField>
+        <FormField htmlFor="it-role" label="Role" required><select className={styles.formControl} id="it-role" onChange={(event) => setRole(event.target.value as AuthorizationRole)} required value={role}><option value="">Pilih role</option>{assignableRoleOptions.filter((item) => isSupportedRole(item.value, formRoles)).map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></FormField>
+        <div className={styles.formGrid}><FormField htmlFor="it-effective-date" label="Tanggal Aktif" required><input className={styles.formControl} id="it-effective-date" onChange={(event) => setEffectiveDate(event.target.value)} required type="date" value={effectiveDate} /></FormField><FormField htmlFor="it-expiration-date" label="Tanggal Berakhir"><input className={styles.formControl} id="it-expiration-date" onChange={(event) => setExpiresDate(event.target.value)} type="date" value={expiresDate} /></FormField><FormField htmlFor="it-account-note" label="Catatan"><textarea className={styles.formControl} id="it-account-note" onChange={(event) => setNote(event.target.value)} rows={3} value={note} /></FormField></div>
       </section>
-      <section aria-labelledby="it-register-review"><h3 id="it-register-review">4. Review</h3>
-        <div className={styles.detailGrid}><DetailItem label="Karyawan" value="Belum Terhubung" /><DetailItem label="ID Karyawan" value="—" /><DetailItem label="Email Akun" value="—" /><DetailItem label="Workspace Utama" value={primaryWorkspaceUnknown()} /><DetailItem label="Role" value="Belum Dinilai" /><DetailItem label="Tanggal Aktif" value="—" /><DetailItem label="Tanggal Berakhir" value="—" /><DetailItem label="Catatan" value="—" /></div>
-        <p className={styles.formHint}>Aktivasi aman dan penentuan kata sandi dilakukan oleh karyawan melalui layanan resmi. Jenis akun belum menjadi pilihan pendaftaran.</p>
-      </section>
+      {error ? <p role="alert" className={styles.formHint}>{error}</p> : null}
     </form>
   </UiDialog>;
 }
 
-function GovernanceReadinessDialog({ account, action, onClose, open }: Readonly<{ account: IdentityAccountProjection | null; action: GovernanceAction | null; onClose: () => void; open: boolean }>) {
-  return <UiDialog description="Penangguhan akun memerlukan alasan, waktu berlaku, bukti, dan alur resmi." footer={<><Button onClick={onClose} variant="secondary">Tutup</Button><Button disabled type="button">Pengajuan belum tersedia</Button></>} onClose={onClose} open={open} title={action === "suspend" ? "Ajukan Penangguhan Akun" : "Tindakan Akun"}>
-    <form onSubmit={(event) => event.preventDefault()}><div className={styles.formGrid}>
+function GovernanceReadinessDialog({ account, action, onClose, onSaved, open }: Readonly<{ account: IdentityAccountProjection | null; action: GovernanceAction | null; onClose: () => void; onSaved: () => void; open: boolean }>) {
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!account || !action) return;
+    setBusy(true); setError("");
+    try { await changeAccountState(account.actor_id, action === "activate", reason); onSaved(); }
+    catch (cause) { setError(humanizeIdentityError(cause)); }
+    finally { setBusy(false); }
+  }
+  return <UiDialog description="Perubahan status akun dicatat oleh Backend dan tidak mengubah data kepegawaian." footer={<><Button onClick={onClose} variant="secondary">Tutup</Button><Button disabled={busy || !reason.trim()} form="identity-governance-form" type="submit">{busy ? "Menyimpan…" : action === "suspend" ? "Tangguhkan Akun" : "Aktifkan Kembali"}</Button></>} onClose={onClose} open={open} title={action === "suspend" ? "Tangguhkan Akun" : "Aktifkan Kembali"}>
+    <form id="identity-governance-form" onSubmit={(event) => void submit(event)}><div className={styles.formGrid}>
       <FormField htmlFor="governance-user" label="Akun" required><input className={styles.formControl} id="governance-user" readOnly value={account?.display_name || "—"} /></FormField>
-      <FormField description="Status akun tidak mengubah status kepegawaian." htmlFor="governance-reason" label="Alasan" required><textarea className={styles.formControl} id="governance-reason" placeholder="Jelaskan alasan pengajuan" required rows={3} /></FormField>
-      <FormField htmlFor="governance-effective-at" label="Tanggal Berlaku" required><input className={styles.formControl} id="governance-effective-at" required type="datetime-local" /></FormField>
-      <FormField htmlFor="governance-evidence" label="Bukti Pendukung"><input className={styles.formControl} id="governance-evidence" placeholder="Nomor arsip, dokumen, atau tautan referensi" /></FormField>
-    </div><p className={styles.formHint}>Penangguhan akun berbeda dari pemutusan hubungan kerja. Tidak ada perubahan akun yang dikirim.</p></form>
+      <FormField description="Status akun tidak mengubah status kepegawaian." htmlFor="governance-reason" label="Alasan" required><textarea className={styles.formControl} id="governance-reason" onChange={(event) => setReason(event.target.value)} placeholder="Jelaskan alasan perubahan" required rows={3} value={reason} /></FormField>
+    </div>{error ? <p role="alert" className={styles.formHint}>{error}</p> : null}</form>
   </UiDialog>;
 }
 
-function MembershipReadinessDialog({ account, action, formRoles, formWorkspaces, onClose, open, workspace }: Readonly<{ account: IdentityAccountProjection | null; action: MembershipAction | null; formRoles: readonly AuthorizationRole[]; formWorkspaces: readonly WorkspaceProjection[]; onClose: () => void; open: boolean; workspace: WorkspaceProjection | null }>) {
+function MembershipReadinessDialog({ account, action, formRoles, formWorkspaces, onClose, onSaved, open, workspace }: Readonly<{ account: IdentityAccountProjection | null; action: MembershipAction | null; formRoles: readonly AuthorizationRole[]; formWorkspaces: readonly WorkspaceProjection[]; onClose: () => void; onSaved: () => void; open: boolean; workspace: WorkspaceProjection | null }>) {
   const revoke = action === "revoke";
   const edit = action === "edit";
   const title = revoke ? "Cabut Akses" : edit ? "Edit Akses" : "Tambah Workspace";
-  return <UiDialog description="Perubahan workspace dan role menunggu sumber identitas resmi yang mendukung tanggal berlaku, konflik, dan riwayat." footer={<><Button onClick={onClose} variant="secondary">Tutup</Button><Button disabled type="button">Penyimpanan akses belum tersedia</Button></>} onClose={onClose} open={open} size="lg" title={title}>
-    <form onSubmit={(event) => event.preventDefault()}><div className={styles.formGrid}>
+  const existing = account?.workspace_access.find((item) => item.workspace.workspace_id === workspace?.workspace_id);
+  const [workspaceId, setWorkspaceId] = useState(workspace?.workspace_id ?? "");
+  const [role, setRole] = useState<AuthorizationRole | "">(existing?.role_refs[0] ?? "");
+  const [effectiveDate, setEffectiveDate] = useState(new Date().toISOString().slice(0, 10));
+  const [expiresDate, setExpiresDate] = useState("");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!account) return;
+    setBusy(true); setError("");
+    try {
+      if (revoke) await revokeMembership(account.actor_id, workspaceId, note);
+      else {
+        if (!role || !workspaceId) return;
+        const payload = { workspace_id: workspaceId, role_refs: [role] as [AuthorizationRole], effective_at: new Date(`${effectiveDate}T00:00:00Z`).toISOString(), expires_at: expiresDate ? new Date(`${expiresDate}T23:59:59Z`).toISOString() : null, note: note || null };
+        if (edit) await updateMembership(account.actor_id, payload);
+        else await addMembership(account.actor_id, payload);
+      }
+      onSaved();
+    } catch (cause) { setError(humanizeIdentityError(cause)); }
+    finally { setBusy(false); }
+  }
+  return <UiDialog description="Perubahan workspace dan role diproses oleh Backend dan tercatat pada audit identitas." footer={<><Button onClick={onClose} variant="secondary">Tutup</Button><Button disabled={busy || (!revoke && !role)} form="identity-membership-form" type="submit">{busy ? "Menyimpan…" : title}</Button></>} onClose={onClose} open={open} size="lg" title={title}>
+    <form id="identity-membership-form" onSubmit={(event) => void submit(event)}><div className={styles.formGrid}>
       <FormField htmlFor="membership-account" label="Akun" required><input className={styles.formControl} id="membership-account" readOnly value={account?.display_name || "—"} /></FormField>
-      <FormField htmlFor="membership-workspace" label="Workspace" required><select className={styles.formControl} disabled={edit || revoke || formWorkspaces.length === 0} id="membership-workspace"><option value="">{workspace?.workspace_name ?? (formWorkspaces.length ? "Pilih workspace" : "Pilihan workspace belum tersedia.")}</option>{!edit && !revoke ? formWorkspaces.map((candidate) => <option key={candidate.workspace_id} value={candidate.workspace_id}>{candidate.workspace_name}</option>) : null}</select></FormField>
-      {!revoke ? <FormField description="Role utama berlaku dalam workspace ini. Role target yang belum ada di katalog tetap dinonaktifkan." htmlFor="membership-role" label="Role" required><select className={styles.formControl} disabled={formRoles.length === 0} id="membership-role"><option value="">Pilih role</option>{mvpRoleOptions.map((role) => <option disabled={!isSupportedRole(role.value, formRoles) || role.value === "IT_ADMIN"} key={role.value} value={role.value}>{targetRoleOptionLabel(role, formRoles)}</option>)}</select></FormField> : null}
-      {!revoke ? <FormField htmlFor="membership-effective-date" label="Tanggal Aktif" required><input className={styles.formControl} id="membership-effective-date" required type="date" /></FormField> : null}
-      {!revoke ? <FormField htmlFor="membership-expiration-date" label="Tanggal Berakhir"><input className={styles.formControl} id="membership-expiration-date" type="date" /></FormField> : null}
-      {revoke ? <FormField description="Isi jika pencabutan dijadwalkan." htmlFor="membership-effective-at" label="Berlaku Mulai"><input className={styles.formControl} id="membership-effective-at" type="datetime-local" /></FormField> : null}
-      <div className={styles.formFull}><FormField htmlFor="membership-reason" label={revoke ? "Alasan" : "Alasan / Catatan"} required={revoke}><textarea className={styles.formControl} id="membership-reason" placeholder="Jelaskan kebutuhan atau alasan perubahan" required={revoke} rows={3} /></FormField></div>
+      <FormField htmlFor="membership-workspace" label="Workspace" required><select className={styles.formControl} disabled={edit || revoke} id="membership-workspace" onChange={(event) => setWorkspaceId(event.target.value)} required value={workspaceId}><option value="">Pilih workspace</option>{formWorkspaces.filter((candidate) => edit || revoke || !account?.workspace_access.some((access) => access.workspace.workspace_id === candidate.workspace_id)).map((candidate) => <option key={candidate.workspace_id} value={candidate.workspace_id}>{candidate.workspace_name}</option>)}</select></FormField>
+      {!revoke ? <FormField htmlFor="membership-role" label="Role" required><select className={styles.formControl} id="membership-role" onChange={(event) => setRole(event.target.value as AuthorizationRole)} required value={role}><option value="">Pilih role</option>{assignableRoleOptions.filter((item) => isSupportedRole(item.value, formRoles)).map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></FormField> : null}
+      {!revoke ? <FormField htmlFor="membership-effective-date" label="Tanggal Aktif" required><input className={styles.formControl} id="membership-effective-date" onChange={(event) => setEffectiveDate(event.target.value)} required type="date" value={effectiveDate} /></FormField> : null}
+      {!revoke ? <FormField htmlFor="membership-expiration-date" label="Tanggal Berakhir"><input className={styles.formControl} id="membership-expiration-date" onChange={(event) => setExpiresDate(event.target.value)} type="date" value={expiresDate} /></FormField> : null}
+      <div className={styles.formFull}><FormField htmlFor="membership-reason" label={revoke ? "Alasan" : "Alasan / Catatan"} required={revoke}><textarea className={styles.formControl} id="membership-reason" onChange={(event) => setNote(event.target.value)} placeholder="Jelaskan kebutuhan atau alasan perubahan" required={revoke} rows={3} value={note} /></FormField></div>
       <div className={styles.formFull}><FormField htmlFor="membership-evidence" label="Bukti Pendukung"><input className={styles.formControl} id="membership-evidence" placeholder="Nomor arsip, dokumen, atau tautan referensi" /></FormField></div>
-    </div><p className={styles.formHint}>{revoke ? "Pencabutan bukan penghapusan; riwayat membership harus tetap dapat diaudit." : "Workspace tambahan tidak diberikan otomatis dan perubahan membership tidak membuat ulang akun."}</p></form>
+    </div>{error ? <p role="alert" className={styles.formHint}>{error}</p> : null}<p className={styles.formHint}>{revoke ? "Pencabutan bukan penghapusan; riwayat membership harus tetap dapat diaudit." : "Workspace tambahan tidak diberikan otomatis dan perubahan membership tidak membuat ulang akun."}</p></form>
   </UiDialog>;
 }
 

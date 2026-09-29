@@ -44,7 +44,7 @@ function makePrincipal(
       active: true,
       data_scope: "WORKSPACE",
       permission_refs: [],
-      role_refs: ["WORKSPACE_MEMBER"],
+      role_refs: ["DIVISION_MEMBER"],
       scope_refs: ["workspace_property"],
       workspace: {
         active: true,
@@ -146,14 +146,14 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       expect(screen.queryByRole("button", { name: /Tambah Tugas/i })).not.toBeInTheDocument();
     });
 
-    it("WORKSPACE_LEAD tanpa permission task.create TIDAK otomatis mendapatkan izin tambah", () => {
+    it("DIVISION_LEAD tanpa permission task.create TIDAK otomatis mendapatkan izin tambah", () => {
       const leadSessionWithoutPerm = authenticatedSession(
         makePrincipal({
           active_workspace: {
             active: true,
             data_scope: "WORKSPACE",
             permission_refs: [],
-            role_refs: ["WORKSPACE_LEAD"],
+            role_refs: ["DIVISION_LEAD"],
             scope_refs: ["workspace_property"],
             workspace: {
               active: true,
@@ -176,7 +176,7 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
             active: true,
             data_scope: "WORKSPACE",
             permission_refs: ["task.create"],
-            role_refs: ["WORKSPACE_MEMBER"],
+            role_refs: ["DIVISION_MEMBER"],
             scope_refs: ["workspace_property"],
             workspace: {
               active: true,

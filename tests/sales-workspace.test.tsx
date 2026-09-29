@@ -56,7 +56,7 @@ function salesSession(workspaceKey = "penjualan-utama", divisionCode = "SALES") 
       active: true,
       data_scope: "WORKSPACE",
       permission_refs: [],
-      role_refs: ["WORKSPACE_MEMBER"],
+      role_refs: ["DIVISION_MEMBER"],
       scope_refs: ["workspace_penjualan"],
       workspace: {
         active: true,
@@ -90,7 +90,7 @@ function propertySession(workspaceKey = "property") {
       active: true,
       data_scope: "WORKSPACE",
       permission_refs: [],
-      role_refs: ["WORKSPACE_MEMBER"],
+      role_refs: ["DIVISION_MEMBER"],
       scope_refs: ["workspace_property"],
       workspace: {
         active: true,
@@ -484,7 +484,7 @@ describe("Sales workspace", () => {
             active: true,
             data_scope: "WORKSPACE",
             permission_refs: ["*"],
-            role_refs: ["EXECUTIVE", "WORKSPACE_LEAD", "BUSINESS_REVIEWER"],
+            role_refs: ["DIVISION_LEAD"],
             scope_refs: ["workspace_keuangan"],
             workspace: {
               active: true,

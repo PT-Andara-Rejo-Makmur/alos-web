@@ -52,6 +52,7 @@ export type {
   IdentityAccountProjection,
   MembershipMutationRequest,
   ProvisionAccountRequest,
+  ProvisioningCandidateProjection,
   WorkspaceAccessProjection,
   WorkspaceProjection,
   WorkspaceType,

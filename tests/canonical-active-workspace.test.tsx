@@ -10,7 +10,7 @@ import type {
 function access(
   workspaceId: string,
   workspaceName: string,
-  role: "WORKSPACE_MEMBER" | "WORKSPACE_LEAD",
+  role: "DIVISION_MEMBER" | "DIVISION_LEAD",
 ): WorkspaceAccessProjection {
   return {
     workspace: {
@@ -33,12 +33,12 @@ function access(
 const alphaAccess = access(
   "workspace_property_alpha",
   "Property Alpha",
-  "WORKSPACE_MEMBER",
+  "DIVISION_MEMBER",
 );
 const betaAccess = access(
   "workspace_property_beta",
   "Property Beta",
-  "WORKSPACE_LEAD",
+  "DIVISION_LEAD",
 );
 
 const principal: AuthenticatedPrincipalProjection = {
@@ -70,7 +70,7 @@ describe("canonical active workspace authority", () => {
       "workspace_property_alpha",
       "workspace_property_beta",
     ]);
-    expect(context.actor.roles).toEqual(["WORKSPACE_LEAD"]);
+    expect(context.actor.roles).toEqual(["DIVISION_LEAD"]);
     expect(context.actor.scopes).toEqual(["workspace_property_beta"]);
     expect(context.activeWorkspace?.workspace_id).toBe("workspace_property_beta");
     expect(context.activeWorkspace?.name).toBe("Property Beta");

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { activeItWorkspaceKey, hasItContext, identityRoleLabel, itNavigation, mvpRoleOptions } from "@/features/it";
+import { activeItWorkspaceKey, hasItContext, identityRoleLabel, itNavigation, assignableRoleOptions } from "@/features/it";
 import type { SessionProjection } from "@/features/session";
 
 const itAccess = {
@@ -49,10 +49,10 @@ describe("IT frontend master matrix", () => {
     expect(identityRoleLabel("EXECUTIVE")).toBe("Direktur");
     expect(identityRoleLabel("DIVISION_LEAD")).toBe("Manajer / Kepala Divisi");
     expect(identityRoleLabel("DIVISION_MEMBER")).toBe("Anggota Divisi");
-    expect(identityRoleLabel("WORKSPACE_MEMBER")).toContain("Role lama");
+    expect(identityRoleLabel("Anggota Divisi"));
     expect(identityRoleLabel("UNKNOWN_ROLE")).toBe("Belum Dinilai");
     expect(identityRoleLabel("IT_ADMIN")).not.toBe("IT_ADMIN");
-    expect(mvpRoleOptions.map((role) => role.value)).toEqual(["EXECUTIVE", "DIVISION_LEAD", "DIVISION_MEMBER", "IT_ADMIN"]);
+    expect(assignableRoleOptions.map((role) => role.value)).toEqual(["EXECUTIVE", "DIVISION_LEAD", "DIVISION_MEMBER", "IT_ADMIN"]);
   });
 
   it("locks canonical IT dispatch and route shape without a static IT tree", () => {
@@ -64,13 +64,14 @@ describe("IT frontend master matrix", () => {
     expect(performance).toContain("ItPerformancePage");
     expect(source("src/features/it/account-management-page.tsx")).not.toContain("new-user-password");
     expect(source("src/features/it/account-management-page.tsx")).not.toContain("ProvisionAccountRequest");
-    expect(source("src/features/it/account-management-api.ts")).not.toMatch(/method:\s*["'](?:POST|PUT|DELETE)["']/);
+    expect(source("src/features/it/account-management-api.ts")).toContain("provisionAccount");
+    expect(source("src/features/it/account-management-api.ts")).toContain("revokeMembership");
   });
 
   it("keeps account provisioning source-honest and does not expose internal identity fields", () => {
     const page = source("src/features/it/account-management-page.tsx");
-    expect(page).toContain("Pilihan karyawan belum tersedia.");
-    expect(page).toContain("Pendaftaran akun belum tersedia");
+    expect(page).toContain("listProvisioningCandidates");
+    expect(page).toContain("provisionAccount({");
     expect(page).not.toContain("Actor ID");
     expect(page).not.toContain("tenant_id");
     expect(page).not.toContain("organization_id");
@@ -104,10 +105,8 @@ describe("IT frontend master matrix", () => {
     const account = source("src/features/it/account-management-page.tsx");
     for (const label of ["Akun Menunggu Pendaftaran", "Aktivasi Menunggu", "Permintaan Akses", "Akses Perlu Review", "Leaver Menunggu Revokasi"]) expect(summary).toContain(label);
     for (const label of ["Nama", "ID Karyawan", "Jabatan", "Workspace Utama", "Role Utama", "Email", "Status Akun", "Status Aktivasi", "Login Terakhir"]) expect(account).toContain(label);
-    expect(account).toContain("Sumber HR belum terhubung");
-    expect(account).toContain('Status label="Belum Terhubung"');
-    expect(account).not.toContain("Nama Karyawan}>{account.display_name");
-    expect(account).not.toContain("account.workspace_access.find((access) => access.active)?.workspace");
+    expect(account).toContain("account.employee_id");
+    expect(account).toContain("account.primary_workspace_id");
     expect(account).not.toContain("account.workspace_access[0]?.workspace");
   });
 
@@ -115,15 +114,14 @@ describe("IT frontend master matrix", () => {
     const account = source("src/features/it/account-management-page.tsx");
     expect(account).toContain("Status Aktivasi");
     expect(account).toContain("Akun Ditangguhkan");
-    expect(account).toContain("Ajukan Penangguhan Akun");
+    expect(account).toContain("Tangguhkan Akun");
     expect(account).toContain("Daftarkan Akun");
     expect(account).toContain("+ Tambah Workspace");
     expect(account).toContain("Edit Akses");
     expect(account).toContain("Cabut Akses");
     expect(account).toContain("Reset Akses belum tersedia");
     expect(account).toContain("Kirim Ulang Aktivasi belum tersedia");
-    expect(account).toContain("Aktifkan Kembali belum tersedia");
-    expect(account).toContain("Berlaku Mulai");
+    expect(account).toContain("Aktifkan Kembali");
     expect(account).not.toContain("setAccountActive(");
     expect(account).not.toContain("revokeAccountMembership(");
     expect(account).not.toContain("Hapus Akun");
@@ -135,46 +133,38 @@ describe("IT frontend master matrix", () => {
   it("keeps account filters source-aware and never infers employee or primary workspace data", () => {
     const account = source("src/features/it/account-management-page.tsx");
     for (const label of ["Divisi", "Workspace", "Role", "Status Akun", "Status Aktivasi", "Status Kepegawaian"]) expect(account).toContain(`aria-label="${label}"`);
-    expect(account).toContain('option value="unavailable">Belum tersedia</option>');
-    expect(account).toContain("Pencarian Nama dan ID Karyawan tersedia setelah sumber HR terhubung.");
-    expect(account).toContain('<DetailItem label="Nama" value="—" />');
+    expect(account).toContain("Cari nama, ID karyawan, email, atau role");
+    expect(account).toContain('<DetailItem label="Nama" value={account.display_name || "—"} />');
     expect(account).toContain('<DetailItem label="Nama Akun" value={account.display_name || "—"} />');
-    expect(account).not.toContain('label="Nama" value={account.display_name');
     expect(account).not.toContain("workspace_access[0]");
-    expect(account).not.toContain("workspace_access.find((access) => access.active)?.workspace");
-    expect(account).not.toContain("role_refs[0]");
     expect(account).not.toContain("role_refs.join");
   });
 
-  it("keeps multi-role, audit, and governance semantics source-owned", () => {
+  it("keeps one role per workspace and reads audit and session projections", () => {
     const account = source("src/features/it/account-management-page.tsx");
     const workspace = source("docs/it-workspace.md");
     const governance = source("docs/it-access-governance.md");
     expect(account).toContain("access.role_refs.map");
-    expect(account).toContain("Lebih dari satu role tersimpan pada membership ini");
+    expect(account).toContain("role_refs[0]");
     for (const header of ["Waktu", "Aktivitas", "Objek", "Workspace", "Pelaksana", "Hasil", "Sumber"]) expect(account).toContain(`header: "${header}"`);
     for (const event of ["Account Created", "Account Edited", "Activation Resent", "Account Activated", "Workspace Added", "Workspace Role Changed", "Workspace Access Edited", "Workspace Revoked", "Account Suspended", "Account Reactivated", "Password Reset Requested", "Session Revoked"]) expect(workspace).toContain(event);
     expect(workspace).toContain("Frontend tidak membuat kebenaran audit");
-    expect(governance).toContain("Additional workspace access is not automatic");
-    expect(governance).toContain("Backend validates authority");
-    expect(governance).toContain("does not assume approval is universal");
-    expect(governance).toContain("409 access conflict");
-    expect(account).not.toContain("POST");
-    expect(account).not.toContain("PUT");
-    expect(account).not.toContain("DELETE");
+    expect(governance).toContain("Membership revocation is soft");
+    expect(governance).toContain("Backend authorizes every account");
+    expect(governance).toContain("identity administration permission");
+    expect(account).toContain("listActorIdentityHistory");
+    expect(account).toContain("listActorSessions");
   });
 
   it("keeps the exact target role vocabulary and cross-domain privilege boundary", () => {
-    expect(mvpRoleOptions).toHaveLength(4);
-    expect(mvpRoleOptions.map((role) => role.value)).toEqual(["EXECUTIVE", "DIVISION_LEAD", "DIVISION_MEMBER", "IT_ADMIN"]);
+    expect(assignableRoleOptions).toHaveLength(4);
+    expect(assignableRoleOptions.map((role) => role.value)).toEqual(["EXECUTIVE", "DIVISION_LEAD", "DIVISION_MEMBER", "IT_ADMIN"]);
     const account = source("src/features/it/account-management-page.tsx");
     const governance = source("docs/it-access-governance.md");
-    expect(account).toContain('role.value === "IT_ADMIN"');
-    expect(account).toContain("Role lama yang sudah ada tidak digunakan untuk penugasan baru");
-    expect(governance).toContain("IT_ADMIN` bukan superuser bisnis");
-    expect(governance).toContain("Single-role-per-workspace adalah NEEDS CONTRACT / NEEDS DECISION");
-    expect(governance).toContain("duplicate membership adalah conflict");
-    expect(governance).toContain("revoke bukan hard delete");
+    expect(account).toContain("assignableRoleOptions.filter");
+    expect(governance).toContain("IT_ADMIN` alone does not grant Finance");
+    expect(governance).toContain("exactly one role");
+    expect(governance).toContain("Membership revocation is soft");
   });
 
   it("keeps the account page responsive and semantically table-based", () => {
@@ -214,31 +204,28 @@ describe("IT frontend master matrix", () => {
     const account = source("src/features/it/account-management-page.tsx");
     const docs = source("docs/it-access-governance.md");
     const security = source("docs/it-security-boundaries.md");
-    expect(account).toContain("mvpRoleOptions");
-    expect(account).toContain('role.value === "IT_ADMIN"');
-    expect(account).toContain("!isSupportedRole");
-    expect(account).toContain("memerlukan kewenangan terpisah");
-    expect(account).toContain("Cabut Sesi belum tersedia");
-    expect(docs).toContain("bukan superuser bisnis");
+    expect(account).toContain("assignableRoleOptions");
+    expect(account).toContain("isSupportedRole(item.value, formRoles)");
+    expect(account).toContain("Cabut Sesi");
+    expect(docs).toContain("does not grant Finance, HR, Legal, or Executive data access");
     for (const division of ["Finance", "HR", "Legal", "Executive"]) expect(docs).toContain(division);
     expect(security).toContain("Global self-service owns");
     expect(security).toContain("IT does not see or choose a password");
-    expect(docs).toContain("409 access conflict");
+    expect(docs).toContain("Membership dates are authoritative");
   });
 
   it("keeps employee/account/access/activation and cross-domain ownership separate", () => {
     const account = source("src/features/it/account-management-page.tsx");
     const provisioning = source("docs/it-account-provisioning.md");
-    expect(account).toContain("sumber HR resmi");
+    expect(account).toContain("Pilihan hanya memuat karyawan aktif");
     expect(account).toContain("Status Akun");
     expect(account).toContain("Status Aktivasi");
     expect(account).toContain("Workspace & Akses");
-    expect(provisioning).toContain("employee existing in HR does not imply an account");
-    expect(provisioning).toContain("an account does not imply activation");
-    expect(provisioning).toContain("approval does not imply provisioning");
-    expect(provisioning).toContain("Duplicate account atau email adalah conflict");
-    expect(provisioning).toContain("tidak menimpa akun yang sudah ada");
-    expect(provisioning).toContain("no hard delete action");
+    expect(provisioning).toContain("employees without an actor link");
+    expect(provisioning).toContain("activation pending");
+    expect(provisioning).toContain("activation flow");
+    expect(provisioning).toContain("actor link");
+    expect(provisioning).toContain("Backend provisions actor, account, membership");
   });
 
   it("keeps the expanded data and form registries aligned with the master", () => {

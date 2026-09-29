@@ -45,7 +45,7 @@ function createSession(
   workspaceKey: string,
   divisionCode: string,
   workspaceType: "EXECUTIVE" | "BUSINESS" | "IT_OPERATIONS" = "BUSINESS",
-  role: "EXECUTIVE" | "WORKSPACE_LEAD" | "WORKSPACE_MEMBER" = workspaceType === "EXECUTIVE" ? "EXECUTIVE" : "WORKSPACE_LEAD",
+  role: "EXECUTIVE" | "DIVISION_LEAD" | "DIVISION_MEMBER" = workspaceType === "EXECUTIVE" ? "EXECUTIVE" : "DIVISION_LEAD",
 ) {
   const principal: AuthenticatedPrincipalProjection = {
     actor: {

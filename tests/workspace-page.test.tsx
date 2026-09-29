@@ -126,7 +126,7 @@ describe("WorkspacePage and ALOS App Shell", () => {
       active: true,
       data_scope: "WORKSPACE" as const,
       permission_refs: [],
-      role_refs: ["WORKSPACE_MEMBER" as const],
+      role_refs: ["DIVISION_MEMBER" as const],
       scope_refs: ["workspace_property"],
       workspace: {
         active: true,
@@ -191,7 +191,7 @@ describe("WorkspacePage and ALOS App Shell", () => {
             active: true,
             data_scope: workspaceType === "EXECUTIVE" ? "COMPANY" : "WORKSPACE",
             permission_refs: [],
-            role_refs: ["WORKSPACE_MEMBER"],
+            role_refs: ["DIVISION_MEMBER"],
             scope_refs: [`workspace_${workspaceKey}`],
             workspace: {
               active: true,
@@ -248,7 +248,7 @@ describe("WorkspacePage and ALOS App Shell", () => {
             active: true,
             data_scope: "WORKSPACE",
             permission_refs: [],
-            role_refs: ["WORKSPACE_MEMBER"],
+            role_refs: ["DIVISION_MEMBER"],
             scope_refs: ["workspace_unknown"],
             workspace: {
               active: true,

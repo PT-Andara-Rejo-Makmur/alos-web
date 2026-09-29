@@ -49,7 +49,7 @@ function projectWorkspace(access: WorkspaceAccessProjection): Workspace {
     name: access.workspace.workspace_name,
     workspace_type: access.workspace.workspace_type,
     division_code: access.workspace.division_code ?? null,
-    access_level: access.access_level ?? access.role_refs[0] ?? "WORKSPACE_MEMBER",
+    access_level: access.access_level ?? access.role_refs[0] ?? "DIVISION_MEMBER",
     role_refs: access.role_refs,
     permission_refs: access.permission_refs,
     scope_refs: access.scope_refs,

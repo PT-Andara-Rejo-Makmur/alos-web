@@ -8,27 +8,27 @@ Route canonical: `/workspace/[workspaceKey]/summary`, `/services`, `/systems`, `
 
 Sidebar final terdiri dari: Pusat IT; Platform & Sistem; Akses & Identitas; Perubahan; Operasional; Kinerja; Pekerjaan; ARA. Shared Work tetap memiliki Project, Task, Approval, Document, Report, dan Finding yang universal.
 
-Penyediaan akun mengikuti readiness flow: karyawan dari HR → telaah identitas → ruang kerja → role canonical → review → penyediaan Backend → aktivasi → karyawan mengatur kata sandi sendiri. Sumber karyawan dan kontrak alur aktivasi belum tersedia, sehingga form tidak meminta kata sandi dan tombol penyimpanan dinonaktifkan.
+Penyediaan akun membaca kandidat karyawan dari Backend, lalu mengirim employee ID, email akun, workspace, satu role, tanggal berlaku, expiration opsional, dan catatan opsional. Backend membuat akun dan challenge aktivasi secara atomik. Karyawan memilih kata sandinya saat aktivasi; Web tidak mengklaim pesan aktivasi telah dikirim.
 
 Ringkasan identitas menampilkan Akun Menunggu Pendaftaran, Aktivasi Menunggu, Permintaan Akses, Akses Perlu Review, dan Leaver Menunggu Revokasi sebagai `—`/`Belum Terhubung` sampai sumbernya tersedia. Nama akun tidak diperlakukan sebagai nama karyawan; employee fields berasal dari HR.
 
-Detail Akun Karyawan memiliki empat tab: Ringkasan, Workspace & Akses, Sesi, dan Riwayat. Role ditampilkan di dalam konteks setiap workspace; riwayat akses dan aktivitas administratif tetap berada pada tab Riwayat. Status Akun tidak sama dengan Status Aktivasi. Suspend dan pencabutan akses hanya readiness dengan User/Account, Reason, Effective At, dan Evidence; tidak ada direct mutation tanpa governance.
+Detail Akun Karyawan memiliki empat tab: Ringkasan, Workspace & Akses, Sesi, dan Riwayat. Role ditampilkan di dalam konteks setiap workspace; riwayat akses dan aktivitas administratif berasal dari audit Backend. Status akun tidak sama dengan status aktivasi. Suspend, reactivate, membership changes, dan session revocation menggunakan route Backend yang berwenang.
 
 Access Request, Joiner, Mover, Leaver, dan antrian revokasi memakai source-aware presentation. `Approved` tidak sama dengan `Provisioned`, dan akses tambahan tidak diberikan otomatis. Sesi hanya menampilkan metadata yang diizinkan; token, cookie secret, dan kredensial tidak pernah ditampilkan.
 
 IT tidak memiliki authority atas employee master, role bisnis, payroll, legal validity, project root, atau data ARA. Token, refresh token, cookie, password, dan secret tidak pernah ditampilkan.
 
-## Akun Karyawan dan Akses & Identitas — final alignment
+## Akun Karyawan dan Akses & Identitas
 
-Tindakan utama pada Akun Karyawan adalah **Daftarkan Akun**. Form readiness memiliki empat bagian: Karyawan, Identitas Akun, Workspace & Role, dan Review. Karyawan, Nama, ID Karyawan, Jabatan, dan Divisi hanya berasal dari HR; ketika sumber belum terhubung, selector dan field tersebut tidak dapat diisi. `display_name` Identity tetap ditampilkan sebagai Nama Akun, bukan sebagai nama karyawan.
+Tindakan utama pada Akun Karyawan adalah **Daftarkan Akun**. Form memuat Karyawan, Identitas Akun, Workspace & Role, Tanggal Aktif, Tanggal Berakhir, dan Catatan. Karyawan, Nama, ID Karyawan, Jabatan, dan Divisi hanya berasal dari HR; Backend memfilter kandidat sebelum mengirimkannya ke Web.
 
-Role target MVP-2 adalah Direktur, Manajer / Kepala Divisi, Anggota Divisi, dan Administrator IT. Contract saat ini belum menyediakan seluruh vocabulary tersebut, sehingga pilihan yang belum didukung dinonaktifkan. Role legacy dibaca tanpa pemetaan diam-diam. Role selalu berada dalam konteks workspace dan IT_ADMIN tidak menjadi superuser bisnis.
+Role aktif adalah `EXECUTIVE` (Direktur), `DIVISION_LEAD` (Manajer / Kepala Divisi), `DIVISION_MEMBER` (Anggota Divisi), dan `IT_ADMIN` (Administrator IT). Role selalu berada dalam konteks workspace dan IT_ADMIN bukan superuser bisnis.
 
-Daftar akun memisahkan Nama, ID Karyawan, Jabatan, Workspace Utama, Role Utama, Email, Status Akun, Status Aktivasi, Login Terakhir, dan Aksi. Primary workspace tidak ditebak dari membership pertama/aktif. Field Nama, ID Karyawan, Jabatan, dan Divisi tetap `—` sampai linkage HR tersedia; Nama Akun adalah identity display name yang terpisah.
+Daftar akun memisahkan Nama, ID Karyawan, Jabatan, Workspace Utama, Role Utama, Email, Status Akun, Status Aktivasi, Login Terakhir, dan Aksi. Workspace utama berasal dari referensi Backend dan tidak ditebak dari membership pertama atau workspace aktif.
 
-Workspace tambahan dikelola setelah akun tersedia melalui Tambah Workspace, Edit Akses, dan Cabut Akses. Semua readiness action tetap disabled sampai sumber resmi mendukung effective dates, duplicate conflict, permission, dan audit. Revoke bukan hard delete dan tidak membuat ulang akun.
+Workspace tambahan dikelola setelah akun tersedia melalui Tambah Workspace, Edit Akses, dan Cabut Akses. Role, masa berlaku, konflik duplikasi, dan audit ditentukan serta disimpan Backend. Revoke bukan hard delete dan tidak membuat ulang akun.
 
-Settings dan AI Workspace tidak termasuk Stage 3 dan tetap ditunda. IT hanya menyediakan readiness untuk pendaftaran, activation support, reset request, suspension, revocation, dan session administration; IT tidak melihat password atau token.
+Settings dan AI Workspace tetap berada di luar halaman Identity. IT tidak melihat password atau token.
 
 Vocabulary audit yang diharapkan dari sumber audit identitas:
 

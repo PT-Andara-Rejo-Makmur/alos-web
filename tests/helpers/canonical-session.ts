@@ -20,7 +20,7 @@ export function canonicalPrincipal({
   workspaceId,
   workspaceKey,
   workspaceName,
-  roles = ["WORKSPACE_MEMBER"],
+  roles = ["DIVISION_MEMBER"],
   permissions = [],
   allWorkspaceIds = [workspaceId],
 }: CanonicalPrincipalOptions): AuthenticatedPrincipalProjection {

@@ -327,12 +327,12 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     expect(screen.queryByText("Kepala Divisi Property & Teknik")).not.toBeInTheDocument();
   });
 
-  // 11. WORKSPACE_LEAD does not leak as fabricated label
-  it("Scenario 11: WORKSPACE_LEAD does not leak as a fabricated label", async () => {
+  // 11. DIVISION_LEAD does not leak as fabricated label
+  it("Scenario 11: DIVISION_LEAD does not leak as a fabricated label", async () => {
     render(<ExecutiveDivisionsPage />);
 
     expect(await screen.findByRole("heading", { name: "Divisi" })).toBeInTheDocument();
-    expect(screen.queryByText(/WORKSPACE_LEAD/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/DIVISION_LEAD/i)).not.toBeInTheDocument();
   });
 
   // 12. Null observation value displays "—"

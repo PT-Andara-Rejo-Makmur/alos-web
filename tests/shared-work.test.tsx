@@ -42,7 +42,7 @@ function makePrincipal(
       active: true,
       data_scope: "WORKSPACE",
       permission_refs: [],
-      role_refs: ["WORKSPACE_MEMBER"],
+      role_refs: ["DIVISION_MEMBER"],
       scope_refs: ["workspace_property"],
       workspace: {
         active: true,
@@ -179,7 +179,7 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
               active: true,
               data_scope: "WORKSPACE",
               permission_refs: [],
-              role_refs: ["WORKSPACE_MEMBER"],
+              role_refs: ["DIVISION_MEMBER"],
               scope_refs: ["workspace_property"],
               workspace: {
                 active: true,
@@ -213,7 +213,7 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
             active: true,
             data_scope: "WORKSPACE",
             permission_refs: ["project.create"],
-            role_refs: ["WORKSPACE_LEAD"],
+            role_refs: ["DIVISION_LEAD"],
             scope_refs: ["workspace_property"],
             workspace: {
               active: true,

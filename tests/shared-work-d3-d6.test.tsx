@@ -61,7 +61,7 @@ function makePrincipal(
       active: true,
       data_scope: "WORKSPACE",
       permission_refs: [],
-      role_refs: ["WORKSPACE_MEMBER"],
+      role_refs: ["DIVISION_MEMBER"],
       scope_refs: ["workspace_property"],
       workspace: {
         active: true,

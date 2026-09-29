@@ -30,7 +30,7 @@ function financeSession(workspaceKey = "finance-utama", divisionCode = "finance"
       active: true,
       data_scope: "WORKSPACE",
       permission_refs: [],
-      role_refs: ["WORKSPACE_LEAD"],
+      role_refs: ["DIVISION_LEAD"],
       scope_refs: [`workspace_${workspaceKey}`],
       workspace: { active: true, division_code: divisionCode, organization_id: "org_1", workspace_id: "ws_finance", workspace_key: workspaceKey, workspace_name: "Ruang Keuangan", workspace_type: "BUSINESS" },
     },

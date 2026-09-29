@@ -38,7 +38,7 @@ function makeSession(
       active: true,
       data_scope: "WORKSPACE",
       permission_refs: permissionRefs,
-      role_refs: ["WORKSPACE_MEMBER"],
+      role_refs: ["DIVISION_MEMBER"],
       scope_refs: [`scope_${workspaceKey}`],
       workspace: {
         active: true,

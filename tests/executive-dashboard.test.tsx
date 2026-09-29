@@ -182,7 +182,7 @@ describe("Executive Workspace", () => {
       active_workspace: {
         ...executivePrincipal.active_workspace!,
         data_scope: "WORKSPACE",
-        role_refs: ["WORKSPACE_MEMBER"],
+        role_refs: ["DIVISION_MEMBER"],
         workspace: { ...executivePrincipal.active_workspace!.workspace, workspace_type: "BUSINESS" },
       },
     };

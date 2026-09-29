@@ -2,7 +2,11 @@ import { authenticatedApiRequest } from "@/lib/api";
 import type {
   AuthorizationRole,
   IdentityAccountProjection,
+  ProvisioningCandidateProjection,
+  ProvisionAccountRequest,
+  MembershipMutationRequest,
   WorkspaceProjection,
+  WorkspaceAccessProjection,
 } from "@/lib/contracts";
 
 export function listIdentityAccounts(): Promise<IdentityAccountProjection[]> {
@@ -15,4 +19,60 @@ export function listIdentityWorkspaces(): Promise<WorkspaceProjection[]> {
 
 export function listAssignableRoles(): Promise<AuthorizationRole[]> {
   return authenticatedApiRequest<AuthorizationRole[]>("/api/v1/identity/assignable-roles");
+}
+
+export function listProvisioningCandidates(): Promise<ProvisioningCandidateProjection[]> {
+  return authenticatedApiRequest<ProvisioningCandidateProjection[]>("/api/v1/identity/provisioning-candidates");
+}
+
+export function provisionAccount(request: ProvisionAccountRequest): Promise<IdentityAccountProjection> {
+  return authenticatedApiRequest<IdentityAccountProjection>("/api/v1/identity/accounts", { method: "POST", body: request });
+}
+
+export function addMembership(actorId: string, request: MembershipMutationRequest): Promise<WorkspaceAccessProjection> {
+  return authenticatedApiRequest<WorkspaceAccessProjection>(`/api/v1/identity/actors/${encodeURIComponent(actorId)}/memberships`, { method: "POST", body: request });
+}
+
+export function updateMembership(actorId: string, request: MembershipMutationRequest): Promise<WorkspaceAccessProjection> {
+  return authenticatedApiRequest<WorkspaceAccessProjection>(`/api/v1/identity/actors/${encodeURIComponent(actorId)}/memberships`, { method: "PUT", body: request });
+}
+
+export function revokeMembership(actorId: string, workspaceId: string, reason: string): Promise<void> {
+  return authenticatedApiRequest<void>(`/api/v1/identity/actors/${encodeURIComponent(actorId)}/memberships/${encodeURIComponent(workspaceId)}`, { method: "DELETE", body: { reason } });
+}
+
+export function changeAccountState(actorId: string, active: boolean, reason: string): Promise<{ actor_id: string; active: boolean }> {
+  return authenticatedApiRequest(`/api/v1/identity/actors/${encodeURIComponent(actorId)}/${active ? "activate" : "suspend"}`, { method: "POST", body: { reason } });
+}
+
+export interface AdminSessionProjection {
+  readonly session_id: string;
+  readonly issued_at: string;
+  readonly expires_at: string;
+  readonly active_workspace_id: string | null;
+  readonly revoked: boolean;
+  readonly expired?: boolean;
+  readonly last_activity_at: string | null;
+}
+
+export function listActorSessions(actorId: string): Promise<AdminSessionProjection[]> {
+  return authenticatedApiRequest<AdminSessionProjection[]>(`/api/v1/identity/actors/${encodeURIComponent(actorId)}/sessions`);
+}
+
+export function revokeActorSession(actorId: string, sessionId: string): Promise<void> {
+  return authenticatedApiRequest<void>(`/api/v1/identity/actors/${encodeURIComponent(actorId)}/sessions/${encodeURIComponent(sessionId)}`, { method: "DELETE" });
+}
+
+export interface IdentityAuditProjection {
+  readonly occurred_at: string;
+  readonly event_type: string;
+  readonly entity_type: string;
+  readonly entity_id: string;
+  readonly workspace_id: string | null;
+  readonly actor_id: string;
+  readonly outcome: string;
+}
+
+export function listActorIdentityHistory(actorId: string): Promise<IdentityAuditProjection[]> {
+  return authenticatedApiRequest<IdentityAuditProjection[]>(`/api/v1/identity/actors/${encodeURIComponent(actorId)}/history`);
 }

@@ -1,33 +1,29 @@
 # IT Access Governance
 
-Access is granted only by Backend-authorized workspace and role projections. Additional workspace access is not automatic. From Account Detail, the user can reach Tambah Workspace, Edit Akses, or Cabut Akses as readiness surfaces; Backend validates authority. If a canonical policy later requires approval, the frontend follows that source/policy and does not assume approval is universal. The feature route never switches the active workspace and the UI never infers access from the URL.
+Backend authorizes every account and workspace membership change. IT routes do not infer access from
+the URL, do not change the active workspace, and do not receive business-domain permissions solely
+from the `IT_ADMIN` role. `EXECUTIVE` alone also grants no identity administration permission.
 
-Existing `identity.accounts.manage` and `identity.memberships.manage` may be used only where the Backend already authorizes the operation. No new permission string is invented. Privileged roles require canonical metadata and approval; until available, the action is unavailable.
+An account can be enabled or suspended independently of employee status and activation state.
+Suspension blocks login and revokes current sessions. Reactivation does not restore prior sessions
+or revoked memberships. Identity actions are recorded in the append-only audit store with the
+administrator, target actor, authority boundary, workspace when applicable, correlation ID, time, and
+outcome.
 
-`IT_ADMIN` bukan superuser bisnis. Role tersebut tidak otomatis memberi akses ke data atau tindakan terbatas Finance, HR, Legal, atau Executive.
+Each actor has at most one membership per workspace, and each membership carries exactly one role.
+The active roles are `EXECUTIVE`, `DIVISION_LEAD`, `DIVISION_MEMBER`, and `IT_ADMIN`. Backend derives
+permissions, scopes, and data scope from workspace, role, and server policy. Client-selected
+authority metadata is rejected.
 
-Permukaan IT operasional pada Stage 3 mendokumentasikan kebutuhan field dan tab untuk layanan,
-sistem, infrastruktur, ALOS/GENESIS, connector, akses, keamanan, perubahan, aset, dan dukungan.
-Seluruhnya menampilkan `Belum Terhubung` sampai source resmi tersedia; tidak ada scanner, metrik
-runtime, credential, lifecycle rilis, atau data aset yang dibuat oleh frontend. Detail
-`/workspace/[workspaceKey]/assets/[assetId]` di-dispatch dari domain workspace authoritative:
-Legal menuju detail legal, sedangkan IT menuju readiness detail Aset IT.
+Membership dates are authoritative. Access requires an unrevoked membership whose effective time
+has arrived and whose optional expiration remains in the future, an active workspace, and an active
+account. Membership revocation is soft. Removing the primary workspace membership clears the
+primary reference and any matching session workspace selection.
 
-Joiner, mover, leaver, suspension, expiry, and revocation semantics are NEEDS DECISION / NEEDS CONTRACT. A 409 access conflict is an unresolved conflict, not a successful mutation and never overwrites newer access state.
+The account detail view exposes safe session metadata and audit event summaries. Session projections
+never contain raw bearer tokens, token hashes, or password hashes. Session revocation is scoped to
+the target actor in the caller's tenant and organization.
 
-## Role MVP-2 and workspace context
-
-Target role business MVP-2 terdiri dari:
-
-- `EXECUTIVE` → Direktur;
-- `DIVISION_LEAD` → Manajer / Kepala Divisi;
-- `DIVISION_MEMBER` → Anggota Divisi;
-- `IT_ADMIN` → Administrator IT.
-
-Role selalu dibaca dalam konteks workspace. Tidak ada role gabungan seperti Finance Manager atau Sales Staff. Wakil, Staff, Admin, dan Inhouse menggunakan konteks `DIVISION_MEMBER` bila vocabulary tersebut sudah didukung sumber resmi. Role legacy tetap dapat dibaca sebagai source-honest read-only dan tidak diberi semantic baru oleh frontend.
-
-Target MVP-2 menginginkan satu role utama per workspace, tetapi contract saat ini menyediakan `role_refs[]`. Frontend tidak mengambil role pertama, menggabungkan role, atau mengubah role lama secara diam-diam. Single-role-per-workspace adalah NEEDS CONTRACT / NEEDS DECISION.
-
-Account detail readiness menyediakan Tambah Workspace, Edit Akses, dan Cabut Akses. Tambah/edit memerlukan Account, Workspace, Role, dan Effective Date; revoke memerlukan Account, Workspace, dan Reason, dengan Effective At/Evidence bila diwajibkan sumber. Additional workspace tidak dibuat otomatis saat pendaftaran akun, duplicate membership adalah conflict, dan revoke bukan hard delete.
-
-Primary workspace belum memiliki marker authoritative. Membership pertama atau membership aktif tidak boleh disebut primary. Account, membership, role, activation, and session remain separate Identity concepts.
+The IT workspace continues to use its existing account registration, membership, suspend/reactivate,
+session, and audit surfaces; identity changes do not restructure the dashboard or other domain
+areas. `IT_ADMIN` alone does not grant Finance, HR, Legal, or Executive data access.

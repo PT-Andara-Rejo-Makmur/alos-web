@@ -17,10 +17,10 @@ Status: UI FINAL / SOURCE UNAVAILABLE. Setiap tindakan tetap readiness sampai su
 | it.access.reset | Ajukan reset akses administratif | Account, Reason | Effective At, Evidence | reset request/audit event | Identity | identity.access.reset bila tersedia | RESTRICTED | reason/evidence | Identity/Backend | NEEDS DECISION | NEEDS CONTRACT | Disabled | Access Reset Request | `/accounts` | 401/403/404/409/422/500 | bukan pengaturan kata sandi oleh IT | NEEDS CONTRACT |
 | it.session.revoke | Minta pencabutan sesi | Account, Session, Reason | Effective At, Evidence | session revocation event | Session/Identity | identity.sessions.manage bila tersedia | RESTRICTED | reason/evidence | Identity/Backend | NEEDS DECISION | NEEDS CONTRACT | Disabled | Session State | `/accounts` | 401/403/404/409/422/500 | token tidak pernah tampil | NEEDS CONTRACT |
 
-## Role MVP-2
+## Identity Role Vocabulary
 
-Target vocabulary business hanya `EXECUTIVE` (Direktur), `DIVISION_LEAD` (Manajer / Kepala Divisi), `DIVISION_MEMBER` (Anggota Divisi), dan `IT_ADMIN` (Administrator IT). Generated contract saat ini belum menyediakan `DIVISION_LEAD` atau `DIVISION_MEMBER`; frontend menampilkan pilihan target sebagai disabled dan tidak mengirim string unsupported. Role legacy tetap source-honest dan tidak dipetakan diam-diam.
+Vocabulary aktif hanya `EXECUTIVE` (Direktur), `DIVISION_LEAD` (Manajer / Kepala Divisi), `DIVISION_MEMBER` (Anggota Divisi), dan `IT_ADMIN` (Administrator IT). Setiap workspace membership memilih tepat satu role. Backend menentukan permission, scope, dan data scope.
 
-`Account Type` adalah NEEDS DECISION / NEEDS CONTRACT dan bukan field canonical pendaftaran MVP-2. Additional Workspace juga bukan field `it.account.create`; dikelola melalui `it.workspace.add` setelah akun tersedia.
+`Account Type` bukan field canonical pendaftaran. Additional Workspace juga bukan bagian dari `it.account.create`; dikelola melalui `it.workspace.add` setelah akun tersedia.
 
-User tidak memasukkan password/kata sandi, activation token, reset token, actor ID, account ID, tenant ID, organization ID, atau generated ID. Workspace dan role hanya dipilih dari sumber resmi. Tidak ada action yang boleh melaporkan sukses tanpa response authoritative.
+User tidak memasukkan password/kata sandi, activation token, reset token, actor ID, account ID, tenant ID, organization ID, permission, scope, atau generated ID. Workspace dan role hanya dipilih dari sumber resmi. Tidak ada action yang boleh melaporkan sukses tanpa response authoritative.

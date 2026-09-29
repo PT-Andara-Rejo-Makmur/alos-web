@@ -27,7 +27,7 @@ vi.mock("next/navigation", () => ({ usePathname: () => "/workspace/sdm-utama/sum
 function hrSession(workspaceKey = "sdm-utama", divisionCode = "HR") {
   const principal: AuthenticatedPrincipalProjection = {
     actor: { actor_id: "actor_hr", active: true, display_name: "HR Lead", organization_id: "org_1", tenant_id: "tenant_1" },
-    active_workspace: { active: true, data_scope: "WORKSPACE", permission_refs: [], role_refs: ["WORKSPACE_LEAD"], scope_refs: [`workspace_${workspaceKey}`], workspace: { active: true, division_code: divisionCode, organization_id: "org_1", workspace_id: "ws_hr", workspace_key: workspaceKey, workspace_name: "Ruang SDM", workspace_type: "BUSINESS" } },
+    active_workspace: { active: true, data_scope: "WORKSPACE", permission_refs: [], role_refs: ["DIVISION_LEAD"], scope_refs: [`workspace_${workspaceKey}`], workspace: { active: true, division_code: divisionCode, organization_id: "org_1", workspace_id: "ws_hr", workspace_key: workspaceKey, workspace_name: "Ruang SDM", workspace_type: "BUSINESS" } },
     email: "hr@example.test", expires_at: "2026-10-01T00:00:00Z", issued_at: "2026-09-27T00:00:00Z", workspace_access: [],
   };
   return { authenticated: true, principal };

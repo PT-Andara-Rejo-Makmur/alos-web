@@ -16,7 +16,7 @@ export function activeItWorkspaceKey(session: SessionProjection | null | undefin
   return principal.active_workspace.workspace.workspace_key;
 }
 
-export const mvpRoleOptions = [
+export const assignableRoleOptions = [
   { value: "EXECUTIVE", label: "Direktur" },
   { value: "DIVISION_LEAD", label: "Manajer / Kepala Divisi" },
   { value: "DIVISION_MEMBER", label: "Anggota Divisi" },
@@ -29,12 +29,6 @@ export function identityRoleLabel(role: string): string {
     DIVISION_LEAD: "Manajer / Kepala Divisi",
     DIVISION_MEMBER: "Anggota Divisi",
     IT_ADMIN: "Administrator IT",
-    WORKSPACE_LEAD: "Role lama: Pimpinan Ruang Kerja",
-    WORKSPACE_MEMBER: "Role lama: Anggota Ruang Kerja",
-    BUSINESS_REVIEWER: "Role lama: Peninjau Bisnis",
-    AI_ADMIN: "Role lama: Administrator ARA",
-    TECHNICAL_REVIEWER: "Role lama: Peninjau Teknis",
-    QA_ASSURANCE: "Role lama: Penjamin Mutu",
   };
   return labels[role] ?? "Belum Dinilai";
 }

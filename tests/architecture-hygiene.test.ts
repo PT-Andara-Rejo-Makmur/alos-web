@@ -52,7 +52,7 @@ describe("production architecture hygiene", () => {
     const offenders = sharedWorkFiles.filter((path) => {
       const content = readFileSync(path, "utf8");
       return (
-        /role(?:_refs)?(?:\.includes|\s*===)\s*\(?["'](?:WORKSPACE_LEAD|WORKSPACE_MEMBER|ORG_ADMIN)/.test(content) &&
+        /role(?:_refs)?(?:\.includes|\s*===)\s*\(?["'](?:DIVISION_LEAD|DIVISION_MEMBER|ORG_ADMIN)/.test(content) &&
         /project\.create|task\.create|approval\./.test(content)
       );
     });
