@@ -12,20 +12,6 @@ export function activeLegalWorkspaceKey(session: SessionProjection | null | unde
   return session.principal.active_workspace?.workspace.workspace_key ?? null;
 }
 
-export function legalStateLabel(value: string | null | undefined): string {
-  if (!value) return "Belum Dinilai";
-  const labels: Record<string, string> = {
-    ACTIVE: "Aktif",
-    APPROVED: "Disetujui",
-    DRAFT: "Draf",
-    EXPIRED: "Berakhir",
-    IN_REVIEW: "Dalam Review",
-    REJECTED: "Ditolak",
-    RETIRED: "Diarsipkan",
-  };
-  return labels[value] ?? "Belum Dinilai";
-}
-
 export function legalValue(value: string | number | null | undefined): string {
   return value === null || value === undefined || value === "" ? "—" : String(value);
 }

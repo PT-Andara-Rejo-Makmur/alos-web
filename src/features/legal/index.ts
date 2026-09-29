@@ -1,6 +1,6 @@
 export { LegalLayout } from "./legal-layout";
 export { legalNavigation } from "./navigation";
-export { activeLegalWorkspaceKey, hasLegalContext, legalStateLabel, legalValue } from "./legal-model";
+export { activeLegalWorkspaceKey, hasLegalContext, legalValue } from "./legal-model";
 export { LegalSummaryPage } from "./summary";
 export { LegalRisksPage } from "./risks";
 export { LegalContractsPage } from "./contracts";

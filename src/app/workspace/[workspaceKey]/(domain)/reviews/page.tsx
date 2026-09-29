@@ -9,7 +9,7 @@ import { resolveWorkspaceDomain, type SessionProjection, type WorkspaceDomainRes
 import { ApiError, sessionApiRequest } from "@/lib/api";
 import styles from "@/features/sales/sales.module.css";
 
-export default function WorkspaceExecutiveReviewsRoute({
+export default function WorkspaceReviewsRoute({
   params,
 }: Readonly<{ params: Promise<{ workspaceKey: string }> | { workspaceKey: string } }>) {
   const resolved = "then" in params ? use(params) : params;
