@@ -10,6 +10,8 @@ import PerformanceRoute from "@/app/workspace/[workspaceKey]/(domain)/performanc
 import GaRoute from "@/app/workspace/[workspaceKey]/(domain)/ga/page";
 import EmployeesRoute from "@/app/workspace/[workspaceKey]/(domain)/employees/page";
 import ComplianceRoute from "@/app/workspace/[workspaceKey]/(domain)/compliance/page";
+import RecruitmentRoute from "@/app/workspace/[workspaceKey]/(domain)/recruitment/page";
+import CandidateDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/recruitment/[candidateId]/page";
 import EmployeeDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/employees/[employeeId]/page";
 import { hasGaScope, hasHrContext, activeHrWorkspaceKey } from "@/features/hr/hr-model";
 import { HrSourceStateView } from "@/features/hr/shared/hr-ui";
@@ -99,16 +101,17 @@ describe("HR / GA workspace", () => {
     render(<EmployeesRoute {...params({ workspaceKey: "sdm-utama" })} />);
     expect(await screen.findByRole("heading", { name: /Karyawan/ })).toBeInTheDocument();
     expect(screen.getAllByText("Belum Terhubung").length).toBeGreaterThan(0);
-    screen.getByRole("button", { name: "Catat Perubahan" }).click();
+    screen.getByRole("tab", { name: "Semua" }).click();
+    (await screen.findByRole("button", { name: "Catat Perubahan" })).click();
     const dialog = await screen.findByRole("dialog", { name: "Catat Perubahan" });
     expect(within(dialog).getByRole("button", { name: "Simpan" })).toBeDisabled();
-    expect(within(dialog).getByText(/Penyimpanan belum tersedia\./)).toBeInTheDocument();
+    expect(within(dialog).getByText("Penyimpanan belum tersedia. Perubahan tidak dilaporkan sebagai berhasil.")).toBeInTheDocument();
     cleanup();
     vi.clearAllMocks();
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession());
     render(<EmployeeDetailRoute {...params({ workspaceKey: "sdm-utama", employeeId: "employee-1" })} />);
     expect(await screen.findByRole("heading", { name: "Detail Karyawan" })).toBeInTheDocument();
-    expect(screen.getByText(/Identitas pada URL tidak menentukan kewenangan/)).toBeInTheDocument();
+    expect(screen.getByText(/ID pada URL tidak menentukan akses/)).toBeInTheDocument();
   });
 
   it("offers document review only as unavailable extraction readiness", async () => {
@@ -119,6 +122,24 @@ describe("HR / GA workspace", () => {
     expect(await screen.findByText("Belum ada kandidat ekstraksi.")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Terima" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Edit" })).not.toBeInTheDocument();
+  });
+
+  it("keeps recruitment tabs and candidate detail contextual", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession());
+    render(<RecruitmentRoute {...params({ workspaceKey: "sdm-utama" })} />);
+    expect(await screen.findByRole("heading", { name: /Rekrutmen & Kandidat/ })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Posisi" })).toBeInTheDocument();
+    screen.getByRole("tab", { name: "Kandidat" }).click();
+    expect(await screen.findByRole("columnheader", { name: "Aktivitas Terakhir" })).toBeInTheDocument();
+    screen.getByRole("button", { name: "Ambil/Telaah dari Dokumen" }).click();
+    expect(await screen.findByText("Belum ada kandidat ekstraksi.")).toBeInTheDocument();
+    cleanup();
+    vi.clearAllMocks();
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession());
+    render(<CandidateDetailRoute {...params({ workspaceKey: "sdm-utama", candidateId: "candidate-1" })} />);
+    expect(await screen.findByRole("heading", { name: "Detail Kandidat" })).toBeInTheDocument();
+    screen.getByRole("tab", { name: "CV & Dokumen" }).click();
+    expect(await screen.findByText(/CV dan dokumen kandidat belum tersedia/)).toBeInTheDocument();
   });
 
   it("renders mutually exclusive source states and no extraction candidate", () => {

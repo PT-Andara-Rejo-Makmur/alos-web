@@ -31,7 +31,7 @@ export function HrStatusDrawer({ onClose, open, sources = HR_SOURCES, statuses =
   return <Drawer description="Status sumber ditampilkan tanpa menyimpulkan kondisi karyawan atau organisasi." onClose={onClose} open={open} title="Status Data HR"><dl className={styles.detailList}>{sources.map((source) => <Fragment key={source}><dt>{HR_SOURCE_LABELS[source]}</dt><dd>{statusLabel(statuses[source] ?? "unavailable")}</dd></Fragment>)}</dl></Drawer>;
 }
 
-export type HrFormField = { readonly label: string; readonly name: string; readonly type?: "date" | "number" | "text" | "textarea"; readonly required?: boolean; readonly relation?: boolean; readonly select?: boolean; readonly sourceReady?: boolean; readonly helper?: ReactNode };
+export type HrFormField = { readonly label: string; readonly name: string; readonly type?: "date" | "datetime-local" | "number" | "text" | "textarea"; readonly required?: boolean; readonly relation?: boolean; readonly select?: boolean; readonly sourceReady?: boolean; readonly helper?: ReactNode };
 export function HrUnavailableFormDrawer({ description, fields, onClose, open, submitLabel = "Simpan", title }: Readonly<{ description: string; fields: readonly HrFormField[]; onClose: () => void; open: boolean; submitLabel?: string; title: string }>) {
   const [submitted, setSubmitted] = useState(false);
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setSubmitted(true); };

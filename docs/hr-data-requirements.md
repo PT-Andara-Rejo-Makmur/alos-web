@@ -14,4 +14,31 @@ Status: **NEEDS CONTRACT / NEEDS BACKEND**. Tabel berikut adalah registry kebutu
 | hr.compliance | Dokumen & Kepatuhan | dokumen SDM | requirement, document | workspace | current | HR/Legal | policy | HR/Legal | NEEDS DECISION | Shared Work Document | NEEDS CONTRACT | document | NEEDS DECISION | CONFIDENTIAL | HR/Legal | `/compliance` | SOURCE UNAVAILABLE |
 | hr.ga | GA & Fasilitas | fasilitas | facility request, inventory | GA scope | period | GA | Strategy bila ada | GA source | NEEDS DECISION | NEEDS BACKEND | NEEDS CONTRACT | NEEDS CONTRACT | NEEDS DECISION | INTERNAL | GA governance | `/ga` | NEEDS CONTRACT |
 
+## Component-level coverage
+
+| Component ID | Component / Tab | Primary Entity or Metric | Authority / Source | Classification | Destination | Availability |
+|---|---|---|---|---|---|---|
+| hr.summary.workforce | Workforce Summary | Division, Headcount, Open Position, Joiner, Leaver | HR | INTERNAL | `/summary` | SOURCE UNAVAILABLE |
+| hr.summary.recruitment | Recruitment Attention | Position, Candidate, Stage, Next Action | HR | CONFIDENTIAL | `/summary` | SOURCE UNAVAILABLE |
+| hr.summary.employment | Employment Attention | Probation, Contract, Onboarding, Documents, Offboarding | HR + source domains | CONFIDENTIAL | `/summary` | SOURCE UNAVAILABLE |
+| hr.organization.structure | Struktur | Unit, Position, Person | HR | INTERNAL | `/organization` | SOURCE UNAVAILABLE |
+| hr.organization.headcount | Headcount | Approved, Filled, Vacant, Capacity | HR/Strategy | INTERNAL | `/organization` | SOURCE UNAVAILABLE |
+| hr.recruitment.vacancy | Posisi Terbuka | Vacancy and hiring need | HR | CONFIDENTIAL | `/recruitment` | SOURCE UNAVAILABLE |
+| hr.recruitment.candidate | Kandidat | Candidate pipeline | HR | CONFIDENTIAL | `/recruitment` | SOURCE UNAVAILABLE |
+| hr.recruitment.interview | Interview | Interview schedule and assessment | HR | CONFIDENTIAL | `/recruitment` | SOURCE UNAVAILABLE |
+| hr.recruitment.offer | Offer | Offer readiness and approval | HR/Legal/Finance as applicable | RESTRICTED | `/recruitment` | SOURCE UNAVAILABLE |
+| hr.onboarding.checklist | Onboarding | Documents, Equipment, Access, Orientation | HR + IT/GA | CONFIDENTIAL | `/onboarding` | SOURCE UNAVAILABLE |
+| hr.onboarding.probation | Masa Percobaan | Start, Expected End, Reviewer, Result | HR, human reviewer | CONFIDENTIAL | `/onboarding` | SOURCE UNAVAILABLE |
+| hr.employees.list | Karyawan | employment summary without sensitive PII | HR | CONFIDENTIAL | `/employees` | SOURCE UNAVAILABLE |
+| hr.attendance.events | Kehadiran | attendance event and verification | HR source | CONFIDENTIAL | `/attendance` | SOURCE UNAVAILABLE |
+| hr.leave.requests | Cuti | leave request and evidence | HR policy/source | CONFIDENTIAL | `/attendance` | SOURCE UNAVAILABLE |
+| hr.performance.people | People Performance | review, goals, development, training | HR | CONFIDENTIAL | `/people-performance` | SOURCE UNAVAILABLE |
+| hr.compensation.payroll-prep | Persiapan Payroll | entitlement and impacts, no payment state | HR prepares / Finance executes | RESTRICTED | `/compensation` | SOURCE UNAVAILABLE |
+| hr.compliance.documents | Dokumen & Kepatuhan | requirements and verification | Shared Work Document + HR/Legal | CONFIDENTIAL | `/compliance` | SOURCE UNAVAILABLE |
+| hr.offboarding.checklist | Offboarding | access, asset, documents, settlement readiness | HR + IT/GA/Finance/Legal | CONFIDENTIAL | `/offboarding` | SOURCE UNAVAILABLE |
+| hr.ga.facilities | GA & Fasilitas | facility request and inventory readiness | GA | INTERNAL | `/ga` | SOURCE UNAVAILABLE |
+| hr.performance.strategy | Target & Kinerja | Strategy target, HR actual/forecast | Strategy for target; HR for actual | INTERNAL | `/performance` | Strategy partial / HR unavailable |
+| shared-work.dependencies | Shared Work | Project, Task, Approval, Document, Report, Finding | Shared Work | classification by source | shared routes | REUSED |
+| ara.dependency | ARA | assistant context only | ARA/session | classification by source | `/ara` | REUSED |
+
 Payroll, bank, tax, government identity, attendance detail, and health data need explicit minimization and access policy before integration.
