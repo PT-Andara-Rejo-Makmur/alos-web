@@ -15,6 +15,7 @@ import {
   Tabs,
   type TabItem,
 } from "@/components/ui";
+import type { SessionProjection } from "@/features/session";
 import type {
   BusinessTarget,
   CascadePreview,
@@ -28,12 +29,14 @@ import { strategyApi } from "@/modules/strategy";
 
 import { ExecutiveLayout } from "./executive-layout";
 import { useExecutiveStrategyData } from "./executive-data";
+import { activeExecutiveWorkspaceId, ExecutiveWorkspacePicker } from "./executive-form-fields";
 import { corporateTargets, generateCanonicalId, periodLabel } from "./executive-model";
 import styles from "./executive.module.css";
 
 export interface ExecutivePlanningPageProps {
   readonly initialCandidates?: readonly ExtractedCandidate[];
   readonly initialProcessed?: boolean;
+  readonly session?: SessionProjection;
   readonly workspaceKey?: string;
 }
 
@@ -44,10 +47,11 @@ export function ExecutivePlanningPage({
 }: ExecutivePlanningPageProps = {}) {
   return (
     <ExecutiveLayout workspaceKey={workspaceKey}>
-      {() => (
+      {(session) => (
         <PlanningContent
           initialCandidates={initialCandidates}
           initialProcessed={initialProcessed}
+          session={session}
         />
       )}
     </ExecutiveLayout>
@@ -57,7 +61,8 @@ export function ExecutivePlanningPage({
 function PlanningContent({
   initialCandidates,
   initialProcessed,
-}: ExecutivePlanningPageProps) {
+  session,
+}: ExecutivePlanningPageProps & { readonly session: SessionProjection }) {
   const { data, error, loading } = useExecutiveStrategyData();
   const [tab, setTab] = useState("strategic");
   const [planFormType, setPlanFormType] = useState<"STRATEGIC_PLAN" | "OPERATING_PLAN" | null>(null);
@@ -163,6 +168,7 @@ function PlanningContent({
           canSubmit={canCreateCompanyPlan}
           onClose={() => setPlanFormType(null)}
           planType={planFormType}
+          session={session}
           strategicPlans={strategicPlans}
         />
       ) : null}
@@ -172,6 +178,7 @@ function PlanningContent({
           canSubmit={canCreateCompanyPlan}
           onClose={() => setObjectiveFormOpen(false)}
           plans={plans}
+          session={session}
         />
       ) : null}
 
@@ -181,6 +188,7 @@ function PlanningContent({
           canSubmitDivision={canCreateDivisionPlan}
           onClose={() => setTargetFormOpen(false)}
           plans={plans}
+          session={session}
         />
       ) : null}
 
@@ -188,6 +196,7 @@ function PlanningContent({
         <AssumptionFormDrawer
           canSubmit={canCreateCompanyPlan}
           onClose={() => setAssumptionFormOpen(false)}
+          session={session}
         />
       ) : null}
     </div>
@@ -236,9 +245,10 @@ interface PlanFormProps {
   readonly strategicPlans: readonly StrategyPlan[];
   readonly canSubmit: boolean;
   readonly onClose: () => void;
+  readonly session: SessionProjection;
 }
 
-function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFormProps) {
+function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose, session }: PlanFormProps) {
   const isRenstra = planType === "STRATEGIC_PLAN";
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -248,7 +258,7 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
   const [label, setLabel] = useState("");
   const [parentPlanId, setParentPlanId] = useState(strategicPlans[0]?.plan_id ?? "");
   const [scopeType, setScopeType] = useState("COMPANY");
-  const [ownerWorkspace, setOwnerWorkspace] = useState("");
+  const [ownerWorkspace, setOwnerWorkspace] = useState(() => activeExecutiveWorkspaceId(session));
   const [ownerRole, setOwnerRole] = useState("");
   const [materiality, setMateriality] = useState<"MATERIAL" | "NON_MATERIAL">("MATERIAL");
   const [source, setSource] = useState("");
@@ -394,12 +404,11 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="plan-owner-workspace">Ruang Kerja Penanggung Jawab *</label>
-            <input className={styles.formInput} id="plan-owner-workspace" onChange={(e) => setOwnerWorkspace(e.target.value)} placeholder="ID Ruang Kerja" required value={ownerWorkspace} />
+            <ExecutiveWorkspacePicker id="plan-owner-workspace" onChange={setOwnerWorkspace} session={session} value={ownerWorkspace} />
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="plan-owner-role">Peran Penanggung Jawab *</label>
+            <label htmlFor="plan-owner-role">Peran / Jabatan Penanggung Jawab *</label>
             <input className={styles.formInput} id="plan-owner-role" onChange={(e) => setOwnerRole(e.target.value)} placeholder="Peran / Jabatan" required value={ownerRole} />
           </div>
 
@@ -410,7 +419,7 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose }: PlanFo
 
           <div className={styles.formField}>
             <label htmlFor="plan-evidence">Bukti Pendukung</label>
-            <input className={styles.formInput} id="plan-evidence" onChange={(e) => setEvidence(e.target.value)} placeholder="ID dokumen bukti" value={evidence} />
+            <input className={styles.formInput} id="plan-evidence" onChange={(e) => setEvidence(e.target.value)} placeholder="Nomor arsip, nomor dokumen, atau tautan referensi" value={evidence} />
           </div>
         </div>
 
@@ -510,12 +519,12 @@ function ObjectivesSection({ plans, canCreate, onOpenForm }: ObjectivesSectionPr
   );
 }
 
-function ObjectiveFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: readonly StrategyPlan[]; canSubmit: boolean; onClose: () => void }>) {
+function ObjectiveFormDrawer({ plans, canSubmit, onClose, session }: Readonly<{ plans: readonly StrategyPlan[]; canSubmit: boolean; onClose: () => void; session: SessionProjection }>) {
   const [planId, setPlanId] = useState(plans[0]?.plan_id ?? "");
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [workspace, setWorkspace] = useState("");
+  const [workspace, setWorkspace] = useState(() => activeExecutiveWorkspaceId(session));
   const [scopeType, setScopeType] = useState("COMPANY");
   const [ownerRole, setOwnerRole] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -607,13 +616,12 @@ function ObjectiveFormDrawer({ plans, canSubmit, onClose }: Readonly<{ plans: re
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="obj-owner-role">Peran Penanggung Jawab *</label>
+            <label htmlFor="obj-owner-role">Peran / Jabatan Penanggung Jawab *</label>
             <input className={styles.formInput} id="obj-owner-role" onChange={(e) => setOwnerRole(e.target.value)} placeholder="Peran / Jabatan" required value={ownerRole} />
           </div>
 
           <div className={`${styles.formField} ${styles.formFullWidth}`}>
-            <label htmlFor="obj-workspace">Ruang Kerja Penanggung Jawab *</label>
-            <input className={styles.formInput} id="obj-workspace" onChange={(e) => setWorkspace(e.target.value)} placeholder="ID Ruang Kerja" required value={workspace} />
+            <ExecutiveWorkspacePicker id="obj-workspace" onChange={setWorkspace} session={session} value={workspace} />
           </div>
         </div>
 
@@ -673,7 +681,7 @@ function TargetsSection({ plans, targets, canCreate, onOpenForm }: TargetsSectio
   );
 }
 
-function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose }: Readonly<{ plans: readonly StrategyPlan[]; canSubmitCompany: boolean; canSubmitDivision: boolean; onClose: () => void }>) {
+function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose, session }: Readonly<{ plans: readonly StrategyPlan[]; canSubmitCompany: boolean; canSubmitDivision: boolean; onClose: () => void; session: SessionProjection }>) {
   const [step, setStep] = useState<1 | 2>(1);
 
   // Step 1: Metadata
@@ -682,7 +690,6 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose 
   const [description, setDescription] = useState("");
   const [planId, setPlanId] = useState(plans[0]?.plan_id ?? "");
   const [metricCode, setMetricCode] = useState("METRIC_PRIMARY");
-  const [kpiDef, setKpiDef] = useState("");
   const [objectiveId, setObjectiveId] = useState("");
   const [objectives, setObjectives] = useState<readonly StrategicObjective[]>([]);
   const [scopeType, setScopeType] = useState("COMPANY");
@@ -690,7 +697,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose 
   const [endsAt, setEndsAt] = useState("");
   const [measurementType, setMeasurementType] = useState("HIGHER_IS_BETTER");
   const [unit, setUnit] = useState("IDR");
-  const [ownerWorkspace, setOwnerWorkspace] = useState("");
+  const [ownerWorkspace, setOwnerWorkspace] = useState(() => activeExecutiveWorkspaceId(session));
   const [ownerRole, setOwnerRole] = useState("");
   const [materiality, setMateriality] = useState<"MATERIAL" | "NON_MATERIAL">("MATERIAL");
   const [sourceRef, setSourceRef] = useState("");
@@ -790,7 +797,6 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose 
         objective_ref: selectedObjective
           ? { id: selectedObjective.objective_id, version: selectedObjective.version }
           : null,
-        kpi_definition_ref: kpiDef.trim() || null,
         metric_code: metricCode,
         measurement_type: measurementType,
         unit,
@@ -885,8 +891,10 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose 
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="tgt-kpi">Referensi Definisi KPI</label>
-              <input className={styles.formInput} id="tgt-kpi" onChange={(e) => setKpiDef(e.target.value)} placeholder="ID definisi KPI (opsional)" value={kpiDef} />
+              <span style={{ color: "var(--alos-text-secondary)", fontSize: "12px" }}>Referensi KPI</span>
+              <p style={{ color: "var(--alos-text-secondary)", fontSize: "12px", margin: 0 }}>
+                Referensi KPI akan tersedia setelah sumber definisi KPI terhubung.
+              </p>
             </div>
 
             <div className={styles.formField}>
@@ -939,12 +947,11 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose 
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="tgt-owner-ws">Ruang Kerja Penanggung Jawab *</label>
-              <input className={styles.formInput} id="tgt-owner-ws" onChange={(e) => setOwnerWorkspace(e.target.value)} placeholder="ID Ruang Kerja" required value={ownerWorkspace} />
+              <ExecutiveWorkspacePicker id="tgt-owner-ws" onChange={setOwnerWorkspace} session={session} value={ownerWorkspace} />
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="tgt-owner-role">Peran Penanggung Jawab *</label>
+              <label htmlFor="tgt-owner-role">Peran / Jabatan Penanggung Jawab *</label>
               <input className={styles.formInput} id="tgt-owner-role" onChange={(e) => setOwnerRole(e.target.value)} placeholder="Peran / Jabatan" required value={ownerRole} />
             </div>
 
@@ -954,8 +961,8 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose 
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="tgt-evidence-ref">ID Bukti Dokumen</label>
-              <input className={styles.formInput} id="tgt-evidence-ref" onChange={(e) => setEvidenceRef(e.target.value)} placeholder="ID dokumen bukti pengesahan" value={evidenceRef} />
+              <label htmlFor="tgt-evidence-ref">Bukti Pendukung</label>
+              <input className={styles.formInput} id="tgt-evidence-ref" onChange={(e) => setEvidenceRef(e.target.value)} placeholder="Nomor arsip, nomor dokumen, atau tautan referensi" value={evidenceRef} />
             </div>
 
             <div className={`${styles.formField} ${styles.formFullWidth}`}>
@@ -1002,7 +1009,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose 
             ) : (
               <div className={`${styles.formField} ${styles.formFullWidth}`}>
                 <label htmlFor="tgt-obs-evidence">Bukti Dokumen Pendukung * <span style={{ fontSize: "11px", color: "var(--alos-text-muted)" }}>(wajib untuk mode ini)</span></label>
-                <input className={styles.formInput} id="tgt-obs-evidence" onChange={(e) => setObsEvidenceRef(e.target.value)} placeholder="ID dokumen bukti" required value={obsEvidenceRef} />
+                <input className={styles.formInput} id="tgt-obs-evidence" onChange={(e) => setObsEvidenceRef(e.target.value)} placeholder="Nomor arsip, nomor dokumen, atau tautan referensi" required value={obsEvidenceRef} />
               </div>
             )}
           </div>
@@ -1060,7 +1067,7 @@ function AssumptionsSection({ assumptions, canCreate, onOpenForm }: AssumptionsS
   );
 }
 
-function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: boolean; onClose: () => void }>) {
+function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSubmit: boolean; onClose: () => void; session: SessionProjection }>) {
   const [category, setCategory] = useState("AVERAGE_SELLING_PRICE");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -1070,7 +1077,7 @@ function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: bool
   const [endsAt, setEndsAt] = useState("");
   const [granularity, setGranularity] = useState("ANNUAL");
   const [scopeType, setScopeType] = useState("COMPANY");
-  const [ownerWorkspace, setOwnerWorkspace] = useState("");
+  const [ownerWorkspace, setOwnerWorkspace] = useState(() => activeExecutiveWorkspaceId(session));
   const [ownerRole, setOwnerRole] = useState("");
   const [sourceMode, setSourceMode] = useState<"MANUAL_EVIDENCED" | "SOURCE_LINKED">("MANUAL_EVIDENCED");
   const [sourceRef, setSourceRef] = useState("");
@@ -1223,7 +1230,7 @@ function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: bool
 
           <div className={styles.formField}>
             <label htmlFor="asm-evidence">Referensi Bukti</label>
-            <input className={styles.formInput} id="asm-evidence" onChange={(e) => setEvidenceRef(e.target.value)} placeholder="ID dokumen bukti" value={evidenceRef} />
+            <input className={styles.formInput} id="asm-evidence" onChange={(e) => setEvidenceRef(e.target.value)} placeholder="Nomor arsip, nomor dokumen, atau tautan referensi" value={evidenceRef} />
           </div>
 
           <div className={styles.formField}>
@@ -1235,12 +1242,11 @@ function AssumptionFormDrawer({ canSubmit, onClose }: Readonly<{ canSubmit: bool
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="asm-owner-ws">Ruang Kerja Penanggung Jawab *</label>
-            <input className={styles.formInput} id="asm-owner-ws" onChange={(e) => setOwnerWorkspace(e.target.value)} placeholder="ID Ruang Kerja" required value={ownerWorkspace} />
+            <ExecutiveWorkspacePicker id="asm-owner-ws" onChange={setOwnerWorkspace} session={session} value={ownerWorkspace} />
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="asm-owner-role">Peran Penanggung Jawab *</label>
+            <label htmlFor="asm-owner-role">Peran / Jabatan Penanggung Jawab *</label>
             <input className={styles.formInput} id="asm-owner-role" onChange={(e) => setOwnerRole(e.target.value)} placeholder="Peran / Jabatan" required value={ownerRole} />
           </div>
 
@@ -1282,7 +1288,6 @@ function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSec
   const [ruleType, setRuleType] = useState<"SPLIT_PERCENT" | "SPLIT_FIXED" | "DIRECT" | "RATIO_MULTIPLY" | "SUM_ROLLUP" | "RATIO_DIVIDE_CEIL" | "LIMIT_CHECK">("SPLIT_PERCENT");
   const [ratioInput, setRatioInput] = useState("");
   const [fixedAllocation, setFixedAllocation] = useState("");
-  const [outputTargetId, setOutputTargetId] = useState("");
   const [selectedAssumptionId, setSelectedAssumptionId] = useState(assumptions[0]?.assumption_id ?? "");
   const [previewData, setPreviewData] = useState<CascadePreview | null>(null);
   const [previewing, setPreviewing] = useState(false);
@@ -1302,7 +1307,7 @@ function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSec
       return;
     }
 
-    const derivedTargetId = outputTargetId.trim() || generateCanonicalId("target");
+    const derivedTargetId = generateCanonicalId("target");
     const ruleId = generateCanonicalId("rule");
 
     const parameters: Record<string, unknown> = {};
@@ -1467,17 +1472,6 @@ function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSec
             ) : null}
 
             <div className={styles.formField}>
-              <label htmlFor="cas-target-derived">Target Turunan (Opsional)</label>
-              <input
-                className={styles.formInput}
-                id="cas-target-derived"
-                onChange={(e) => setOutputTargetId(e.target.value)}
-                placeholder="ID Target Turunan (kosongkan untuk otomatis)"
-                value={outputTargetId}
-              />
-            </div>
-
-            <div className={styles.formField}>
               <label htmlFor="cas-asm">Asumsi yang Digunakan</label>
               <select className={styles.formSelect} id="cas-asm" onChange={(e) => setSelectedAssumptionId(e.target.value)} value={selectedAssumptionId}>
                 <option value="">Tanpa Asumsi Tambahan</option>
@@ -1514,7 +1508,7 @@ function CascadeSection({ targets, assumptions, canCascade = false }: CascadeSec
 
             <div style={{ marginTop: "var(--alos-space-3)" }}>
               <p style={{ fontSize: "13px" }}>
-                Target Asal: <strong>{selectedTarget?.name ?? previewData.root_target_ref.id}</strong> (v{previewData.root_target_ref.version})
+                Target Asal: <strong>{selectedTarget?.name ?? "Target tidak tersedia"}</strong> (v{previewData.root_target_ref.version})
               </p>
 
               {previewData.blocking_conditions && previewData.blocking_conditions.length > 0 ? (

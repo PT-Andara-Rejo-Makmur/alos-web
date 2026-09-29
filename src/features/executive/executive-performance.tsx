@@ -501,7 +501,7 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
           {sourceMode === "MANUAL_EVIDENCED" ? (
             <div className={`${styles.formField} ${styles.formFullWidth}`}>
               <label htmlFor="obs-ev">Bukti Pendukung (Evidence) *</label>
-              <input className={styles.formInput} id="obs-ev" onChange={(e) => setEvidenceRef(e.target.value)} placeholder="Nomor arsip, ID dokumen bukti, atau rujukan faktur" required value={evidenceRef} />
+              <input className={styles.formInput} id="obs-ev" onChange={(e) => setEvidenceRef(e.target.value)} placeholder="Nomor arsip, nomor dokumen, atau tautan referensi" required value={evidenceRef} />
             </div>
           ) : (
             <div className={`${styles.formField} ${styles.formFullWidth}`}>

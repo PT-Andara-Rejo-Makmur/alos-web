@@ -11,6 +11,7 @@ import { ExecutiveLayout } from "./executive-layout";
 import { useExecutiveStrategyData } from "./executive-data";
 import {
   corporateTargets,
+  lifecycleLabel,
   performanceLabel,
   performanceVariant,
   periodLabel,
@@ -234,7 +235,7 @@ function ReviewsContent({
                   </select>
                   {selectedTarget ? (
                     <p style={{ margin: "var(--alos-space-1) 0 0", fontSize: "12px", color: "var(--alos-text-secondary)" }}>
-                      Target Aktif: <strong>{selectedTarget.name}</strong> (v{selectedTarget.version}) · Status: {selectedTarget.lifecycle_state}
+                      Target Aktif: <strong>{selectedTarget.name}</strong> (v{selectedTarget.version}) · Status: {lifecycleLabel(selectedTarget.lifecycle_state)}
                     </p>
                   ) : null}
                 </div>

@@ -21,6 +21,7 @@ import type {
 } from "@/lib/contracts";
 import * as api from "@/lib/api";
 import { strategyApi } from "@/modules/strategy";
+import { executiveWorkspaceOptions } from "@/features/executive/executive-form-fields";
 
 const push = vi.fn();
 const replace = vi.fn();
@@ -360,15 +361,27 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     expect(Number.isNaN(Number(id.replace("plan-", "")))).toBe(true);
   });
 
-  // 15. No workspace_exec hardcoded as form default
-  it("Scenario 15: Forms initialize owner workspace to empty, avoiding hardcoded workspace_exec", async () => {
+  // 15. Workspace picker uses the authoritative active workspace
+  it("Scenario 15: Workspace picker displays the authoritative workspace name and keeps its internal ID", async () => {
     render(<ExecutivePlanningPage />);
 
     const createBtn = await screen.findByRole("button", { name: "Buat Renstra" });
     fireEvent.click(createBtn);
 
-    const wsInput = screen.getByLabelText("Ruang Kerja Penanggung Jawab *") as HTMLInputElement;
-    expect(wsInput.value).toBe("");
+    const workspacePicker = screen.getByLabelText("Ruang Kerja Penanggung Jawab *") as HTMLSelectElement;
+    expect(workspacePicker.value).toBe("workspace_exec");
+    expect(screen.getByRole("option", { name: "Pusat Kendali" })).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("ID Ruang Kerja")).not.toBeInTheDocument();
+  });
+
+  it("Scenario 15b: Workspace picker fails closed when authoritative choices are unavailable", () => {
+    const unavailableSession = authenticatedSession({
+      ...executivePrincipal,
+      active_workspace: null,
+      workspace_access: [],
+    });
+
+    expect(executiveWorkspaceOptions(unavailableSession)).toEqual([]);
   });
 
   // 16. No EXECUTIVE hardcoded as form owner default
@@ -378,7 +391,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     const createBtn = await screen.findByRole("button", { name: "Buat Renstra" });
     fireEvent.click(createBtn);
 
-    const roleInput = screen.getByLabelText("Peran Penanggung Jawab *") as HTMLInputElement;
+    const roleInput = screen.getByLabelText("Peran / Jabatan Penanggung Jawab *") as HTMLInputElement;
     expect(roleInput.value).toBe("");
   });
 

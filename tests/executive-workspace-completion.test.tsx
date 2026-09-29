@@ -18,6 +18,7 @@ import type {
 } from "@/lib/contracts";
 import * as api from "@/lib/api";
 import { strategyApi } from "@/modules/strategy";
+import { lifecycleLabel } from "@/features/executive/executive-model";
 
 const push = vi.fn();
 const replace = vi.fn();
@@ -207,7 +208,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(screen.getByLabelText("Granularitas *")).toBeInTheDocument();
     expect(screen.getByLabelText("Ruang Lingkup *")).toBeInTheDocument();
     expect(screen.getByLabelText("Ruang Kerja Penanggung Jawab *")).toBeInTheDocument();
-    expect(screen.getByLabelText("Peran Penanggung Jawab *")).toBeInTheDocument();
+    expect(screen.getByLabelText("Peran / Jabatan Penanggung Jawab *")).toBeInTheDocument();
     expect(screen.getByLabelText("Tingkat Kepentingan *")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Simpan Draf" })).toBeInTheDocument();
   });
@@ -261,12 +262,16 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
 
     expect(await screen.findByText(/Formulir Target/)).toBeInTheDocument();
     expect(screen.getByText("Langkah 1:")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Referensi Definisi KPI")).not.toBeInTheDocument();
+    expect(screen.getByText("Referensi KPI akan tersedia setelah sumber definisi KPI terhubung.")).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(/ID definisi KPI/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ID Bukti Dokumen/i)).not.toBeInTheDocument();
 
     // Fill metadata Step 1
     fireEvent.change(screen.getByLabelText("Kode Target *"), { target: { value: "TGT-NEW-01" } });
     fireEvent.change(screen.getByLabelText("Nama Target *"), { target: { value: "Target Baru" } });
     fireEvent.change(screen.getByLabelText("Ruang Kerja Penanggung Jawab *"), { target: { value: "workspace_exec" } });
-    fireEvent.change(screen.getByLabelText("Peran Penanggung Jawab *"), { target: { value: "Direktur" } });
+    fireEvent.change(screen.getByLabelText("Peran / Jabatan Penanggung Jawab *"), { target: { value: "Direktur" } });
 
     const nextBtn = screen.getByRole("button", { name: "Lanjut: Nilai Target →" });
     fireEvent.click(nextBtn);
@@ -297,7 +302,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     fireEvent.change(screen.getByLabelText("Periode Mulai *"), { target: { value: "2027-01-01" } });
     fireEvent.change(screen.getByLabelText("Periode Selesai *"), { target: { value: "2027-12-31" } });
     fireEvent.change(screen.getByLabelText("Ruang Kerja Penanggung Jawab *"), { target: { value: "workspace_exec" } });
-    fireEvent.change(screen.getByLabelText("Peran Penanggung Jawab *"), { target: { value: "Tim Anggaran" } });
+    fireEvent.change(screen.getByLabelText("Peran / Jabatan Penanggung Jawab *"), { target: { value: "Tim Anggaran" } });
 
     const submitBtn = screen.getByRole("button", { name: "Simpan Asumsi" });
     fireEvent.click(submitBtn);
@@ -332,6 +337,9 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(await screen.findByRole("heading", { name: "Rencana & Target" })).toBeInTheDocument();
     const casTab = await screen.findByRole("tab", { name: "Cascade" });
     fireEvent.click(casTab);
+
+    expect(screen.queryByLabelText("Target Turunan (Opsional)")).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(/ID Target Turunan/i)).not.toBeInTheDocument();
 
     expect(screen.queryByRole("button", { name: /Terapkan Cascade/ })).not.toBeInTheDocument();
 
@@ -460,6 +468,8 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
       screen.getByText(/Versi target yang sedang aktif tidak akan ditimpa langsung/i),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Alasan Revisi Target *")).toBeInTheDocument();
+    expect(screen.queryByText(/Status: ACTIVE/)).not.toBeInTheDocument();
+    expect(lifecycleLabel("ACTIVE")).toBe("Aktif");
   });
 
   // 12. Division Shared Work tabs remain readiness-only until governed cross-workspace projection exists

@@ -79,6 +79,18 @@ export function performanceVariant(state: BusinessTarget["performance_state"]): 
   }
 }
 
+export function lifecycleLabel(state: string | null | undefined): string {
+  switch (state) {
+    case "DRAFT": return "Draf";
+    case "UNDER_REVIEW": return "Dalam Peninjauan";
+    case "APPROVED": return "Disetujui";
+    case "ACTIVE": return "Aktif";
+    case "SUPERSEDED": return "Digantikan";
+    case "ARCHIVED": return "Diarsipkan";
+    default: return "Belum Dinilai";
+  }
+}
+
 export function verificationLabel(state: StrategyVerificationState | null | undefined): string {
   switch (state) {
     case "VERIFIED": return "Terverifikasi";
