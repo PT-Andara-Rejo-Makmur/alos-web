@@ -63,7 +63,7 @@ function SalesCampaigns({ session }: Readonly<{ session: SessionProjection }>) {
     <div className={styles.page}>
       <PageHeader description="Campaign, channel, dan attribution sesuai data marketing resmi." eyebrow="SALES & MARKETING" metadata={`Workspace aktif: ${workspaceKey ?? "—"}`} title="Campaign & Channel" />
       <SalesSourceNote>Campaign source belum terhubung. Spend, leads, CPL, dan conversion tidak disimpulkan sebagai nol.</SalesSourceNote>
-      <SalesActionBar><Button onClick={() => setForm("add")} variant="primary">Tambah Campaign</Button><Button onClick={() => setForm("edit")} variant="secondary">Edit Campaign</Button><Button onClick={() => setExtractionOpen(true)} variant="ghost">Ambil dari Dokumen</Button></SalesActionBar>
+      <SalesActionBar><Button onClick={() => setForm("add")} variant="primary">Tambah Campaign</Button><Button disabled={selectedCampaign === null} onClick={() => setForm("edit")} variant="secondary">Edit Campaign</Button><Button onClick={() => setExtractionOpen(true)} variant="ghost">Ambil dari Dokumen</Button></SalesActionBar>
       <Tabs ariaLabel="Tampilan campaign dan channel" items={tabs} onValueChange={setTab} value={tab} />
       <Section title="Filter Marketing">
         <SalesFilterBar search={<input aria-label="Cari campaign atau channel" placeholder="Cari campaign atau channel" />}>
@@ -73,7 +73,9 @@ function SalesCampaigns({ session }: Readonly<{ session: SessionProjection }>) {
         </SalesFilterBar>
       </Section>
       {tab === "campaign" || tab === "content" ? <Section title={tab === "content" ? "Content / Collateral" : "Daftar Campaign"}><DataTable caption="Daftar campaign" columns={campaignColumns} emptyState={<SalesUnavailableState description="Campaign akan tampil setelah source marketing terhubung." />} getRowKey={(row) => row.recordId} rowAction={(row) => <Button onClick={() => setSelectedCampaign(row)} size="sm" variant="secondary">Lihat cepat</Button>} rows={campaignRows} /></Section> : <Section title={tab === "channel" ? "Daftar Channel" : "Attribution Channel"}><DataTable caption="Daftar channel dan attribution" columns={channelColumns} emptyState={<SalesUnavailableState description="Channel dan attribution akan tampil setelah source marketing terhubung." />} getRowKey={(row) => row.recordId} rows={channelRows} /></Section>}
-      <SalesDetailDrawer description="Quick view campaign hanya menampilkan data marketing authoritative." items={selectedCampaign ? campaignDetailItems(selectedCampaign) : []} onClose={() => setSelectedCampaign(null)} open={selectedCampaign !== null} title="Quick View Campaign" />
+      <SalesDetailDrawer description="Quick view campaign hanya menampilkan data marketing authoritative." items={selectedCampaign ? campaignDetailItems(selectedCampaign) : []} onClose={() => setSelectedCampaign(null)} open={selectedCampaign !== null} title="Quick View Campaign">
+        {selectedCampaign ? <Button onClick={() => setForm("edit")} variant="secondary">Edit Campaign</Button> : null}
+      </SalesDetailDrawer>
       <SalesUnavailableFormDrawer description="Campaign mutation belum memiliki contract authoritative." fields={campaignFields} onClose={() => setForm(null)} open={form !== null} submitLabel={form === "edit" ? "Simpan Perubahan" : "Simpan Campaign"} title={form === "edit" ? "Edit Campaign" : "Tambah Campaign"} />
       <SalesExtractionReviewDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} title="Extraction Campaign Brief" />
     </div>

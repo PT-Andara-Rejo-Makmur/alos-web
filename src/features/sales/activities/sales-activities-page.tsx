@@ -39,7 +39,7 @@ export function SalesActivitiesPage({ workspaceKey }: Readonly<{ workspaceKey?: 
 function SalesActivities({ session }: Readonly<{ session: SessionProjection }>) {
   const [tab, setTab] = useState("today");
   const [filters, setFilters] = useState({ owner: "all", status: "all", type: "all" });
-  const [form, setForm] = useState<"activity" | "follow-up" | null>(null);
+  const [form, setForm] = useState<"activity" | "follow-up" | "result" | null>(null);
   const [extractionOpen, setExtractionOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<ActivityRow | null>(null);
   const workspaceKey = session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_key : null;
@@ -60,9 +60,12 @@ function SalesActivities({ session }: Readonly<{ session: SessionProjection }>) 
       <Section title="Daftar Aktivitas">
         <DataTable caption="Daftar aktivitas dan tindak lanjut" columns={activityColumns} emptyState={<SalesUnavailableState description="Aktivitas akan tampil setelah source activity terhubung." />} getRowKey={(row) => row.recordId} rowAction={(row) => <Button onClick={() => setSelectedActivity(row)} size="sm" variant="secondary">Lihat detail</Button>} rows={activityRows} />
       </Section>
-      <SalesDetailDrawer items={selectedActivity ? activityDetailItems(selectedActivity) : []} onClose={() => setSelectedActivity(null)} open={selectedActivity !== null} title="Detail Aktivitas" />
+      <SalesDetailDrawer items={selectedActivity ? activityDetailItems(selectedActivity) : []} onClose={() => setSelectedActivity(null)} open={selectedActivity !== null} title="Detail Aktivitas">
+        {selectedActivity ? <Button onClick={() => setForm("result")} variant="secondary">Catat Hasil</Button> : null}
+      </SalesDetailDrawer>
       <SalesUnavailableFormDrawer description="Activity mutation belum memiliki contract authoritative." fields={activityFields} onClose={() => setForm(null)} open={form === "activity"} submitLabel="Catat Aktivitas" title="Tambah Aktivitas" />
       <SalesUnavailableFormDrawer description="Follow-up mutation belum memiliki contract authoritative." fields={activityFields} onClose={() => setForm(null)} open={form === "follow-up"} submitLabel="Jadwalkan" title="Jadwalkan Follow-up" />
+      <SalesUnavailableFormDrawer description={selectedActivity ? `Hasil untuk ${selectedActivity.leadCustomer} belum memiliki capability mutation authoritative.` : "Activity result mutation belum memiliki contract authoritative."} fields={[{ label: "Hasil aktivitas", name: "result", type: "textarea" }, { label: "Next Action", name: "next-action", type: "textarea" }]} onClose={() => setForm(null)} open={form === "result" && selectedActivity !== null} submitLabel="Catat Hasil" title="Catat Hasil" />
       <SalesExtractionReviewDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} title="Extraction Aktivitas" />
     </div>
   );

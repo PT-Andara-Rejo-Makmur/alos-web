@@ -189,9 +189,9 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     const extTab = await screen.findByRole("tab", { name: "Ekstraksi Dokumen" });
     fireEvent.click(extTab);
 
-    const processBtn = screen.getByRole("button", { name: "Proses Ekstraksi" });
+    const processBtn = await screen.findByRole("button", { name: "Proses Ekstraksi" });
     expect(processBtn).toBeDisabled();
-    expect(screen.getByText("Ekstraksi dokumen belum tersedia.")).toBeInTheDocument();
+    expect(await screen.findByText("Ekstraksi dokumen belum tersedia.")).toBeInTheDocument();
   });
 
   // 4. Brief does not write "Nihil" if Finding source is unavailable

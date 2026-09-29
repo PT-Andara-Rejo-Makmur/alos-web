@@ -23,6 +23,7 @@ import {
   SalesLeadsPage,
   SalesPerformancePage,
   SalesPipelinePage,
+  hasSalesContext,
 } from "@/features/sales";
 import {
   ApprovalsPage,
@@ -42,7 +43,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: mockReplace }),
 }));
 
-function salesSession(workspaceKey = "penjualan-utama") {
+function salesSession(workspaceKey = "penjualan-utama", divisionCode = "SALES") {
   const principal: AuthenticatedPrincipalProjection = {
     actor: {
       actor_id: "actor_sales",
@@ -59,7 +60,7 @@ function salesSession(workspaceKey = "penjualan-utama") {
       scope_refs: ["workspace_penjualan"],
       workspace: {
         active: true,
-        division_code: "SALES",
+        division_code: divisionCode,
         organization_id: "org_andara",
         workspace_id: "workspace_penjualan",
         workspace_key: workspaceKey,
@@ -227,6 +228,29 @@ describe("Sales workspace", () => {
     expect(screen.getByRole("dialog", { name: "Extraction Lead" })).toBeInTheDocument();
     expect(screen.getAllByText("Perlu Diperiksa").length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Simpan Draft" })).toBeDisabled();
+  });
+
+  it("hasSalesContext mengikuti canonical workspace-domain resolver dan tetap fail closed", () => {
+    expect(hasSalesContext(salesSession("penjualan-utama", "sales"))).toBe(true);
+    expect(hasSalesContext(salesSession("workspace-unknown", "UNKNOWN"))).toBe(false);
+  });
+
+  it("mutation actions Sales hanya contextual terhadap record yang terpilih", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession());
+
+    render(<SalesLeadsPage workspaceKey="penjualan-utama" />);
+    expect(await screen.findByRole("heading", { name: "Prospek & Lead" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Edit Lead" })).not.toBeInTheDocument();
+
+    cleanup();
+    render(<SalesActivitiesPage workspaceKey="penjualan-utama" />);
+    expect(await screen.findByRole("heading", { name: "Aktivitas & Tindak Lanjut" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Catat Hasil" })).not.toBeInTheDocument();
+
+    cleanup();
+    render(<SalesCampaignsPage workspaceKey="penjualan-utama" />);
+    expect(await screen.findByRole("heading", { name: "Campaign & Channel" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit Campaign" })).toBeDisabled();
   });
 
   it("Sales Shared Work Documents renders inside a single AppShell", async () => {

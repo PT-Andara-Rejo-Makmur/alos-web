@@ -90,12 +90,14 @@ export function SalesSelect({
 }
 
 export function SalesDetailDrawer({
+  children,
   description = "Detail hanya menampilkan data authoritative yang telah tersedia.",
   items,
   onClose,
   open,
   title,
 }: Readonly<{
+  children?: ReactNode;
   description?: string;
   items: readonly SalesDetailItem[];
   onClose: () => void;
@@ -107,6 +109,7 @@ export function SalesDetailDrawer({
       <dl className={styles.quickViewList}>
         {items.map((item) => <SalesDetailItemView item={item} key={item.label} />)}
       </dl>
+      {children ? <div className={styles.formActions}>{children}</div> : null}
     </Drawer>
   );
 }

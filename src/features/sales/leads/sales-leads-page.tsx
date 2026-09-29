@@ -42,6 +42,7 @@ function SalesLeads({ session }: Readonly<{ session: SessionProjection }>) {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({ owner: "all", project: "all", source: "all", status: "all" });
   const [form, setForm] = useState<"add" | "edit" | "activity" | "follow-up" | null>(null);
+  const [editingLead, setEditingLead] = useState<LeadRow | null>(null);
   const [extractionOpen, setExtractionOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<LeadRow | null>(null);
   const workspaceKey = session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_key : null;
@@ -68,8 +69,10 @@ function SalesLeads({ session }: Readonly<{ session: SessionProjection }>) {
       <Section description="Record memakai conceptual record ID dari source; nama prospek bukan identity final." title="Daftar Prospek">
         <DataTable caption="Daftar prospek dan lead" columns={leadColumns} emptyState={<SalesUnavailableState description="Daftar prospek akan tampil setelah sumber Lead terhubung." />} getRowKey={(row) => row.recordId} rowAction={(row) => <Button onClick={() => setSelectedLead(row)} size="sm" variant="secondary">Lihat detail</Button>} rows={leadRows} />
       </Section>
-      <SalesDetailDrawer description="Profil, kontak, aktivitas terakhir, next action, dan related documents." items={selectedLead ? leadDetailItems(selectedLead) : []} onClose={() => setSelectedLead(null)} open={selectedLead !== null} title="Detail Prospek" />
-      <SalesUnavailableFormDrawer description="Lead belum memiliki capability mutation authoritative." fields={leadFormFields} onClose={() => setForm(null)} open={form === "add" || form === "edit"} submitLabel={form === "edit" ? "Simpan Perubahan" : "Simpan Lead"} title={form === "edit" ? "Edit Lead" : "Tambah Lead"} />
+      <SalesDetailDrawer description="Profil, kontak, aktivitas terakhir, next action, dan related documents." items={selectedLead ? leadDetailItems(selectedLead) : []} onClose={() => setSelectedLead(null)} open={selectedLead !== null} title="Detail Prospek">
+        {selectedLead ? <Button onClick={() => { setEditingLead(selectedLead); setSelectedLead(null); setForm("edit"); }} variant="secondary">Edit Lead</Button> : null}
+      </SalesDetailDrawer>
+      <SalesUnavailableFormDrawer description={editingLead ? `Perubahan untuk ${editingLead.name} belum memiliki capability mutation authoritative.` : "Lead belum memiliki capability mutation authoritative."} fields={leadFormFields} onClose={() => { setEditingLead(null); setForm(null); }} open={form === "add" || (form === "edit" && editingLead !== null)} submitLabel={form === "edit" ? "Simpan Perubahan" : "Simpan Lead"} title={form === "edit" ? "Edit Lead" : "Tambah Lead"} />
       <SalesUnavailableFormDrawer description="Aktivitas dan jadwal follow-up belum memiliki contract authoritative." fields={[{ label: "Lead / Customer", name: "lead" }, { label: "Jenis aktivitas", name: "activity-type" }, { label: "Jadwal", name: "schedule", type: "date" }, { label: "Catatan", name: "notes", type: "textarea" }]} onClose={() => setForm(null)} open={form === "activity" || form === "follow-up"} submitLabel={form === "activity" ? "Catat Aktivitas" : "Jadwalkan"} title={form === "activity" ? "Tambah Aktivitas" : "Jadwalkan Follow-up"} />
       <SalesExtractionReviewDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} title="Extraction Lead" />
     </div>
