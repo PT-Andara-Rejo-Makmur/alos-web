@@ -25,12 +25,12 @@ function PropertyPerformance({ session }: Readonly<{ session: SessionProjection 
   const [filters, setFilters] = useState({ period: "all", project: "all", contractor: "all" });
   const activeKey = session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_key : null;
   return <div className={styles.page}>
-    <PageHeader description="Target dan kinerja Property berasal dari projection Strategy dan outcome operasional authoritative." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Target & Kinerja" />
-    <PropertySourceNote>Target Strategy dan outcome teknis aktual belum terhubung. Property tidak menghitung capaian dari kandidat atau data frontend.</PropertySourceNote>
+    <PageHeader description="Target dan kinerja Property berasal dari data Strategy dan hasil operasional yang telah ditetapkan." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Target & Kinerja" />
+    <PropertySourceNote>Target Strategy dan hasil teknis aktual belum terhubung. Capaian tidak dihitung dari kandidat atau data sementara di halaman ini.</PropertySourceNote>
     <Tabs ariaLabel="Tampilan kinerja Property" items={tabs} onValueChange={setTab} value={tab} />
     <Section title="Filter Kinerja"><PropertyFilterBar ariaLabel="Filter kinerja Property"><PropertySelect label="Periode" name="performance-period" onChange={(value) => setFilters((current) => ({ ...current, period: value }))} options={[["all", "Semua periode"]]} value={filters.period} /><PropertySelect label="Proyek" name="performance-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua proyek"]]} value={filters.project} /><PropertySelect label="Kontraktor" name="performance-contractor" onChange={(value) => setFilters((current) => ({ ...current, contractor: value }))} options={[["all", "Semua kontraktor"]]} value={filters.contractor} /></PropertyFilterBar></Section>
     <section aria-label="Metric performance Property" className={styles.metricGrid}>{metrics.map((label) => <Metric key={label} label={label} status="Belum Terhubung" value="—" />)}</section>
-    <Section title={tabs.find((item) => item.id === tab)?.label ?? "Ringkasan"}><PropertyUnavailableState description="Projection kinerja belum tersedia." /></Section>
-    <Section description="Breakdown menunggu target Strategy dan outcome teknis governed." title="Breakdown Kinerja"><DataTable caption="Breakdown kinerja Property" columns={performanceColumns} emptyState={<PropertyUnavailableState description="Breakdown kinerja belum tersedia." />} getRowKey={(row) => row.recordId} rows={performanceRows} /></Section>
+    <Section title={tabs.find((item) => item.id === tab)?.label ?? "Ringkasan"}><PropertyUnavailableState description="Data kinerja belum tersedia." /></Section>
+    <Section description="Rincian menunggu target Strategy dan hasil teknis yang telah ditetapkan." title="Rincian Kinerja"><DataTable caption="Rincian kinerja Property" columns={performanceColumns} emptyState={<PropertyUnavailableState description="Rincian kinerja belum tersedia." />} getRowKey={(row) => row.recordId} rows={performanceRows} /></Section>
   </div>;
 }

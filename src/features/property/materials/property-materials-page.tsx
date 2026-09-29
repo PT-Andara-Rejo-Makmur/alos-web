@@ -26,11 +26,11 @@ function PropertyMaterials({ session }: Readonly<{ session: SessionProjection }>
   const activeKey = session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_key : null;
   return <div className={styles.page}>
     <PageHeader description="Kebutuhan material teknis; PO, pembelian komersial, dan pembayaran bukan authority Property." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Material & Pengadaan" />
-    <PropertySourceNote>Source material belum tersedia. Property tidak menetapkan status pengadaan atau pembayaran.</PropertySourceNote>
+    <PropertySourceNote>Sumber material belum tersedia. Property tidak menetapkan status pengadaan atau pembayaran.</PropertySourceNote>
     <Section title="Filter Material"><PropertyFilterBar ariaLabel="Filter material Property"><PropertySelect label="Proyek" name="material-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua proyek"]]} value={filters.project} /><PropertySelect label="Status" name="material-state" onChange={(value) => setFilters((current) => ({ ...current, state: value }))} options={[["all", "Semua status"]]} value={filters.state} /></PropertyFilterBar></Section>
     <Section title="Daftar Material"><DataTable caption="Daftar kebutuhan material" columns={materialColumns} emptyState={<PropertyUnavailableState description="Kebutuhan material belum tersedia." />} getRowKey={(row) => row.recordId} rows={materialRows} /></Section>
     <div className={styles.actionBar}><Button onClick={() => setFormOpen(true)} variant="primary">Ajukan Permintaan Material</Button><Button onClick={() => setExtractionOpen(true)} variant="ghost">Ambil dari Dokumen</Button></div>
-    <PropertyUnavailableFormDrawer description="Mutation permintaan material belum memiliki contract authoritative." fields={materialFields} onClose={() => setFormOpen(false)} open={formOpen} submitLabel="Simpan Permintaan" title="Ajukan Permintaan Material" />
+    <PropertyUnavailableFormDrawer description="Permintaan material belum dapat disimpan karena fitur ini belum tersedia." fields={materialFields} onClose={() => setFormOpen(false)} open={formOpen} submitLabel="Simpan Permintaan" title="Ajukan Permintaan Material" />
     <PropertyExtractionReviewDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} title="Ekstraksi Kebutuhan Material" />
   </div>;
 }

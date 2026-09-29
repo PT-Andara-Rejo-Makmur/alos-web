@@ -145,6 +145,7 @@ describe("Property workspace", () => {
     fireEvent.click(screen.getByRole("button", { name: "Tambah Progres" }));
     expect(screen.getByRole("dialog", { name: "Tambah Progres" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Simpan Progres" })).toBeDisabled();
+    expect(screen.queryByText(/Backend|authoritative|projection|mutation|capability|frontend|read-only/i)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Batal" }));
     fireEvent.click(screen.getByRole("button", { name: "Ambil dari Dokumen" }));
     expect(screen.getByText("Belum ada kandidat ekstraksi.")).toBeInTheDocument();

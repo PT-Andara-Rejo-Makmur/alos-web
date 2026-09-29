@@ -30,13 +30,13 @@ function PropertyProgress({ session }: Readonly<{ session: SessionProjection }>)
   const activeKey = session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_key : null;
   return <div className={styles.page}>
     <PageHeader description="Progres fisik dan jadwal Property, dipisahkan dari Task operasional." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Progres & Jadwal" />
-    <PropertySourceNote>Source progres belum terhubung. S-Curve tidak digambar tanpa observasi authoritative.</PropertySourceNote>
+    <PropertySourceNote>Sumber progres belum terhubung. S-Curve tidak ditampilkan tanpa catatan progres yang tersedia.</PropertySourceNote>
     <div className={styles.metricGrid} aria-label="Ringkasan progres"><Metric label="Progres fisik" status="Belum Terhubung" value="—" /><Metric label="Deviasi jadwal" status="Belum Terhubung" value="—" /><Metric label="Milestone tercapai" status="Belum Terhubung" value="—" /><Metric label="Kesiapan evidence" status="Belum Terhubung" value="—" /></div>
     <Section title="Konteks & Filter"><PropertyFilterBar ariaLabel="Filter progres Property"><PropertySelect label="Proyek" name="progress-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua proyek"]]} value={filters.project} /><PropertySelect label="Periode" name="progress-period" onChange={(value) => setFilters((current) => ({ ...current, period: value }))} options={[["all", "Semua periode"]]} value={filters.period} /><PropertySelect label="Status" name="progress-status" onChange={(value) => setFilters((current) => ({ ...current, status: value }))} options={[["all", "Semua status"]]} value={filters.status} /></PropertyFilterBar></Section>
     <Section title="S-Curve"><PropertyUnavailableState description="S-Curve belum dinilai karena observasi progres belum terhubung." title="Belum Dinilai" /></Section>
     <Section title="Jadwal & Milestone"><DataTable caption="Progres dan milestone Property" columns={progressColumns} emptyState={<PropertyUnavailableState description="Progres dan milestone belum tersedia." />} getRowKey={(row) => row.recordId} rows={progressRows} /></Section>
     <div className={styles.actionBar}><Button onClick={() => setFormOpen(true)} variant="primary">Tambah Progres</Button><Button onClick={() => setExtractionOpen(true)} variant="ghost">Ambil dari Dokumen</Button></div>
-    <PropertyUnavailableFormDrawer description="Entri progres belum memiliki capability mutation authoritative." fields={progressFields} onClose={() => setFormOpen(false)} open={formOpen} submitLabel="Simpan Progres" title="Tambah Progres" />
+    <PropertyUnavailableFormDrawer description="Entri progres belum dapat disimpan karena fitur ini belum tersedia." fields={progressFields} onClose={() => setFormOpen(false)} open={formOpen} submitLabel="Simpan Progres" title="Tambah Progres" />
     <PropertyExtractionReviewDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} title="Ekstraksi Progres / Milestone" />
   </div>;
 }

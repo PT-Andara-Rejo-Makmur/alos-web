@@ -27,13 +27,13 @@ function PropertyBudget({ session }: Readonly<{ session: SessionProjection }>) {
   const [extractionOpen, setExtractionOpen] = useState(false);
   const activeKey = session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_key : null;
   return <div className={styles.page}>
-    <PageHeader description="RAB dan BOQ sebagai struktur perencanaan teknis; aktual keuangan selalu projection read-only." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Anggaran & RAB" />
-    <PropertySourceNote>Source anggaran belum tersedia. Property tidak menetapkan pembayaran, status dibayar, kas, penyelesaian bank, atau aktual keuangan.</PropertySourceNote>
-    <Tabs ariaLabel="Tampilan budget property" items={tabs} onValueChange={setTab} value={tab} />
+    <PageHeader description="RAB dan BOQ sebagai struktur perencanaan teknis; data aktual keuangan hanya ditampilkan." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Anggaran & RAB" />
+    <PropertySourceNote>Sumber anggaran belum tersedia. Property tidak menetapkan pembayaran, status dibayar, kas, penyelesaian bank, atau aktual keuangan.</PropertySourceNote>
+    <Tabs ariaLabel="Tampilan anggaran Property" items={tabs} onValueChange={setTab} value={tab} />
     <Section title="Filter Anggaran"><PropertyFilterBar ariaLabel="Filter anggaran Property"><PropertySelect label="Proyek" name="budget-project" onChange={(value) => setFilters((current) => ({ ...current, project: value }))} options={[["all", "Semua proyek"]]} value={filters.project} /><PropertySelect label="Kategori" name="budget-category" onChange={(value) => setFilters((current) => ({ ...current, category: value }))} options={[["all", "Semua kategori"]]} value={filters.category} /></PropertyFilterBar></Section>
-    <Section title={tabs.find((item) => item.id === tab)?.label ?? "RAB Draft / Revisi"}><DataTable caption="RAB, BOQ, dan aktual keuangan" columns={budgetColumns} emptyState={<PropertyUnavailableState description="Projection anggaran belum tersedia." />} getRowKey={(row) => row.recordId} rows={budgetRows} /></Section>
+    <Section title={tabs.find((item) => item.id === tab)?.label ?? "RAB Draft / Revisi"}><DataTable caption="RAB, BOQ, dan aktual keuangan" columns={budgetColumns} emptyState={<PropertyUnavailableState description="Data anggaran belum tersedia." />} getRowKey={(row) => row.recordId} rows={budgetRows} /></Section>
     <div className={styles.actionBar}><Button onClick={() => setFormOpen(true)} variant="primary">Buat RAB Draft</Button><Button onClick={() => setExtractionOpen(true)} variant="ghost">Ambil dari Dokumen</Button></div>
-    <PropertyUnavailableFormDrawer description="Mutation draft/revisi RAB belum memiliki contract authoritative." fields={budgetFields} onClose={() => setFormOpen(false)} open={formOpen} submitLabel="Simpan Draft" title="Buat RAB Draft / Revisi" />
+    <PropertyUnavailableFormDrawer description="Draft atau revisi RAB belum dapat disimpan karena fitur ini belum tersedia." fields={budgetFields} onClose={() => setFormOpen(false)} open={formOpen} submitLabel="Simpan Draft" title="Buat RAB Draft / Revisi" />
     <PropertyExtractionReviewDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} title="Ekstraksi RAB / BOQ" />
   </div>;
 }

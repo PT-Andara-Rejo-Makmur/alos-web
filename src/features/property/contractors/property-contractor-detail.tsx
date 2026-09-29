@@ -19,9 +19,9 @@ function PropertyContractorDetail({ contractorId, session }: Readonly<{ contract
   const [tab, setTab] = useState("summary");
   const activeKey = session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_key : null;
   return <div className={styles.page}>
-    <PageHeader description="Detail pelaksanaan teknis kontraktor dan projection lintas domain." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Detail Kontraktor" />
-    <PropertySourceNote>Detail kontraktor belum terhubung. Status legal dan pembayaran tetap read-only.</PropertySourceNote>
+    <PageHeader description="Detail pelaksanaan teknis kontraktor dan informasi dari bagian lain." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Detail Kontraktor" />
+    <PropertySourceNote>Detail kontraktor belum tersedia. Status legal dan pembayaran hanya dapat dilihat di sini.</PropertySourceNote>
     <Tabs ariaLabel="Navigasi detail kontraktor" items={tabs} onValueChange={setTab} value={tab} />
-    {tab === "summary" ? <><Section title="Pelaksanaan Teknis"><PropertyUnavailableState description={`Pelaksanaan teknis untuk kontraktor ${contractorId} belum tersedia.`} /></Section><Section title="Status Legal"><PropertyUnavailableState description="Status legal belum tersedia dan tidak dapat diubah Property." /></Section><Section title="Pembayaran"><PropertyUnavailableState description="Status pembayaran belum tersedia dan tidak dapat diubah Property." /></Section></> : <Section title={tabs.find((item) => item.id === tab)?.label ?? "Ringkasan"}><PropertyUnavailableState description="Data detail kontraktor belum terhubung." /></Section>}
+    {tab === "summary" ? <><Section title="Pelaksanaan Teknis"><PropertyUnavailableState description={`Pelaksanaan teknis untuk kontraktor ${contractorId} belum tersedia.`} /></Section><Section title="Status Legal"><PropertyUnavailableState description="Status legal belum tersedia dan tidak dapat diubah dari Property." /></Section><Section title="Pembayaran"><PropertyUnavailableState description="Status pembayaran belum tersedia dan tidak dapat diubah dari Property." /></Section></> : <Section title={tabs.find((item) => item.id === tab)?.label ?? "Ringkasan"}><PropertyUnavailableState description="Data detail kontraktor belum terhubung." /></Section>}
   </div>;
 }
