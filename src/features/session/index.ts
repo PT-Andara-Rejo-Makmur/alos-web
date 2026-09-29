@@ -17,6 +17,7 @@ export {
 export { selectActiveWorkspace } from "./workspace-api";
 export {
   resolveWorkspaceDomain,
+  workspaceDomainFromMetadata,
   type WorkspaceDomain,
   type WorkspaceDomainResolution,
 } from "./workspace-domain";

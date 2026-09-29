@@ -10,6 +10,7 @@ import * as api from "@/lib/api";
 import { navigationForSession } from "@/app/navigation";
 import { executiveNavigation } from "@/features/executive/navigation";
 import { salesNavigation } from "@/features/sales/navigation";
+import { workspaceDestination } from "@/components/app-shell/app-shell";
 import {
   DocumentsPage,
   ProjectsPage,
@@ -103,6 +104,28 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
     expect(navigation).not.toMatch(/effectiveWorkspaceKey\s*===\s*["'](?:executive|sales)["']/);
     expect(navigation).not.toMatch(/\?\?\s*["'](?:executive|sales)["']/);
     expect(shell).not.toMatch(/workspaceKey\s*===\s*["'](?:executive|sales|it)["']/);
+  });
+
+  it("workspace switcher preserves Shared Work and uses canonical domain landing", () => {
+    const salesAccess = createSession("penjualan-utama", "SALES", "BUSINESS").principal!.active_workspace!;
+    const propertyAccess = createSession("property-utama", "PROPERTY", "BUSINESS").principal!.active_workspace!;
+    const encodedFinanceAccess = createSession("finance & ops", "FINANCE", "BUSINESS").principal!.active_workspace!;
+
+    expect(workspaceDestination("/workspace/current/documents/project-1", salesAccess)).toBe(
+      "/workspace/penjualan-utama/documents/project-1",
+    );
+    expect(workspaceDestination("/workspace/current/tasks", propertyAccess)).toBe(
+      "/workspace/property-utama/tasks",
+    );
+    expect(workspaceDestination("/workspace/current/brief", salesAccess)).toBe(
+      "/workspace/penjualan-utama/summary",
+    );
+    expect(workspaceDestination("/workspace/current/pipeline", propertyAccess)).toBe(
+      "/workspace/property-utama/projects",
+    );
+    expect(workspaceDestination("/workspace/current/performance", encodedFinanceAccess)).toBe(
+      "/workspace/finance%20%26%20ops/projects",
+    );
   });
 
   afterEach(() => {
@@ -375,6 +398,17 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
 
       const execFiles = readdirSync(resolve("src/app/workspace/executive"));
       expect(execFiles).toEqual(["page.tsx"]);
+    });
+
+    it("production source has no internal dependency on legacy executive or sales URLs", () => {
+      const sourceFiles = readdirSync(resolve("src"), { recursive: true })
+        .filter((file): file is string => typeof file === "string" && /\.(ts|tsx)$/.test(file));
+      const legacyUrl = /\/workspace\/(?:executive|sales)(?:[/'"`)]|$)/;
+
+      for (const file of sourceFiles) {
+        const content = readFileSync(resolve("src", file), "utf8");
+        expect(content, file).not.toMatch(legacyUrl);
+      }
     });
 
     it("uses route groups without changing canonical public URLs", () => {

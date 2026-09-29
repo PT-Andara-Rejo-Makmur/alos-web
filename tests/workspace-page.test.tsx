@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import WorkspacePage from "@/app/workspace/page";
+import { AppShell } from "@/components/app-shell/app-shell";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import { ApiError } from "@/lib/api";
 import * as api from "@/lib/api";
@@ -46,6 +47,7 @@ describe("WorkspacePage and ALOS App Shell", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.sessionStorage.clear();
+    window.history.replaceState({}, "", "/workspace");
   });
 
   afterEach(() => {
@@ -54,28 +56,7 @@ describe("WorkspacePage and ALOS App Shell", () => {
   });
 
   it("menampilkan App Shell, identitas session, dan landing ruang kerja", async () => {
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(
-      authenticatedSession(
-        makePrincipal({
-          active_workspace: {
-            active: true,
-            data_scope: "WORKSPACE",
-            permission_refs: [],
-            role_refs: ["WORKSPACE_MEMBER"],
-            scope_refs: ["workspace_property"],
-            workspace: {
-              active: true,
-              division_code: "PROPERTY",
-              organization_id: "org_1",
-              workspace_id: "workspace_property",
-              workspace_key: "property",
-              workspace_name: "Property",
-              workspace_type: "BUSINESS",
-            },
-          },
-        }),
-      ),
-    );
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
 
     render(<WorkspacePage />);
 
@@ -86,9 +67,7 @@ describe("WorkspacePage and ALOS App Shell", () => {
 
     expect(screen.getByRole("link", { name: "Beranda" })).toHaveAttribute("aria-current", "page");
     expect(screen.getAllByText("Rani Andara").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Property").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Ruang kerja Anda siap digunakan.")).toBeInTheDocument();
-    expect(screen.getByText("Fondasi sistem aktif")).toBeInTheDocument();
+    expect(screen.getByText("Ruang kerja belum dipilih")).toBeInTheDocument();
     expect(screen.queryByText(/KPI|Executive|Sales|Finance|Property Dashboard|GENESIS/)).not.toBeInTheDocument();
   });
 
@@ -165,7 +144,7 @@ describe("WorkspacePage and ALOS App Shell", () => {
       workspace: {
         ...property.workspace,
         workspace_id: "workspace_finance",
-        workspace_key: "finance",
+        workspace_key: "finance & ops",
         workspace_name: "Finance",
         division_code: "FINANCE",
       },
@@ -180,7 +159,12 @@ describe("WorkspacePage and ALOS App Shell", () => {
       membership: finance,
     });
 
-    render(<WorkspacePage />);
+    window.history.replaceState({}, "", "/workspace/property/documents/project-1");
+    render(
+      <AppShell session={authenticatedSession(makePrincipal({ active_workspace: property, workspace_access: [property, finance] }))}>
+        <div>Workspace content</div>
+      </AppShell>,
+    );
 
     await waitFor(() => expect(screen.getByRole("button", { name: "Pilih workspace" })).toBeInTheDocument());
     fireEvent.click(screen.getByRole("button", { name: "Pilih workspace" }));
@@ -192,8 +176,75 @@ describe("WorkspacePage and ALOS App Shell", () => {
         body: { workspace_id: "workspace_finance" },
         method: "PUT",
       });
-      expect(mockPush).toHaveBeenCalledWith("/workspace/finance/projects");
+      expect(mockPush).toHaveBeenCalledWith("/workspace/finance%20%26%20ops/documents/project-1");
     });
+  });
+
+  it.each([
+    ["Executive", "EXECUTIVE", null, "pusat-kendali", "summary"],
+    ["Sales", "BUSINESS", "SALES", "penjualan-utama", "summary"],
+  ] as const)("/workspace mengarahkan %s ke actual workspace_key", async (_label, workspaceType, divisionCode, workspaceKey, landing) => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(
+      authenticatedSession(
+        makePrincipal({
+          active_workspace: {
+            active: true,
+            data_scope: workspaceType === "EXECUTIVE" ? "COMPANY" : "WORKSPACE",
+            permission_refs: [],
+            role_refs: ["WORKSPACE_MEMBER"],
+            scope_refs: [`workspace_${workspaceKey}`],
+            workspace: {
+              active: true,
+              division_code: divisionCode,
+              organization_id: "org_1",
+              workspace_id: `workspace_${workspaceKey}`,
+              workspace_key: workspaceKey,
+              workspace_name: _label,
+              workspace_type: workspaceType,
+            },
+          },
+        }),
+      ),
+    );
+
+    render(<WorkspacePage />);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith(`/workspace/${encodeURIComponent(workspaceKey)}/${landing}`);
+    });
+  });
+
+  it("/workspace unknown domain fail closed tanpa redirect canonical", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(
+      authenticatedSession(
+        makePrincipal({
+          active_workspace: {
+            active: true,
+            data_scope: "WORKSPACE",
+            permission_refs: [],
+            role_refs: ["WORKSPACE_MEMBER"],
+            scope_refs: ["workspace_unknown"],
+            workspace: {
+              active: true,
+              division_code: "UNRECOGNIZED",
+              organization_id: "org_1",
+              workspace_id: "workspace_unknown",
+              workspace_key: "workspace-unknown",
+              workspace_name: "Unknown",
+              workspace_type: "BUSINESS",
+            },
+          },
+        }),
+      ),
+    );
+
+    render(<WorkspacePage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Anda tidak memiliki akses ke halaman ini." })).toBeInTheDocument();
+    });
+    expect(mockReplace).not.toHaveBeenCalled();
+    expect(screen.queryByRole("complementary", { name: "Navigasi utama" })).not.toBeInTheDocument();
   });
 
   it("menggunakan session flow yang sudah ada untuk logout", async () => {

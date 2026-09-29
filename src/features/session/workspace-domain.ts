@@ -1,4 +1,5 @@
 import type { SessionProjection } from "./types";
+import type { WorkspaceProjection } from "@/lib/contracts";
 
 export type WorkspaceDomain =
   | "EXECUTIVE"
@@ -17,6 +18,32 @@ export interface WorkspaceDomainResolution {
   readonly activeWorkspaceKey: string | null;
   readonly workspaceName: string | null;
   readonly failureReason?: "unauthenticated" | "inactive" | "key_mismatch" | "unknown_domain";
+}
+
+/**
+ * Derives a workspace domain from Backend-authoritative workspace metadata.
+ * The workspace key is deliberately not part of this decision.
+ */
+export function workspaceDomainFromMetadata(
+  workspace: Pick<WorkspaceProjection, "workspace_type" | "division_code">,
+): WorkspaceDomain {
+  if (workspace.workspace_type === "EXECUTIVE") {
+    return "EXECUTIVE";
+  }
+  if (workspace.workspace_type === "IT_OPERATIONS" || workspace.division_code?.toUpperCase() === "IT") {
+    return "IT";
+  }
+  if (workspace.workspace_type !== "BUSINESS") {
+    return "UNKNOWN";
+  }
+
+  const divisionCode = workspace.division_code?.toUpperCase();
+  if (divisionCode === "SALES") return "SALES";
+  if (divisionCode === "PROPERTY") return "PROPERTY";
+  if (divisionCode === "FINANCE") return "FINANCE";
+  if (divisionCode === "LEGAL") return "LEGAL";
+  if (divisionCode === "HR" || divisionCode === "HR_GA" || divisionCode === "HRGA") return "HR_GA";
+  return "UNKNOWN";
 }
 
 /**
@@ -64,21 +91,7 @@ export function resolveWorkspaceDomain(
     };
   }
 
-  let domain: WorkspaceDomain = "UNKNOWN";
-
-  if (workspace.workspace_type === "EXECUTIVE") {
-    domain = "EXECUTIVE";
-  } else if (workspace.workspace_type === "IT_OPERATIONS" || workspace.division_code?.toUpperCase() === "IT") {
-    domain = "IT";
-  } else if (workspace.workspace_type === "BUSINESS") {
-    const div = workspace.division_code?.toUpperCase();
-    if (div === "SALES") domain = "SALES";
-    else if (div === "PROPERTY") domain = "PROPERTY";
-    else if (div === "FINANCE") domain = "FINANCE";
-    else if (div === "LEGAL") domain = "LEGAL";
-    else if (div === "HR" || div === "HR_GA" || div === "HRGA") domain = "HR_GA";
-    else domain = "UNKNOWN";
-  }
+  const domain = workspaceDomainFromMetadata(workspace);
 
   return {
     authenticated: true,

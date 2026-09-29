@@ -1,15 +1,14 @@
 "use client";
 
 import { CheckCircle2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { navigationForSession } from "@/app/navigation";
 import { AppShell } from "@/components/app-shell/app-shell";
-import { Button, PageHeader, Section, Status } from "@/components/ui";
-import { hasExecutiveContext } from "@/features/executive";
+import { PageHeader, Section, Status } from "@/components/ui";
 import { hasItAccountManagementAccess } from "@/features/it/account-management-model";
-import type { SessionProjection } from "@/features/session";
+import { resolveWorkspaceDomain, type SessionProjection } from "@/features/session";
 import { ApiError, sessionApiRequest } from "@/lib/api";
 
 import styles from "./workspace.module.css";
@@ -18,6 +17,7 @@ type PageState = "loading" | "ready" | "no_access" | "session_expired" | "error"
 
 export default function WorkspacePage() {
   const router = useRouter();
+  const routerRef = useRef(router);
   const [state, setState] = useState<PageState>("loading");
   const [session, setSession] = useState<SessionProjection | null>(null);
   const [retryCount, setRetryCount] = useState(0);
@@ -33,8 +33,20 @@ export default function WorkspacePage() {
           setSession(null);
           setState("no_access");
         } else {
-          setSession(nextSession);
-          setState("ready");
+          const resolution = resolveWorkspaceDomain(nextSession);
+          if (resolution.valid && resolution.activeWorkspaceKey) {
+            const base = `/workspace/${encodeURIComponent(resolution.activeWorkspaceKey)}`;
+            const landing = resolution.domain === "EXECUTIVE" || resolution.domain === "SALES" ? "summary" : "projects";
+            routerRef.current.replace(`${base}/${landing}`);
+            setSession(null);
+            setState("loading");
+          } else if (resolution.failureReason === "unknown_domain") {
+            setSession(null);
+            setState("no_access");
+          } else {
+            setSession(nextSession);
+            setState("ready");
+          }
         }
       } catch (caught) {
         if (!cancelled) {
@@ -57,13 +69,12 @@ export default function WorkspacePage() {
   };
 
   if (state === "ready" && session) {
-    const canOpenExecutive = hasExecutiveContext(session);
     const workspaceKey =
       session.principal && "actor" in session.principal && session.principal.active_workspace
         ? session.principal.active_workspace.workspace.workspace_key
         : null;
     return (
-      <AppShell navigationSections={navigationForSession(canOpenExecutive, workspaceKey, hasItAccountManagementAccess(session), session)} session={session}>
+      <AppShell navigationSections={navigationForSession(false, workspaceKey, hasItAccountManagementAccess(session), session)} session={session}>
         <section aria-labelledby="workspace-title" className={styles.landing}>
           <PageHeader
             description="Ruang kerja Anda siap digunakan."
@@ -77,11 +88,6 @@ export default function WorkspacePage() {
           >
             <div className={styles.landingStatus} role="status">
               <Status icon={<CheckCircle2 size={14} strokeWidth={1.9} />} label="Siap digunakan" variant="success" />
-              {canOpenExecutive ? (
-                <Button onClick={() => router.push("/workspace/executive")} variant="secondary">
-                  Buka Pusat Kendali
-                </Button>
-              ) : null}
             </div>
           </Section>
         </section>

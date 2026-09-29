@@ -4,7 +4,7 @@ import { House, type LucideIcon } from "lucide-react";
 import { useCallback, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
-import { selectActiveWorkspace, type SessionProjection } from "@/features/session";
+import { selectActiveWorkspace, type SessionProjection, workspaceDomainFromMetadata } from "@/features/session";
 import type { WorkspaceAccessProjection } from "@/lib/contracts";
 import { ApiError, sessionApiRequest } from "@/lib/api";
 
@@ -85,19 +85,22 @@ export function getAppShellProfile(session: SessionProjection): AppShellProfile 
   };
 }
 
-const workspaceSections = new Set(["projects", "tasks", "approvals", "documents", "reports", "findings", "accounts"]);
+const sharedWorkSections = new Set(["projects", "tasks", "approvals", "documents", "reports", "findings"]);
 
-function workspaceDestination(pathname: string, workspace: WorkspaceAccessProjection): string {
-  const workspaceKey = workspace.workspace.workspace_key;
+export function workspaceDestination(pathname: string, workspace: WorkspaceAccessProjection): string {
+  const workspaceKey = encodeURIComponent(workspace.workspace.workspace_key);
   const match = pathname.match(/^\/workspace\/[^/]+(\/.*)?$/);
   const suffix = match?.[1] ?? "";
   const section = suffix.split("/").filter(Boolean)[0];
-  const canManageAccounts = workspace.workspace.workspace_type === "IT_OPERATIONS"
-    && workspace.permission_refs.includes("identity.accounts.manage");
-  const canKeepSection = Boolean(section && workspaceSections.has(section) && (section !== "accounts" || canManageAccounts));
+  const canKeepSection = Boolean(section && sharedWorkSections.has(section));
+  const domain = workspaceDomainFromMetadata(workspace.workspace);
+
+  if (domain === "UNKNOWN") return "/workspace";
 
   if (canKeepSection) return `/workspace/${workspaceKey}${suffix}`;
-  return `/workspace/${workspaceKey}/projects`;
+
+  const landing = domain === "EXECUTIVE" || domain === "SALES" ? "summary" : "projects";
+  return `/workspace/${workspaceKey}/${landing}`;
 }
 
 function getWorkspaceSwitchError(error: unknown): string {
