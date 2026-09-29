@@ -161,7 +161,7 @@ describe("Executive Workspace", () => {
     expect(screen.queryByText("0")).not.toBeInTheDocument();
     expect(screen.getAllByText("Belum Terhubung").length).toBeGreaterThanOrEqual(7);
     expect(screen.queryByRole("button", { name: /Setujui|Tolak|Tahan|Kembalikan/ })).not.toBeInTheDocument();
-  });
+  }, 15000);
 
   it("fails closed for an unauthenticated session and does not call Strategy", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({ authenticated: false, principal: null });

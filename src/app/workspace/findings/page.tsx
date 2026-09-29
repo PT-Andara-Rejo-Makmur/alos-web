@@ -1,7 +1,5 @@
-"use client";
+import { WorkspaceModuleRedirect } from "../workspace-redirect";
 
-import { FindingsPage } from "@/features/shared-work/findings";
-
-export default function GlobalFindingsPageRoute() {
-  return <FindingsPage />;
+export default function WorkspaceFindingsDefaultPageRoute() {
+  return <WorkspaceModuleRedirect module="findings" />;
 }

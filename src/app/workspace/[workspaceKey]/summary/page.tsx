@@ -1,6 +1,7 @@
 "use client";
 import { use } from "react";
 import { SalesSummaryPage } from "@/features/sales";
-export default function Page({ params }: Readonly<{ params: Promise<{ workspaceKey: string }> }>) {
-  return <SalesSummaryPage workspaceKey={use(params).workspaceKey} />;
+export default function Page({ params }: Readonly<{ params: Promise<{ workspaceKey: string }> | { workspaceKey: string } }>) {
+  const resolved = "then" in params ? use(params) : params;
+  return <SalesSummaryPage workspaceKey={resolved.workspaceKey} />;
 }

@@ -5,8 +5,15 @@ export function hasSalesContext(session: SessionProjection): boolean {
   const principal = session.principal;
   if (!session.authenticated || !principal || !("actor" in principal)) return false;
 
-  const workspace = principal.active_workspace?.workspace;
-  return workspace?.workspace_type === "BUSINESS" && workspace.division_code === "SALES";
+  const activeWs = principal.active_workspace;
+  if (!principal.actor.active || !activeWs?.active) return false;
+
+  const workspace = activeWs.workspace;
+  return Boolean(
+    workspace?.active &&
+      workspace.workspace_type === "BUSINESS" &&
+      workspace.division_code === "SALES",
+  );
 }
 
 export function activeSalesWorkspaceKey(session: SessionProjection): string | null {

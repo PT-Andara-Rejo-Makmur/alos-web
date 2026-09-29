@@ -7,8 +7,8 @@ import { ProjectsPage } from "@/features/shared-work";
 export default function WorkspaceProjectsPageRoute({
   params,
 }: {
-  readonly params: Promise<{ workspaceKey: string }>;
+  readonly params: Promise<{ workspaceKey: string }> | { workspaceKey: string };
 }) {
-  const resolved = use(params);
+  const resolved = "then" in params ? use(params) : params;
   return <ProjectsPage workspaceKey={resolved.workspaceKey} />;
 }

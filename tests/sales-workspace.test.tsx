@@ -1,14 +1,37 @@
+import { existsSync } from "node:fs";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { navigationForSession } from "@/app/navigation";
-import { SalesReadinessPage, SalesSharedWorkPage } from "@/features/sales";
+import { WorkspaceModuleRedirect } from "@/app/workspace/workspace-redirect";
+import WorkspaceKeyRoot from "@/app/workspace/[workspaceKey]/page";
+import SummaryRoute from "@/app/workspace/[workspaceKey]/summary/page";
+import PipelineRoute from "@/app/workspace/[workspaceKey]/pipeline/page";
+import LeadsRoute from "@/app/workspace/[workspaceKey]/leads/page";
+import ActivitiesRoute from "@/app/workspace/[workspaceKey]/activities/page";
+import BookingsRoute from "@/app/workspace/[workspaceKey]/bookings/page";
+import KprRoute from "@/app/workspace/[workspaceKey]/kpr/page";
+import CampaignsRoute from "@/app/workspace/[workspaceKey]/campaigns/page";
+import PerformanceRoute from "@/app/workspace/[workspaceKey]/performance/page";
+import AraRoute from "@/app/workspace/[workspaceKey]/ara/page";
+import WorkspaceProjectsPageRoute from "@/app/workspace/[workspaceKey]/projects/page";
+import { SalesReadinessPage } from "@/features/sales";
+import {
+  ApprovalsPage,
+  DocumentsPage,
+  FindingsPage,
+  ProjectsPage,
+  ReportsPage,
+  TasksPage,
+} from "@/features/shared-work";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
 
+const mockReplace = vi.fn();
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/workspace/penjualan-utama/summary",
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: mockReplace }),
 }));
 
 function salesSession(workspaceKey = "penjualan-utama") {
@@ -45,7 +68,45 @@ function salesSession(workspaceKey = "penjualan-utama") {
   return { authenticated: true, principal };
 }
 
+function propertySession(workspaceKey = "property") {
+  const principal: AuthenticatedPrincipalProjection = {
+    actor: {
+      actor_id: "actor_property",
+      active: true,
+      display_name: "Budi Properti",
+      organization_id: "org_andara",
+      tenant_id: "tenant_andara",
+    },
+    active_workspace: {
+      active: true,
+      data_scope: "WORKSPACE",
+      permission_refs: [],
+      role_refs: ["WORKSPACE_MEMBER"],
+      scope_refs: ["workspace_property"],
+      workspace: {
+        active: true,
+        division_code: "PROPERTY",
+        organization_id: "org_andara",
+        workspace_id: "workspace_property",
+        workspace_key: workspaceKey,
+        workspace_name: "Pusat Properti",
+        workspace_type: "BUSINESS",
+      },
+    },
+    email: "budi@andara.co.id",
+    expires_at: "2026-10-01T00:00:00Z",
+    issued_at: "2026-09-27T00:00:00Z",
+    workspace_access: [],
+  };
+
+  return { authenticated: true, principal };
+}
+
 describe("Sales workspace", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
@@ -115,8 +176,7 @@ describe("Sales workspace", () => {
     );
 
     render(
-      <SalesSharedWorkPage
-        module="documents"
+      <DocumentsPage
         workspaceKey="penjualan-utama"
       />,
     );
@@ -141,22 +201,21 @@ describe("Sales workspace", () => {
   });
 
   it.each([
-    ["projects", "Proyek"],
-    ["tasks", "Tugas"],
-    ["approvals", "Persetujuan"],
-    ["reports", "Laporan"],
-    ["findings", "Temuan"],
+    ["projects", "Proyek", ProjectsPage],
+    ["tasks", "Tugas", TasksPage],
+    ["approvals", "Persetujuan", ApprovalsPage],
+    ["reports", "Laporan", ReportsPage],
+    ["findings", "Temuan", FindingsPage],
   ] as const)(
     "Sales Shared Work %s renders inside a single AppShell",
-    async (module, heading) => {
+    async (module, heading, Component) => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession("penjualan-utama"));
       vi.spyOn(api, "authenticatedApiRequest").mockRejectedValue(
         new api.ApiError(404, "Not Found", `corr_404_${module}`),
       );
 
       render(
-        <SalesSharedWorkPage
-          module={module}
+        <Component
           workspaceKey="penjualan-utama"
         />,
       );
@@ -169,7 +228,214 @@ describe("Sales workspace", () => {
       expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
       expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
       expect(screen.getAllByRole("button", { name: "Buka navigasi" })).toHaveLength(1);
-    expect(screen.getAllByRole("button", { name: "Pilih workspace" })).toHaveLength(1);
+      expect(screen.getAllByRole("button", { name: "Pilih workspace" })).toHaveLength(1);
     },
   );
+
+  it("Sales navigation selalu menggunakan actualWorkspaceKey, menggunakan /kpr, dan tidak ada route static /workspace/sales atau mortgages", () => {
+    const session = salesSession("penjualan-utama");
+    const sections = navigationForSession(false, "penjualan-utama", false, session);
+    const allHrefs = sections.flatMap((s) => s.items.map((i) => i.href));
+
+    allHrefs.forEach((href) => {
+      expect(href).toMatch(/^\/workspace\/penjualan-utama\//);
+      expect(href).not.toContain("/workspace/sales/");
+      expect(href).not.toContain("mortgages");
+    });
+    expect(allHrefs).toContain("/workspace/penjualan-utama/kpr");
+  });
+
+  it("fail closed jika session non-sales mencoba membuka halaman Sales", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(propertySession());
+    render(
+      <SalesReadinessPage
+        description="Uji hak akses Sales"
+        detail="Pipeline belum terhubung."
+        title="Pipeline Penjualan"
+        workspaceKey="property"
+      />,
+    );
+
+    expect(await screen.findByRole("heading", { name: "Anda tidak memiliki akses ke halaman ini." })).toBeInTheDocument();
+    expect(screen.queryByText("Pipeline Penjualan")).not.toBeInTheDocument();
+  });
+
+  it("WorkspaceModuleRedirect mengarahkan route generic ke active workspace yang authoritative", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(salesSession("penjualan-utama"));
+    render(<WorkspaceModuleRedirect module="projects" />);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith("/workspace/penjualan-utama/projects");
+    });
+  });
+
+  it("WorkspaceModuleRedirect fail closed ke /workspace jika tidak ada active workspace", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
+      authenticated: true,
+      principal: { ...salesSession().principal, active_workspace: null },
+    });
+    render(<WorkspaceModuleRedirect module="tasks" />);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith("/workspace");
+    });
+  });
+
+  it("WorkspaceKeyRoot mengarahkan ke /summary untuk Sales", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession("penjualan-utama"));
+    render(<WorkspaceKeyRoot params={{ workspaceKey: "penjualan-utama" }} />);
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith("/workspace/penjualan-utama/summary");
+    });
+  });
+
+  it("WorkspaceKeyRoot mengarahkan ke /projects untuk non-Sales", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession("property"));
+    render(<WorkspaceKeyRoot params={{ workspaceKey: "property" }} />);
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith("/workspace/property/projects");
+    });
+  });
+
+  it("memastikan tidak ada duplicate static sales routes atau mortgages di src/app/workspace", () => {
+    const salesSubdirs = [
+      "activities", "pipeline", "leads", "bookings", "mortgages",
+      "campaigns", "performance", "projects", "tasks", "approvals",
+      "documents", "reports", "findings", "ara",
+    ];
+    for (const sub of salesSubdirs) {
+      expect(existsSync(`src/app/workspace/sales/${sub}`)).toBe(false);
+    }
+    expect(existsSync("src/app/workspace/reports/[reportId]")).toBe(false);
+    expect(existsSync("src/app/workspace/findings/[findingId]")).toBe(false);
+  });
+
+  describe("Workspace-aware authority and route access enforcement", () => {
+    it.each([
+      ["summary", SummaryRoute, "Sales & Marketing"],
+      ["pipeline", PipelineRoute, "Pipeline Penjualan"],
+      ["leads", LeadsRoute, "Prospek & Lead"],
+      ["activities", ActivitiesRoute, "Aktivitas & Tindak Lanjut"],
+      ["bookings", BookingsRoute, "Booking & Closing"],
+      ["kpr", KprRoute, "KPR & Akad"],
+      ["campaigns", CampaignsRoute, "Campaign & Channel"],
+      ["performance", PerformanceRoute, "Target & Kinerja"],
+      ["ara", AraRoute, "Tanya ARA"],
+    ] as const)(
+      "Sales workspace session allows Sales-specific page %s",
+      async (_routeName, RouteComponent, expectedHeading) => {
+        vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession("penjualan-utama"));
+        render(<RouteComponent params={{ workspaceKey: "penjualan-utama" }} />);
+
+        await waitFor(() => {
+          expect(screen.getByRole("heading", { name: expectedHeading })).toBeInTheDocument();
+        });
+        expect(
+          screen.queryByRole("heading", { name: "Anda tidak memiliki akses ke halaman ini." }),
+        ).not.toBeInTheDocument();
+      },
+    );
+
+    it.each([
+      ["summary", SummaryRoute],
+      ["pipeline", PipelineRoute],
+      ["leads", LeadsRoute],
+      ["activities", ActivitiesRoute],
+      ["bookings", BookingsRoute],
+      ["kpr", KprRoute],
+      ["campaigns", CampaignsRoute],
+      ["performance", PerformanceRoute],
+    ] as const)(
+      "Property workspace session fails closed / is denied on Sales-specific page %s",
+      async (_routeName, RouteComponent) => {
+        vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession("property"));
+        render(<RouteComponent params={{ workspaceKey: "property" }} />);
+
+        expect(
+          await screen.findByRole("heading", { name: "Anda tidak memiliki akses ke halaman ini." }),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText("Halaman ini tersedia sesuai ruang kerja dan kewenangan Anda."),
+        ).toBeInTheDocument();
+      },
+    );
+
+    it("workspace key mismatch denies access even for an authenticated Sales session", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession("penjualan-utama"));
+      render(<PipelineRoute params={{ workspaceKey: "penjualan-cabang" }} />);
+
+      expect(
+        await screen.findByRole("heading", { name: "Anda tidak memiliki akses ke halaman ini." }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Pipeline Penjualan" })).not.toBeInTheDocument();
+    });
+
+    it("no URL-only authority: Property session cannot access Sales route by inserting sales key in URL", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession("property"));
+      render(<PipelineRoute params={{ workspaceKey: "penjualan-utama" }} />);
+
+      expect(
+        await screen.findByRole("heading", { name: "Anda tidak memiliki akses ke halaman ini." }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Pipeline Penjualan" })).not.toBeInTheDocument();
+    });
+
+    it("no frontend role inference: synthetic role in session cannot grant Sales access if division is non-sales", async () => {
+      const financeSession: ReturnType<typeof propertySession> = {
+        authenticated: true,
+        principal: {
+          ...propertySession("keuangan").principal,
+          active_workspace: {
+            active: true,
+            data_scope: "WORKSPACE",
+            permission_refs: ["*"],
+            role_refs: ["EXECUTIVE", "WORKSPACE_LEAD", "BUSINESS_REVIEWER"],
+            scope_refs: ["workspace_keuangan"],
+            workspace: {
+              active: true,
+              division_code: "FINANCE",
+              organization_id: "org_andara",
+              workspace_id: "workspace_keuangan",
+              workspace_key: "keuangan",
+              workspace_name: "Pusat Keuangan",
+              workspace_type: "BUSINESS",
+            },
+          },
+        },
+      };
+
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession);
+      render(<PipelineRoute params={{ workspaceKey: "keuangan" }} />);
+
+      expect(
+        await screen.findByRole("heading", { name: "Anda tidak memiliki akses ke halaman ini." }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Pipeline Penjualan" })).not.toBeInTheDocument();
+    });
+
+    it("Shared Work routes remain reusable for non-Sales workspaces", async () => {
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession("property"));
+      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue([]);
+
+      render(<WorkspaceProjectsPageRoute params={{ workspaceKey: "property" }} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Proyek" })).toBeInTheDocument();
+      });
+      // Verify Property navigation is rendered, not Sales navigation
+      expect(screen.queryByText("Pipeline Penjualan")).not.toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Proyek" })).toHaveAttribute(
+        "href",
+        "/workspace/property/projects",
+      );
+      expect(screen.getByRole("link", { name: "Tugas" })).toHaveAttribute(
+        "href",
+        "/workspace/property/tasks",
+      );
+      expect(screen.getByRole("link", { name: "Dokumen" })).toHaveAttribute(
+        "href",
+        "/workspace/property/documents",
+      );
+    });
+  });
 });

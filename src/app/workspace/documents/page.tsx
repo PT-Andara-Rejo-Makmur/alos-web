@@ -1,7 +1,5 @@
-"use client";
-
-import { DocumentsPage } from "@/features/shared-work/documents";
+import { WorkspaceModuleRedirect } from "../workspace-redirect";
 
 export default function WorkspaceDocumentsDefaultPageRoute() {
-  return <DocumentsPage />;
+  return <WorkspaceModuleRedirect module="documents" />;
 }

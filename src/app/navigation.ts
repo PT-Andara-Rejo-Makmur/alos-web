@@ -7,6 +7,7 @@ import {
   FileText,
   House,
   LayoutDashboard,
+  MessageCircleQuestion,
   Users,
 } from "lucide-react";
 
@@ -23,9 +24,15 @@ export function navigationForSession(
   session?: SessionProjection | null,
 ): readonly AppNavigationSection[] {
   if (includeExecutive && workspaceKey === "executive") return executiveNavigation;
+  const activeKey =
+    session?.principal && "actor" in session.principal && session.principal.active_workspace
+      ? session.principal.active_workspace.workspace.workspace_key
+      : null;
+  const effectiveWorkspaceKey = workspaceKey ?? activeKey;
+
   const salesWorkspaceKey = session && hasSalesContext(session) ? activeSalesWorkspaceKey(session) : null;
-  if (salesWorkspaceKey && salesWorkspaceKey === workspaceKey) return salesNavigation(salesWorkspaceKey);
-  const base = workspaceKey ? `/workspace/${workspaceKey}` : "/workspace";
+  if (salesWorkspaceKey && salesWorkspaceKey === effectiveWorkspaceKey) return salesNavigation(salesWorkspaceKey);
+  const base = effectiveWorkspaceKey ? `/workspace/${effectiveWorkspaceKey}` : "/workspace";
 
   const sections: AppNavigationSection[] = [
     {
@@ -47,6 +54,12 @@ export function navigationForSession(
         { href: `${base}/findings`, icon: AlertCircle, label: "Temuan" },
       ],
       label: "PEKERJAAN",
+    },
+    {
+      items: [
+        { href: `${base}/ara`, icon: MessageCircleQuestion, label: "Tanya ARA" },
+      ],
+      label: "ARA",
     },
   ];
   return includeAccountManagement && workspaceKey

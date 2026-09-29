@@ -47,7 +47,7 @@ export function FindingDrawer({
 
   const detailPath = workspaceKey
     ? `/workspace/${workspaceKey}/findings/${finding.id}`
-    : `/workspace/findings/${finding.id}`;
+    : "/workspace";
 
   const relatedItems = [
     { key: "tasks", label: "Tindak Lanjut / Tugas", count: finding.tasksCount },

@@ -48,7 +48,7 @@ export function DocumentDrawer({
 
   const detailPath = workspaceKey
     ? `/workspace/${workspaceKey}/documents/${doc.id}`
-    : `/workspace/documents/${doc.id}`;
+    : "/workspace";
 
   const relatedItems = [
     { key: "tasks", label: "Tugas", count: doc.tasksCount },

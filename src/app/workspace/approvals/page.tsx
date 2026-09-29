@@ -1,7 +1,5 @@
-"use client";
-
-import { ApprovalsPage } from "@/features/shared-work/approvals";
+import { WorkspaceModuleRedirect } from "../workspace-redirect";
 
 export default function WorkspaceApprovalsDefaultPageRoute() {
-  return <ApprovalsPage />;
+  return <WorkspaceModuleRedirect module="approvals" />;
 }

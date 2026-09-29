@@ -1,7 +1,5 @@
-"use client";
-
-import { ProjectsPage } from "@/features/shared-work";
+import { WorkspaceModuleRedirect } from "../workspace-redirect";
 
 export default function WorkspaceProjectsDefaultPageRoute() {
-  return <ProjectsPage />;
+  return <WorkspaceModuleRedirect module="projects" />;
 }

@@ -450,7 +450,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     fireEvent.click(casTab);
 
     expect(screen.queryByRole("button", { name: "Jalankan Pratinjau Cascade" })).not.toBeInTheDocument();
-    expect(screen.getByText("Anda belum memiliki kewenangan untuk melakukan tindakan ini.")).toBeInTheDocument();
+    expect(await screen.findByText("Anda belum memiliki kewenangan untuk melakukan tindakan ini.")).toBeInTheDocument();
   });
 
   // 20. No raw permission codes in UI

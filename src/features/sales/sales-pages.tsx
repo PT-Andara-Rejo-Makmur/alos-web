@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Alert, Button, DataTable, Drawer, EmptyState, Metric, PageHeader, Section, Status, Tabs, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
-import { ApprovalsPage, DocumentsPage, FindingsPage, ProjectsPage, ReportsPage, TasksPage } from "@/features/shared-work";
 import { activeSalesWorkspaceKey } from "./sales-model";
 import { SalesLayout } from "./sales-layout";
 import styles from "./sales.module.css";
@@ -50,20 +49,4 @@ function SalesReadinessContent({ session, title, description, tabs, detail }: Sa
   </div>;
 }
 
-export function SalesSharedWorkPage({
-  module,
-  workspaceKey,
-}: Readonly<{
-  module: "projects" | "tasks" | "approvals" | "documents" | "reports" | "findings";
-  workspaceKey?: string;
-}>) {
-  return <SalesLayout workspaceKey={workspaceKey}>{(session) => {
-    const workspaceKey = activeSalesWorkspaceKey(session);
-    if (module === "projects") return <ProjectsPage embed workspaceKey={workspaceKey} />;
-    if (module === "tasks") return <TasksPage embed workspaceKey={workspaceKey} />;
-    if (module === "approvals") return <ApprovalsPage embed workspaceKey={workspaceKey} />;
-    if (module === "documents") return <DocumentsPage embed workspaceKey={workspaceKey} />;
-    if (module === "reports") return <ReportsPage embed workspaceKey={workspaceKey} />;
-    return <FindingsPage embed workspaceKey={workspaceKey} />;
-  }}</SalesLayout>;
-}
+

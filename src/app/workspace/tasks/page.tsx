@@ -1,7 +1,5 @@
-"use client";
-
-import { TasksPage } from "@/features/shared-work";
+import { WorkspaceModuleRedirect } from "../workspace-redirect";
 
 export default function WorkspaceTasksDefaultPageRoute() {
-  return <TasksPage />;
+  return <WorkspaceModuleRedirect module="tasks" />;
 }

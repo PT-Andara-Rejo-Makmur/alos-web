@@ -7,8 +7,8 @@ import { ReportsPage } from "@/features/shared-work/reports";
 export default function WorkspaceReportsPageRoute({
   params,
 }: {
-  readonly params: Promise<{ workspaceKey: string }>;
+  readonly params: Promise<{ workspaceKey: string }> | { workspaceKey: string };
 }) {
-  const { workspaceKey } = use(params);
-  return <ReportsPage workspaceKey={workspaceKey} />;
+  const resolved = "then" in params ? use(params) : params;
+  return <ReportsPage workspaceKey={resolved.workspaceKey} />;
 }

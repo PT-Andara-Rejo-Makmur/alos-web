@@ -50,7 +50,7 @@ export function ReportDrawer({
   if (report) {
     const detailPath = workspaceKey
       ? `/workspace/${workspaceKey}/reports/${report.id}`
-      : `/workspace/reports/${report.id}`;
+      : "/workspace";
 
     const relatedItems = [
       { key: "evidence", label: "Bukti", count: report.evidenceCount },

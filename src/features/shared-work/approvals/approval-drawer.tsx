@@ -47,7 +47,7 @@ export function ApprovalDrawer({
 
   const detailPath = workspaceKey
     ? `/workspace/${workspaceKey}/approvals/${approval.id}`
-    : `/workspace/approvals/${approval.id}`;
+    : "/workspace";
 
   const relatedItems = [
     { key: "documents", label: "Dokumen", count: approval.documentsCount },

@@ -47,7 +47,7 @@ export function TaskDrawer({
 
   const detailPath = workspaceKey
     ? `/workspace/${workspaceKey}/tasks/${task.id}`
-    : `/workspace/tasks/${task.id}`;
+    : "/workspace";
 
   const dueInfo = formatTaskDueDate(task.dueAt, task.status);
 

@@ -48,7 +48,7 @@ export function ProjectDrawer({
 
   const detailPath = workspaceKey
     ? `/workspace/${workspaceKey}/projects/${project.id}`
-    : `/workspace/projects/${project.id}`;
+    : "/workspace";
 
   const footer = (
     <div className={styles.drawerFooterActions}>

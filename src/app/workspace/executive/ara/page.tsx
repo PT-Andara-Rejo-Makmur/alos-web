@@ -1,3 +1,5 @@
-import { ExecutiveAraPage } from "@/features/executive";
+import { AraPage } from "@/features/ara";
 
-export default function ExecutiveAraRoute() { return <ExecutiveAraPage />; }
+export default function ExecutiveAraRoute() {
+  return <AraPage workspaceKey="executive" />;
+}

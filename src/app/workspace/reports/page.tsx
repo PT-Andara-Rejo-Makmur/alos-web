@@ -1,7 +1,5 @@
-"use client";
+import { WorkspaceModuleRedirect } from "../workspace-redirect";
 
-import { ReportsPage } from "@/features/shared-work/reports";
-
-export default function GlobalReportsPageRoute() {
-  return <ReportsPage />;
+export default function WorkspaceReportsDefaultPageRoute() {
+  return <WorkspaceModuleRedirect module="reports" />;
 }
