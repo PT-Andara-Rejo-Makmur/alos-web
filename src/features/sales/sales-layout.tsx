@@ -7,7 +7,8 @@ import { AppShell } from "@/components/app-shell/app-shell";
 import type { SessionProjection } from "@/features/session";
 import { ApiError, sessionApiRequest } from "@/lib/api";
 
-import { activeSalesWorkspaceKey, hasSalesContext } from "./sales-model";
+import { resolveWorkspaceDomain } from "@/features/session";
+import { activeSalesWorkspaceKey } from "./sales-model";
 import { salesNavigation } from "./navigation";
 import styles from "./sales.module.css";
 
@@ -29,13 +30,8 @@ export function SalesLayout({
     let cancelled = false;
     void sessionApiRequest<SessionProjection>("/").then((nextSession) => {
       if (cancelled) return;
-      const activeWorkspaceKey = activeSalesWorkspaceKey(nextSession);
-      if (
-        !nextSession.authenticated ||
-        !hasSalesContext(nextSession) ||
-        !activeWorkspaceKey ||
-        (requestedWorkspaceKey !== undefined && requestedWorkspaceKey !== activeWorkspaceKey)
-      ) {
+      const resolution = resolveWorkspaceDomain(nextSession, requestedWorkspaceKey);
+      if (!resolution.valid || resolution.domain !== "SALES") {
         setState("no_access");
       } else {
         setSession(nextSession);

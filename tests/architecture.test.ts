@@ -42,7 +42,27 @@ describe("frontend architecture boundary", () => {
   });
 
   it("menyediakan route utama dalam satu Next.js application", () => {
-    for (const route of ["login", "workspace", join("workspace", "executive"), join("workspace", "executive", "summary"), join("workspace", "executive", "brief"), join("workspace", "executive", "planning"), join("workspace", "executive", "performance"), join("workspace", "executive", "initiatives"), join("workspace", "executive", "reviews"), join("workspace", "executive", "divisions"), join("workspace", "executive", "ara")]) {
+    for (const route of [
+      "login",
+      "workspace",
+      join("workspace", "executive"),
+      join("workspace", "sales"),
+      join("workspace", "[workspaceKey]"),
+      join("workspace", "[workspaceKey]", "summary"),
+      join("workspace", "[workspaceKey]", "brief"),
+      join("workspace", "[workspaceKey]", "planning"),
+      join("workspace", "[workspaceKey]", "performance"),
+      join("workspace", "[workspaceKey]", "initiatives"),
+      join("workspace", "[workspaceKey]", "reviews"),
+      join("workspace", "[workspaceKey]", "divisions"),
+      join("workspace", "[workspaceKey]", "ara"),
+      join("workspace", "[workspaceKey]", "projects"),
+      join("workspace", "[workspaceKey]", "tasks"),
+      join("workspace", "[workspaceKey]", "approvals"),
+      join("workspace", "[workspaceKey]", "documents"),
+      join("workspace", "[workspaceKey]", "reports"),
+      join("workspace", "[workspaceKey]", "findings"),
+    ]) {
       expect(() => readFileSync(join(sourceRoot, "app", route, "page.tsx"), "utf8")).not.toThrow();
     }
   });

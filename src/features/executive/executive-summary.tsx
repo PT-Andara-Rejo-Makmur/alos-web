@@ -31,11 +31,16 @@ const divisions = [
   ["Legal", "legal"], ["HR/GA", "hr"], ["IT", "it"],
 ] as const;
 
-export function ExecutiveSummaryPage() {
-  return <ExecutiveLayout>{() => <ExecutiveSummaryContent />}</ExecutiveLayout>;
+export function ExecutiveSummaryPage({ workspaceKey }: Readonly<{ workspaceKey?: string }> = {}) {
+  return (
+    <ExecutiveLayout workspaceKey={workspaceKey}>
+      {(_session, activeKey) => <ExecutiveSummaryContent workspaceKey={activeKey} />}
+    </ExecutiveLayout>
+  );
 }
 
-function ExecutiveSummaryContent() {
+function ExecutiveSummaryContent({ workspaceKey }: Readonly<{ workspaceKey: string }>) {
+  const base = `/workspace/${encodeURIComponent(workspaceKey)}`;
   const { data, error, loading, sessionExpired } = useExecutiveStrategyData();
   const plan = activePlan(data?.plans ?? []);
   const targets = corporateTargets(data?.targets ?? []);
@@ -78,11 +83,11 @@ function ExecutiveSummaryContent() {
         </div>
       </Section>
 
-      <Section actions={<Link className={styles.detailLink} href="/workspace/executive/performance">Lihat Kinerja</Link>} description="Target perusahaan dari sumber strategi yang tersedia." title="Target & Kinerja Perusahaan">
+      <Section actions={<Link className={styles.detailLink} href={`${base}/performance`}>Lihat Kinerja</Link>} description="Target perusahaan dari sumber strategi yang tersedia." title="Target & Kinerja Perusahaan">
         {loading ? <LoadingState label="Memuat target perusahaan" variant="table" /> : null}
         {strategyUnavailable ? <EmptyState description="Kinerja perusahaan belum dapat disimpulkan karena data strategi belum tersedia." title="Belum Terhubung" /> : null}
         {!loading && !strategyUnavailable && targets.length === 0 ? <EmptyState description="Target akan ditampilkan setelah tersedia pada rencana perusahaan." title="Belum ada target perusahaan." /> : null}
-        {!strategyUnavailable && targets.length > 0 ? <CorporateTargetTable targets={targets} /> : null}
+        {!strategyUnavailable && targets.length > 0 ? <CorporateTargetTable base={base} targets={targets} /> : null}
       </Section>
 
       <Section title="Ringkasan Domain" description="Kondisi domain operasional akan tampil setelah sumber authoritative tersedia.">
@@ -91,17 +96,17 @@ function ExecutiveSummaryContent() {
             <article className={styles.domainPanel} key={key}>
               <div><h3>{name}</h3><p>—</p></div>
               <Status label="Belum Terhubung" variant="neutral" />
-              <Link className={styles.detailLink} href={`/workspace/executive/divisions/${key}`}>Lihat Detail</Link>
+              <Link className={styles.detailLink} href={`${base}/divisions/${key}`}>Lihat Detail</Link>
             </article>
           ))}
         </div>
       </Section>
 
       <div className={styles.twoColumn}>
-        <Section actions={<Link className={styles.detailLink} href="/workspace/executive/findings">Lihat Semua Temuan</Link>} title="Peringatan & Temuan">
+        <Section actions={<Link className={styles.detailLink} href={`${base}/findings`}>Lihat Semua Temuan</Link>} title="Peringatan & Temuan">
           <EmptyState description="Temuan akan ditampilkan dari Shared Work saat sumber tersedia." title="Belum ada informasi yang dapat ditampilkan." />
         </Section>
-        <Section actions={<Link className={styles.detailLink} href="/workspace/executive/approvals">Lihat Semua Persetujuan</Link>} title="Keputusan Menunggu">
+        <Section actions={<Link className={styles.detailLink} href={`${base}/approvals`}>Lihat Semua Persetujuan</Link>} title="Keputusan Menunggu">
           <EmptyState description="Persetujuan relevan akan ditampilkan dari Shared Work saat sumber tersedia." title="Belum ada informasi keputusan." />
         </Section>
       </div>
@@ -118,7 +123,7 @@ function ExecutiveSummaryContent() {
             { header: "Update", key: "updated", render: () => "—" },
           ]}
           getRowKey={(row) => row[1]}
-          rowAction={(row) => <Link className={styles.detailLink} href={`/workspace/executive/divisions/${row[1]}`}>Lihat Detail</Link>}
+          rowAction={(row) => <Link className={styles.detailLink} href={`${base}/divisions/${row[1]}`}>Lihat Detail</Link>}
           rows={divisions}
         />
       </Section>
@@ -130,7 +135,7 @@ function ExecutiveSummaryContent() {
   );
 }
 
-function CorporateTargetTable({ targets }: Readonly<{ targets: readonly BusinessTarget[] }>) {
+function CorporateTargetTable({ targets, base }: Readonly<{ targets: readonly BusinessTarget[]; base: string }>) {
   return <DataTable
     caption="Target dan kinerja perusahaan"
     columns={[
@@ -145,7 +150,7 @@ function CorporateTargetTable({ targets }: Readonly<{ targets: readonly Business
       { header: "Penanggung Jawab", key: "owner", render: (target: BusinessTarget) => target.owner_role_ref || "—" },
     ]}
     getRowKey={(target) => `${target.target_id}-${target.version}`}
-    rowAction={(target) => <Link className={styles.detailLink} href={`/workspace/executive/performance?target=${encodeURIComponent(target.target_id)}`}>Lihat Detail</Link>}
+    rowAction={(target) => <Link className={styles.detailLink} href={`${base}/performance?target=${encodeURIComponent(target.target_id)}`}>Lihat Detail</Link>}
     rows={targets}
   />;
 }

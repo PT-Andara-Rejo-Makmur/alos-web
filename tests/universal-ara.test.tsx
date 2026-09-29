@@ -2,7 +2,6 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import AraRoute from "@/app/workspace/[workspaceKey]/ara/page";
-import ExecutiveAraRoute from "@/app/workspace/executive/ara/page";
 import { ExecutiveAraPage } from "@/features/executive";
 import {
   buildAraThreadKey,
@@ -275,7 +274,7 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       ]);
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(execSession);
 
-      render(<ExecutiveAraRoute />);
+      render(<AraRoute params={{ workspaceKey: "executive" }} />);
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
@@ -318,7 +317,7 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       const salesSession = makeSession("penjualan-utama", "SALES", "Pusat Penjualan");
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSession);
 
-      render(<ExecutiveAraRoute />);
+      render(<AraRoute params={{ workspaceKey: "executive" }} />);
 
       expect(
         await screen.findByRole("heading", { name: "Anda tidak memiliki akses ke halaman ini." }),
@@ -368,7 +367,7 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       const execSession = makeSession("executive", "", "Pusat Kendali", "EXECUTIVE");
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(execSession);
 
-      render(<ExecutiveAraRoute />);
+      render(<AraRoute params={{ workspaceKey: "executive" }} />);
 
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();

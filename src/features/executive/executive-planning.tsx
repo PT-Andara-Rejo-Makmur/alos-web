@@ -34,14 +34,16 @@ import styles from "./executive.module.css";
 export interface ExecutivePlanningPageProps {
   readonly initialCandidates?: readonly ExtractedCandidate[];
   readonly initialProcessed?: boolean;
+  readonly workspaceKey?: string;
 }
 
 export function ExecutivePlanningPage({
   initialCandidates,
   initialProcessed,
+  workspaceKey,
 }: ExecutivePlanningPageProps = {}) {
   return (
-    <ExecutiveLayout>
+    <ExecutiveLayout workspaceKey={workspaceKey}>
       {() => (
         <PlanningContent
           initialCandidates={initialCandidates}

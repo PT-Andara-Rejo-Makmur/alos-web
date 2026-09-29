@@ -42,50 +42,56 @@ const divisionRows = [
   ["IT", "it"],
 ] as const;
 
-export function ExecutiveDivisionsPage() {
+export function ExecutiveDivisionsPage({ workspaceKey }: Readonly<{ workspaceKey?: string }> = {}) {
   return (
-    <ExecutiveLayout>
-      {() => (
-        <div className={styles.page}>
-          <PageHeader
-            description="Pantau kesiapan data, capaian target, serta keterkaitan pekerjaan tiap divisi sesuai ruang lingkup yang berwenang."
-            eyebrow="ORGANISASI"
-            title="Divisi"
-          />
-          <Section title="Status Divisi">
-            <DataTable
-              caption="Daftar divisi"
-              columns={[
-                { header: "Divisi", key: "name", render: (row: readonly string[]) => row[0] },
-                { header: "Penanggung Jawab", key: "owner", render: () => "—" },
-                { header: "Target Utama", key: "target", render: () => "—" },
-                { header: "Kinerja", key: "performance", render: () => "—" },
-                { header: "Proyek Aktif", key: "projects", render: () => "—" },
-                { header: "Tugas Terlambat", key: "tasks", render: () => "—" },
-                { header: "Temuan", key: "findings", render: () => "—" },
-                { header: "Persetujuan", key: "approvals", render: () => "—" },
-                {
-                  header: "Status Data",
-                  key: "status",
-                  render: () => <Status label="Belum Terhubung" variant="neutral" />,
-                },
-              ]}
-              getRowKey={(row) => row[1]}
-              rowAction={(row) => (
-                <Link className={styles.detailLink} href={`/workspace/executive/divisions/${row[1]}`}>
-                  Lihat Detail
-                </Link>
-              )}
-              rows={divisionRows}
+    <ExecutiveLayout workspaceKey={workspaceKey}>
+      {(_session, activeKey) => {
+        const base = `/workspace/${encodeURIComponent(activeKey)}`;
+        return (
+          <div className={styles.page}>
+            <PageHeader
+              description="Pantau kesiapan data, capaian target, serta keterkaitan pekerjaan tiap divisi sesuai ruang lingkup yang berwenang."
+              eyebrow="ORGANISASI"
+              title="Divisi"
             />
-          </Section>
-        </div>
-      )}
+            <Section title="Status Divisi">
+              <DataTable
+                caption="Daftar divisi"
+                columns={[
+                  { header: "Divisi", key: "name", render: (row: readonly string[]) => row[0] },
+                  { header: "Penanggung Jawab", key: "owner", render: () => "—" },
+                  { header: "Target Utama", key: "target", render: () => "—" },
+                  { header: "Kinerja", key: "performance", render: () => "—" },
+                  { header: "Proyek Aktif", key: "projects", render: () => "—" },
+                  { header: "Tugas Terlambat", key: "tasks", render: () => "—" },
+                  { header: "Temuan", key: "findings", render: () => "—" },
+                  { header: "Persetujuan", key: "approvals", render: () => "—" },
+                  {
+                    header: "Status Data",
+                    key: "status",
+                    render: () => <Status label="Belum Terhubung" variant="neutral" />,
+                  },
+                ]}
+                getRowKey={(row) => row[1]}
+                rowAction={(row) => (
+                  <Link className={styles.detailLink} href={`${base}/divisions/${row[1]}`}>
+                    Lihat Detail
+                  </Link>
+                )}
+                rows={divisionRows}
+              />
+            </Section>
+          </div>
+        );
+      }}
     </ExecutiveLayout>
   );
 }
 
-export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ divisionKey: string }>) {
+export function ExecutiveDivisionDetailPage({
+  divisionKey,
+  workspaceKey,
+}: Readonly<{ divisionKey: string; workspaceKey?: string }>) {
   const division = divisionRows.find((row) => row[1] === divisionKey);
   const [activeTab, setActiveTab] = useState("summary");
   const { data, error, loading, sessionExpired } = useExecutiveStrategyData();
@@ -112,29 +118,31 @@ export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ division
   const divisionOwner = "—";
 
   return (
-    <ExecutiveLayout>
-      {() => (
-        <div className={styles.page}>
-          <div style={{ marginBottom: "var(--alos-space-2)" }}>
-            <Link className={styles.detailLink} href="/workspace/executive/divisions">
-              ← Kembali ke Daftar Divisi
-            </Link>
-          </div>
+    <ExecutiveLayout workspaceKey={workspaceKey}>
+      {(_session, activeKey) => {
+        const base = `/workspace/${encodeURIComponent(activeKey)}`;
+        return (
+          <div className={styles.page}>
+            <div style={{ marginBottom: "var(--alos-space-2)" }}>
+              <Link className={styles.detailLink} href={`${base}/divisions`}>
+                ← Kembali ke Daftar Divisi
+              </Link>
+            </div>
 
-          <PageHeader
-            description="Kinerja dan pekerjaan divisi ditampilkan terintegrasi sesuai ruang lingkup yang berwenang."
-            eyebrow="ORGANISASI"
-            metadata={`Unit Organisasi: ${division?.[0] ?? "Divisi"}`}
-            title={division?.[0] ?? "Detail Divisi"}
-          />
-
-          {!division ? (
-            <EmptyState
-              action={<Link className={styles.detailLink} href="/workspace/executive/divisions">Kembali ke Divisi</Link>}
-              description="Divisi yang diminta tidak tersedia pada ruang kerja ini."
-              title="Divisi tidak ditemukan."
+            <PageHeader
+              description="Kinerja dan pekerjaan divisi ditampilkan terintegrasi sesuai ruang lingkup yang berwenang."
+              eyebrow="ORGANISASI"
+              metadata={`Unit Organisasi: ${division?.[0] ?? "Divisi"}`}
+              title={division?.[0] ?? "Detail Divisi"}
             />
-          ) : (
+
+            {!division ? (
+              <EmptyState
+                action={<Link className={styles.detailLink} href={`${base}/divisions`}>Kembali ke Divisi</Link>}
+                description="Divisi yang diminta tidak tersedia pada ruang kerja ini."
+                title="Divisi tidak ditemukan."
+              />
+            ) : (
             <>
               <Tabs
                 ariaLabel="Detail navigasi divisi"
@@ -268,7 +276,8 @@ export function ExecutiveDivisionDetailPage({ divisionKey }: Readonly<{ division
             </>
           )}
         </div>
-      )}
+        );
+      }}
     </ExecutiveLayout>
   );
 }

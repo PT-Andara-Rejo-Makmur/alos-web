@@ -35,15 +35,16 @@ import {
 } from "./executive-model";
 import styles from "./executive.module.css";
 
-export function ExecutivePerformancePage() {
+export function ExecutivePerformancePage({ workspaceKey }: Readonly<{ workspaceKey?: string }> = {}) {
   return (
-    <ExecutiveLayout>
-      {() => <PerformanceContent />}
+    <ExecutiveLayout workspaceKey={workspaceKey}>
+      {(_session, activeKey) => <PerformanceContent workspaceKey={activeKey} />}
     </ExecutiveLayout>
   );
 }
 
-function PerformanceContent() {
+function PerformanceContent({ workspaceKey }: Readonly<{ workspaceKey: string }>) {
+  const base = `/workspace/${encodeURIComponent(workspaceKey)}`;
   const router = useRouter();
   const searchParams = useSearchParams();
   const targetIdParam = searchParams.get("target");
@@ -76,7 +77,7 @@ function PerformanceContent() {
     return (
       <TargetPerformanceDetail
         canMutate={canMutate}
-        onBack={() => router.push("/workspace/executive/performance")}
+        onBack={() => router.push(`${base}/performance`)}
         target={activeDetailTarget}
       />
     );
@@ -95,7 +96,7 @@ function PerformanceContent() {
       {loading ? <LoadingState label="Memuat kinerja perusahaan" variant="table" /> : null}
 
       {!loading && tab === "company" ? (
-        <PerformanceTable targets={targets} />
+        <PerformanceTable base={base} targets={targets} />
       ) : null}
 
       {!loading && tab === "kpi" ? (
@@ -105,10 +106,10 @@ function PerformanceContent() {
         />
       ) : null}
 
-      {!loading && tab === "division" ? <DivisionPerformance /> : null}
+      {!loading && tab === "division" ? <DivisionPerformance base={base} /> : null}
 
       {!loading && tab === "forecast" ? (
-        <PerformanceTable targets={targets} />
+        <PerformanceTable base={base} targets={targets} />
       ) : null}
 
       {!loading && tab === "history" ? (
@@ -127,9 +128,10 @@ function PerformanceContent() {
 
 interface PerformanceTableProps {
   readonly targets: readonly BusinessTarget[];
+  readonly base: string;
 }
 
-function PerformanceTable({ targets }: PerformanceTableProps) {
+function PerformanceTable({ targets, base }: PerformanceTableProps) {
   return (
     <Section description="Status performa mencerminkan penilaian kinerja resmi korporasi." title="Kinerja Perusahaan">
       <DataTable
@@ -182,7 +184,7 @@ function PerformanceTable({ targets }: PerformanceTableProps) {
         rowAction={(t) => (
           <Link
             className={styles.detailLink}
-            href={`/workspace/executive/performance?target=${encodeURIComponent(t.target_id)}`}
+            href={`${base}/performance?target=${encodeURIComponent(t.target_id)}`}
           >
             Lihat Detail
           </Link>
@@ -627,7 +629,7 @@ function TargetRevisionDrawer({ target, canSubmit, onClose }: TargetRevisionDraw
 }
 
 // Helpers
-function DivisionPerformance() {
+function DivisionPerformance({ base }: Readonly<{ base: string }>) {
   return (
     <Section title="Kinerja Divisi">
       <DataTable
@@ -642,7 +644,7 @@ function DivisionPerformance() {
         ]}
         getRowKey={(row) => row[1]}
         rowAction={(row) => (
-          <Link className={styles.detailLink} href={`/workspace/executive/divisions/${row[1]}`}>
+          <Link className={styles.detailLink} href={`${base}/divisions/${row[1]}`}>
             Lihat Detail
           </Link>
         )}

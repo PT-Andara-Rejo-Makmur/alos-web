@@ -23,9 +23,10 @@ export interface StrategicInitiative {
 
 export function ExecutiveInitiativesPage({
   initiatives = [],
-}: Readonly<{ initiatives?: readonly StrategicInitiative[] }> = {}) {
+  workspaceKey,
+}: Readonly<{ initiatives?: readonly StrategicInitiative[]; workspaceKey?: string }> = {}) {
   return (
-    <ExecutiveLayout>
+    <ExecutiveLayout workspaceKey={workspaceKey}>
       {() => <InitiativesContent initiatives={initiatives} />}
     </ExecutiveLayout>
   );

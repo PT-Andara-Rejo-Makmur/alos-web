@@ -6,8 +6,10 @@ export { ExecutiveInitiativesPage } from "./executive-initiatives";
 export { ExecutivePerformancePage } from "./executive-performance";
 export { ExecutivePlanningPage } from "./executive-planning";
 export { ExecutiveReviewsPage } from "./executive-reviews";
+export { ExecutiveLayout } from "./executive-layout";
 export {
   hasExecutiveContext,
+  activeExecutiveWorkspaceKey,
   generateCanonicalId,
   valueForObservation,
   formatValue,

@@ -13,9 +13,9 @@ import {
 
 import type { AppNavigationSection } from "@/components/app-shell/app-shell";
 import { executiveNavigation } from "@/features/executive/navigation";
-import { activeSalesWorkspaceKey, hasSalesContext } from "@/features/sales/sales-model";
 import { salesNavigation } from "@/features/sales/navigation";
 import type { SessionProjection } from "@/features/session";
+import { resolveWorkspaceDomain } from "@/features/session";
 
 export function navigationForSession(
   includeExecutive: boolean,
@@ -23,23 +23,41 @@ export function navigationForSession(
   includeAccountManagement = false,
   session?: SessionProjection | null,
 ): readonly AppNavigationSection[] {
-  if (includeExecutive && workspaceKey === "executive") return executiveNavigation;
   const activeKey =
     session?.principal && "actor" in session.principal && session.principal.active_workspace
       ? session.principal.active_workspace.workspace.workspace_key
       : null;
   const effectiveWorkspaceKey = workspaceKey ?? activeKey;
 
-  const salesWorkspaceKey = session && hasSalesContext(session) ? activeSalesWorkspaceKey(session) : null;
-  if (salesWorkspaceKey && salesWorkspaceKey === effectiveWorkspaceKey) return salesNavigation(salesWorkspaceKey);
+  const resolution = session ? resolveWorkspaceDomain(session, effectiveWorkspaceKey) : null;
+
+  if (resolution?.valid) {
+    if (resolution.domain === "EXECUTIVE") {
+      return executiveNavigation(resolution.activeWorkspaceKey ?? effectiveWorkspaceKey ?? "executive");
+    }
+    if (resolution.domain === "SALES") {
+      return salesNavigation(resolution.activeWorkspaceKey ?? effectiveWorkspaceKey ?? "sales");
+    }
+  }
+
+  if (includeExecutive && effectiveWorkspaceKey && effectiveWorkspaceKey === "executive") {
+    return executiveNavigation("executive");
+  }
+
   const base = effectiveWorkspaceKey ? `/workspace/${effectiveWorkspaceKey}` : "/workspace";
+  const executiveHref =
+    resolution?.domain === "EXECUTIVE" && resolution.activeWorkspaceKey
+      ? `/workspace/${resolution.activeWorkspaceKey}/summary`
+      : effectiveWorkspaceKey
+        ? `/workspace/${effectiveWorkspaceKey}/summary`
+        : "/workspace/executive";
 
   const sections: AppNavigationSection[] = [
     {
       items: [
         { href: "/workspace", icon: House, label: "Beranda" },
         ...(includeExecutive
-          ? [{ href: "/workspace/executive", icon: LayoutDashboard, label: "Pusat Kendali" }]
+          ? [{ href: executiveHref, icon: LayoutDashboard, label: "Pusat Kendali" }]
           : []),
       ],
       label: "UTAMA",

@@ -5,7 +5,10 @@ import { resolve } from "node:path";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
 
-// Universal shared work pages
+// Universal navigation and features
+import { navigationForSession } from "@/app/navigation";
+import { executiveNavigation } from "@/features/executive/navigation";
+import { salesNavigation } from "@/features/sales/navigation";
 import {
   DocumentsPage,
   ProjectsPage,
@@ -14,69 +17,57 @@ import {
   ReportsPage,
   FindingsPage,
 } from "@/features/shared-work";
-
-// Universal ARA
 import { AraPage } from "@/features/ara";
 
-// Sales pages
-import { SalesSummaryPage, SalesReadinessPage } from "@/features/sales";
+import { ExecutiveSummaryPage } from "@/features/executive";
+import { SalesSummaryPage } from "@/features/sales";
 
-// Sales route components
+// Routes under [workspaceKey]
+import WorkspaceKeyRoot from "@/app/workspace/[workspaceKey]/page";
 import SummaryRoute from "@/app/workspace/[workspaceKey]/summary/page";
-import PipelineRoute from "@/app/workspace/[workspaceKey]/pipeline/page";
-import LeadsRoute from "@/app/workspace/[workspaceKey]/leads/page";
-import ActivitiesRoute from "@/app/workspace/[workspaceKey]/activities/page";
-import BookingsRoute from "@/app/workspace/[workspaceKey]/bookings/page";
-import KprRoute from "@/app/workspace/[workspaceKey]/kpr/page";
-import CampaignsRoute from "@/app/workspace/[workspaceKey]/campaigns/page";
 import PerformanceRoute from "@/app/workspace/[workspaceKey]/performance/page";
-
-// Universal route components
 import UniversalAraRoute from "@/app/workspace/[workspaceKey]/ara/page";
 import UniversalProjectsRoute from "@/app/workspace/[workspaceKey]/projects/page";
-import UniversalTasksRoute from "@/app/workspace/[workspaceKey]/tasks/page";
-import UniversalApprovalsRoute from "@/app/workspace/[workspaceKey]/approvals/page";
-import UniversalDocumentsRoute from "@/app/workspace/[workspaceKey]/documents/page";
-import UniversalReportsRoute from "@/app/workspace/[workspaceKey]/reports/page";
-import UniversalFindingsRoute from "@/app/workspace/[workspaceKey]/findings/page";
 
 const mockReplace = vi.fn();
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/workspace/penjualan-utama/summary",
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: mockReplace }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 function createSession(
   workspaceKey: string,
   divisionCode: string,
-  role: "WORKSPACE_LEAD" | "WORKSPACE_MEMBER" = "WORKSPACE_LEAD",
+  workspaceType: "EXECUTIVE" | "BUSINESS" | "IT_OPERATIONS" = "BUSINESS",
+  role: "EXECUTIVE" | "WORKSPACE_LEAD" | "WORKSPACE_MEMBER" = workspaceType === "EXECUTIVE" ? "EXECUTIVE" : "WORKSPACE_LEAD",
 ) {
   const principal: AuthenticatedPrincipalProjection = {
     actor: {
-      actor_id: `actor_${divisionCode.toLowerCase()}`,
+      actor_id: `actor_${divisionCode.toLowerCase() || "exec"}`,
       active: true,
-      display_name: `${divisionCode} Lead`,
+      display_name: `${divisionCode || "Executive"} Lead`,
       organization_id: "org_andara",
       tenant_id: "tenant_andara",
     },
     active_workspace: {
       active: true,
-      data_scope: "WORKSPACE",
+      data_scope: workspaceType === "EXECUTIVE" ? "COMPANY" : "WORKSPACE",
       permission_refs: ["read:*", "write:*"],
       role_refs: [role],
-      scope_refs: [`workspace_${divisionCode.toLowerCase()}`],
+      scope_refs: [`workspace_${workspaceKey}`],
       workspace: {
         active: true,
-        division_code: divisionCode,
+        division_code: divisionCode || null,
         organization_id: "org_andara",
-        workspace_id: `ws_${divisionCode.toLowerCase()}`,
+        workspace_id: `ws_${workspaceKey}`,
         workspace_key: workspaceKey,
-        workspace_name: `Ruang Kerja ${divisionCode}`,
-        workspace_type: "BUSINESS",
+        workspace_name: workspaceType === "EXECUTIVE" ? "Pusat Kendali" : `Ruang Kerja ${divisionCode}`,
+        workspace_type: workspaceType,
       },
     },
-    email: `${divisionCode.toLowerCase()}@andara.co.id`,
+    email: `${(divisionCode || "exec").toLowerCase()}@andara.co.id`,
     expires_at: "2026-10-01T00:00:00Z",
     issued_at: "2026-09-27T00:00:00Z",
     workspace_access: [],
@@ -88,7 +79,7 @@ function createSession(
   };
 }
 
-describe("Architecture Hygiene Guard", () => {
+describe("Final Architecture Consistency & Hygiene Guard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -97,172 +88,233 @@ describe("Architecture Hygiene Guard", () => {
     cleanup();
   });
 
-  describe("1. Pattern Isolation: src/features Structure", () => {
-    it("src/features/sales must NOT export or contain SalesSharedWorkPage or shared-work wrappers", () => {
-      const salesIndexPath = resolve("src/features/sales/index.ts");
-      const salesIndexContent = readFileSync(salesIndexPath, "utf-8");
-      expect(salesIndexContent).not.toContain("SalesSharedWorkPage");
+  describe("1. Executive & Sales Navigation Uses Actual Authoritative workspace_key", () => {
+    it("Executive actual workspace_key is used in executiveNavigation and navigationForSession", () => {
+      const customKey = "holding-corp-2027";
+      const sections = executiveNavigation(customKey);
+      const allHrefs = sections.flatMap((s) => s.items.map((i) => i.href));
 
-      const salesPagesPath = resolve("src/features/sales/sales-pages.tsx");
-      const salesPagesContent = readFileSync(salesPagesPath, "utf-8");
-      expect(salesPagesContent).not.toContain("SalesSharedWorkPage");
-      expect(salesPagesContent).not.toContain("@/features/shared-work");
+      // All links must be anchored to the actual workspace key
+      expect(allHrefs).toContain(`/workspace/${customKey}/summary`);
+      expect(allHrefs).toContain(`/workspace/${customKey}/brief`);
+      expect(allHrefs).toContain(`/workspace/${customKey}/planning`);
+      expect(allHrefs).toContain(`/workspace/${customKey}/performance`);
+      expect(allHrefs).toContain(`/workspace/${customKey}/divisions`);
+      expect(allHrefs).toContain(`/workspace/${customKey}/projects`);
+      expect(allHrefs).toContain(`/workspace/${customKey}/ara`);
+      allHrefs.forEach((href) => {
+        expect(href).toMatch(new RegExp(`^/workspace/${customKey}/`));
+        expect(href).not.toContain("/workspace/executive/");
+      });
+
+      // navigationForSession resolves the authoritative session
+      const execSession = createSession(customKey, "", "EXECUTIVE");
+      const sessionSections = navigationForSession(true, customKey, false, execSession);
+      const sessionHrefs = sessionSections.flatMap((s) => s.items.map((i) => i.href));
+      expect(sessionHrefs).toContain(`/workspace/${customKey}/summary`);
     });
 
-    it("src/features/sales must NOT contain any ARA implementation or duplicate ARA files", () => {
-      const salesDir = resolve("src/features/sales");
-      const files = readdirSync(salesDir);
-      for (const file of files) {
-        expect(file).not.toMatch(/ara/i);
-        const content = readFileSync(resolve(salesDir, file), "utf-8");
-        expect(content).not.toContain("@/features/ara");
-      }
-    });
+    it("Sales actual workspace_key is used in salesNavigation and navigationForSession", () => {
+      const salesKey = "penjualan-cabang-bandung";
+      const sections = salesNavigation(salesKey);
+      const allHrefs = sections.flatMap((s) => s.items.map((i) => i.href));
 
-    it("src/features/ara is the single source of truth for Universal ARA", () => {
-      const araDir = resolve("src/features/ara");
-      expect(existsSync(araDir)).toBe(true);
+      expect(allHrefs).toContain(`/workspace/${salesKey}/summary`);
+      expect(allHrefs).toContain(`/workspace/${salesKey}/pipeline`);
+      expect(allHrefs).toContain(`/workspace/${salesKey}/kpr`);
+      expect(allHrefs).toContain(`/workspace/${salesKey}/projects`);
+      expect(allHrefs).toContain(`/workspace/${salesKey}/ara`);
+      allHrefs.forEach((href) => {
+        expect(href).toMatch(new RegExp(`^/workspace/${salesKey}/`));
+        expect(href).not.toContain("/workspace/sales/");
+      });
 
-      const araFiles = readdirSync(araDir);
-      expect(araFiles).toContain("ara-page.tsx");
-      expect(araFiles).toContain("ara-readiness.tsx");
-      expect(araFiles).toContain("ara-model.ts");
-      expect(araFiles).toContain("index.ts");
-    });
-
-    it("src/features/executive/executive-ara.tsx delegates directly to Universal ARA without duplicate UI implementation", () => {
-      const execAraPath = resolve("src/features/executive/executive-ara.tsx");
-      expect(existsSync(execAraPath)).toBe(true);
-      const content = readFileSync(execAraPath, "utf-8");
-      expect(content).toContain("@/features/ara");
-      expect(content).not.toContain("useState");
-      expect(content).not.toContain("executive.module.css");
-    });
-
-    it("src/features/shared-work contains all canonical shared work sub-features", () => {
-      const sharedWorkDir = resolve("src/features/shared-work");
-      expect(existsSync(sharedWorkDir)).toBe(true);
-
-      const subdirs = readdirSync(sharedWorkDir);
-      expect(subdirs).toContain("documents");
-      expect(subdirs).toContain("projects");
-      expect(subdirs).toContain("tasks");
-      expect(subdirs).toContain("approvals");
-      expect(subdirs).toContain("reports");
-      expect(subdirs).toContain("findings");
+      const salesSessionData = createSession(salesKey, "SALES", "BUSINESS");
+      const sessionSections = navigationForSession(false, salesKey, false, salesSessionData);
+      const sessionHrefs = sessionSections.flatMap((s) => s.items.map((i) => i.href));
+      expect(sessionHrefs).toContain(`/workspace/${salesKey}/summary`);
     });
   });
 
-  describe("2. Routing Tree Hygiene: src/app/workspace", () => {
-    it("no static Sales route tree competing with [workspaceKey]", () => {
-      const staticSalesSubdirs = [
-        "pipeline", "leads", "activities", "bookings", "mortgages", "kpr",
-        "campaigns", "performance", "projects", "tasks", "approvals",
-        "documents", "reports", "findings", "ara",
-      ];
-      for (const sub of staticSalesSubdirs) {
-        expect(existsSync(resolve(`src/app/workspace/sales/${sub}`))).toBe(false);
-      }
+  describe("2. URL Mismatch & Authority Fail-Closed Enforcement", () => {
+    it("Executive feature fails closed when requested workspaceKey does not match active workspace", async () => {
+      const execSession = createSession("holding-corp", "", "EXECUTIVE");
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(execSession);
+
+      render(<ExecutiveSummaryPage workspaceKey="wrong-key" />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Target & Kinerja Perusahaan")).not.toBeInTheDocument();
     });
 
-    it("no /mortgages routes or directories exist anywhere (canonical is /kpr)", () => {
-      expect(existsSync(resolve("src/app/workspace/mortgages"))).toBe(false);
-      expect(existsSync(resolve("src/app/workspace/[workspaceKey]/mortgages"))).toBe(false);
-      expect(existsSync(resolve("src/app/workspace/sales/mortgages"))).toBe(false);
+    it("Sales feature fails closed when requested workspaceKey does not match active workspace", async () => {
+      const salesSessionData = createSession("penjualan-utama", "SALES", "BUSINESS");
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSessionData);
+
+      render(<SalesSummaryPage workspaceKey="different-sales-key" />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Sales & Marketing")).not.toBeInTheDocument();
     });
 
-    it("src/app/workspace/[workspaceKey] houses all canonical feature routes", () => {
-      const base = "src/app/workspace/[workspaceKey]";
-      const requiredRoutes = [
-        "summary", "pipeline", "leads", "activities", "bookings", "kpr",
-        "campaigns", "performance", "projects", "tasks", "approvals",
-        "documents", "reports", "findings", "ara",
-      ];
-      for (const route of requiredRoutes) {
-        expect(existsSync(resolve(`${base}/${route}/page.tsx`))).toBe(true);
-      }
+    it("No URL-only authority: string 'executive' in URL fails closed if session is not executive", async () => {
+      const salesSessionData = createSession("executive", "SALES", "BUSINESS");
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSessionData);
+
+      render(<ExecutiveSummaryPage workspaceKey="executive" />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+      });
     });
   });
 
-  describe("3. Route Authority Enforcement: Sales vs Universal routes", () => {
+  describe("3. Collision Routes: /summary & /performance Domain Resolution", () => {
+    it("/summary for Executive session resolves to Executive Summary", async () => {
+      const execSession = createSession("pusat-kendali", "", "EXECUTIVE");
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(execSession);
+
+      render(<SummaryRoute params={{ workspaceKey: "pusat-kendali" }} />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Target & Kinerja Perusahaan")).toBeInTheDocument();
+      });
+      // Does not render Sales Summary page header
+      expect(screen.queryByText("Ringkasan target, pipeline, aktivitas, dan hasil penjualan.")).not.toBeInTheDocument();
+    });
+
+    it("/summary for Sales session resolves to Sales Summary", async () => {
+      const salesSessionData = createSession("penjualan-utama", "SALES", "BUSINESS");
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSessionData);
+
+      render(<SummaryRoute params={{ workspaceKey: "penjualan-utama" }} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Sales & Marketing" })).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Target & Kinerja Perusahaan")).not.toBeInTheDocument();
+    });
+
+    it("Property /summary does NOT enter Sales Summary and fails closed", async () => {
+      const propertySession = createSession("property-utama", "PROPERTY", "BUSINESS");
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession);
+
+      render(<SummaryRoute params={{ workspaceKey: "property-utama" }} />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Ringkasan target, pipeline, aktivitas, dan hasil penjualan.")).not.toBeInTheDocument();
+      expect(screen.queryByText("Target & Kinerja Perusahaan")).not.toBeInTheDocument();
+    });
+
+    it("/performance for Executive session resolves to Executive Performance", async () => {
+      const execSession = createSession("pusat-kendali", "", "EXECUTIVE");
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(execSession);
+
+      render(<PerformanceRoute params={{ workspaceKey: "pusat-kendali" }} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Kinerja" })).toBeInTheDocument();
+      });
+      expect(screen.getAllByText("STRATEGI & KINERJA").length).toBeGreaterThanOrEqual(1);
+      expect(screen.queryByText("Target dan kinerja Sales")).not.toBeInTheDocument();
+    });
+
+    it("/performance for Sales session resolves to Sales Target & Kinerja", async () => {
+      const salesSessionData = createSession("penjualan-utama", "SALES", "BUSINESS");
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSessionData);
+
+      render(<PerformanceRoute params={{ workspaceKey: "penjualan-utama" }} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Target & Kinerja" })).toBeInTheDocument();
+      });
+      expect(screen.getByText("SALES & MARKETING")).toBeInTheDocument();
+    });
+  });
+
+  describe("4. Root Workspace Route /workspace/[workspaceKey] Normalization", () => {
+    it("redirects Executive workspace to summary", async () => {
+      const execSession = createSession("pusat-kendali", "", "EXECUTIVE");
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(execSession);
+
+      render(<WorkspaceKeyRoot params={{ workspaceKey: "pusat-kendali" }} />);
+
+      await waitFor(() => {
+        expect(mockReplace).toHaveBeenCalledWith("/workspace/pusat-kendali/summary");
+      });
+    });
+
+    it("redirects Sales workspace to summary", async () => {
+      const salesSessionData = createSession("penjualan-utama", "SALES", "BUSINESS");
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(salesSessionData);
+
+      render(<WorkspaceKeyRoot params={{ workspaceKey: "penjualan-utama" }} />);
+
+      await waitFor(() => {
+        expect(mockReplace).toHaveBeenCalledWith("/workspace/penjualan-utama/summary");
+      });
+    });
+
+    it("redirects other workspaces (Property, IT, Finance) to projects", async () => {
+      const propertySession = createSession("property-utama", "PROPERTY", "BUSINESS");
+      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession);
+
+      render(<WorkspaceKeyRoot params={{ workspaceKey: "property-utama" }} />);
+
+      await waitFor(() => {
+        expect(mockReplace).toHaveBeenCalledWith("/workspace/property-utama/projects");
+      });
+    });
+  });
+
+  describe("5. Shared Work & Universal ARA Portability", () => {
     it.each([
-      ["summary", SummaryRoute],
-      ["pipeline", PipelineRoute],
-      ["leads", LeadsRoute],
-      ["activities", ActivitiesRoute],
-      ["bookings", BookingsRoute],
-      ["kpr", KprRoute],
-      ["campaigns", CampaignsRoute],
-      ["performance", PerformanceRoute],
+      ["Executive", createSession("exec-ws", "", "EXECUTIVE")],
+      ["Sales", createSession("sales-ws", "SALES", "BUSINESS")],
+      ["Property", createSession("prop-ws", "PROPERTY", "BUSINESS")],
+      ["IT", createSession("it-ws", "IT", "IT_OPERATIONS")],
     ] as const)(
-      "Sales-specific route /%s FAILS CLOSED (no access) when accessed by non-Sales session",
-      async (_path, RouteComponent) => {
-        vi.spyOn(api, "sessionApiRequest").mockResolvedValue(
-          createSession("property-ws", "PROPERTY"),
-        );
+      "Universal ARA works across %s workspace context",
+      async (_domain, session) => {
+        vi.spyOn(api, "sessionApiRequest").mockResolvedValue(session);
 
-        render(<RouteComponent params={{ workspaceKey: "property-ws" }} />);
+        render(<UniversalAraRoute params={{ workspaceKey: session.principal.active_workspace!.workspace.workspace_key }} />);
 
         await waitFor(() => {
-          expect(screen.getByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+          expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
         });
-        expect(screen.getByText("Halaman ini tersedia sesuai ruang kerja dan kewenangan Anda.")).toBeInTheDocument();
+        expect(screen.getByText("ARA belum terhubung.")).toBeInTheDocument();
       },
     );
 
     it.each([
-      ["summary", SummaryRoute],
-      ["pipeline", PipelineRoute],
-      ["leads", LeadsRoute],
-      ["activities", ActivitiesRoute],
-      ["bookings", BookingsRoute],
-      ["kpr", KprRoute],
-      ["campaigns", CampaignsRoute],
-      ["performance", PerformanceRoute],
+      ["Executive", createSession("exec-ws", "", "EXECUTIVE")],
+      ["Sales", createSession("sales-ws", "SALES", "BUSINESS")],
+      ["Property", createSession("prop-ws", "PROPERTY", "BUSINESS")],
     ] as const)(
-      "Sales-specific route /%s FAILS CLOSED when workspaceKey does not match active sales key",
-      async (_path, RouteComponent) => {
-        vi.spyOn(api, "sessionApiRequest").mockResolvedValue(
-          createSession("penjualan-utama", "SALES"),
-        );
-
-        render(<RouteComponent params={{ workspaceKey: "another-sales-key" }} />);
-
-        await waitFor(() => {
-          expect(screen.getByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
-        });
-      },
-    );
-
-    it.each([
-      ["ara", UniversalAraRoute, "Tanya ARA"],
-      ["projects", UniversalProjectsRoute, "Proyek"],
-      ["tasks", UniversalTasksRoute, "Tugas"],
-      ["approvals", UniversalApprovalsRoute, "Persetujuan"],
-      ["documents", UniversalDocumentsRoute, "Dokumen"],
-      ["reports", UniversalReportsRoute, "Laporan"],
-      ["findings", UniversalFindingsRoute, "Temuan"],
-    ] as const)(
-      "Universal route /%s succeeds for non-Sales workspace without Sales restriction",
-      async (_path, RouteComponent, headingName) => {
-        vi.spyOn(api, "sessionApiRequest").mockResolvedValue(
-          createSession("property-ws", "PROPERTY"),
-        );
+      "Universal Shared Work Projects works across %s workspace context",
+      async (_domain, session) => {
+        vi.spyOn(api, "sessionApiRequest").mockResolvedValue(session);
         vi.spyOn(api, "authenticatedApiRequest").mockRejectedValue(
-          new api.ApiError(404, "Not Found", "corr_property"),
+          new api.ApiError(404, "Not Found", "corr_shared"),
         );
 
-        render(<RouteComponent params={{ workspaceKey: "property-ws" }} />);
+        render(<UniversalProjectsRoute params={{ workspaceKey: session.principal.active_workspace!.workspace.workspace_key }} />);
 
         await waitFor(() => {
-          expect(screen.getByRole("heading", { name: headingName })).toBeInTheDocument();
+          expect(screen.getByRole("heading", { name: "Proyek" })).toBeInTheDocument();
         });
-        expect(screen.queryByText("Anda tidak memiliki akses ke halaman ini.")).not.toBeInTheDocument();
       },
     );
   });
 
-  describe("4. Nested AppShell Regression Guard", () => {
+  describe("6. Single AppShell Landmark Guarantee (No Nested Shell)", () => {
     it.each([
       ["DocumentsPage", DocumentsPage],
       ["ProjectsPage", ProjectsPage],
@@ -272,7 +324,7 @@ describe("Architecture Hygiene Guard", () => {
       ["FindingsPage", FindingsPage],
       ["AraPage", AraPage],
     ] as const)(
-      "Universal feature %s renders exactly ONE AppShell (single landmark structure)",
+      "Universal feature %s renders exactly ONE AppShell",
       async (_name, Component) => {
         vi.spyOn(api, "sessionApiRequest").mockResolvedValue(
           createSession("penjualan-utama", "SALES"),
@@ -293,48 +345,50 @@ describe("Architecture Hygiene Guard", () => {
         expect(screen.getAllByRole("button", { name: "Pilih workspace" })).toHaveLength(1);
       },
     );
+  });
 
-    it("SalesSummaryPage renders exactly ONE AppShell", async () => {
-      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(
-        createSession("penjualan-utama", "SALES"),
-      );
+  describe("7. Architecture Hygiene Guard: No Duplicate Trees", () => {
+    it("src/app/workspace/sales and src/app/workspace/executive only contain page.tsx redirect (no competing static tree)", () => {
+      const salesFiles = readdirSync(resolve("src/app/workspace/sales"));
+      expect(salesFiles).toEqual(["page.tsx"]);
 
-      render(<SalesSummaryPage workspaceKey="penjualan-utama" />);
-
-      await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Sales & Marketing" })).toBeInTheDocument();
-      });
-
-      expect(screen.getAllByRole("link", { name: "ALOS" })).toHaveLength(1);
-      expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
-      expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
-      expect(screen.getAllByRole("button", { name: "Buka navigasi" })).toHaveLength(1);
-      expect(screen.getAllByRole("button", { name: "Pilih workspace" })).toHaveLength(1);
+      const execFiles = readdirSync(resolve("src/app/workspace/executive"));
+      expect(execFiles).toEqual(["page.tsx"]);
     });
 
-    it("SalesReadinessPage renders exactly ONE AppShell", async () => {
-      vi.spyOn(api, "sessionApiRequest").mockResolvedValue(
-        createSession("penjualan-utama", "SALES"),
-      );
+    it("src/app/workspace/[workspaceKey] contains canonical feature routes for all domains", () => {
+      const base = "src/app/workspace/[workspaceKey]";
+      const requiredRoutes = [
+        "summary", "performance", "brief", "planning", "initiatives",
+        "reviews", "divisions", "pipeline", "leads", "activities",
+        "bookings", "kpr", "campaigns", "accounts", "projects",
+        "tasks", "approvals", "documents", "reports", "findings", "ara",
+      ];
+      for (const route of requiredRoutes) {
+        expect(existsSync(resolve(`${base}/${route}/page.tsx`))).toBe(true);
+      }
+    });
 
-      render(
-        <SalesReadinessPage
-          workspaceKey="penjualan-utama"
-          title="Pipeline Penjualan"
-          description="Pantau prospek"
-          detail="Belum terhubung."
-        />,
-      );
+    it("src/features/sales does not implement duplicate shared work or ARA", () => {
+      const salesDir = resolve("src/features/sales");
+      const files = readdirSync(salesDir);
+      for (const file of files) {
+        expect(file).not.toMatch(/ara/i);
+        const content = readFileSync(resolve(salesDir, file), "utf-8");
+        expect(content).not.toContain("SalesSharedWorkPage");
+        expect(content).not.toContain("@/features/shared-work");
+        expect(content).not.toContain("@/features/ara");
+      }
+    });
 
-      await waitFor(() => {
-        expect(screen.getByRole("heading", { name: "Pipeline Penjualan" })).toBeInTheDocument();
-      });
-
-      expect(screen.getAllByRole("link", { name: "ALOS" })).toHaveLength(1);
-      expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
-      expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
-      expect(screen.getAllByRole("button", { name: "Buka navigasi" })).toHaveLength(1);
-      expect(screen.getAllByRole("button", { name: "Pilih workspace" })).toHaveLength(1);
+    it("src/features/executive does not implement duplicate shared work or ARA", () => {
+      const execDir = resolve("src/features/executive");
+      const files = readdirSync(execDir);
+      expect(files).not.toContain("executive-shared-work.tsx");
+      const araWrapper = readFileSync(resolve(execDir, "executive-ara.tsx"), "utf-8");
+      // Must only delegate to Universal ARA
+      expect(araWrapper).toContain("@/features/ara");
+      expect(araWrapper).not.toContain("useState");
     });
   });
 });

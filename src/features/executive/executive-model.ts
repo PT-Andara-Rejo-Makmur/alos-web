@@ -13,12 +13,22 @@ export interface ExecutiveStrategyData {
 
 export function hasExecutiveContext(session: SessionProjection): boolean {
   const principal = session.principal;
+  if (!session.authenticated || !principal || !("actor" in principal)) return false;
+
+  const activeWs = principal.active_workspace;
+  if (!principal.actor.active || !activeWs?.active) return false;
+
+  const workspace = activeWs.workspace;
   return Boolean(
-    session.authenticated &&
-      principal &&
-      "actor" in principal &&
-      principal.active_workspace?.workspace.workspace_type === "EXECUTIVE",
+    workspace?.active &&
+      workspace.workspace_type === "EXECUTIVE",
   );
+}
+
+export function activeExecutiveWorkspaceKey(session: SessionProjection): string | null {
+  return hasExecutiveContext(session) && session.principal && "actor" in session.principal
+    ? session.principal.active_workspace?.workspace.workspace_key ?? null
+    : null;
 }
 
 export function activePlan(plans: readonly StrategyPlan[]): StrategyPlan | null {

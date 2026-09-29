@@ -3,8 +3,8 @@
 import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { hasSalesContext, activeSalesWorkspaceKey } from "@/features/sales/sales-model";
 import type { SessionProjection } from "@/features/session";
+import { resolveWorkspaceDomain } from "@/features/session";
 import { sessionApiRequest } from "@/lib/api";
 
 export default function WorkspaceKeyRoot({
@@ -18,14 +18,21 @@ export default function WorkspaceKeyRoot({
     let cancelled = false;
     sessionApiRequest<SessionProjection>("/").then((session) => {
       if (cancelled) return;
-      if (session.authenticated && hasSalesContext(session) && activeSalesWorkspaceKey(session) === workspaceKey) {
-        router.replace(`/workspace/${encodeURIComponent(workspaceKey)}/summary`);
+      const resolution = resolveWorkspaceDomain(session, workspaceKey);
+      if (!resolution.valid) {
+        router.replace("/workspace");
+        return;
+      }
+
+      const base = `/workspace/${encodeURIComponent(workspaceKey)}`;
+      if (resolution.domain === "EXECUTIVE" || resolution.domain === "SALES") {
+        router.replace(`${base}/summary`);
       } else {
-        router.replace(`/workspace/${encodeURIComponent(workspaceKey)}/projects`);
+        router.replace(`${base}/projects`);
       }
     }).catch(() => {
       if (!cancelled) {
-        router.replace(`/workspace/${encodeURIComponent(workspaceKey)}/projects`);
+        router.replace("/workspace");
       }
     });
     return () => { cancelled = true; };

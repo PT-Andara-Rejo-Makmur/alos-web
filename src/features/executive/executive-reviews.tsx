@@ -32,17 +32,22 @@ export interface PerformanceReviewItem {
 
 export interface ExecutiveReviewsProps {
   readonly initialReviewItems?: readonly PerformanceReviewItem[];
+  readonly workspaceKey?: string;
 }
 
-export function ExecutiveReviewsPage({ initialReviewItems }: ExecutiveReviewsProps = {}) {
+export function ExecutiveReviewsPage({ initialReviewItems, workspaceKey }: ExecutiveReviewsProps = {}) {
   return (
-    <ExecutiveLayout>
-      {() => <ReviewsContent initialReviewItems={initialReviewItems} />}
+    <ExecutiveLayout workspaceKey={workspaceKey}>
+      {(_session, activeKey) => <ReviewsContent initialReviewItems={initialReviewItems} workspaceKey={activeKey} />}
     </ExecutiveLayout>
   );
 }
 
-function ReviewsContent({ initialReviewItems }: ExecutiveReviewsProps) {
+function ReviewsContent({
+  initialReviewItems,
+  workspaceKey,
+}: ExecutiveReviewsProps & { readonly workspaceKey?: string }) {
+  const base = `/workspace/${encodeURIComponent(workspaceKey ?? "executive")}`;
   const { data, error, loading } = useExecutiveStrategyData();
   const [tab, setTab] = useState("performance");
 
@@ -173,13 +178,13 @@ function ReviewsContent({ initialReviewItems }: ExecutiveReviewsProps) {
             Tindakan korektif menggunakan integrasi <strong>Tugas</strong> dan <strong>Proyek</strong> universal untuk memastikan eksekusi lapangan dapat dipantau langsung.
           </div>
           <div className={styles.detailLinks}>
-            <Link className={styles.detailLink} href="/workspace/executive/tasks">
+            <Link className={styles.detailLink} href={`${base}/tasks`}>
               → Buka Daftar Tugas Eksekutif
             </Link>
-            <Link className={styles.detailLink} href="/workspace/executive/projects">
+            <Link className={styles.detailLink} href={`${base}/projects`}>
               → Buka Daftar Proyek Strategis
             </Link>
-            <Link className={styles.detailLink} href="/workspace/executive/findings">
+            <Link className={styles.detailLink} href={`${base}/findings`}>
               → Buka Temuan & Kendala
             </Link>
           </div>

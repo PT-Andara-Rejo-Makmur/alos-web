@@ -5,16 +5,21 @@ import { useRouter } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell/app-shell";
 import type { SessionProjection } from "@/features/session";
+import { resolveWorkspaceDomain } from "@/features/session";
 import { ApiError, sessionApiRequest } from "@/lib/api";
 
-import { hasExecutiveContext } from "./executive-model";
+import { activeExecutiveWorkspaceKey } from "./executive-model";
 import { executiveNavigation } from "./navigation";
 import styles from "./executive.module.css";
 
 type AccessState = "loading" | "ready" | "no_access" | "session_expired";
 
-export function ExecutiveLayout({ children }: Readonly<{
-  children: (session: SessionProjection) => ReactNode;
+export function ExecutiveLayout({
+  children,
+  workspaceKey: requestedWorkspaceKey,
+}: Readonly<{
+  children: (session: SessionProjection, workspaceKey: string) => ReactNode;
+  workspaceKey?: string;
 }>) {
   const router = useRouter();
   const [accessState, setAccessState] = useState<AccessState>("loading");
@@ -27,7 +32,8 @@ export function ExecutiveLayout({ children }: Readonly<{
       try {
         const nextSession = await sessionApiRequest<SessionProjection>("/");
         if (cancelled) return;
-        if (!nextSession.authenticated || !hasExecutiveContext(nextSession)) {
+        const resolution = resolveWorkspaceDomain(nextSession, requestedWorkspaceKey);
+        if (!resolution.valid || resolution.domain !== "EXECUTIVE") {
           setAccessState("no_access");
           return;
         }
@@ -42,10 +48,12 @@ export function ExecutiveLayout({ children }: Readonly<{
 
     void loadSession();
     return () => { cancelled = true; };
-  }, []);
+  }, [requestedWorkspaceKey]);
 
   if (accessState === "ready" && session) {
-    return <AppShell navigationSections={executiveNavigation} session={session}>{children(session)}</AppShell>;
+    const activeKey = activeExecutiveWorkspaceKey(session);
+    if (!activeKey) return null;
+    return <AppShell navigationSections={executiveNavigation(activeKey)} session={session}>{children(session, activeKey)}</AppShell>;
   }
 
   return (

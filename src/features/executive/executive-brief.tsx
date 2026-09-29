@@ -22,17 +22,19 @@ import styles from "./executive.module.css";
 
 interface BriefProps {
   readonly session: SessionProjection;
+  readonly workspaceKey: string;
 }
 
-export function ExecutiveBriefPage() {
+export function ExecutiveBriefPage({ workspaceKey }: Readonly<{ workspaceKey?: string }> = {}) {
   return (
-    <ExecutiveLayout>
-      {(session) => <ExecutiveBriefContent session={session} />}
+    <ExecutiveLayout workspaceKey={workspaceKey}>
+      {(session, activeKey) => <ExecutiveBriefContent session={session} workspaceKey={activeKey} />}
     </ExecutiveLayout>
   );
 }
 
-function ExecutiveBriefContent({ session }: BriefProps) {
+function ExecutiveBriefContent({ session, workspaceKey }: BriefProps) {
+  const base = `/workspace/${encodeURIComponent(workspaceKey)}`;
   const { data, error, loading, sessionExpired } = useExecutiveStrategyData();
   const currentPlan = activePlan(data?.plans ?? []);
   const targets = corporateTargets(data?.targets ?? []);
@@ -100,7 +102,7 @@ function ExecutiveBriefContent({ session }: BriefProps) {
         <section aria-labelledby="brief-highlights" className={styles.briefSection}>
           <div className={styles.briefHeader}>
             <h2 id="brief-highlights">B. Sorotan Utama</h2>
-            <Link className={styles.detailLink} href="/workspace/executive/performance">Lihat Kinerja</Link>
+            <Link className={styles.detailLink} href={`${base}/performance`}>Lihat Kinerja</Link>
           </div>
           {loading ? <LoadingState label="Memuat sorotan utama" variant="table" /> : strategyUnavailable ? (
             <div className={styles.inlineReadiness}>
@@ -131,7 +133,7 @@ function ExecutiveBriefContent({ session }: BriefProps) {
         <section aria-labelledby="brief-decisions" className={styles.briefSection}>
           <div className={styles.briefHeader}>
             <h2 id="brief-decisions">C. Keputusan Hari Ini</h2>
-            <Link className={styles.detailLink} href="/workspace/executive/approvals">Semua Persetujuan</Link>
+            <Link className={styles.detailLink} href={`${base}/approvals`}>Semua Persetujuan</Link>
           </div>
           <div className={styles.inlineReadiness}>
             <Status label="Belum Tersedia" variant="neutral" />
@@ -143,7 +145,7 @@ function ExecutiveBriefContent({ session }: BriefProps) {
         <section aria-labelledby="brief-risks" className={styles.briefSection}>
           <div className={styles.briefHeader}>
             <h2 id="brief-risks">D. Risiko & Peringatan</h2>
-            <Link className={styles.detailLink} href="/workspace/executive/findings">Semua Temuan</Link>
+            <Link className={styles.detailLink} href={`${base}/findings`}>Semua Temuan</Link>
           </div>
           {loading ? <LoadingState label="Memuat risiko dan peringatan" variant="section" /> : strategyUnavailable ? (
             <div className={styles.inlineReadiness}>
@@ -176,7 +178,7 @@ function ExecutiveBriefContent({ session }: BriefProps) {
         <section aria-labelledby="brief-progress" className={styles.briefSection}>
           <div className={styles.briefHeader}>
             <h2 id="brief-progress">E. Progres Penting</h2>
-            <Link className={styles.detailLink} href="/workspace/executive/projects">Semua Proyek</Link>
+            <Link className={styles.detailLink} href={`${base}/projects`}>Semua Proyek</Link>
           </div>
           <div className={styles.inlineReadiness}>
             <Status label="Belum Tersedia" variant="neutral" />
