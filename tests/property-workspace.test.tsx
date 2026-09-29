@@ -159,7 +159,7 @@ describe("Property workspace", () => {
     render(<PropertySummaryPage workspaceKey="proyek-utama" />);
     expect(await screen.findByRole("heading", { name: "Ringkasan Property" })).toBeInTheDocument();
     const strip = screen.getByRole("region", { name: "Status sumber data Property" });
-    for (const source of ["Project", "Progress", "Unit", "Contractor", "Finance", "Sales", "Legal", "Material"]) {
+    for (const source of ["Proyek", "Progres", "Unit", "Kontraktor", "Keuangan", "Penjualan", "Legal", "Material"]) {
       expect(strip).toHaveTextContent(source);
     }
     expect(screen.queryByText("Belum ada data")).not.toBeInTheDocument();

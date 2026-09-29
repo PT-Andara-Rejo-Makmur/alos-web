@@ -10,6 +10,7 @@ import styles from "../property.module.css";
 
 const metrics = ["Proyek Aktif", "Progres Fisik", "Proyek Terlambat", "Milestone Tertunda", "Temuan Kritis", "Unit Siap"] as const;
 const sourceStatuses = ["Project", "Progress", "Unit", "Contractor", "Finance", "Sales", "Legal", "Material"] as const;
+const sourceLabels: Record<(typeof sourceStatuses)[number], string> = { Project: "Proyek", Progress: "Progres", Unit: "Unit", Contractor: "Kontraktor", Finance: "Keuangan", Sales: "Penjualan", Legal: "Legal", Material: "Material" };
 type SourceStatus = "Tersedia" | "Sebagian Tersedia" | "Belum Terhubung" | "Gagal Memuat";
 const sourceStatus: SourceStatus = "Belum Terhubung";
 
@@ -29,11 +30,11 @@ const projectHealthColumns: readonly DataTableColumn<ProjectHealthRow>[] = [
   { header: "Proyek", key: "project", render: (row) => row.project }, { header: "Progres Rencana", key: "plannedProgress", render: (row) => row.plannedProgress },
   { header: "Progres Aktual", key: "actualProgress", render: (row) => row.actualProgress }, { header: "Deviasi", key: "deviation", render: (row) => row.deviation },
   { header: "Milestone Berikutnya", key: "nextMilestone", render: (row) => row.nextMilestone }, { header: "Target Selesai", key: "targetEnd", render: (row) => row.targetEnd },
-  { header: "Status", key: "status", render: (row) => row.status }, { header: "Owner", key: "owner", render: (row) => row.owner },
+  { header: "Status", key: "status", render: (row) => row.status }, { header: "Penanggung Jawab", key: "owner", render: (row) => row.owner },
 ];
 const attentionColumns: readonly DataTableColumn<AttentionRow>[] = [
   { header: "Proyek", key: "project", render: (row) => row.project }, { header: "Masalah", key: "issue", render: (row) => row.issue },
-  { header: "Keparahan", key: "severity", render: (row) => row.severity }, { header: "Owner", key: "owner", render: (row) => row.owner },
+  { header: "Keparahan", key: "severity", render: (row) => row.severity }, { header: "Penanggung Jawab", key: "owner", render: (row) => row.owner },
   { header: "Tenggat", key: "due", render: (row) => row.due }, { header: "Status", key: "status", render: (row) => row.status },
 ];
 const unitReadinessColumns: readonly DataTableColumn<UnitReadinessRow>[] = [
@@ -63,7 +64,7 @@ function PropertySummary({ session }: Readonly<{ session: SessionProjection }>) 
     <PageHeader description="Sistem Operasional Proyek & Properti untuk pengendalian teknis, progres, mutu, dan kesiapan." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeWorkspace?.workspace_key ?? "—"}`} title="Ringkasan Property" />
     <div className={styles.contextBar}><div className={styles.contextItem}><span className={styles.contextLabel}>Periode</span><span className={styles.contextValue}>—</span></div><div className={styles.contextItem}><span className={styles.contextLabel}>Proyek</span><span className={styles.contextValue}>Semua proyek</span></div><div className={styles.contextItem}><span className={styles.contextLabel}>Workspace</span><span className={styles.contextValue}>{activeWorkspace?.workspace_name ?? "—"}</span></div><div className={styles.contextItem}><span className={styles.contextLabel}>Status data</span><span className={styles.contextValue}>Belum Terhubung</span></div></div>
     <PropertySourceNote>Data Property belum terhubung. Nilai teknis, jadwal, mutu, dan kesiapan belum dapat ditampilkan.</PropertySourceNote>
-    <section aria-label="Status sumber data Property" className={styles.sourceStrip}>{sourceStatuses.map((source) => <div className={styles.sourceItem} key={source}><span>{source}</span><Status label={sourceStatus} variant="neutral" /></div>)}<Button onClick={() => setStatusOpen(true)} size="sm" variant="secondary">Lihat Status Data</Button></section>
+    <section aria-label="Status sumber data Property" className={styles.sourceStrip}>{sourceStatuses.map((source) => <div className={styles.sourceItem} key={source}><span>{sourceLabels[source]}</span><Status label={sourceStatus} variant="neutral" /></div>)}<Button onClick={() => setStatusOpen(true)} size="sm" variant="secondary">Lihat Status Data</Button></section>
     <section aria-label="Metric utama Property" className={styles.metricGrid}>{metrics.map((label) => <Metric key={label} label={label} status="Belum Terhubung" value="—" />)}</section>
     <Section description="Deviasi hanya akan dihitung setelah data rencana dan aktual yang diperlukan tersedia." title="Kondisi Proyek"><DataTable caption="Kondisi proyek" columns={projectHealthColumns} emptyState={<PropertyUnavailableState description="Kondisi proyek belum tersedia." />} getRowKey={(row) => row.recordId} rows={projectHealthRows} /></Section>
     <Section title="Perhatian Utama"><DataTable caption="Perhatian utama Property" columns={attentionColumns} emptyState={<PropertyUnavailableState description="Perhatian utama belum tersedia." />} getRowKey={(row) => row.recordId} rows={attentionRows} /></Section>
@@ -71,6 +72,6 @@ function PropertySummary({ session }: Readonly<{ session: SessionProjection }>) 
     <Section title="Ringkasan Kontraktor"><DataTable caption="Ringkasan kontraktor Property" columns={contractorColumns} emptyState={<PropertyUnavailableState description="Ringkasan kontraktor belum tersedia." />} getRowKey={(row) => row.recordId} rows={contractorSummaryRows} /></Section>
     <Section title="Ringkasan Anggaran"><DataTable caption="Ringkasan anggaran Property" columns={financeColumns} emptyState={<PropertyUnavailableState description="Data aktual keuangan dari Finance belum tersedia dan tidak dapat diubah dari halaman ini." />} getRowKey={(row) => row.recordId} rows={financeRows} /></Section>
     <Section title="Persetujuan & Temuan"><PropertyUnavailableState description="Persetujuan dan Temuan Shared Work belum tersedia dari sumber data ini." /></Section>
-    <PropertyDetailDrawer description="Status kesiapan sumber data untuk ringkasan Property." items={sourceStatuses.map((source) => ({ label: source, value: sourceStatus }))} onClose={() => setStatusOpen(false)} open={statusOpen} title="Status Data Property" />
+    <PropertyDetailDrawer description="Status kesiapan sumber data untuk ringkasan Property." items={sourceStatuses.map((source) => ({ label: sourceLabels[source], value: sourceStatus }))} onClose={() => setStatusOpen(false)} open={statusOpen} title="Status Data Property" />
   </div>;
 }

@@ -13,7 +13,7 @@ const tabs: readonly TabItem[] = [{ id: "all", label: "Semua" }, { id: "construc
 interface UnitRow { readonly recordId: string; readonly unit: string; readonly project: string; readonly constructionState: string; readonly technicalReadiness: string; readonly commercialProjection: string; readonly handover: string; }
 const unitRows: readonly UnitRow[] = [];
 const unitColumns: readonly DataTableColumn<UnitRow>[] = [
-  { header: "Unit", key: "unit", render: (row) => row.unit }, { header: "Project", key: "project", render: (row) => row.project },
+  { header: "Unit", key: "unit", render: (row) => row.unit }, { header: "Proyek", key: "project", render: (row) => row.project },
   { header: "Status Konstruksi", key: "constructionState", render: (row) => row.constructionState }, { header: "Kesiapan Teknis", key: "technicalReadiness", render: (row) => row.technicalReadiness },
   { header: "Status Komersial", key: "commercialProjection", render: (row) => row.commercialProjection }, { header: "Serah Terima", key: "handover", render: (row) => row.handover },
 ];
