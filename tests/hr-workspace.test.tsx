@@ -108,7 +108,13 @@ describe("HR / GA workspace", () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession());
     render(<EmployeesRoute {...params({ workspaceKey: "sdm-utama" })} />);
     expect(await screen.findByRole("heading", { name: /Karyawan/ })).toBeInTheDocument();
+    expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: /salary|gaji/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: /bank|rekening/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: /tax|pajak/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: /government|KTP|identitas pemerintah/i })).not.toBeInTheDocument();
     expect(screen.getAllByText("Belum Terhubung").length).toBeGreaterThan(0);
+    expect(screen.queryByRole("button", { name: /Segarkan|Refresh/i })).not.toBeInTheDocument();
     screen.getByRole("tab", { name: "Semua" }).click();
     (await screen.findByRole("button", { name: "Catat Perubahan" })).click();
     const dialog = await screen.findByRole("dialog", { name: "Catat Perubahan" });
@@ -134,6 +140,15 @@ describe("HR / GA workspace", () => {
     expect(await screen.findByText("Belum ada kandidat ekstraksi.")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Terima" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Edit" })).not.toBeInTheDocument();
+  });
+
+  it("keeps restricted HR case unavailable and document validity outside HR authority", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession());
+    render(<ComplianceRoute {...params({ workspaceKey: "sdm-utama" })} />);
+    expect(await screen.findByRole("heading", { name: /Dokumen & Kepatuhan/ })).toBeInTheDocument();
+    screen.getByRole("tab", { name: "HR Case" }).click();
+    expect(await screen.findByText("Data HR case tidak tersedia tanpa kewenangan yang sesuai.")).toBeInTheDocument();
+    expect(screen.queryByText(/Lengkap|Valid|Compliant/)).not.toBeInTheDocument();
   });
 
   it("keeps recruitment tabs and candidate detail contextual", async () => {
@@ -183,18 +198,44 @@ describe("HR / GA workspace", () => {
   it("keeps HR authority boundaries and privacy source-honest", () => {
     const source = readFileSync(resolve("src/features/hr/hr-pages.tsx"), "utf8");
     const detailSource = readFileSync(resolve("src/features/hr/shared/hr-detail-page.tsx"), "utf8");
+    const forms = readFileSync(resolve("docs/hr-form-requirements.md"), "utf8");
+    const decisions = readFileSync(resolve("docs/hr-business-state-decisions.md"), "utf8");
     expect(source).not.toContain("Rp0");
     expect(source).not.toMatch(/AI.*(hire|reject|promote|terminate)/i);
     expect(source).not.toMatch(/Proceed|Hold|Reject/);
     expect(detailSource).toContain("Informasi kompensasi memerlukan kewenangan khusus");
     expect(detailSource).toContain("Data rekening dibatasi");
     expect(detailSource).toContain("Data pajak dibatasi");
-    expect(readFileSync(resolve("docs/hr-business-state-decisions.md"), "utf8")).toContain("Siapa pemilik perhitungan payroll?");
+    expect(forms.match(/\| hr\.offer\.create \|[^\n]+/i)?.[0]).toContain("| Kandidat, Posisi |");
+    expect(forms.match(/\| hr\.offer\.create \|[^\n]+/i)?.[0]).toContain("Jenis Kepegawaian, Tanggal Mulai yang Diusulkan, Paket Kompensasi, Benefit, Referensi Kontrak, Catatan");
+    expect(forms.match(/\| hr\.offer\.create \|[^\n]+/i)?.[0]).not.toContain("tanggal, catatan");
+    expect(decisions).toContain("Siapa pemilik perhitungan payroll?");
+    expect(decisions).toContain("bukan keputusan hire, reject, promote, terminate");
+    expect(decisions).toContain("Finance memiliki pembayaran, settlement, dan rekonsiliasi");
+    expect(decisions).toContain("IT/Identity menjalankan provisioning dan revocation");
+    expect(decisions).toContain("classification PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED policy");
   });
 
   it("does not create HR duplicate Shared Work or ARA features", () => {
     const source = readFileSync(resolve("src/features/hr/index.ts"), "utf8");
     expect(source).not.toMatch(/hr-(projects|tasks|approvals|documents|reports|findings|ara)/i);
-    expect(readFileSync(resolve("src/features/hr/navigation.ts"), "utf8")).not.toContain("/workspace/hr/");
+    const navigation = readFileSync(resolve("src/features/hr/navigation.ts"), "utf8");
+    expect(navigation).not.toContain("/workspace/hr/");
+    expect(navigation).toContain("/projects");
+    expect(navigation).toContain("/tasks");
+    expect(navigation).toContain("/approvals");
+    expect(navigation).toContain("/documents");
+    expect(navigation).toContain("/reports");
+    expect(navigation).toContain("/findings");
+    expect(navigation).toContain("/ara");
+  });
+
+  it("keeps responsive and accessible HR structure in shared primitives", () => {
+    const css = readFileSync(resolve("src/features/hr/hr.module.css"), "utf8");
+    const ui = readFileSync(resolve("src/features/hr/shared/hr-ui.tsx"), "utf8");
+    expect(css).toContain("@media (max-width: 760px)");
+    expect(css).toContain(".formGrid { grid-template-columns: 1fr; }");
+    expect(ui).toContain("<Drawer");
+    expect(ui).toContain("<FormField");
   });
 });

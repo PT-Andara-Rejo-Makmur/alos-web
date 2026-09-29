@@ -68,3 +68,9 @@ Lifecycle berikut belum canonical dan tidak boleh disimpulkan dari status UI:
 - HR meminta atau menampilkan kesiapan akses; IT/Identity menjalankan provisioning dan revocation.
 - Perubahan employment dan compensation harus effective-dated/versioned serta tidak menimpa history.
 - Shared Work tetap memiliki Project, Task, Approval, Document, Report, dan Finding.
+
+### Error and conflict readiness
+
+- unavailable, connected-empty, connected-data, loading, dan error adalah state yang berbeda.
+- Conflict atau HTTP 409 tidak boleh dianggap berhasil; frontend hanya menampilkan readiness/error manusiawi sampai aturan retry, merge, dan verifikasi ditetapkan.
+- Conflict resolution, optimistic concurrency, dan version conflict tetap **NEEDS CONTRACT / NEEDS BACKEND**.
