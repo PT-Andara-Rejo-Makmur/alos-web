@@ -29,3 +29,18 @@ Status keseluruhan: UI FINAL / SOURCE UNAVAILABLE. Setiap availability yang bert
 | it.leaver | Akses & Identitas | leaver revocation queue | offboarding/revocation | HR | Identity | Identity | Identity | Identity | HR + IT | offboarding + revocation verification | effective/history | CONFIDENTIAL | HR/Identity | `/access` | NEEDS CONTRACT |
 
 `Employee Source` selalu HR; IT tidak membuat employee master. `Identity Source` adalah sumber akun, access, role, permission, dan session ketika contract tersedia. Unknown memakai `—`; source unavailable `Belum Terhubung`; connected-empty `Belum ada data`; error memakai pesan manusiawi. Freshness, retention, evidence, classification policy, dan authority final tetap NEEDS DECISION/CONTRACT/BACKEND.
+
+## Stage 3 account and identity alignment
+
+| Component ID | Menu | Purpose | Entity | Employee Source | Identity Source | Workspace Source | Role Source | Permission Source | Owner | Verification | Freshness | Classification | Authority | Destination | Availability |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| it.account.registration | Akun Karyawan | Daftarkan Akun readiness | account registration | HR employee ref | Identity account | Identity workspace | canonical role catalog | identity.accounts.manage | IT + HR | source and conflict verification | effective-dated | CONFIDENTIAL | Identity/Backend | `/accounts` | NEEDS CONTRACT |
+| it.account.primary-workspace | Akun Karyawan | marker workspace utama | primary membership marker | HR relation | Identity | Identity | Identity | Identity | Identity | explicit primary marker | current/effective | CONFIDENTIAL | Identity | `/accounts` | NEEDS CONTRACT |
+| it.account.memberships | Workspace & Akses | add/edit/revoke membership | workspace membership | HR context | Identity | Identity | Identity | identity.memberships.manage | IT + workspace owner | audit and conflict verification | effective/history | CONFIDENTIAL | Identity/Authorization | `/accounts` | NEEDS CONTRACT |
+| it.account.activation-delivery | Akun Karyawan | activation and resend support | activation event | HR relation | Identity | Identity | — | activation permission | Identity | delivery response | event | CONFIDENTIAL | Identity | `/accounts` | NEEDS CONTRACT |
+| it.account.audit | Riwayat | immutable account and access events | audit event | HR context | Identity audit | Identity | Identity | governance | IT/Identity | audit source | history | RESTRICTED | Identity governance | `/accounts` | NEEDS CONTRACT |
+| it.account.reset | Akun Karyawan | administrative reset request | reset request | HR context | Identity | — | — | reset permission | Identity | request/result audit | event | RESTRICTED | Identity | `/accounts` | NEEDS CONTRACT |
+| it.session.revocation | Sesi | session metadata and revoke request | session/revocation event | — | shared session/Identity | actor/workspace | — | session permission | Identity | Backend verification | current/history | RESTRICTED | Identity | `/accounts` | NEEDS CONTRACT |
+| it.settings-boundary | Pengaturan | separate global self-service from IT administration | profile/password/session/preferences | — | shared session/Identity | active workspace | — | source-specific | Settings + Identity | policy verification | current | RESTRICTED | global Settings/Identity | global settings | NEEDS DECISION |
+
+The Web must not infer `Primary Workspace` from the first or active membership. It must not collapse multiple `role_refs` into one role. The target four-role vocabulary is a UI requirement only until the canonical role catalog supports it. Additional workspace access is a post-registration membership operation, not an account-create field.

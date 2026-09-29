@@ -17,3 +17,15 @@ Detail Akun Karyawan memiliki Ringkasan, Workspace & Akses, Role, Sesi, Riwayat 
 Access Request, Joiner, Mover, Leaver, dan antrian revokasi memakai source-aware presentation. `Approved` tidak sama dengan `Provisioned`, dan akses tambahan tidak diberikan otomatis. Sesi hanya menampilkan metadata yang diizinkan; token, cookie secret, dan kredensial tidak pernah ditampilkan.
 
 IT tidak memiliki authority atas employee master, role bisnis, payroll, legal validity, project root, atau data ARA. Token, refresh token, cookie, password, dan secret tidak pernah ditampilkan.
+
+## Akun Karyawan dan Akses & Identitas — final alignment
+
+Tindakan utama pada Akun Karyawan adalah **Daftarkan Akun**. Form readiness memiliki empat bagian: Karyawan, Identitas Akun, Workspace & Role, dan Review. Karyawan, Nama, ID Karyawan, Jabatan, dan Divisi hanya berasal dari HR; ketika sumber belum terhubung, selector dan field tersebut tidak dapat diisi. `display_name` Identity tetap ditampilkan sebagai Nama Akun, bukan sebagai nama karyawan.
+
+Role target MVP-2 adalah Direktur, Manajer / Kepala Divisi, Anggota Divisi, dan Administrator IT. Contract saat ini belum menyediakan seluruh vocabulary tersebut, sehingga pilihan yang belum didukung dinonaktifkan. Role legacy dibaca tanpa pemetaan diam-diam. Role selalu berada dalam konteks workspace dan IT_ADMIN tidak menjadi superuser bisnis.
+
+Daftar akun memisahkan Nama, ID Karyawan, Jabatan, Workspace Utama, Role Utama, Email, Status Akun, Status Aktivasi, Login Terakhir, dan Aksi. Primary workspace tidak ditebak dari membership pertama/aktif. Detail akun memiliki empat tab: Ringkasan, Workspace & Akses, Sesi, dan Riwayat. Role ditampilkan pada tiap membership; riwayat akses dan aktivitas administratif digabungkan dalam Riwayat.
+
+Workspace tambahan dikelola setelah akun tersedia melalui Tambah Workspace, Edit Akses, dan Cabut Akses. Semua readiness action tetap disabled sampai sumber resmi mendukung effective dates, duplicate conflict, permission, dan audit. Revoke bukan hard delete dan tidak membuat ulang akun.
+
+Pengaturan global tetap memiliki boundary sendiri: Profil, Ganti Kata Sandi, Sesi milik sendiri, Notifikasi, dan Preferensi. IT hanya menyediakan readiness untuk pendaftaran, activation support, reset request, suspension, revocation, dan session administration; IT tidak melihat password atau token.

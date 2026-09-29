@@ -33,9 +33,9 @@ describe("production architecture hygiene", () => {
     ).toEqual([]);
   });
 
-  it("rejects obsolete authorization role vocabulary", () => {
+  it("rejects retired authorization role vocabulary while allowing the MVP-2 target vocabulary", () => {
     expect(
-      violations(/\b(?:DIRECTOR|DIVISION_OWNER|DIVISION_LEAD|DIVISION_MEMBER|IT_LEAD|QA_SECURITY)\b/),
+      violations(/\b(?:DIRECTOR|DIVISION_OWNER|IT_LEAD|QA_SECURITY)\b/),
     ).toEqual([]);
   });
 

@@ -16,16 +16,25 @@ export function activeItWorkspaceKey(session: SessionProjection | null | undefin
   return principal.active_workspace.workspace.workspace_key;
 }
 
+export const mvpRoleOptions = [
+  { value: "EXECUTIVE", label: "Direktur" },
+  { value: "DIVISION_LEAD", label: "Manajer / Kepala Divisi" },
+  { value: "DIVISION_MEMBER", label: "Anggota Divisi" },
+  { value: "IT_ADMIN", label: "Administrator IT" },
+] as const;
+
 export function identityRoleLabel(role: string): string {
   const labels: Record<string, string> = {
-    EXECUTIVE: "Eksekutif",
-    WORKSPACE_LEAD: "Pimpinan Ruang Kerja",
-    WORKSPACE_MEMBER: "Anggota Ruang Kerja",
-    BUSINESS_REVIEWER: "Peninjau Bisnis",
+    EXECUTIVE: "Direktur",
+    DIVISION_LEAD: "Manajer / Kepala Divisi",
+    DIVISION_MEMBER: "Anggota Divisi",
     IT_ADMIN: "Administrator IT",
-    AI_ADMIN: "Administrator ARA",
-    TECHNICAL_REVIEWER: "Peninjau Teknis",
-    QA_ASSURANCE: "Penjamin Mutu",
+    WORKSPACE_LEAD: "Role lama: Pimpinan Ruang Kerja",
+    WORKSPACE_MEMBER: "Role lama: Anggota Ruang Kerja",
+    BUSINESS_REVIEWER: "Role lama: Peninjau Bisnis",
+    AI_ADMIN: "Role lama: Administrator ARA",
+    TECHNICAL_REVIEWER: "Role lama: Peninjau Teknis",
+    QA_ASSURANCE: "Role lama: Penjamin Mutu",
   };
   return labels[role] ?? "Belum Dinilai";
 }
