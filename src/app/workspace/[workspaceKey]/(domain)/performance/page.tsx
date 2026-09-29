@@ -9,6 +9,7 @@ import { ExecutivePerformancePage } from "@/features/executive";
 import { SalesPerformancePage } from "@/features/sales";
 import { PropertyPerformancePage } from "@/features/property";
 import { FinancePerformancePage } from "@/features/finance";
+import { LegalPerformancePage } from "@/features/legal";
 import styles from "@/features/sales/sales.module.css";
 
 
@@ -73,6 +74,10 @@ export default function WorkspacePerformancePageRoute({
 
   if (resolution?.valid && resolution.domain === "FINANCE") {
     return <FinancePerformancePage workspaceKey={workspaceKey} />;
+  }
+
+  if (resolution?.valid && resolution.domain === "LEGAL") {
+    return <LegalPerformancePage workspaceKey={workspaceKey} />;
   }
 
   return (

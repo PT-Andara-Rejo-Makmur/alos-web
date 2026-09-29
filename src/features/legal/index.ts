@@ -1,0 +1,13 @@
+export { LegalLayout } from "./legal-layout";
+export { legalNavigation } from "./navigation";
+export { activeLegalWorkspaceKey, hasLegalContext, legalStateLabel, legalValue } from "./legal-model";
+export { LegalSummaryPage } from "./summary";
+export { LegalRisksPage } from "./risks";
+export { LegalContractsPage } from "./contracts";
+export { LegalReviewsPage } from "./reviews";
+export { LegalPermitsPage } from "./permits";
+export { LegalAssetsPage } from "./assets";
+export { LegalCasesPage } from "./cases";
+export { LegalObligationsPage } from "./obligations";
+export { LegalPerformancePage } from "./performance";
+export { LegalDetailPage } from "./shared";

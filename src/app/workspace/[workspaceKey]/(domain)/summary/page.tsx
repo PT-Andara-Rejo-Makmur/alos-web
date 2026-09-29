@@ -9,6 +9,7 @@ import { ExecutiveSummaryPage } from "@/features/executive";
 import { SalesSummaryPage } from "@/features/sales";
 import { PropertySummaryPage } from "@/features/property";
 import { FinanceSummaryPage } from "@/features/finance";
+import { LegalSummaryPage } from "@/features/legal";
 import styles from "@/features/sales/sales.module.css";
 
 export default function WorkspaceSummaryPageRoute({
@@ -70,6 +71,10 @@ export default function WorkspaceSummaryPageRoute({
 
   if (resolution?.valid && resolution.domain === "FINANCE") {
     return <FinanceSummaryPage workspaceKey={workspaceKey} />;
+  }
+
+  if (resolution?.valid && resolution.domain === "LEGAL") {
+    return <LegalSummaryPage workspaceKey={workspaceKey} />;
   }
 
   return (
