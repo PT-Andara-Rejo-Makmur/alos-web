@@ -38,4 +38,19 @@ Status seluruh item: **NEEDS DECISION** dan/atau **NEEDS CONTRACT / NEEDS BACKEN
 - Kapan status Review Legal berbeda dari Business Approval?
 - Kapan status Approval berbeda dari Execution/Signature?
 
+## Source-honesty invariants
+
+Frontend wajib mempertahankan guard berikut sampai sumber resmi tersedia:
+
+- Dokumen tersedia tidak berarti Legal valid.
+- Dokumen `APPROVED` tidak berarti Kontrak `ACTIVE`.
+- PDF bertanda tangan yang diunggah tidak berarti tanda tangan terverifikasi.
+- Permit yang belum dinilai tidak berarti aktif.
+- Compliance yang belum dinilai tidak berarti patuh.
+- Risk yang belum dinilai tidak berarti aman.
+- Tidak adanya Finding tidak berarti patuh.
+- Tenggat yang kosong tidak boleh dihitung atau dibuat oleh frontend.
+- Versi Kontrak bersifat konsep immutable; Amendment membuat versi/perubahan baru dan tidak menimpa versi asal.
+- Review Legal berbeda dari Business Approval; Business Approval berbeda dari Signature/Execution.
+
 Status seperti `ACTIVE`, `APPROVED`, `DRAFT`, `EXPIRED`, atau `REJECTED` tidak dipetakan sebagai katalog Legal generik di frontend. Nilai yang belum memiliki sumber resmi ditampilkan `Belum Dinilai`.

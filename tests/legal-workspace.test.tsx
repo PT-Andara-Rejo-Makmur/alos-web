@@ -151,6 +151,12 @@ describe("Legal workspace", () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession("sales-utama", "SALES"));
     render(<ContractDetailRoute params={{ workspaceKey: "sales-utama", contractId: "contract-1" }} />);
     expect(await screen.findByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+    cleanup();
+    vi.clearAllMocks();
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession("kepatuhan-utama"));
+    render(<ContractDetailRoute params={{ workspaceKey: "kepatuhan-lain", contractId: "contract-1" }} />);
+    expect(await screen.findByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Detail Kontrak" })).not.toBeInTheDocument();
   });
 
   it("fails closed for a mismatched Legal workspace route", async () => {
@@ -195,6 +201,25 @@ describe("Legal workspace", () => {
     expect(readFileSync(resolve("src/app/navigation.ts"), "utf8")).not.toContain("/workspace/legal/");
   });
 
+  it("locks Legal source-honesty and cross-domain authority boundaries", () => {
+    const decisions = readFileSync(resolve("docs/legal-business-state-decisions.md"), "utf8");
+    const crossDomain = readFileSync(resolve("docs/legal-cross-domain-matrix.md"), "utf8");
+    expect(decisions).toContain("Dokumen tersedia tidak berarti Legal valid.");
+    expect(decisions).toContain("Dokumen `APPROVED` tidak berarti Kontrak `ACTIVE`.");
+    expect(decisions).toContain("PDF bertanda tangan yang diunggah tidak berarti tanda tangan terverifikasi.");
+    expect(decisions).toContain("Permit yang belum dinilai tidak berarti aktif.");
+    expect(decisions).toContain("Compliance yang belum dinilai tidak berarti patuh.");
+    expect(decisions).toContain("Risk yang belum dinilai tidak berarti aman.");
+    expect(decisions).toContain("Tidak adanya Finding tidak berarti patuh.");
+    expect(decisions).toContain("Tenggat yang kosong tidak boleh dihitung atau dibuat oleh frontend.");
+    expect(decisions).toContain("Amendment membuat versi/perubahan baru dan tidak menimpa versi asal.");
+    expect(decisions).toContain("Review Legal berbeda dari Business Approval; Business Approval berbeda dari Signature/Execution.");
+    expect(crossDomain).toContain("Legal tidak mengubah `Paid`, `Settlement`, atau `Reconciliation` Finance");
+    expect(crossDomain).toContain("physical progress atau technical quantity Property");
+    expect(crossDomain).toContain("booking atau pipeline Sales");
+    expect(crossDomain).toContain("Project root, Document, Finding, Task, dan Approval Shared Work");
+  });
+
   it("keeps readiness forms controlled and extraction non-authoritative", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
     render(<LegalContractsPage workspaceKey="kepatuhan-utama" />);
@@ -203,6 +228,7 @@ describe("Legal workspace", () => {
     const dialog = await screen.findByRole("dialog", { name: "Tambah Kontrak" });
     expect(within(dialog).getByRole("combobox", { name: "Jenis" })).toBeDisabled();
     expect(within(dialog).getByRole("combobox", { name: "Materialitas" })).toBeDisabled();
+    expect(within(dialog).getByRole("combobox", { name: "Klasifikasi" })).toBeDisabled();
     expect(within(dialog).getByRole("button", { name: "Simpan Kontrak" })).toBeDisabled();
     cleanup();
     vi.clearAllMocks();
@@ -220,8 +246,10 @@ describe("Legal workspace", () => {
     render(<LegalReviewsPage workspaceKey="kepatuhan-utama" />);
     await screen.findByRole("heading", { name: "Review Legal" });
     screen.getByRole("button", { name: "Tambah Review" }).click();
-    expect(await screen.findByRole("dialog", { name: "Tambah Review Legal" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Simpan Review" })).toBeDisabled();
+    const reviewDialog = await screen.findByRole("dialog", { name: "Tambah Review Legal" });
+    expect(within(reviewDialog).getByRole("combobox", { name: "Penilaian" })).toBeRequired();
+    expect(within(reviewDialog).getByRole("combobox", { name: "Penilaian" })).toBeDisabled();
+    expect(within(reviewDialog).getByRole("button", { name: "Simpan Review" })).toBeDisabled();
     cleanup();
     vi.clearAllMocks();
 

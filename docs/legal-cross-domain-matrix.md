@@ -13,3 +13,5 @@ Status: **NEEDS CONTRACT / NEEDS BACKEND / NEEDS DECISION**.
 | ARA | konteks advisory | keputusan atau state legal | ARA | universal, advisory |
 
 URL, nama workspace, dan ID route bukan authority. Detail yang belum mendapat projection resmi tetap menampilkan `Belum Terhubung`.
+
+Guard authority: Legal tidak mengubah `Paid`, `Settlement`, atau `Reconciliation` Finance; physical progress atau technical quantity Property; booking atau pipeline Sales; maupun Project root, Document, Finding, Task, dan Approval Shared Work. Semua relasi tersebut hanya ditampilkan sebagai sumber lintas domain ketika tersedia.
