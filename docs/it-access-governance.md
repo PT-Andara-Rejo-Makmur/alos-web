@@ -1,6 +1,6 @@
 # IT Access Governance
 
-Access is granted only by Backend-authorized workspace and role projections. Additional workspace access requires an explicit request and governed approval; the feature route never switches the active workspace and the UI never infers access from the URL.
+Access is granted only by Backend-authorized workspace and role projections. Additional workspace access is not automatic. From Account Detail, the user can reach Tambah Workspace, Edit Akses, or Cabut Akses as readiness surfaces; Backend validates authority. If a canonical policy later requires approval, the frontend follows that source/policy and does not assume approval is universal. The feature route never switches the active workspace and the UI never infers access from the URL.
 
 Existing `identity.accounts.manage` and `identity.memberships.manage` may be used only where the Backend already authorizes the operation. No new permission string is invented. Privileged roles require canonical metadata and approval; until available, the action is unavailable.
 

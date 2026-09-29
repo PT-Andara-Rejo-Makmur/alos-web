@@ -50,7 +50,7 @@ const financeMembership = {
     division_code: "FINANCE",
     active: true,
   },
-  role_refs: ["WORKSPACE_MEMBER" as const],
+  role_refs: ["WORKSPACE_MEMBER", "BUSINESS_REVIEWER"] as const,
   permission_refs: [],
   scope_refs: ["scope.finance"],
   data_scope: "WORKSPACE" as const,
@@ -124,6 +124,11 @@ describe("IT account management authority boundary", () => {
     expect(screen.getAllByRole("columnheader", { name: "Status Aktivasi" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("columnheader", { name: "Role Utama" }).length).toBeGreaterThan(0);
     expect(screen.queryByText("Nama Akun Identity")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("combobox", { name: "Divisi" }).some((element) => element.hasAttribute("disabled"))).toBe(true);
+    expect(screen.getAllByRole("combobox", { name: "Status Aktivasi" }).some((element) => element.hasAttribute("disabled"))).toBe(true);
+    expect(screen.getAllByRole("combobox", { name: "Status Kepegawaian" }).some((element) => element.hasAttribute("disabled"))).toBe(true);
+    expect(screen.getAllByRole("combobox", { name: "Workspace" }).some((element) => !element.hasAttribute("disabled"))).toBe(true);
+    expect(screen.getAllByRole("combobox", { name: "Role" }).some((element) => !element.hasAttribute("disabled"))).toBe(true);
 
     fireEvent.click(screen.getByRole("button", { name: "Lihat Detail" }));
     expect(screen.getByRole("dialog", { name: "Detail Akun Karyawan" })).toBeInTheDocument();
@@ -137,7 +142,11 @@ describe("IT account management authority boundary", () => {
     expect(screen.getByText(/Perangkat, peramban/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cabut Sesi belum tersedia" })).toBeDisabled();
     fireEvent.click(screen.getByRole("tab", { name: "Workspace & Akses" }));
-    expect(within(screen.getByRole("dialog", { name: "Detail Akun Karyawan" })).getByText("Finance & Pajak")).toBeInTheDocument();
+    const detailDialog = screen.getByRole("dialog", { name: "Detail Akun Karyawan" });
+    expect(within(detailDialog).getByText("Finance & Pajak")).toBeInTheDocument();
+    expect(within(detailDialog).getByText("Role lama: Anggota Ruang Kerja")).toBeInTheDocument();
+    expect(within(detailDialog).getByText("Role lama: Peninjau Bisnis")).toBeInTheDocument();
+    expect(within(detailDialog).getByText(/Lebih dari satu role tersimpan/)).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: "Edit Akses" })).toHaveLength(2);
     fireEvent.click(screen.getAllByRole("button", { name: "+ Tambah Workspace" })[0]);
     const addWorkspaceDialog = screen.getByRole("dialog", { name: "Tambah Workspace" });
@@ -149,6 +158,10 @@ describe("IT account management authority boundary", () => {
     expect(membershipDialog.querySelector("#membership-reason")).toHaveAttribute("required");
     expect(membershipDialog.querySelector("#membership-effective-at")).not.toHaveAttribute("required");
     expect(within(membershipDialog).getByRole("button", { name: "Penyimpanan akses belum tersedia" })).toBeDisabled();
+    fireEvent.click(within(membershipDialog).getByRole("button", { name: "Tutup" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Riwayat" }));
+    for (const header of ["Waktu", "Aktivitas", "Objek", "Workspace", "Pelaksana", "Hasil", "Sumber"]) expect(screen.getByRole("columnheader", { name: header })).toBeInTheDocument();
+    expect(screen.getByText("Riwayat: Belum Terhubung")).toBeInTheDocument();
   });
 
   it("keeps the exact 20-item IT sidebar and encodes the actual workspace key", () => {

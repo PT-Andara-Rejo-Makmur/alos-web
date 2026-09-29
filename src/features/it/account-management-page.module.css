@@ -4,6 +4,9 @@
 .toolbarSearch { align-items: center; display: flex; gap: var(--alos-space-2); min-width: 220px; }
 .toolbarSearch input { background: var(--alos-surface); border: 1px solid var(--alos-border-strong); border-radius: var(--alos-radius-button); color: var(--alos-text-primary); min-height: 38px; padding: 0 var(--alos-space-3); width: 100%; }
 .toolbarSelect { background: var(--alos-surface); border: 1px solid var(--alos-border-strong); border-radius: var(--alos-radius-button); color: var(--alos-text-primary); min-height: 38px; padding: 0 var(--alos-space-3); }
+.filters { align-items: flex-end; display: flex; flex-wrap: wrap; gap: var(--alos-space-2); }
+.filterGroup { display: flex; flex-direction: column; gap: 2px; min-width: 132px; }
+.filterLabel { color: var(--alos-text-muted); font-size: 11px; }
 .cellPrimary { display: flex; flex-direction: column; gap: 2px; min-width: 160px; }
 .cellPrimary strong { font-size: 13px; font-weight: 600; }
 .cellSecondary { color: var(--alos-text-muted); font-size: 12px; }
@@ -30,4 +33,4 @@
 .accessTitle { font-size: 20px; line-height: 28px; margin: 0 0 var(--alos-space-2); }
 .accessText { color: var(--alos-text-secondary); line-height: 21px; margin: 0; }
 @media (max-width: 1024px) { .summaryGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 639px) { .formGrid, .detailGrid, .summaryGrid { grid-template-columns: 1fr; } .formFull { grid-column: auto; } .toolbarSearch { flex: 1 1 100%; min-width: 0; } }
+@media (max-width: 639px) { .formGrid, .detailGrid, .summaryGrid { grid-template-columns: 1fr; } .formFull { grid-column: auto; } .toolbarSearch { flex: 1 1 100%; min-width: 0; } .filterGroup { flex: 1 1 140px; } }

@@ -8,6 +8,8 @@ The current Web form is readiness-only because the available Identity contract r
 
 Employee, account, workspace access, and privileged access are separate concepts. An employee existing in HR does not imply an account; an account does not imply activation; approval does not imply provisioning; and a workspace membership does not imply privileged access.
 
+Duplicate account atau email adalah conflict yang ditentukan oleh sumber Identity/Backend. Frontend tidak menentukan uniqueness, tidak menimpa akun yang sudah ada, dan tidak mengubah conflict menjadi keberhasilan.
+
 Required contract additions: employee reference, activation ownership, invitation/password setup, account/access state, role privilege metadata, request/approval relation, and conflict semantics.
 
 ## Account governance readiness

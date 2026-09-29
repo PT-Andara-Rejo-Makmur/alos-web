@@ -19,9 +19,29 @@ import styles from "./account-management-page.module.css";
 type PageState = "loading" | "ready" | "denied" | "session_expired" | "error";
 type GovernanceAction = "suspend";
 type MembershipAction = "add" | "edit" | "revoke";
+type AuditReadinessRow = {
+  readonly id: string;
+  readonly occurredAt: string;
+  readonly activity: string;
+  readonly object: string;
+  readonly workspace: string;
+  readonly actor: string;
+  readonly result: string;
+  readonly source: string;
+};
 
 const accountTabs = ["Belum Memiliki Akun", "Menunggu Aktivasi", "Aktif", "Ditangguhkan", "Dinonaktifkan", "Semua"];
 const accountSummary = ["Belum Memiliki Akun", "Menunggu Aktivasi", "Akun Aktif", "Akun Ditangguhkan", "Akses Perlu Review"];
+const auditRows: readonly AuditReadinessRow[] = [];
+const auditColumns: readonly DataTableColumn<AuditReadinessRow>[] = [
+  { header: "Waktu", key: "occurred-at", render: (row) => row.occurredAt },
+  { header: "Aktivitas", key: "activity", render: (row) => row.activity },
+  { header: "Objek", key: "object", render: (row) => row.object },
+  { header: "Workspace", key: "workspace", render: (row) => row.workspace },
+  { header: "Pelaksana", key: "actor", render: (row) => row.actor },
+  { header: "Hasil", key: "result", render: (row) => row.result },
+  { header: "Sumber", key: "source", render: (row) => row.source },
+];
 
 function humanizeIdentityError(error: unknown): string {
   if (error instanceof ApiError) {
@@ -71,6 +91,9 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
   const [loadError, setLoadError] = useState<unknown>(null);
   const [search, setSearch] = useState("");
   const [accountTab, setAccountTab] = useState("Semua");
+  const [workspaceFilter, setWorkspaceFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [accountStatusFilter, setAccountStatusFilter] = useState("");
   const [selectedAccount, setSelectedAccount] = useState<IdentityAccountProjection | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [governanceAction, setGovernanceAction] = useState<GovernanceAction | null>(null);
@@ -123,11 +146,15 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
     return accounts.filter((account) => {
       if (accountTab === "Aktif" && !account.active) return false;
       if (["Belum Memiliki Akun", "Menunggu Aktivasi", "Ditangguhkan", "Dinonaktifkan"].includes(accountTab)) return false;
+      if (accountStatusFilter === "active" && !account.active) return false;
+      if (accountStatusFilter === "inactive" && account.active) return false;
+      if (workspaceFilter && !account.workspace_access.some((access) => access.workspace.workspace_id === workspaceFilter)) return false;
+      if (roleFilter && !account.workspace_access.some((access) => access.role_refs.includes(roleFilter as AuthorizationRole))) return false;
       if (!query) return true;
       // Employee name and Employee ID are intentionally excluded until HR linkage exists.
-      return [account.email, ...account.workspace_access.flatMap((access) => [access.workspace.workspace_name, ...access.role_refs.map(identityRoleLabel)])].join(" ").toLowerCase().includes(query);
+      return [account.email, account.active ? "Aktif" : "Nonaktif", ...account.workspace_access.flatMap((access) => [access.workspace.workspace_name, ...access.role_refs.map(identityRoleLabel)])].join(" ").toLowerCase().includes(query);
     });
-  }, [accountTab, accounts, search]);
+  }, [accountStatusFilter, accountTab, accounts, roleFilter, search, workspaceFilter]);
 
   const columns: readonly DataTableColumn<IdentityAccountProjection>[] = [
     { header: "Nama", key: "employee-name", render: () => <div className={styles.cellPrimary}><strong>—</strong><span className={styles.cellSecondary}>Sumber HR belum terhubung</span></div> },
@@ -158,7 +185,14 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
       <PageHeader actions={<Button iconBefore={<Plus size={16} />} onClick={() => setCreateOpen(true)} variant="primary">Daftarkan Akun</Button>} description="Daftarkan dan kelola akun sistem berdasarkan data tenaga kerja yang telah tersedia." eyebrow="AKSES & IDENTITAS" metadata={`Ruang kerja aktif: ${activeWorkspaceName}`} title="Akun Karyawan" />
       <section aria-label="Ringkasan akun" className={styles.summaryGrid}>{accountSummary.map((label) => <Metric key={label} label={label} status="Belum Terhubung" value="—" />)}</section>
       <Tabs ariaLabel="Filter akun karyawan" items={accountTabs.map((label) => ({ id: label, label }))} onValueChange={setAccountTab} value={accountTab} />
-      <Toolbar search={<div className={styles.toolbarSearch}><Users aria-hidden="true" size={16} /><input aria-label="Cari akun" onChange={(event) => setSearch(event.target.value)} placeholder="Cari email, ruang kerja, atau role…" type="search" value={search} /></div>} />
+      <Toolbar filters={<div className={styles.filters}>
+        <label className={styles.filterGroup}><span className={styles.filterLabel}>Divisi</span><select aria-label="Divisi" className={styles.toolbarSelect} disabled value="unavailable"><option value="unavailable">Belum tersedia</option></select></label>
+        <label className={styles.filterGroup}><span className={styles.filterLabel}>Workspace</span><select aria-label="Workspace" className={styles.toolbarSelect} disabled={workspaces.length === 0} onChange={(event) => setWorkspaceFilter(event.target.value)} value={workspaceFilter}><option value="">{workspaces.length ? "Semua workspace" : "Belum tersedia"}</option>{workspaces.map((workspace) => <option key={workspace.workspace_id} value={workspace.workspace_id}>{workspace.workspace_name}</option>)}</select></label>
+        <label className={styles.filterGroup}><span className={styles.filterLabel}>Role</span><select aria-label="Role" className={styles.toolbarSelect} disabled={roles.length === 0} onChange={(event) => setRoleFilter(event.target.value)} value={roleFilter}><option value="">{roles.length ? "Semua role" : "Belum tersedia"}</option>{roles.map((role) => <option key={role} value={role}>{identityRoleLabel(role)}</option>)}</select></label>
+        <label className={styles.filterGroup}><span className={styles.filterLabel}>Status Akun</span><select aria-label="Status Akun" className={styles.toolbarSelect} onChange={(event) => setAccountStatusFilter(event.target.value)} value={accountStatusFilter}><option value="">Semua status akun</option><option value="active">Aktif</option><option value="inactive">Nonaktif</option></select></label>
+        <label className={styles.filterGroup}><span className={styles.filterLabel}>Status Aktivasi</span><select aria-label="Status Aktivasi" className={styles.toolbarSelect} disabled value="unavailable"><option value="unavailable">Belum tersedia</option></select></label>
+        <label className={styles.filterGroup}><span className={styles.filterLabel}>Status Kepegawaian</span><select aria-label="Status Kepegawaian" className={styles.toolbarSelect} disabled value="unavailable"><option value="unavailable">Belum tersedia</option></select></label>
+      </div>} search={<div className={styles.toolbarSearch}><Users aria-hidden="true" size={16} /><input aria-label="Cari akun" onChange={(event) => setSearch(event.target.value)} placeholder="Cari email, ruang kerja, atau role…" type="search" value={search} /></div>} />
       <p className={styles.formHint}>Pencarian Nama dan ID Karyawan tersedia setelah sumber HR terhubung.</p>
       <DataTable caption={`Daftar akun karyawan — ${accountTab}`} columns={columns} emptyState={<EmptyState icon={<UserRound size={24} />} title={emptyTitle} description={emptyDescription} />} getRowKey={(account) => account.actor_id} loading={false} rowAction={(account) => <Button onClick={() => setSelectedAccount(account)} size="sm" variant="ghost">Lihat Detail</Button>} rows={filteredAccounts} />
     </div>
@@ -178,6 +212,7 @@ function AccountDetailDrawer({ account, canManageMemberships, formWorkspaces, on
     <Tabs ariaLabel="Detail akun karyawan" items={tabs.map((label) => ({ id: label, label }))} onValueChange={setActiveTab} value={activeTab} />
     {activeTab === "Ringkasan" ? <div className={styles.detailSection}>
       <div className={styles.detailGrid}>
+        <DetailItem label="Nama" value="—" />
         <DetailItem label="Nama Akun" value={account.display_name || "—"} />
         <DetailItem label="ID Karyawan" value="—" />
         <DetailItem label="Jabatan" value="—" />
@@ -209,7 +244,9 @@ function AccountDetailDrawer({ account, canManageMemberships, formWorkspaces, on
       {formWorkspaces.length === 0 ? <p className={styles.formHint}>Pilihan ruang kerja belum tersedia.</p> : null}
     </div> : null}
     {activeTab === "Sesi" ? <div className={styles.detailSection}><ItSourceStateView description="Perangkat, peramban, waktu dibuat, dan aktivitas terakhir akan tampil setelah sumber sesi tersedia." state="unavailable" title="Sesi" /><Button disabled variant="secondary">Cabut Sesi belum tersedia</Button></div> : null}
-    {activeTab === "Riwayat" ? <div className={styles.detailSection}><ItSourceStateView description="Riwayat akses dan aktivitas administrasi akun belum tersedia dari sumber audit identitas." state="unavailable" title="Riwayat" /></div> : null}
+    {activeTab === "Riwayat" ? <div className={styles.detailSection}>
+      <DataTable caption="Riwayat akses dan aktivitas administrasi akun" columns={auditColumns} emptyState={<ItSourceStateView description="Riwayat akses dan aktivitas administrasi akun belum tersedia dari sumber audit identitas." state="unavailable" title="Riwayat" />} rows={auditRows} />
+    </div> : null}
   </Drawer>;
 }
 
@@ -233,7 +270,7 @@ function AccountReadinessDialog({ formRoles, formWorkspaces, onClose, open }: Re
         <div className={styles.formGrid}><FormField htmlFor="it-effective-date" label="Tanggal Aktif" required><input className={styles.formControl} id="it-effective-date" type="date" /></FormField><FormField htmlFor="it-expiration-date" label="Tanggal Berakhir"><input className={styles.formControl} id="it-expiration-date" type="date" /></FormField></div>
       </section>
       <section aria-labelledby="it-register-review"><h3 id="it-register-review">4. Review</h3>
-        <div className={styles.detailGrid}><DetailItem label="Karyawan" value="Belum Terhubung" /><DetailItem label="Employee ID" value="—" /><DetailItem label="Email Akun" value="—" /><DetailItem label="Workspace Utama" value={primaryWorkspaceUnknown()} /><DetailItem label="Role" value="Belum Dinilai" /><DetailItem label="Tanggal Aktif" value="—" /><DetailItem label="Tanggal Berakhir" value="—" /><DetailItem label="Catatan" value="—" /></div>
+        <div className={styles.detailGrid}><DetailItem label="Karyawan" value="Belum Terhubung" /><DetailItem label="ID Karyawan" value="—" /><DetailItem label="Email Akun" value="—" /><DetailItem label="Workspace Utama" value={primaryWorkspaceUnknown()} /><DetailItem label="Role" value="Belum Dinilai" /><DetailItem label="Tanggal Aktif" value="—" /><DetailItem label="Tanggal Berakhir" value="—" /><DetailItem label="Catatan" value="—" /></div>
         <p className={styles.formHint}>Aktivasi aman dan penentuan kata sandi dilakukan oleh karyawan melalui layanan resmi. Jenis akun belum menjadi pilihan pendaftaran.</p>
       </section>
     </form>
