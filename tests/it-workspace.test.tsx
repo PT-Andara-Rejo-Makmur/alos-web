@@ -69,6 +69,11 @@ describe("IT frontend master matrix", () => {
     expect(page).not.toContain("tenant_id");
     expect(page).not.toContain("organization_id");
     expect(page).not.toContain("activation token");
+    expect(page).not.toMatch(/password/i);
+    expect(page).not.toMatch(/session token/i);
+    expect(page).not.toContain("reset token");
+    expect(page).not.toContain("API key");
+    expect(page).not.toContain("Delete Account");
   });
 
   it("keeps the same-origin session boundary and avoids duplicated Shared Work/ARA features", () => {
@@ -86,5 +91,78 @@ describe("IT frontend master matrix", () => {
     expect(ui).toContain('error: "Data belum dapat dimuat"');
     expect(ui).toContain('"connected-empty": "Belum ada data"');
     expect(ui).toContain('"connected-data": "Tersedia"');
+  });
+
+  it("aligns the IT summary and account identity indicators without invented values", () => {
+    const summary = source("src/features/it/summary/it-summary-page.tsx");
+    const account = source("src/features/it/account-management-page.tsx");
+    for (const label of ["Akun Menunggu Pendaftaran", "Aktivasi Menunggu", "Permintaan Akses", "Akses Perlu Review", "Leaver Menunggu Revokasi"]) expect(summary).toContain(label);
+    for (const label of ["Nama Karyawan", "ID Karyawan", "Divisi", "Jabatan", "Email Akun", "Workspace Utama", "Status Akun", "Status Aktivasi", "Akses", "Login Terakhir"]) expect(account).toContain(label);
+    expect(account).toContain("Sumber HR belum terhubung");
+    expect(account).toContain('Status label="Belum Terhubung"');
+    expect(account).not.toContain("Nama Karyawan}>{account.display_name");
+  });
+
+  it("keeps account state, activation, access, and governance as separate readiness concepts", () => {
+    const account = source("src/features/it/account-management-page.tsx");
+    expect(account).toContain("Status Aktivasi");
+    expect(account).toContain("Akun Ditangguhkan");
+    expect(account).toContain("Ajukan Penangguhan Akun");
+    expect(account).toContain("Ajukan Pencabutan Akses");
+    expect(account).toContain("Berlaku Mulai");
+    expect(account).not.toContain("setAccountActive(");
+    expect(account).not.toContain("revokeAccountMembership(");
+    expect(account).not.toContain("Hapus Akun");
+    expect(account).toContain("Akun Aktif");
+  });
+
+  it("keeps access request, joiner/mover/leaver, and problem/root-cause UX contextual", () => {
+    const modules = source("src/features/it/modules/it-module-page.tsx");
+    for (const label of ["Problem / Root Cause", "Ajukan Akses", "User", "Workspace / Sistem", "Role / Akses yang Diminta", "Alasan", "Durasi", "Bukti Pendukung", "JOINER", "MOVER", "LEAVER", "Antrian Revokasi Leaver", "Approved tidak berarti provisioned"]) expect(modules).toContain(label);
+    expect(modules).toContain("Layanan Terdampak");
+    expect(modules).toContain("Aset Ditugaskan");
+  });
+
+  it("keeps privileged role and security boundaries source-honest", () => {
+    const account = source("src/features/it/account-management-page.tsx");
+    const docs = source("docs/it-access-governance.md");
+    expect(account).toContain('disabled={role === "IT_ADMIN" || role === "AI_ADMIN"}');
+    expect(account).toContain("memerlukan persetujuan");
+    expect(account).toContain("Cabut Sesi belum tersedia");
+    expect(docs).toContain("bukan superuser bisnis");
+    expect(docs).toContain("409 access conflict");
+  });
+
+  it("keeps employee/account/access/activation and cross-domain ownership separate", () => {
+    const account = source("src/features/it/account-management-page.tsx");
+    const provisioning = source("docs/it-account-provisioning.md");
+    expect(account).toContain("Karyawan HR");
+    expect(account).toContain("Status Akun");
+    expect(account).toContain("Status Aktivasi");
+    expect(account).toContain("Workspace & Akses");
+    expect(provisioning).toContain("employee existing in HR does not imply an account");
+    expect(provisioning).toContain("an account does not imply activation");
+    expect(provisioning).toContain("approval does not imply provisioning");
+    expect(provisioning).toContain("no hard delete action");
+  });
+
+  it("keeps the expanded data and form registries aligned with the master", () => {
+    const data = source("docs/it-data-requirements.md");
+    const forms = source("docs/it-form-requirements.md");
+    for (const component of ["it.summary.identity", "it.services", "it.incidents", "it.problem", "it.accounts", "it.activation", "it.workspace-access", "it.access-request", "it.sessions", "it.joiner", "it.mover", "it.leaver"]) expect(data).toContain(component);
+    expect(data).toContain("Employee Source");
+    expect(data).toContain("Permission Source");
+    expect(forms).toContain("it.account.create");
+    expect(forms).toContain("it.account.suspend");
+    expect(forms).toContain("it.access.request");
+    expect(forms).toContain("it.access.revoke");
+    expect(forms).toContain("Account, Reason, Effective At");
+    expect(forms).toContain("User, Access, Reason, Effective At");
+    expect(forms).not.toContain("Password");
+  });
+
+  it("keeps the explicit identity error boundary", () => {
+    const account = source("src/features/it/account-management-page.tsx");
+    for (const message of ["Sesi Anda sudah berakhir", "Anda tidak memiliki akses", "Data yang Anda cari tidak ditemukan", "Data telah berubah", "Data belum memenuhi aturan penyediaan akun", "Layanan identitas belum dapat memproses permintaan"]) expect(account).toContain(message);
   });
 });

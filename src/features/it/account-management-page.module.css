@@ -1,4 +1,5 @@
 .page { display: flex; flex-direction: column; gap: var(--alos-space-5); }
+.summaryGrid { display: grid; gap: var(--alos-space-3); grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .notice { margin-bottom: var(--alos-space-1); }
 .toolbarSearch { align-items: center; display: flex; gap: var(--alos-space-2); min-width: 220px; }
 .toolbarSearch input { background: var(--alos-surface); border: 1px solid var(--alos-border-strong); border-radius: var(--alos-radius-button); color: var(--alos-text-primary); min-height: 38px; padding: 0 var(--alos-space-3); width: 100%; }
@@ -28,4 +29,5 @@
 .accessCard { background: var(--alos-surface); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-panel); max-width: 440px; padding: var(--alos-space-8); width: 100%; }
 .accessTitle { font-size: 20px; line-height: 28px; margin: 0 0 var(--alos-space-2); }
 .accessText { color: var(--alos-text-secondary); line-height: 21px; margin: 0; }
-@media (max-width: 639px) { .formGrid, .detailGrid { grid-template-columns: 1fr; } .formFull { grid-column: auto; } .toolbarSearch { flex: 1 1 100%; min-width: 0; } }
+@media (max-width: 1024px) { .summaryGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 639px) { .formGrid, .detailGrid, .summaryGrid { grid-template-columns: 1fr; } .formFull { grid-column: auto; } .toolbarSearch { flex: 1 1 100%; min-width: 0; } }

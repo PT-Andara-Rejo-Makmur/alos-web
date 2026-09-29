@@ -1,19 +1,31 @@
 # IT Data Requirements
 
-Status keseluruhan: UI FINAL / SOURCE UNAVAILABLE; NEEDS CONTRACT dan NEEDS BACKEND untuk sumber berikut.
+Status keseluruhan: UI FINAL / SOURCE UNAVAILABLE. Setiap availability yang bertanda `NEEDS CONTRACT`, `NEEDS BACKEND`, atau `NEEDS DECISION` belum boleh dipresentasikan sebagai data operasional.
 
-| Component ID | Menu | Entity/Metric | Scope | Period | Owner | Source | Verification | Classification | Authority | Availability |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| it.summary | Ringkasan | layanan, insiden, akun, akses, aset, dukungan | workspace | current | IT | IT services + Identity | Backend | INTERNAL/RESTRICTED sesuai source | IT untuk operasi teknis | NEEDS BACKEND |
-| it.services | Layanan & Insiden | service/incident | workspace | current/history | IT | service management | Backend | INTERNAL | IT | NEEDS CONTRACT |
-| it.systems | Sistem & Aplikasi | application inventory | organization/workspace | current | IT | CMDB/source system | Backend | INTERNAL | IT | NEEDS BACKEND |
-| it.infrastructure | Infrastruktur & Lingkungan | component/environment | workspace | current | IT | infrastructure source | Backend | RESTRICTED bila sensitif | IT | NEEDS BACKEND |
-| it.identity | Akun Karyawan | employee reference, account, workspace access | organization/workspace | effective-dated | HR + IT | HR + Identity | Backend | CONFIDENTIAL | Identity governance | NEEDS CONTRACT |
-| it.security | Keamanan & Kepatuhan | control/event/review | organization | period | IT/security governance | security source | Backend/governance | RESTRICTED | security governance | NEEDS DECISION |
-| it.changes | Perubahan & Rilis | change/release | workspace | scheduled/history | IT | change management | approval/audit | INTERNAL | IT governance | NEEDS CONTRACT |
-| it.assets | Aset IT | asset assignment/state | workspace | current/history | IT/GA | asset source | Backend | INTERNAL | IT/GA ownership | NEEDS BACKEND |
-| it.support | Dukungan & Permintaan | support request | workspace | current/history | IT | support source | Backend | INTERNAL | IT | NEEDS CONTRACT |
-| it.performance | Target & Kinerja | Strategy target, IT actual, forecast | workspace | period | Strategy + IT | Strategy + IT | source-specific | INTERNAL | Strategy for target, IT for actual | INTEGRATION PENDING |
-| it.sessions | Sesi | device/browser/created/last activity/status | actor | current/history | Identity | session service | Backend | RESTRICTED | Identity | NEEDS CONTRACT |
+| Component ID | Menu | Purpose | Entity | Employee Source | Identity Source | Workspace Source | Role Source | Permission Source | Owner | Verification | Freshness | Classification | Authority | Destination | Availability |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| it.summary | Ringkasan | indikator operasional dan identitas | service, incident, account, access, leaver | HR | Identity/IT | Identity | Identity | Identity | IT | source-specific | current | INTERNAL/RESTRICTED | masing-masing source | `/summary` | NEEDS BACKEND |
+| it.summary.identity | Ringkasan | akun menunggu, aktivasi, akses review, leaver | identity queue | HR | Identity | Identity | Identity | Identity | IT + HR | Backend | current | CONFIDENTIAL | HR/Identity governance | `/summary` | NEEDS CONTRACT |
+| it.services | Layanan & Insiden | status layanan | service | — | IT service source | workspace | — | IT governance | IT | service review | current | INTERNAL | IT | `/services` | NEEDS BACKEND |
+| it.incidents | Layanan & Insiden | insiden dan dampak | incident | — | service management | workspace | — | IT governance | IT | incident verification | current/history | INTERNAL | IT | `/services` | NEEDS CONTRACT |
+| it.problem | Layanan & Insiden | problem/root cause | problem | — | service management | workspace | — | IT governance | IT | root-cause review | history | INTERNAL | IT governance | `/services` | NEEDS DECISION |
+| it.systems | Sistem & Aplikasi | katalog sistem/aplikasi | system/application | — | IT inventory | organization/workspace | — | IT governance | IT | inventory verification | current | INTERNAL | IT | `/systems` | NEEDS BACKEND |
+| it.infrastructure | Infrastruktur & Lingkungan | komponen dan lingkungan | infrastructure component | — | infrastructure source | workspace/environment | — | IT governance | IT | technical verification | current | RESTRICTED when sensitive | IT | `/infrastructure` | NEEDS BACKEND |
+| it.alos-genesis | ALOS & GENESIS | kesiapan platform | platform component | — | platform source | organization/workspace | — | platform governance | IT | release/source verification | current | INTERNAL | platform owner | `/alos-genesis` | INTEGRATION PENDING |
+| it.integrations | Integrasi & Connector | koneksi sistem | integration | — | integration registry | organization/workspace | — | security governance | IT | connection health source | current | RESTRICTED | IT/security | `/integrations` | NEEDS CONTRACT |
+| it.account.pending | Akun Karyawan | akun menunggu pendaftaran | provisioning candidate | HR | Identity | Identity | Identity | Identity | IT + HR | employee linkage | event/effective | CONFIDENTIAL | HR/Identity | `/accounts` | NEEDS CONTRACT |
+| it.accounts | Akun Karyawan | account state dan identity fields | account | HR | Identity | Identity | Identity | Identity | Identity | Backend | current/history | CONFIDENTIAL | Identity | `/accounts` | AVAILABLE projection / linkage pending |
+| it.activation | Akun Karyawan | activation state | activation | HR | Identity | Identity | Identity | Identity | Identity | Backend | current/history | CONFIDENTIAL | Identity | `/accounts` | NEEDS CONTRACT |
+| it.workspace-access | Akses & Identitas | workspace access | access membership | HR | Identity | Identity | Identity | Identity | Identity governance | approval/audit | effective-dated | CONFIDENTIAL | Identity/Backend | `/access` | NEEDS CONTRACT |
+| it.access-request | Akses & Identitas | request/review/approval/provision flow | access request | HR | Identity | Identity | Identity | Identity | IT + workspace owner | approval/audit | event/history | CONFIDENTIAL | governance | `/access` | NEEDS CONTRACT |
+| it.sessions | Sesi | authorized session metadata | session metadata | — | session service | actor/workspace context | — | Identity | Identity | Backend | current/history | RESTRICTED | Identity | `/accounts` | NEEDS CONTRACT |
+| it.security | Keamanan & Kepatuhan | controls, events, reviews | security control/event | — | security source | organization/workspace | — | security governance | security/IT | governance review | period/history | RESTRICTED | security governance | `/security` | NEEDS DECISION |
+| it.changes | Perubahan & Rilis | change/release readiness | change/release | — | change source | workspace | — | change governance | IT | approval/audit | scheduled/history | INTERNAL | IT governance | `/changes` | NEEDS CONTRACT |
+| it.assets | Aset IT | asset assignment/state | IT asset | HR when employee-linked | asset source | workspace | — | IT/GA permissions | IT/GA | asset verification | current/history | INTERNAL | asset owner | `/assets` | NEEDS BACKEND |
+| it.support | Dukungan & Permintaan | support queue | support request | employee when requester | support source | workspace | — | IT permissions | IT | request verification | current/history | INTERNAL | IT | `/support` | NEEDS CONTRACT |
+| it.performance | Target & Kinerja | target, actual, forecast separation | target/KPI/actual | — | IT source | workspace | — | Strategy/IT | Strategy for target, IT for actual | source-specific | period | INTERNAL | Strategy/IT separately | `/performance` | INTEGRATION PENDING |
+| it.joiner | Akses & Identitas | joiner readiness | joiner event | HR | Identity | Identity | Identity | Identity | HR + IT | HR event | effective-dated | CONFIDENTIAL | HR/Identity | `/access` | NEEDS CONTRACT |
+| it.mover | Akses & Identitas | mover access review | employment/access change | HR | Identity | Identity | Identity | Identity | HR + IT | effective change + review | effective-dated | CONFIDENTIAL | HR/Identity | `/access` | NEEDS DECISION |
+| it.leaver | Akses & Identitas | leaver revocation queue | offboarding/revocation | HR | Identity | Identity | Identity | Identity | HR + IT | offboarding + revocation verification | effective/history | CONFIDENTIAL | HR/Identity | `/access` | NEEDS CONTRACT |
 
-Freshness, evidence, reconciliation, retention, and classification policy remain source/governance decisions. Unknown values render `—`, unavailable sources `Belum Terhubung`, connected empty `Belum ada data`, and errors as human-readable error state.
+`Employee Source` selalu HR; IT tidak membuat employee master. `Identity Source` adalah sumber akun, access, role, permission, dan session ketika contract tersedia. Unknown memakai `—`; source unavailable `Belum Terhubung`; connected-empty `Belum ada data`; error memakai pesan manusiawi. Freshness, retention, evidence, classification policy, dan authority final tetap NEEDS DECISION/CONTRACT/BACKEND.

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AccountManagementPage, hasItAccountManagementAccess, itNavigation } from "@/features/it";
 import type { SessionProjection } from "@/features/session";
-import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
+import type { AuthenticatedPrincipalProjection, IdentityAccountProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
 
 vi.mock("next/navigation", () => ({
@@ -39,6 +39,14 @@ const principal: AuthenticatedPrincipalProjection = {
 };
 
 const session: SessionProjection = { authenticated: true, principal };
+
+const accountFixture: IdentityAccountProjection = {
+  actor_id: "actor_existing",
+  display_name: "Nama Akun Identity",
+  email: "akun@example.test",
+  active: true,
+  workspace_access: [itMembership],
+};
 
 afterEach(() => { vi.restoreAllMocks(); });
 
@@ -76,6 +84,37 @@ describe("IT account management authority boundary", () => {
     render(<AccountManagementPage workspaceKey="it-secondary" />);
     await waitFor(() => expect(screen.getByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument());
     expect(request).not.toHaveBeenCalledWith("/api/v1/auth/active-workspace", expect.anything());
+  });
+
+  it("separates HR employee fields from account identity and exposes governed detail tabs", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(session);
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path) => {
+      if (path === "/api/v1/identity/accounts") return [accountFixture] as never;
+      if (path === "/api/v1/identity/workspaces") return [itMembership.workspace] as never;
+      if (path === "/api/v1/identity/assignable-roles") return ["WORKSPACE_MEMBER"] as never;
+      return undefined as never;
+    });
+
+    render(<AccountManagementPage workspaceKey="it-operations" />);
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Akun Karyawan" })).toBeInTheDocument());
+    expect(screen.getAllByRole("columnheader", { name: "Nama Karyawan" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("columnheader", { name: "Status Aktivasi" }).length).toBeGreaterThan(0);
+    expect(screen.queryByText("Nama Akun Identity")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Lihat Detail" }));
+    expect(screen.getByRole("dialog", { name: "Detail Akun Karyawan" })).toBeInTheDocument();
+    expect(screen.getByText("Nama Akun Identity")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Sesi" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Sesi" }));
+    expect(screen.getByText(/Perangkat, peramban/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cabut Sesi belum tersedia" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("tab", { name: "Workspace & Akses" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ajukan Pencabutan Akses" }));
+    expect(screen.getByRole("dialog", { name: "Ajukan Pencabutan Akses" })).toBeInTheDocument();
+    const governanceDialog = screen.getByRole("dialog", { name: "Ajukan Pencabutan Akses" });
+    expect(governanceDialog.querySelector("#governance-reason")).toHaveAttribute("required");
+    expect(governanceDialog.querySelector("#governance-effective-at")).toHaveAttribute("required");
+    expect(screen.getByRole("button", { name: "Pengajuan belum tersedia" })).toBeDisabled();
   });
 
   it("keeps the exact 20-item IT sidebar and encodes the actual workspace key", () => {
