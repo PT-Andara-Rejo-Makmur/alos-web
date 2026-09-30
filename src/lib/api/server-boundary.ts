@@ -196,7 +196,11 @@ export async function activateBackendAccount(request: NextRequest): Promise<Resp
   if (!result || result.activation_state !== "ACTIVATED" || typeof result.actor_id !== "string") {
     return structuredError(502, "BACKEND_ACTIVATION_INVALID", "Respons aktivasi tidak valid.", id);
   }
-  return NextResponse.json(result, { headers: responseHeaders(response) });
+  const publicResult: ActivateAccountResponse = {
+    actor_id: result.actor_id,
+    activation_state: result.activation_state,
+  };
+  return NextResponse.json(publicResult, { headers: responseHeaders(response) });
 }
 
 export async function readBackendSession(request: NextRequest): Promise<Response> {

@@ -42,7 +42,7 @@ describe("employee activation", () => {
   });
 
   it("sends a valid form only to the same-origin boundary, hides the token, and directs to login", async () => {
-    const browserFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ activation_state: "ACTIVATED" }), {
+    const browserFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ actor_id: "actor_01", activation_state: "ACTIVATED" }), {
       status: 200, headers: { "content-type": "application/json" },
     }));
     const persist = vi.spyOn(Storage.prototype, "setItem");
@@ -102,8 +102,7 @@ describe("employee activation", () => {
 
   it("forwards activation to Backend without session and returns no session cookie", async () => {
     const backendFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      actor_id: "actor_01", activation_state: "ACTIVATED", tenant_id: "tenant_01",
-      organization_id: "org_01", workspace_id: "workspace_01",
+      actor_id: "actor_01", activation_state: "ACTIVATED",
     }), { status: 200, headers: { "content-type": "application/json" } }));
     vi.stubGlobal("fetch", backendFetch);
     const response = await activate(new NextRequest("http://web.test/api/session/activate", {
@@ -111,6 +110,7 @@ describe("employee activation", () => {
       body: JSON.stringify({ token, password: "StrongPass!123", password_confirmation: "StrongPass!123" }),
     }));
     expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ actor_id: "actor_01", activation_state: "ACTIVATED" });
     expect(response.headers.get("set-cookie")).toBeNull();
     expect(backendFetch).toHaveBeenCalledWith("http://backend.test/api/v1/identity/activate", expect.objectContaining({ method: "POST" }));
     const options = backendFetch.mock.calls[0]?.[1] as RequestInit;
@@ -118,7 +118,7 @@ describe("employee activation", () => {
   });
 
   it("keeps a browser helper on the same origin", async () => {
-    const browserFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ activation_state: "ACTIVATED" }), {
+    const browserFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ actor_id: "actor_01", activation_state: "ACTIVATED" }), {
       status: 200, headers: { "content-type": "application/json" },
     }));
     vi.stubGlobal("fetch", browserFetch);
