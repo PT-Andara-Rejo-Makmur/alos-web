@@ -60,3 +60,12 @@ export function canCompleteTask(session: SessionProjection | SessionContext | nu
 export function canApproveWork(session: SessionProjection | SessionContext | null | undefined): boolean {
   return hasWorkPermission(session, "approval.approve");
 }
+
+export function canCreateReport(session: SessionProjection | SessionContext | null | undefined): boolean {
+  return hasWorkPermission(session, "report.create") || hasWorkPermission(session, "work.write");
+}
+
+export function canCreateFinding(session: SessionProjection | SessionContext | null | undefined): boolean {
+  return hasWorkPermission(session, "finding.create") || hasWorkPermission(session, "work.write");
+}
+

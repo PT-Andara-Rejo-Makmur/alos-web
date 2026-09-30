@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/lib/api";
@@ -26,7 +26,9 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-function mockSession(): SessionProjection {
+function mockSession(
+  permissions: string[] = ["report.read", "report.create", "finding.read", "finding.create"],
+): SessionProjection {
   return {
     authenticated: true,
     principal: {
@@ -41,7 +43,7 @@ function mockSession(): SessionProjection {
       active_workspace: {
         active: true,
         data_scope: "WORKSPACE",
-        permission_refs: ["report.read", "report.create", "finding.read", "finding.create"],
+        permission_refs: permissions,
         role_refs: ["DIVISION_MEMBER"],
         scope_refs: ["workspace_property"],
         workspace: {
@@ -299,6 +301,147 @@ describe("Reports and Findings Authoritative Integration", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Temuan Lapangan Utama")).toBeInTheDocument();
+    });
+  });
+
+  it("renders create report button based on session permissions and submits only title and report_type", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(mockSession(["report.create", "report.read"]));
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (url, init) => {
+      if (typeof url === "string" && url.includes("/api/v1/work/reports/results") && init?.method === "POST") {
+        const body = JSON.parse(init.body as string);
+        expect(body).toEqual({
+          title: "Laporan Operasional Baru",
+          report_type: "OPERATIONAL",
+        });
+        expect(body).not.toHaveProperty("status");
+        expect(body).not.toHaveProperty("owner_actor_id");
+        expect(body).not.toHaveProperty("tenant_id");
+        expect(body).not.toHaveProperty("workspace_ids");
+        return {
+          report_id: "rep_created_1",
+          tenant_id: "tenant_default",
+          organization_id: "org_default",
+          workspace_ids: ["workspace_property"],
+          title: body.title,
+          report_type: body.report_type,
+          status: "DRAFT",
+          owner_actor_id: "act_1",
+          created_at: "2026-09-30T14:00:00Z",
+          updated_at: "2026-09-30T14:00:00Z",
+        };
+      }
+      return [];
+    });
+
+    render(<ReportsPage workspaceKey="property" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /tambah laporan/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /tambah laporan/i }));
+    expect(screen.getByRole("dialog", { name: /tambah laporan/i })).toBeInTheDocument();
+
+    const titleInput = screen.getByPlaceholderText(/masukkan judul laporan/i);
+    const typeInput = screen.getByPlaceholderText(/contoh: financial/i);
+
+    fireEvent.change(titleInput, { target: { value: "Laporan Operasional Baru" } });
+    fireEvent.change(typeInput, { target: { value: "OPERATIONAL" } });
+
+    fireEvent.click(screen.getByRole("button", { name: /simpan laporan/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Laporan Operasional Baru")).toBeInTheDocument();
+    });
+  });
+
+  it("renders create finding button based on session permissions and submits only title, description, and severity", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(mockSession(["finding.create", "finding.read"]));
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (url, init) => {
+      if (typeof url === "string" && url.includes("/api/v1/work/findings") && init?.method === "POST") {
+        const body = JSON.parse(init.body as string);
+        expect(body).toEqual({
+          title: "Temuan Kebocoran Pipa",
+          description: "Pipa bocor di koridor utama",
+          severity: "HIGH",
+        });
+        expect(body).not.toHaveProperty("status");
+        expect(body).not.toHaveProperty("source_type");
+        expect(body).not.toHaveProperty("owner_actor_id");
+        expect(body).not.toHaveProperty("workspace_ids");
+        return {
+          finding_id: "find_created_1",
+          tenant_id: "tenant_default",
+          organization_id: "org_default",
+          workspace_ids: ["workspace_property"],
+          title: body.title,
+          description: body.description,
+          severity: body.severity,
+          status: "OPEN",
+          source_type: "MANUAL",
+          owner_actor_id: "act_1",
+          created_at: "2026-09-30T14:10:00Z",
+          updated_at: "2026-09-30T14:10:00Z",
+        };
+      }
+      return [];
+    });
+
+    render(<FindingsPage workspaceKey="property" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /tambah temuan/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /tambah temuan/i }));
+    expect(screen.getByRole("dialog", { name: /tambah temuan/i })).toBeInTheDocument();
+
+    const titleInput = screen.getByPlaceholderText(/masukkan judul temuan/i);
+    const descInput = screen.getByPlaceholderText(/keterangan detail/i);
+    const severitySelect = screen.getByLabelText(/tingkat keparahan/i);
+
+    fireEvent.change(titleInput, { target: { value: "Temuan Kebocoran Pipa" } });
+    fireEvent.change(descInput, { target: { value: "Pipa bocor di koridor utama" } });
+    fireEvent.change(severitySelect, { target: { value: "HIGH" } });
+
+    fireEvent.click(screen.getByRole("button", { name: /simpan temuan/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Temuan Kebocoran Pipa")).toBeInTheDocument();
+    });
+  });
+
+  it("does not render create buttons when lacking create authority or work.write", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(mockSession(["report.read", "finding.read"]));
+    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue([]);
+
+    const { unmount } = render(<ReportsPage workspaceKey="property" />);
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: /tambah laporan/i })).not.toBeInTheDocument();
+    });
+    unmount();
+
+    render(<FindingsPage workspaceKey="property" />);
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: /tambah temuan/i })).not.toBeInTheDocument();
+    });
+  });
+
+  it("allows create buttons when legacy work.write is granted", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(
+      mockSession(["work.write", "report.read", "finding.read"]),
+    );
+    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue([]);
+
+    const { unmount } = render(<ReportsPage workspaceKey="property" />);
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /tambah laporan/i })).toBeInTheDocument();
+    });
+    unmount();
+
+    render(<FindingsPage workspaceKey="property" />);
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /tambah temuan/i })).toBeInTheDocument();
     });
   });
 });

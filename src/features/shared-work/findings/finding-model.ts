@@ -54,9 +54,6 @@ export async function fetchFindings(
   if (options.status && options.status !== "ALL") query.status = options.status;
   if (options.severity && options.severity !== "ALL") query.severity = options.severity;
   if (options.sourceType && options.sourceType !== "ALL") query.source_type = options.sourceType;
-  if (options.workspaceKey && options.workspaceKey !== "ALL") {
-    query.workspace_key = options.workspaceKey;
-  }
 
   const path = withQuery("/api/v1/work/findings", query);
 

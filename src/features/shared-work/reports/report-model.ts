@@ -54,9 +54,6 @@ export async function fetchReportResults(
   if (options.search) query.search = options.search;
   if (options.status && options.status !== "ALL") query.status = options.status;
   if (options.reportType && options.reportType !== "ALL") query.report_type = options.reportType;
-  if (options.workspaceKey && options.workspaceKey !== "ALL") {
-    query.workspace_key = options.workspaceKey;
-  }
 
   const path = withQuery("/api/v1/work/reports/results", query);
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { navigationForSession } from "@/app/navigation";
@@ -14,9 +15,11 @@ import { WorkErrorState } from "../shared/errors/work-error-state";
 import { WorkSourceNotice } from "../shared/errors/work-source-notice";
 import { WorkToolbar } from "../shared/filters/work-toolbar";
 import { WorkLoading } from "../shared/loading/work-loading";
+import { canCreateFinding } from "../shared/permissions/authority";
 import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
 import { WorkDataTable } from "../shared/tables/work-data-table";
 import type { SourceState } from "../shared/source-state";
+import { FindingCreateDialog } from "./finding-create-dialog";
 import { FindingDrawer } from "./finding-drawer";
 import { fetchFindings } from "./finding-model";
 import { FindingSeverityBadge, FindingStatusBadge } from "./finding-status";
@@ -59,6 +62,7 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [selectedFinding, setSelectedFinding] = useState<WorkFinding | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   // Load Session Context
   useEffect(() => {
@@ -248,10 +252,22 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
   }
 
   const canOpenExecutive = hasExecutiveContext(session);
+  const canCreate = canCreateFinding(session);
 
   const innerContent = (
     <div className={styles.pageContainer}>
         <PageHeader
+          actions={
+            canCreate ? (
+              <Button
+                iconBefore={<Plus size={16} strokeWidth={2} />}
+                onClick={() => setCreateOpen(true)}
+                variant="primary"
+              >
+                Tambah Temuan
+              </Button>
+            ) : undefined
+          }
           description="Kelola masalah, ketidaksesuaian, dan tindak lanjut yang memerlukan perhatian."
           eyebrow="PEKERJAAN"
           title="Temuan"
@@ -320,6 +336,14 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
           }}
           open={drawerOpen}
           workspaceKey={effectiveWorkspaceKey}
+        />
+
+        <FindingCreateDialog
+          onClose={() => setCreateOpen(false)}
+          onCreated={(created) => {
+            setFindings((prev) => [created, ...prev.filter((f) => f.id !== created.id)]);
+          }}
+          open={createOpen}
         />
       </div>
   );
