@@ -12,6 +12,7 @@ export type {
   SharedWorkDocumentCreateRequest,
   SharedWorkDocumentProjection,
   SharedWorkDocumentStatus,
+  SharedWorkDocumentVersionCreateRequest,
   SharedWorkDocumentVersionProjection,
   SharedWorkFindingCreateRequest,
   SharedWorkFindingProjection,

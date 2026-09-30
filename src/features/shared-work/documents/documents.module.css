@@ -77,3 +77,21 @@
   gap: var(--alos-space-3);
   width: 100%;
 }
+
+.createForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-4);
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--alos-space-3);
+}
+
+.filterRow label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-2);
+}

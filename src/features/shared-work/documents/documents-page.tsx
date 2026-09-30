@@ -8,6 +8,7 @@ import { Button, PageHeader, Tabs, type DataTableColumn, type TabItem } from "@/
 import type { SessionProjection } from "@/features/session";
 import { hasExecutiveContext } from "@/features/executive";
 import { ApiError, sessionApiRequest } from "@/lib/api";
+import type { SharedWorkDataClassification } from "@/lib/contracts";
 
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { WorkErrorState } from "../shared/errors/work-error-state";
@@ -15,12 +16,14 @@ import { WorkSourceNotice } from "../shared/errors/work-source-notice";
 import { WorkToolbar } from "../shared/filters/work-toolbar";
 import { WorkLoading } from "../shared/loading/work-loading";
 import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
+import { hasWorkPermission } from "../shared/permissions/authority";
 import { DataClassificationBadge } from "../shared/status/work-status";
 import { WorkDataTable } from "../shared/tables/work-data-table";
 import type { SourceState } from "../shared/source-state";
 import { DocumentDrawer } from "./document-drawer";
+import { DocumentCreateDialog } from "./document-create-dialog";
 import { fetchDocuments } from "./document-model";
-import { DocumentStatusBadge, isDocumentExpired } from "./document-status";
+import { DocumentStatusBadge } from "./document-status";
 import type { WorkDocument } from "./document-types";
 import styles from "./documents.module.css";
 
@@ -58,8 +61,11 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [classificationFilter, setClassificationFilter] = useState<SharedWorkDataClassification | "ALL">("ALL");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [selectedDocument, setSelectedDocument] = useState<WorkDocument | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   // Load Session Context
   useEffect(() => {
@@ -99,7 +105,8 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
       const response = await fetchDocuments({
         search,
         status: statusFilter,
-        workspaceKey: authoritativeWorkspaceKey,
+        classification: classificationFilter,
+        category: categoryFilter,
       });
 
       if (cancelled) return;
@@ -115,7 +122,7 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
     return () => {
       cancelled = true;
     };
-  }, [authoritativeWorkspaceKey, search, session, statusFilter]);
+  }, [authoritativeWorkspaceKey, categoryFilter, classificationFilter, search, session, statusFilter]);
 
   const effectiveWorkspaceKey = authoritativeWorkspaceKey;
 
@@ -131,8 +138,6 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
         if (d.status !== "IN_REVIEW") return false;
       } else if (activeTab === "approved") {
         if (d.status !== "APPROVED") return false;
-      } else if (activeTab === "expired") {
-        if (!isDocumentExpired(d.expiryDate)) return false;
       } else if (activeTab === "retired") {
         if (d.status !== "RETIRED") return false;
       }
@@ -147,9 +152,7 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
         const query = search.toLowerCase();
         const matchesTitle = d.title.toLowerCase().includes(query);
         const matchesCategory = d.category.toLowerCase().includes(query);
-        const matchesOwner = (d.ownerName ?? "").toLowerCase().includes(query);
-        const matchesProject = (d.projectName ?? "").toLowerCase().includes(query);
-        if (!matchesTitle && !matchesCategory && !matchesOwner && !matchesProject) {
+        if (!matchesTitle && !matchesCategory) {
           return false;
         }
       }
@@ -164,7 +167,6 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
       { id: "my_documents", label: "Milik Saya" },
       { id: "in_review", label: "Dalam Review" },
       { id: "approved", label: "Disetujui" },
-      { id: "expired", label: "Kedaluwarsa" },
       { id: "retired", label: "Arsip" },
     ],
     [],
@@ -253,6 +255,7 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
   const innerContent = (
     <div className={styles.pageContainer}>
       <PageHeader
+        actions={hasWorkPermission(session, "document.create") || hasWorkPermission(session, "work.write") ? <Button onClick={() => setCreateOpen(true)}>Tambah Metadata</Button> : undefined}
         description="Kelola dokumen kerja sesuai akses dan konteks bisnis Anda."
         eyebrow="PEKERJAAN"
         title="Dokumen"
@@ -283,6 +286,22 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
         ]}
         statusValue={statusFilter}
       />
+      <div className={styles.filterRow}>
+        <label>
+          Klasifikasi
+          <select onChange={(event) => setClassificationFilter(event.target.value as SharedWorkDataClassification | "ALL")} value={classificationFilter}>
+            <option value="ALL">Semua</option>
+            <option value="PUBLIC">Publik</option>
+            <option value="INTERNAL">Internal</option>
+            <option value="CONFIDENTIAL">Rahasia</option>
+            <option value="RESTRICTED">Terbatas</option>
+          </select>
+        </label>
+        <label>
+          Kategori
+          <input onChange={(event) => setCategoryFilter(event.target.value)} value={categoryFilter} />
+        </label>
+      </div>
 
       <WorkDataTable
         caption="Daftar Dokumen"
@@ -320,6 +339,11 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
         }}
         open={drawerOpen}
         workspaceKey={effectiveWorkspaceKey}
+      />
+      <DocumentCreateDialog
+        onClose={() => setCreateOpen(false)}
+        onCreated={(created) => setDocuments((current) => [created, ...current])}
+        open={createOpen}
       />
     </div>
   );

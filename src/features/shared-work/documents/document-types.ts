@@ -38,8 +38,8 @@ export interface WorkDocument {
   readonly status: DocumentStatusPresentationValue | string;
   readonly tasksCount: number | null;
   readonly title: string;
-  readonly updatedAt: string;
-  readonly versions?: readonly WorkDocumentVersion[];
+  readonly updatedAt: string | null;
+  readonly versions?: readonly WorkDocumentVersion[] | null;
   readonly workspaceIds: readonly string[];
   readonly workspaceName: string | null;
 }

@@ -65,7 +65,7 @@ export function DocumentDetailView({
   const headerMetadata = (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
-        <span className={styles.versionBadge}>{doc.currentVersion ?? "v1.0"}</span>
+        <span className={styles.versionBadge}>{doc.currentVersion ?? "—"}</span>
         <DataClassificationBadge classification={doc.dataClassification} />
         <DocumentStatusBadge status={doc.status} />
       </div>
@@ -170,18 +170,9 @@ export function DocumentDetailView({
                   <div className={styles.versionHash}>Hash Integritas: {v.contentHash}</div>
                 </div>
               ))
-            ) : (
-              <div className={styles.versionItem}>
-                <div className={styles.versionHeader}>
-                  <span className={styles.versionBadge}>{doc.currentVersion ?? "v1.0"}</span>
-                  <span style={{ fontSize: "12px", color: "var(--alos-text-secondary)" }}>
-                    {formatDate(doc.createdAt)}
-                  </span>
-                </div>
-                <div className={styles.versionHash}>Hash Integritas: sha256:canonical-initial-version</div>
-              </div>
-            )}
+            ) : <p>Belum ada versi dokumen yang tercatat.</p>}
           </div>
+          <p>Penambahan versi belum tersedia di halaman ini.</p>
         </div>
       ),
     },

@@ -1,7 +1,8 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
+import type { SharedWorkDocumentCreateRequest, SharedWorkDocumentProjection, SharedWorkDocumentVersionProjection } from "@/lib/contracts";
 
 import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
-import type { SourceHonestResponse, WorkDocument } from "./document-types";
+import type { SourceHonestResponse, WorkDocument, WorkDocumentVersion } from "./document-types";
 
 export interface FetchDocumentsOptions {
   readonly category?: string;
@@ -9,7 +10,47 @@ export interface FetchDocumentsOptions {
   readonly search?: string;
   readonly signal?: AbortSignal;
   readonly status?: string;
-  readonly workspaceKey?: string;
+}
+
+export function documentFromProjection(document: SharedWorkDocumentProjection): WorkDocument {
+  return {
+    id: document.document_id,
+    title: document.title,
+    category: document.category,
+    dataClassification: document.data_classification,
+    status: document.status,
+    ownerActorId: document.owner_actor_id,
+    ownerName: null,
+    workspaceIds: [document.workspace_id],
+    workspaceName: null,
+    createdAt: document.created_at,
+    updatedAt: null,
+    currentVersion: null,
+    versions: null,
+    projectId: null,
+    projectName: null,
+    projectCode: null,
+    description: null,
+    effectiveDate: null,
+    expiryDate: null,
+    tasksCount: null,
+    approvalsCount: null,
+    evidenceCount: null,
+  };
+}
+
+export function documentVersionFromProjection(version: SharedWorkDocumentVersionProjection): WorkDocumentVersion {
+  return {
+    documentId: version.document_id,
+    version: version.version,
+    sourceId: version.source_id,
+    sourceVersion: version.source_version,
+    storageUri: version.storage_uri,
+    contentHash: version.content_hash,
+    createdBy: version.created_by,
+    creatorName: null,
+    createdAt: version.created_at,
+  };
 }
 
 export async function fetchDocuments(
@@ -20,17 +61,16 @@ export async function fetchDocuments(
   if (options.status && options.status !== "ALL") query.status = options.status;
   if (options.category && options.category !== "ALL") query.category = options.category;
   if (options.classification && options.classification !== "ALL") query.classification = options.classification;
-  if (options.workspaceKey && options.workspaceKey !== "ALL") query.workspace_key = options.workspaceKey;
 
   const path = withQuery("/api/v1/documents", query);
 
   try {
-    const data = await authenticatedApiRequest<readonly WorkDocument[]>(path, {
+    const data = await authenticatedApiRequest<readonly SharedWorkDocumentProjection[]>(path, {
       signal: options.signal,
     });
     return {
       connected: true,
-      data: Array.isArray(data) ? data : [],
+      data: Array.isArray(data) ? data.map(documentFromProjection) : [],
     };
   } catch (error) {
     const sourceState = sourceStateFor(error);
@@ -52,12 +92,16 @@ export async function fetchDocumentDetail(
   }
 
   try {
-    const data = await authenticatedApiRequest<WorkDocument>(`/api/v1/documents/${documentId}`, {
+    const data = await authenticatedApiRequest<SharedWorkDocumentProjection>(`/api/v1/documents/${encodeURIComponent(documentId)}`, {
       signal,
     });
+    const versions = await authenticatedApiRequest<readonly SharedWorkDocumentVersionProjection[]>(
+      `/api/v1/documents/${encodeURIComponent(documentId)}/versions`, { signal },
+    );
+    const history = versions.map(documentVersionFromProjection);
     return {
       connected: true,
-      data,
+      data: { ...documentFromProjection(data), versions: history, currentVersion: history[0]?.version ?? null },
     };
   } catch (error) {
     const sourceState = sourceStateFor(error, "detail");
@@ -68,4 +112,11 @@ export async function fetchDocumentDetail(
       message: sourceStateCopy(sourceState, "Dokumen").message,
     };
   }
+}
+
+export async function createDocument(request: SharedWorkDocumentCreateRequest): Promise<WorkDocument> {
+  const data = await authenticatedApiRequest<SharedWorkDocumentProjection>("/api/v1/documents", {
+    method: "POST", body: request,
+  });
+  return documentFromProjection(data);
 }
