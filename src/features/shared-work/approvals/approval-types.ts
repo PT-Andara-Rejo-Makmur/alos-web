@@ -1,38 +1,28 @@
 import type { SourceHonestResponse } from "../shared/types";
-import type { SharedWorkApprovalStatus } from "@/lib/contracts";
+import type { SharedWorkApprovalDecision, SharedWorkApprovalStatus, SharedWorkApprovalSubjectType } from "@/lib/contracts";
 
 /** Approval status values from the generated Shared Work contract. */
 export type ApprovalStatusPresentationValue = SharedWorkApprovalStatus;
 
-export type ApprovalSubjectType =
-  | "PROJECT"
-  | "TASK"
-  | "DOCUMENT"
-  | "REPORT"
-  | "FINDING"
-  | "BUDGET"
-  | "CONTRACT"
-  | "PAYMENT";
-
-export type ApprovalStage = "REVIEW" | "APPROVAL" | "COMPLETED";
+export type ApprovalSubjectType = SharedWorkApprovalSubjectType;
 
 export interface WorkApproval {
   readonly id: string;
-  readonly subjectType: ApprovalSubjectType | string;
+  readonly subjectType: ApprovalSubjectType;
   readonly subjectId: string;
   readonly subjectTitle: string | null;
   readonly requestedBy: string;
   readonly requesterName: string | null;
   readonly approverActorId: string | null;
   readonly approverName: string | null;
-  readonly status: ApprovalStatusPresentationValue | string;
-  readonly decision: string | null;
+  readonly status: ApprovalStatusPresentationValue;
+  readonly decision: SharedWorkApprovalDecision | null;
   readonly reason: string | null;
+  readonly decisionReason: string | null;
   readonly requestedAt: string;
   readonly decidedAt: string | null;
   readonly workspaceIds: readonly string[];
   readonly workspaceName: string | null;
-  readonly stage?: ApprovalStage | string | null;
   readonly materialityValue?: string | null;
   readonly documentsCount: number | null;
   readonly evidenceCount: number | null;

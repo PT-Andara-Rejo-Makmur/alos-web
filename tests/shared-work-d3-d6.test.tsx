@@ -88,9 +88,9 @@ function authenticatedSession(principal = makePrincipal()) {
 // Sample fixtures for unit tests
 const sampleApproval: WorkApproval = {
   id: "appr_spk_001",
-  subjectType: "CONTRACT",
-  subjectId: "contract_spk_kontraktor",
-  subjectTitle: "Persetujuan SPK Kontraktor Utama The Park",
+  subjectType: "PROJECT",
+  subjectId: "project_park",
+  subjectTitle: "Persetujuan Proyek The Park",
   reason: "Pengajuan SPK untuk pengerjaan cut and fill lahan The Park Cluster tahap 1.",
   requestedBy: "actor_ahmad",
   requesterName: "Ahmad Subarjo",
@@ -98,15 +98,15 @@ const sampleApproval: WorkApproval = {
   approverName: "Budi Santoso",
   status: "PENDING",
   decision: null,
+  decisionReason: null,
   requestedAt: "2026-09-25T10:00:00Z",
   decidedAt: null,
   workspaceIds: ["workspace_property"],
   workspaceName: "Property",
-  stage: "APPROVAL",
-  materialityValue: "Rp 1.250.000.000",
-  documentsCount: 1,
-  evidenceCount: 2,
-  commentsCount: 0,
+  materialityValue: null,
+  documentsCount: null,
+  evidenceCount: null,
+  commentsCount: null,
 };
 
 const sampleDocument: WorkDocument = {
@@ -264,16 +264,15 @@ describe("Shared Work / FASE D3 sampai D6", () => {
       expect(screen.queryByText(/FastAPI|endpoint|\/api\/v1|migration 0013|postgres/i)).not.toBeInTheDocument();
     });
 
-    it("menampilkan pipeline Separation of Duties (Pengusul -> Reviewer -> Approver) pada detail view", () => {
+    it("menampilkan pengusul dan pengambil keputusan tanpa peninjau fiktif", () => {
       render(<ApprovalDetailView approval={sampleApproval} workspaceKey="property" />);
 
-      expect(screen.getByText("Alur Kewenangan & Pemisahan Tugas (Separation of Duties)")).toBeInTheDocument();
+      expect(screen.getByText("Alur Kewenangan")).toBeInTheDocument();
       expect(screen.getAllByText("Pengusul").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText("Peninjau (Reviewer)")).toBeInTheDocument();
-      expect(screen.getByText("Pengambil Keputusan (Approver)")).toBeInTheDocument();
+      expect(screen.queryByText("Peninjau (Reviewer)")).not.toBeInTheDocument();
+      expect(screen.getByText("Pengambil Keputusan")).toBeInTheDocument();
       expect(screen.getAllByText("Ahmad Subarjo").length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText("Budi Santoso").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText("Rp 1.250.000.000")).toBeInTheDocument();
     });
 
     it("tidak menampilkan tombol mutasi setujui/tolak jika izin mutasi tidak ada pada session (fail-closed)", () => {
@@ -294,8 +293,7 @@ describe("Shared Work / FASE D3 sampai D6", () => {
         />,
       );
 
-      expect(screen.getByText("Persetujuan SPK Kontraktor Utama The Park")).toBeInTheDocument();
-      expect(screen.getByText("Rp 1.250.000.000")).toBeInTheDocument();
+      expect(screen.getByText("Persetujuan Proyek The Park")).toBeInTheDocument();
 
       const detailBtn = screen.getByRole("button", { name: /Buka Halaman Lengkap/i });
       fireEvent.click(detailBtn);

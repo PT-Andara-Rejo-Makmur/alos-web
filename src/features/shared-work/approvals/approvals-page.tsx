@@ -18,12 +18,13 @@ import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-acce
 import { WorkDataTable } from "../shared/tables/work-data-table";
 import type { SourceState } from "../shared/source-state";
 import { ApprovalDrawer } from "./approval-drawer";
+import { ApprovalCreateDialog } from "./approval-create-dialog";
 import { fetchApprovals } from "./approval-model";
 import {
-  ApprovalStageBadge,
   ApprovalStatusBadge,
   ApprovalSubjectBadge,
 } from "./approval-status";
+import { hasWorkPermission } from "../shared/permissions/authority";
 import type { WorkApproval } from "./approval-types";
 import styles from "./approvals.module.css";
 
@@ -63,6 +64,7 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [selectedApproval, setSelectedApproval] = useState<WorkApproval | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   // Load Session Context
   useEffect(() => {
@@ -102,7 +104,6 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
       const response = await fetchApprovals({
         search,
         status: statusFilter,
-        workspaceKey: authoritativeWorkspaceKey,
       });
 
       if (cancelled) return;
@@ -130,7 +131,6 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
       // Tab category filtering (source-honest)
       if (activeTab === "pending") {
         if (a.status !== "PENDING") return false;
-        if (currentActorId && a.approverActorId && a.approverActorId !== currentActorId) return false;
       } else if (activeTab === "requested") {
         if (currentActorId && a.requestedBy !== currentActorId) return false;
       } else if (activeTab === "approved") {
@@ -141,6 +141,8 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
         if (a.status !== "REJECTED") return false;
       } else if (activeTab === "held") {
         if (a.status !== "HELD") return false;
+      } else if (activeTab === "history") {
+        if (a.status === "PENDING") return false;
       }
 
       // Status filter
@@ -152,9 +154,10 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
       if (search.trim()) {
         const query = search.toLowerCase();
         const matchesTitle = (a.subjectTitle ?? "").toLowerCase().includes(query);
+        const matchesSubjectId = a.subjectId.toLowerCase().includes(query);
         const matchesRequester = (a.requesterName ?? "").toLowerCase().includes(query);
         const matchesReason = (a.reason ?? "").toLowerCase().includes(query);
-        if (!matchesTitle && !matchesRequester && !matchesReason) {
+        if (!matchesTitle && !matchesSubjectId && !matchesRequester && !matchesReason) {
           return false;
         }
       }
@@ -166,7 +169,7 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
   const tabs: readonly TabItem[] = useMemo(
     () => [
       { id: "all", label: "Semua" },
-      { id: "pending", label: "Menunggu Saya" },
+      { id: "pending", label: "Menunggu Keputusan" },
       { id: "requested", label: "Diajukan oleh Saya" },
       { id: "approved", label: "Disetujui" },
       { id: "returned", label: "Dikembalikan" },
@@ -216,18 +219,6 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
         key: "status",
         render: (a) => <ApprovalStatusBadge status={a.status} />,
       },
-      {
-        header: "Tahap",
-        key: "stage",
-        render: (a) => (
-          <ApprovalStageBadge
-            stage={
-              a.stage ??
-              (a.status === "APPROVED" || a.status === "REJECTED" ? "COMPLETED" : "APPROVAL")
-            }
-          />
-        ),
-      },
     ],
     [],
   );
@@ -264,6 +255,7 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
   const innerContent = (
     <div className={styles.pageContainer}>
         <PageHeader
+          actions={hasWorkPermission(session, "approval.request") || hasWorkPermission(session, "work.write") ? <Button onClick={() => setCreateOpen(true)}>Ajukan Persetujuan</Button> : undefined}
           description="Kelola permintaan yang membutuhkan tinjauan atau keputusan sesuai kewenangan Anda."
           eyebrow="PEKERJAAN"
           title="Persetujuan"
@@ -331,6 +323,11 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
           }}
           open={drawerOpen}
           workspaceKey={effectiveWorkspaceKey}
+        />
+        <ApprovalCreateDialog
+          onClose={() => setCreateOpen(false)}
+          onCreated={(created) => setApprovals((current) => [created, ...current])}
+          open={createOpen}
         />
       </div>
   );

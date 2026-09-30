@@ -19,7 +19,7 @@ export default function WorkspaceApprovalDetailPageRoute({
       id={approvalId}
       loadingLabel="Memuat rincian persetujuan…"
       notFoundTitle="Persetujuan Tidak Ditemukan"
-      renderDetail={(approval, connected, key) => <ApprovalDetailView approval={approval} isConnected={connected} workspaceKey={key} />}
+      renderDetail={(approval, connected, key, session) => <ApprovalDetailView approval={approval} isConnected={connected} session={session} workspaceKey={key} />}
       title="Persetujuan"
       workspaceKey={workspaceKey}
     />

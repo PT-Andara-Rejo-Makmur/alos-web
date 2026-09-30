@@ -33,12 +33,6 @@ export function ApprovalStatusBadge({
 const subjectTypeMap: Record<string, string> = {
   PROJECT: "Proyek",
   TASK: "Tugas",
-  DOCUMENT: "Dokumen",
-  REPORT: "Laporan",
-  FINDING: "Temuan",
-  BUDGET: "Anggaran",
-  CONTRACT: "Kontrak",
-  PAYMENT: "Pembayaran",
 };
 
 export function ApprovalSubjectBadge({
@@ -50,23 +44,4 @@ export function ApprovalSubjectBadge({
   const normalized = subjectType.trim().toUpperCase();
   const label = subjectTypeMap[normalized] ?? subjectType;
   return <Status label={label} variant="neutral" />;
-}
-
-export function ApprovalStageBadge({
-  stage,
-}: {
-  readonly stage: string | null | undefined;
-}) {
-  if (!stage) return <span>—</span>;
-  const normalized = stage.trim().toUpperCase();
-  switch (normalized) {
-    case "REVIEW":
-      return <Status label="Tinjauan" variant="info" />;
-    case "APPROVAL":
-      return <Status label="Keputusan" variant="warning" />;
-    case "COMPLETED":
-      return <Status label="Selesai" variant="success" />;
-    default:
-      return <Status label={stage} variant="neutral" />;
-  }
 }

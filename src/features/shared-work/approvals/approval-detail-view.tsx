@@ -5,13 +5,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Alert, Button, type TabItem } from "@/components/ui";
+import type { SessionProjection } from "@/features/session";
+import { apiMessage } from "@/lib/api";
 
 import { ActivityTimeline } from "../shared/activity/activity-timeline";
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
 import { EvidenceList } from "../shared/evidence/evidence-list";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
-import { ApprovalStageBadge, ApprovalStatusBadge, ApprovalSubjectBadge } from "./approval-status";
+import { ApprovalStatusBadge, ApprovalSubjectBadge } from "./approval-status";
+import { hasWorkPermission } from "../shared/permissions/authority";
+import { decideApproval, type ApprovalAction } from "./approval-model";
 import type { WorkApproval } from "./approval-types";
 import styles from "./approvals.module.css";
 
@@ -19,6 +23,7 @@ interface ApprovalDetailViewProps {
   readonly approval: WorkApproval;
   readonly isConnected?: boolean;
   readonly workspaceKey?: string | null;
+  readonly session?: SessionProjection | null;
 }
 
 function formatDate(dateString: string | null | undefined): string {
@@ -37,12 +42,43 @@ function formatDate(dateString: string | null | undefined): string {
 }
 
 export function ApprovalDetailView({
-  approval,
+  approval: initialApproval,
   isConnected = true,
   workspaceKey,
+  session,
 }: ApprovalDetailViewProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
+  const [approval, setApproval] = useState(initialApproval);
+  const [decisionReason, setDecisionReason] = useState("");
+  const [deciding, setDeciding] = useState(false);
+  const [decisionError, setDecisionError] = useState<string | null>(null);
+  const currentActorId = session?.principal && "actor" in session.principal ? session.principal.actor.actor_id : null;
+  const canDecide = approval.status === "PENDING" && Boolean(currentActorId) && approval.requestedBy !== currentActorId;
+  const actions: readonly { action: ApprovalAction; label: string; permission: string }[] = [
+    { action: "approve", label: "Setujui", permission: "approval.approve" },
+    { action: "return", label: "Kembalikan", permission: "approval.return" },
+    { action: "reject", label: "Tolak", permission: "approval.reject" },
+    { action: "hold", label: "Tahan", permission: "approval.hold" },
+  ];
+
+  async function submitDecision(action: ApprovalAction) {
+    if (deciding) return;
+    if (action !== "approve" && !decisionReason.trim()) {
+      setDecisionError("Alasan keputusan wajib diisi.");
+      return;
+    }
+    setDeciding(true);
+    setDecisionError(null);
+    try {
+      const decided = await decideApproval(approval.id, action, decisionReason.trim() ? { decision_reason: decisionReason.trim() } : {});
+      setApproval(decided);
+    } catch (caught) {
+      setDecisionError(apiMessage(caught));
+    } finally {
+      setDeciding(false);
+    }
+  }
 
   const backUrl = workspaceKey ? `/workspace/${workspaceKey}/approvals` : "/workspace/approvals";
 
@@ -65,7 +101,6 @@ export function ApprovalDetailView({
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
         <ApprovalSubjectBadge subjectType={approval.subjectType} />
         <ApprovalStatusBadge status={approval.status} />
-        <ApprovalStageBadge stage={approval.stage ?? (approval.status === "APPROVED" || approval.status === "REJECTED" ? "COMPLETED" : "APPROVAL")} />
       </div>
 
       <dl className={drawerStyles.definitionList}>
@@ -110,10 +145,9 @@ export function ApprovalDetailView({
       label: "Ringkasan",
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          {/* Separation of Duties (SoD) Pipeline */}
           <div style={{ padding: "16px", background: "var(--alos-surface)", border: "1px solid var(--alos-border)", borderRadius: "8px" }}>
             <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--alos-text-muted)", textTransform: "uppercase" }}>
-              Alur Kewenangan & Pemisahan Tugas (Separation of Duties)
+              Alur Kewenangan
             </span>
             <div className={styles.sodPipeline} style={{ marginTop: "12px" }}>
               <div className={styles.sodStep}>
@@ -122,13 +156,8 @@ export function ApprovalDetailView({
               </div>
               <span className={styles.sodArrow}>→</span>
               <div className={styles.sodStep}>
-                <span className={styles.sodStepRole}>Peninjau (Reviewer)</span>
-                <span className={styles.sodStepActor}>—</span>
-              </div>
-              <span className={styles.sodArrow}>→</span>
-              <div className={styles.sodStep}>
-                <span className={styles.sodStepRole}>Pengambil Keputusan (Approver)</span>
-                <span className={styles.sodStepActor}>{approval.approverName ?? "Aktor Berwenang"}</span>
+                <span className={styles.sodStepRole}>Pengambil Keputusan</span>
+                <span className={styles.sodStepActor}>{approval.approverName ?? approval.approverActorId ?? "Belum diputus"}</span>
               </div>
             </div>
           </div>
@@ -141,6 +170,19 @@ export function ApprovalDetailView({
               <p style={{ margin: "8px 0 0 0", fontSize: "14px", color: "var(--alos-text-primary)", lineHeight: "1.6" }}>
                 {approval.reason}
               </p>
+            </div>
+          ) : null}
+          {approval.decisionReason ? <div><strong>Alasan Keputusan</strong><p>{approval.decisionReason}</p></div> : null}
+          {canDecide && actions.some(({ permission }) => hasWorkPermission(session, permission)) ? (
+            <div>
+              <label htmlFor="approval-decision-reason">Alasan keputusan</label>
+              <textarea id="approval-decision-reason" onChange={(event) => setDecisionReason(event.target.value)} value={decisionReason} />
+              <div className={styles.drawerFooterActions}>
+                {actions.filter(({ permission }) => hasWorkPermission(session, permission)).map(({ action, label }) => (
+                  <Button disabled={deciding} key={action} onClick={() => void submitDecision(action)} variant="secondary">{label}</Button>
+                ))}
+              </div>
+              {decisionError ? <p role="alert">{decisionError}</p> : null}
             </div>
           ) : null}
 

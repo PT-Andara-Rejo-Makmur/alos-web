@@ -3,9 +3,11 @@ export const CONTRACT_SOURCE = "alos-contracts/generated/typescript" as const;
 
 export type {
   SharedWorkApprovalDecision,
+  SharedWorkApprovalDecisionRequest,
   SharedWorkApprovalProjection,
   SharedWorkApprovalRequest,
   SharedWorkApprovalStatus,
+  SharedWorkApprovalSubjectType,
   SharedWorkDataClassification,
   SharedWorkDocumentCreateRequest,
   SharedWorkDocumentProjection,

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui";
 import { QuickViewDrawer } from "../shared/drawers/quick-view-drawer";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
-import { ApprovalStageBadge, ApprovalStatusBadge, ApprovalSubjectBadge } from "./approval-status";
+import { ApprovalStatusBadge, ApprovalSubjectBadge } from "./approval-status";
 import type { WorkApproval } from "./approval-types";
 import styles from "./approvals.module.css";
 
@@ -96,11 +96,6 @@ export function ApprovalDrawer({
         <dt className={drawerStyles.definitionTerm}>Jenis</dt>
         <dd className={drawerStyles.definitionDetail}>
           <ApprovalSubjectBadge subjectType={approval.subjectType} />
-        </dd>
-
-        <dt className={drawerStyles.definitionTerm}>Tahap</dt>
-        <dd className={drawerStyles.definitionDetail}>
-          <ApprovalStageBadge stage={approval.stage ?? (approval.status === "APPROVED" || approval.status === "REJECTED" ? "COMPLETED" : "APPROVAL")} />
         </dd>
 
         <dt className={drawerStyles.definitionTerm}>Pengusul</dt>
