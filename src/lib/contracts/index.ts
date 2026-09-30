@@ -45,6 +45,8 @@ export type {
   SharedWorkReportProjection,
   SharedWorkReportStatus,
   SharedWorkTaskCreateRequest,
+  SharedWorkTaskDependencyProjection,
+  SharedWorkTaskDependencyRequest,
   SharedWorkTaskUpdateRequest,
   SharedWorkTaskAssignRequest,
   SharedWorkTaskPriority,

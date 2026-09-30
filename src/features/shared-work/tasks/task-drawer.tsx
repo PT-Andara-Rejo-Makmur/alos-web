@@ -126,7 +126,7 @@ export function TaskDrawer({
           </span>
         </dd>
 
-        <dt className={drawerStyles.definitionTerm}>Dependency</dt>
+        <dt className={drawerStyles.definitionTerm}>Ketergantungan</dt>
         <dd className={drawerStyles.definitionDetail}>
           {task.blockedByTitles && task.blockedByTitles.length > 0 ? (
             <div className={styles.dependencyList}>
@@ -137,7 +137,7 @@ export function TaskDrawer({
               ))}
             </div>
           ) : (
-            "—"
+            "Belum ada ketergantungan."
           )}
         </dd>
       </dl>

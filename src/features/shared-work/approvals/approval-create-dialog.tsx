@@ -24,6 +24,7 @@ export function ApprovalCreateDialog({ open, onClose, onCreated }: Props) {
   const [subjectType, setSubjectType] = useState<SharedWorkApprovalSubjectType>("PROJECT");
   const [subjectId, setSubjectId] = useState("");
   const [reason, setReason] = useState("");
+  const [materialityValue, setMaterialityValue] = useState("");
   const [projects, setProjects] = useState<readonly WorkProject[]>([]);
   const [tasks, setTasks] = useState<readonly WorkTask[]>([]);
   const [projectsConnected, setProjectsConnected] = useState(false);
@@ -63,10 +64,12 @@ export function ApprovalCreateDialog({ open, onClose, onCreated }: Props) {
         subject_type: subjectType,
         subject_id: subjectId,
         ...(reason.trim() ? { reason: reason.trim() } : {}),
+        ...(materialityValue.trim() ? { materiality_value: Number(materialityValue) } : {}),
       });
       onCreated(created);
       setSubjectId("");
       setReason("");
+      setMaterialityValue("");
       onClose();
     } catch (caught) {
       setError(apiMessage(caught));
@@ -93,6 +96,9 @@ export function ApprovalCreateDialog({ open, onClose, onCreated }: Props) {
         {!connected ? <p>Daftar objek belum terhubung.</p> : null}
         <FormField label="Alasan Permintaan">
           <textarea onChange={(event) => setReason(event.target.value)} value={reason} />
+        </FormField>
+        <FormField label="Nilai Materialitas">
+          <input min="0" onChange={(event) => setMaterialityValue(event.target.value)} step="0.01" type="number" value={materialityValue} />
         </FormField>
         {error ? <p role="alert">{error}</p> : null}
         <div className={styles.drawerFooterActions}>

@@ -29,7 +29,7 @@ export function approvalFromProjection(approval: SharedWorkApprovalProjection): 
     decidedAt: approval.decided_at ?? null,
     workspaceIds: approval.workspace_ids,
     workspaceName: approval.workspace_name ?? null,
-    materialityValue: null,
+    materialityValue: approval.materiality_value == null ? null : new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(approval.materiality_value),
     documentsCount: approval.documents_count ?? null,
     evidenceCount: approval.evidence_count ?? null,
     commentsCount: approval.comments_count ?? null,

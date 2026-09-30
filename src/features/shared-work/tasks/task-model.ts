@@ -35,6 +35,8 @@ export function taskFromProjection(task: SharedWorkTaskProjection): WorkTask {
     findingsCount: task.findings_count ?? null,
     evidenceCount: task.evidence_count ?? null,
     commentsCount: task.comments_count ?? null,
+    blockedBy: task.blocked_by?.map((dependency) => dependency.blocked_by_task_id) ?? [],
+    blockedByTitles: task.blocked_by?.map((dependency) => dependency.title) ?? [],
   };
 }
 
@@ -123,6 +125,21 @@ export async function assignTask(taskId: string, request: SharedWorkTaskAssignRe
 export async function completeTask(taskId: string): Promise<WorkTask> {
   const data = await authenticatedApiRequest<SharedWorkTaskProjection>(`/api/v1/tasks/${encodeURIComponent(taskId)}/complete`, {
     method: "POST",
+  });
+  return taskFromProjection(data);
+}
+
+export async function addTaskDependency(taskId: string, blockedByTaskId: string): Promise<WorkTask> {
+  const data = await authenticatedApiRequest<SharedWorkTaskProjection>(`/api/v1/tasks/${encodeURIComponent(taskId)}/dependencies`, {
+    method: "POST",
+    body: { blocked_by_task_id: blockedByTaskId },
+  });
+  return taskFromProjection(data);
+}
+
+export async function removeTaskDependency(taskId: string, blockedByTaskId: string): Promise<WorkTask> {
+  const data = await authenticatedApiRequest<SharedWorkTaskProjection>(`/api/v1/tasks/${encodeURIComponent(taskId)}/dependencies/${encodeURIComponent(blockedByTaskId)}`, {
+    method: "DELETE",
   });
   return taskFromProjection(data);
 }

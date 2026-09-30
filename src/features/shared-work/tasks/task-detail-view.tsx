@@ -14,6 +14,7 @@ import drawerStyles from "../shared/drawers/drawer-layout.module.css";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
 import { canAssignTask, canCompleteTask, canUpdateTask } from "../shared/permissions/authority";
 import { TaskAssignDialog } from "./task-assign-dialog";
+import { TaskDependencyDialog } from "./task-dependency-dialog";
 import { TaskEditDialog } from "./task-edit-dialog";
 import { completeTask } from "./task-model";
 import { formatTaskDueDate, TaskPriorityBadge, TaskStatusBadge } from "./task-status";
@@ -53,6 +54,7 @@ export function TaskDetailView({
   const [task, setTask] = useState(initialTask);
   const [editOpen, setEditOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
+  const [dependencyOpen, setDependencyOpen] = useState(false);
   const [completeOpen, setCompleteOpen] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -159,7 +161,7 @@ export function TaskDetailView({
 
           <div style={{ padding: "16px", background: "var(--alos-surface)", border: "1px solid var(--alos-border)", borderRadius: "8px" }}>
             <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--alos-text-muted)", textTransform: "uppercase" }}>
-              Terhambat oleh (Dependency)
+              Terhambat oleh
             </span>
             <div style={{ marginTop: "8px" }}>
               {task.blockedByTitles && task.blockedByTitles.length > 0 ? (
@@ -171,7 +173,7 @@ export function TaskDetailView({
                   ))}
                 </div>
               ) : (
-                <span style={{ fontSize: "14px", color: "var(--alos-text-secondary)" }}>—</span>
+                <span style={{ fontSize: "14px", color: "var(--alos-text-secondary)" }}>Belum ada ketergantungan.</span>
               )}
             </div>
           </div>
@@ -228,6 +230,9 @@ export function TaskDetailView({
         {canAssignTask(session) && task.status !== "COMPLETED" && task.status !== "CANCELLED" ? (
           <Button onClick={() => setAssignOpen(true)} variant="secondary">Tugaskan</Button>
         ) : null}
+        {canUpdateTask(session) && task.status !== "COMPLETED" && task.status !== "CANCELLED" ? (
+          <Button onClick={() => setDependencyOpen(true)} variant="secondary">Atur Ketergantungan</Button>
+        ) : null}
         {canCompleteTask(session) && task.status !== "COMPLETED" && task.status !== "CANCELLED" ? (
           <Button onClick={() => setCompleteOpen(true)} variant="secondary">Selesaikan Tugas</Button>
         ) : null}
@@ -250,6 +255,7 @@ export function TaskDetailView({
     />
     {editOpen ? <TaskEditDialog onClose={() => setEditOpen(false)} onSaved={setTask} open task={task} /> : null}
     <TaskAssignDialog onAssigned={setTask} onClose={() => setAssignOpen(false)} open={assignOpen} task={task} />
+    <TaskDependencyDialog onChanged={setTask} onClose={() => setDependencyOpen(false)} open={dependencyOpen} task={task} />
     <Dialog onClose={() => setCompleteOpen(false)} open={completeOpen} title="Selesaikan Tugas">
       <p>Tugas yang selesai tidak dapat diubah atau ditugaskan kembali.</p>
       {actionError ? <p role="alert">{actionError}</p> : null}

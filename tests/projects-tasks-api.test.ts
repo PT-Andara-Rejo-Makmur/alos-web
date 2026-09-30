@@ -6,7 +6,7 @@ import {
   fetchProjectDetail,
   fetchProjects,
 } from "@/features/shared-work/projects/project-model";
-import { fetchTaskDetail, fetchTasks } from "@/features/shared-work/tasks/task-model";
+import { addTaskDependency, fetchTaskDetail, fetchTasks, removeTaskDependency, taskFromProjection } from "@/features/shared-work/tasks/task-model";
 
 const project: SharedWorkProjectProjection = {
   project_id: "project_1",
@@ -36,6 +36,25 @@ const task: SharedWorkTaskProjection = {
 
 describe("Projects and Tasks canonical API adapters", () => {
   afterEach(() => vi.restoreAllMocks());
+
+  it("maps authoritative task dependencies and uses dedicated mutations", async () => {
+    const enriched = { ...task, blocked_by: [{
+      blocked_by_task_id: "task_2", title: "Tugas prasyarat", status: "OPEN" as const,
+      linked_at: "2026-09-30T00:00:00Z",
+    }] };
+    expect(taskFromProjection(enriched)).toMatchObject({
+      blockedBy: ["task_2"], blockedByTitles: ["Tugas prasyarat"],
+    });
+    const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue(enriched);
+    await addTaskDependency("task_1", "task_2");
+    await removeTaskDependency("task_1", "task_2");
+    expect(request).toHaveBeenNthCalledWith(1, "/api/v1/tasks/task_1/dependencies", {
+      method: "POST", body: { blocked_by_task_id: "task_2" },
+    });
+    expect(request).toHaveBeenNthCalledWith(2, "/api/v1/tasks/task_1/dependencies/task_2", {
+      method: "DELETE",
+    });
+  });
 
   it("maps PostgreSQL project projection without inventing metrics or display names", async () => {
     const request = vi.spyOn(api, "authenticatedApiRequest")

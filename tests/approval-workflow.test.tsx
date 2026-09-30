@@ -58,6 +58,11 @@ describe("canonical approval workflow", () => {
     expect(request).toHaveBeenCalledWith("/api/v1/approvals", expect.any(Object));
   });
 
+  it("formats persisted materiality from the canonical response", () => {
+    expect(approvalFromProjection({ ...projection, materiality_value: 1250000.50 })
+      .materialityValue).toContain("1.250.000,5");
+  });
+
   it("uses dedicated request and decision endpoints with canonical payloads", async () => {
     const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue(projection);
     await createApproval({ subject_type: "PROJECT", subject_id: "project_1" });
