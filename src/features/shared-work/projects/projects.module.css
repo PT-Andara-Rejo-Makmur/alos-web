@@ -5,6 +5,17 @@
   width: 100%;
 }
 
+.createForm {
+  display: grid;
+  gap: var(--alos-space-4);
+}
+
+.createActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--alos-space-2);
+}
+
 .noticeContainer {
   margin-bottom: var(--alos-space-2);
 }

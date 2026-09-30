@@ -21,6 +21,7 @@ import { ProjectStatusBadge } from "../shared/status/project-status";
 import type { SourceState } from "../shared/source-state";
 import { WorkDataTable } from "../shared/tables/work-data-table";
 import { ProjectDrawer } from "./project-drawer";
+import { ProjectCreateDialog } from "./project-create-dialog";
 import { fetchProjects } from "./project-model";
 import type { WorkProject } from "./project-types";
 import styles from "./projects.module.css";
@@ -62,6 +63,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [selectedProject, setSelectedProject] = useState<WorkProject | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Load Session Context
@@ -102,7 +104,6 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
       const response = await fetchProjects({
         search,
         status: statusFilter,
-        workspaceKey: authoritativeWorkspaceKey,
       });
 
       if (cancelled) return;
@@ -238,8 +239,8 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
         <PageHeader
           actions={
             canCreate ? (
-              <Button disabled iconBefore={<Plus size={16} strokeWidth={2} />} variant="primary">
-                Tambah Proyek — Belum Tersedia
+              <Button iconBefore={<Plus size={16} strokeWidth={2} />} onClick={() => setCreateOpen(true)} variant="primary">
+                Tambah Proyek
               </Button>
             ) : undefined
           }
@@ -311,6 +312,11 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
           open={drawerOpen}
           project={selectedProject}
           workspaceKey={effectiveWorkspaceKey}
+        />
+        <ProjectCreateDialog
+          onClose={() => setCreateOpen(false)}
+          onCreated={(created) => setProjects((current) => [created, ...current])}
+          open={createOpen}
         />
       </div>
   );

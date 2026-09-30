@@ -20,6 +20,7 @@ import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-acce
 import { WorkDataTable } from "../shared/tables/work-data-table";
 import type { SourceState } from "../shared/source-state";
 import { TaskDrawer } from "./task-drawer";
+import { TaskCreateDialog } from "./task-create-dialog";
 import { fetchTasks } from "./task-model";
 import { formatTaskDueDate, isTaskOverdue, TaskPriorityBadge, TaskStatusBadge } from "./task-status";
 import type { WorkTask } from "./task-types";
@@ -46,6 +47,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
   const [selectedTask, setSelectedTask] = useState<WorkTask | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Load Session Context
@@ -87,7 +89,6 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
         priority: priorityFilter,
         search,
         status: statusFilter,
-        workspaceKey: authoritativeWorkspaceKey,
       });
 
       if (cancelled) return;
@@ -250,12 +251,8 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
         <PageHeader
           actions={
             canCreate ? (
-              <Button
-                disabled
-                iconBefore={<Plus size={16} strokeWidth={2} />}
-                variant="primary"
-              >
-                Tambah Tugas — Belum Tersedia
+              <Button iconBefore={<Plus size={16} strokeWidth={2} />} onClick={() => setCreateOpen(true)} variant="primary">
+                Tambah Tugas
               </Button>
             ) : undefined
           }
@@ -350,6 +347,11 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
           open={drawerOpen}
           task={selectedTask}
           workspaceKey={effectiveWorkspaceKey}
+        />
+        <TaskCreateDialog
+          onClose={() => setCreateOpen(false)}
+          onCreated={(created) => setTasks((current) => [created, ...current])}
+          open={createOpen}
         />
       </div>
   );

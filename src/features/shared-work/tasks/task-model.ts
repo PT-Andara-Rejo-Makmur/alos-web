@@ -1,4 +1,5 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
+import type { SharedWorkTaskCreateRequest, SharedWorkTaskProjection } from "@/lib/contracts";
 
 import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkTask } from "./task-types";
@@ -8,7 +9,33 @@ export interface FetchTasksOptions {
   readonly search?: string;
   readonly signal?: AbortSignal;
   readonly status?: string;
-  readonly workspaceKey?: string;
+}
+
+export function taskFromProjection(task: SharedWorkTaskProjection): WorkTask {
+  return {
+    id: task.task_id,
+    title: task.title,
+    description: task.description ?? null,
+    status: task.status,
+    priority: task.priority,
+    projectId: task.project_id ?? null,
+    projectName: null,
+    projectCode: null,
+    ownerActorId: task.owner_actor_id ?? null,
+    ownerName: null,
+    createdBy: task.created_by,
+    creatorName: null,
+    dueAt: task.due_at ?? null,
+    startDate: null,
+    workspaceIds: task.workspace_ids,
+    workspaceName: null,
+    createdAt: task.created_at,
+    updatedAt: task.updated_at,
+    documentsCount: null,
+    findingsCount: null,
+    evidenceCount: null,
+    commentsCount: null,
+  };
 }
 
 export async function fetchTasks(
@@ -18,17 +45,16 @@ export async function fetchTasks(
   if (options.search) query.search = options.search;
   if (options.status && options.status !== "ALL") query.status = options.status;
   if (options.priority && options.priority !== "ALL") query.priority = options.priority;
-  if (options.workspaceKey && options.workspaceKey !== "ALL") query.workspace_key = options.workspaceKey;
 
   const path = withQuery("/api/v1/tasks", query);
 
   try {
-    const data = await authenticatedApiRequest<readonly WorkTask[]>(path, {
+    const data = await authenticatedApiRequest<readonly SharedWorkTaskProjection[]>(path, {
       signal: options.signal,
     });
     return {
       connected: true,
-      data: Array.isArray(data) ? data : [],
+      data: Array.isArray(data) ? data.map(taskFromProjection) : [],
     };
   } catch (error) {
     // Source honesty: If the Backend has not yet exposed the public tasks endpoint,
@@ -52,12 +78,12 @@ export async function fetchTaskDetail(
   }
 
   try {
-    const data = await authenticatedApiRequest<WorkTask>(`/api/v1/tasks/${taskId}`, {
+    const data = await authenticatedApiRequest<SharedWorkTaskProjection>(`/api/v1/tasks/${encodeURIComponent(taskId)}`, {
       signal,
     });
     return {
       connected: true,
-      data,
+      data: taskFromProjection(data),
     };
   } catch (error) {
     const sourceState = sourceStateFor(error, "detail");
@@ -68,4 +94,12 @@ export async function fetchTaskDetail(
       message: sourceStateCopy(sourceState, "Tugas").message,
     };
   }
+}
+
+export async function createTask(request: SharedWorkTaskCreateRequest): Promise<WorkTask> {
+  const data = await authenticatedApiRequest<SharedWorkTaskProjection>("/api/v1/tasks", {
+    method: "POST",
+    body: request,
+  });
+  return taskFromProjection(data);
 }

@@ -11,7 +11,7 @@ import {
   sourceStateFor,
   type WorkProject,
 } from "@/features/shared-work";
-import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
+import type { AuthenticatedPrincipalProjection, SharedWorkProjectProjection } from "@/lib/contracts";
 import { ApiError } from "@/lib/api";
 import * as api from "@/lib/api";
 
@@ -88,6 +88,20 @@ const sampleProject: WorkProject = {
   findingsCount: 3,
   reportsCount: 4,
   evidenceCount: 18,
+};
+
+const canonicalProject: SharedWorkProjectProjection = {
+  project_id: "proj_the_park",
+  tenant_id: "tenant_andara",
+  organization_id: "org_andara",
+  workspace_ids: ["workspace_property"],
+  code: "PRJ-PRP-001",
+  name: "The Park Cluster Residence",
+  description: null,
+  status: "ACTIVE",
+  owner_actor_id: "actor_rani",
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: "2026-09-27T00:00:00Z",
 };
 
 describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
@@ -230,7 +244,7 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
       expect(canCreateProject(leadSession)).toBe(true);
     });
 
-    it("shows a disabled source-honest create action when project.create is granted", async () => {
+    it("submits project creation through the dedicated API when project.create is granted", async () => {
       const principal = makePrincipal({
         active_workspace: {
           ...makePrincipal().active_workspace!,
@@ -238,21 +252,27 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
         },
       });
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession(principal));
-      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([]);
+      const request = vi.spyOn(api, "authenticatedApiRequest")
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce(canonicalProject);
 
       render(<ProjectsPage workspaceKey="property" />);
 
-      const action = await screen.findByRole("button", { name: "Tambah Proyek — Belum Tersedia" });
-      expect(action).toBeDisabled();
-      expect(screen.queryByText("Berhasil disimpan")).not.toBeInTheDocument();
-      expect(screen.queryByText("Proyek baru")).not.toBeInTheDocument();
+      fireEvent.click(await screen.findByRole("button", { name: "Tambah Proyek" }));
+      fireEvent.change(screen.getByRole("textbox", { name: /Kode Proyek/ }), { target: { value: "PRJ-PRP-001" } });
+      fireEvent.change(screen.getByRole("textbox", { name: /Nama Proyek/ }), { target: { value: "The Park Cluster Residence" } });
+      fireEvent.click(screen.getByRole("button", { name: "Simpan Proyek" }));
+      await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects", {
+        method: "POST",
+        body: { code: "PRJ-PRP-001", name: "The Park Cluster Residence" },
+      }));
     });
   });
 
   describe("Table-First Listing & Quick View Drawer", () => {
     it("merender tabel proyek dengan kolom canonical dan membuka drawer quick view saat baris diklik", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
-      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([sampleProject]);
+      const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([canonicalProject]);
 
       render(<ProjectsPage workspaceKey="property" />);
 
@@ -262,7 +282,8 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
 
       expect(screen.getByText("PRJ-PRP-001")).toBeInTheDocument();
       expect(screen.getAllByText("Berjalan").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText("45%")).toBeInTheDocument();
+      expect(screen.queryByText("45%")).not.toBeInTheDocument();
+      expect(request).toHaveBeenCalledWith("/api/v1/projects", expect.any(Object));
 
       // Click "Lihat" button to open quick-view drawer
       const viewButton = screen.getByRole("button", { name: "Lihat" });

@@ -30,7 +30,7 @@ export function hasWorkPermission(
 }
 
 export function canCreateProject(session: SessionProjection | SessionContext | null | undefined): boolean {
-  return hasWorkPermission(session, "project.create");
+  return hasWorkPermission(session, "project.create") || hasWorkPermission(session, "work.write");
 }
 
 export function canArchiveProject(session: SessionProjection | SessionContext | null | undefined): boolean {
@@ -38,7 +38,7 @@ export function canArchiveProject(session: SessionProjection | SessionContext | 
 }
 
 export function canCreateTask(session: SessionProjection | SessionContext | null | undefined): boolean {
-  return hasWorkPermission(session, "task.create");
+  return hasWorkPermission(session, "task.create") || hasWorkPermission(session, "work.write");
 }
 
 export function canApproveWork(session: SessionProjection | SessionContext | null | undefined): boolean {

@@ -1,4 +1,5 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
+import type { SharedWorkProjectCreateRequest, SharedWorkProjectProjection } from "@/lib/contracts";
 
 import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkProject } from "./project-types";
@@ -7,7 +8,32 @@ export interface FetchProjectsOptions {
   readonly search?: string;
   readonly signal?: AbortSignal;
   readonly status?: string;
-  readonly workspaceKey?: string;
+}
+
+export function projectFromProjection(project: SharedWorkProjectProjection): WorkProject {
+  return {
+    id: project.project_id,
+    code: project.code,
+    name: project.name,
+    description: project.description ?? null,
+    status: project.status,
+    ownerActorId: project.owner_actor_id ?? null,
+    ownerName: null,
+    workspaceIds: project.workspace_ids,
+    workspaceName: null,
+    startDate: project.start_date ?? null,
+    targetEndDate: project.target_end_date ?? null,
+    createdAt: project.created_at,
+    updatedAt: project.updated_at,
+    progressPercentage: null,
+    riskLevel: null,
+    tasksCount: null,
+    documentsCount: null,
+    approvalsCount: null,
+    findingsCount: null,
+    reportsCount: null,
+    evidenceCount: null,
+  };
 }
 
 export async function fetchProjects(
@@ -16,17 +42,16 @@ export async function fetchProjects(
   const query: Record<string, string | undefined> = {};
   if (options.search) query.search = options.search;
   if (options.status && options.status !== "ALL") query.status = options.status;
-  if (options.workspaceKey && options.workspaceKey !== "ALL") query.workspace_key = options.workspaceKey;
 
   const path = withQuery("/api/v1/projects", query);
 
   try {
-    const data = await authenticatedApiRequest<readonly WorkProject[]>(path, {
+    const data = await authenticatedApiRequest<readonly SharedWorkProjectProjection[]>(path, {
       signal: options.signal,
     });
     return {
       connected: true,
-      data: Array.isArray(data) ? data : [],
+      data: Array.isArray(data) ? data.map(projectFromProjection) : [],
     };
   } catch (error) {
     // Source honesty: If the Backend has not yet exposed the public projects endpoint (e.g. 404/501),
@@ -50,12 +75,12 @@ export async function fetchProjectDetail(
   }
 
   try {
-    const data = await authenticatedApiRequest<WorkProject>(`/api/v1/projects/${projectId}`, {
+    const data = await authenticatedApiRequest<SharedWorkProjectProjection>(`/api/v1/projects/${encodeURIComponent(projectId)}`, {
       signal,
     });
     return {
       connected: true,
-      data,
+      data: projectFromProjection(data),
     };
   } catch (error) {
     const sourceState = sourceStateFor(error, "detail");
@@ -66,4 +91,14 @@ export async function fetchProjectDetail(
       message: sourceStateCopy(sourceState, "Proyek").message,
     };
   }
+}
+
+export async function createProject(
+  request: SharedWorkProjectCreateRequest,
+): Promise<WorkProject> {
+  const data = await authenticatedApiRequest<SharedWorkProjectProjection>("/api/v1/projects", {
+    method: "POST",
+    body: request,
+  });
+  return projectFromProjection(data);
 }

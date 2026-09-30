@@ -13,7 +13,7 @@ import {
   isTaskOverdue,
   type WorkTask,
 } from "@/features/shared-work";
-import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
+import type { AuthenticatedPrincipalProjection, SharedWorkTaskProjection } from "@/lib/contracts";
 import { ApiError } from "@/lib/api";
 import * as api from "@/lib/api";
 
@@ -93,6 +93,21 @@ const sampleTask: WorkTask = {
   findingsCount: 1,
   evidenceCount: 4,
   commentsCount: 2,
+};
+
+const canonicalTask: SharedWorkTaskProjection = {
+  task_id: "task_verify_site_plan",
+  tenant_id: "tenant_andara",
+  organization_id: "org_andara",
+  workspace_ids: ["workspace_property"],
+  project_id: "proj_the_park",
+  title: "Verifikasi dokumen site plan",
+  status: "IN_PROGRESS",
+  priority: "HIGH",
+  created_by: "actor_rani",
+  due_at: "2026-10-15T00:00:00Z",
+  created_at: "2026-09-01T08:00:00Z",
+  updated_at: "2026-09-27T10:00:00Z",
 };
 
 describe("Shared Work / Modul Tugas (Tasks)", () => {
@@ -194,7 +209,7 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       expect(canCreateTask(sessionWithPerm)).toBe(true);
     });
 
-    it("menampilkan aksi tambah disabled ketika permission ada tetapi mutation belum tersedia", async () => {
+    it("mengirim create task ke dedicated API ketika permission tersedia", async () => {
       const principal = makePrincipal({
         active_workspace: {
           ...makePrincipal().active_workspace!,
@@ -202,14 +217,19 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
         },
       });
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession(principal));
-      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([]);
+      const request = vi.spyOn(api, "authenticatedApiRequest")
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce(canonicalTask);
 
       render(<TasksPage workspaceKey="property" />);
 
-      const action = await screen.findByRole("button", { name: "Tambah Tugas — Belum Tersedia" });
-      expect(action).toBeDisabled();
-      expect(screen.queryByText("Berhasil disimpan")).not.toBeInTheDocument();
-      expect(screen.queryByText("Tugas baru")).not.toBeInTheDocument();
+      fireEvent.click(await screen.findByRole("button", { name: "Tambah Tugas" }));
+      fireEvent.change(screen.getByRole("textbox", { name: /Judul Tugas/ }), { target: { value: "Verifikasi dokumen site plan" } });
+      fireEvent.click(screen.getByRole("button", { name: "Simpan Tugas" }));
+      await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/tasks", {
+        method: "POST",
+        body: { title: "Verifikasi dokumen site plan", priority: "NORMAL" },
+      }));
     });
   });
 
@@ -277,7 +297,7 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
   describe("10. Table Columns & Row Content", () => {
     it("merender tabel tugas dengan kolom lengkap sesuai requirement", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
-      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([sampleTask]);
+      const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([canonicalTask]);
 
       render(<TasksPage workspaceKey="property" />);
 
@@ -292,13 +312,14 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       expect(screen.getByRole("columnheader", { name: "Status" })).toBeInTheDocument();
       expect(screen.getByRole("columnheader", { name: "Tenggat" })).toBeInTheDocument();
       expect(screen.getByRole("columnheader", { name: "Workspace" })).toBeInTheDocument();
+      expect(request).toHaveBeenCalledWith("/api/v1/tasks", expect.any(Object));
     });
   });
 
   describe("11, 12 & 13. Interaction: Drawer & Full Detail Navigation", () => {
     it("membuka TaskDrawer saat baris diklik dan dapat bernavigasi ke halaman detail lengkap", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
-      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([sampleTask]);
+      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([canonicalTask]);
 
       render(<TasksPage workspaceKey="property" />);
 
@@ -424,7 +445,7 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
 
     it("tidak menyamakan tab Tim dengan Semua ketika scope tim belum canonical", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
-      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([sampleTask]);
+      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([canonicalTask]);
 
       render(<TasksPage workspaceKey="property" />);
       await screen.findByText("Verifikasi dokumen site plan");
