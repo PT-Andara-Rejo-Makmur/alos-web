@@ -4,7 +4,9 @@ import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { Alert, Button, type TabItem } from "@/components/ui";
+import { Alert, Button, Dialog, type TabItem } from "@/components/ui";
+import type { SessionProjection } from "@/features/session";
+import { apiMessage } from "@/lib/api";
 
 import { ActivityTimeline } from "../shared/activity/activity-timeline";
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
@@ -12,6 +14,10 @@ import drawerStyles from "../shared/drawers/drawer-layout.module.css";
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { EvidenceList } from "../shared/evidence/evidence-list";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
+import { canAssignTask, canCompleteTask, canUpdateTask } from "../shared/permissions/authority";
+import { TaskAssignDialog } from "./task-assign-dialog";
+import { TaskEditDialog } from "./task-edit-dialog";
+import { completeTask } from "./task-model";
 import { formatTaskDueDate, TaskPriorityBadge, TaskStatusBadge } from "./task-status";
 import type { WorkTask } from "./task-types";
 import styles from "./tasks.module.css";
@@ -19,6 +25,7 @@ import styles from "./tasks.module.css";
 interface TaskDetailViewProps {
   readonly isConnected?: boolean;
   readonly task: WorkTask;
+  readonly session?: SessionProjection | null;
   readonly workspaceKey?: string | null;
 }
 
@@ -39,11 +46,32 @@ function formatDate(dateString: string | null | undefined): string {
 
 export function TaskDetailView({
   isConnected = true,
-  task,
+  task: initialTask,
+  session,
   workspaceKey,
 }: TaskDetailViewProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
+  const [task, setTask] = useState(initialTask);
+  const [editOpen, setEditOpen] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  async function complete() {
+    if (completing) return;
+    setCompleting(true);
+    setActionError(null);
+    try {
+      setTask(await completeTask(task.id));
+      setCompleteOpen(false);
+    } catch (caught) {
+      setActionError(apiMessage(caught));
+    } finally {
+      setCompleting(false);
+    }
+  }
 
   const backUrl = workspaceKey ? `/workspace/${workspaceKey}/tasks` : "/workspace/tasks";
   const dueInfo = formatTaskDueDate(task.dueAt, task.status);
@@ -215,8 +243,19 @@ export function TaskDetailView({
   ];
 
   return (
+    <>
     <DetailPageShell
       actions={
+        <div className={styles.createActions}>
+        {canUpdateTask(session) && task.status !== "COMPLETED" && task.status !== "CANCELLED" ? (
+          <Button onClick={() => setEditOpen(true)} variant="secondary">Ubah Tugas</Button>
+        ) : null}
+        {canAssignTask(session) && task.status !== "COMPLETED" && task.status !== "CANCELLED" ? (
+          <Button onClick={() => setAssignOpen(true)} variant="secondary">Tugaskan</Button>
+        ) : null}
+        {canCompleteTask(session) && task.status !== "COMPLETED" && task.status !== "CANCELLED" ? (
+          <Button onClick={() => setCompleteOpen(true)} variant="secondary">Selesaikan Tugas</Button>
+        ) : null}
         <Button
           iconBefore={<ArrowLeft size={16} strokeWidth={2} />}
           onClick={() => router.push(backUrl)}
@@ -224,6 +263,7 @@ export function TaskDetailView({
         >
           Kembali ke Daftar
         </Button>
+        </div>
       }
       activeTab={activeTab}
       description="Rincian dan informasi pelaksanaan tugas kerja."
@@ -233,5 +273,16 @@ export function TaskDetailView({
       tabs={tabs}
       title={task.title}
     />
+    {editOpen ? <TaskEditDialog onClose={() => setEditOpen(false)} onSaved={setTask} open task={task} /> : null}
+    <TaskAssignDialog onAssigned={setTask} onClose={() => setAssignOpen(false)} open={assignOpen} task={task} />
+    <Dialog onClose={() => setCompleteOpen(false)} open={completeOpen} title="Selesaikan Tugas">
+      <p>Tugas yang selesai tidak dapat diubah atau ditugaskan kembali.</p>
+      {actionError ? <p role="alert">{actionError}</p> : null}
+      <div className={styles.createActions}>
+        <Button disabled={completing} onClick={() => setCompleteOpen(false)} variant="secondary">Batal</Button>
+        <Button loading={completing} onClick={() => void complete()}>Selesaikan</Button>
+      </div>
+    </Dialog>
+    </>
   );
 }

@@ -37,8 +37,24 @@ export function canArchiveProject(session: SessionProjection | SessionContext | 
   return hasWorkPermission(session, "project.archive");
 }
 
+export function canUpdateProject(session: SessionProjection | SessionContext | null | undefined): boolean {
+  return hasWorkPermission(session, "project.update");
+}
+
 export function canCreateTask(session: SessionProjection | SessionContext | null | undefined): boolean {
   return hasWorkPermission(session, "task.create") || hasWorkPermission(session, "work.write");
+}
+
+export function canUpdateTask(session: SessionProjection | SessionContext | null | undefined): boolean {
+  return hasWorkPermission(session, "task.update");
+}
+
+export function canAssignTask(session: SessionProjection | SessionContext | null | undefined): boolean {
+  return hasWorkPermission(session, "task.assign");
+}
+
+export function canCompleteTask(session: SessionProjection | SessionContext | null | undefined): boolean {
+  return hasWorkPermission(session, "task.complete");
 }
 
 export function canApproveWork(session: SessionProjection | SessionContext | null | undefined): boolean {

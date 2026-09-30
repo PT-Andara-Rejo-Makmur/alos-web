@@ -19,8 +19,8 @@ export default function WorkspaceProjectDetailPageRoute({
       id={projectId}
       loadingLabel="Memuat rincian proyek…"
       notFoundTitle="Proyek Tidak Ditemukan"
-      renderDetail={(project, connected, key) => (
-        <ProjectDetailView isConnected={connected} project={project} workspaceKey={key} />
+      renderDetail={(project, connected, key, session) => (
+        <ProjectDetailView isConnected={connected} key={project.id} project={project} session={session} workspaceKey={key} />
       )}
       title="Proyek"
       workspaceKey={workspaceKey}

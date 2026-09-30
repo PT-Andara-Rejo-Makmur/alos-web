@@ -4,7 +4,9 @@ import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { Button, type TabItem } from "@/components/ui";
+import { Button, Dialog, type TabItem } from "@/components/ui";
+import type { SessionProjection } from "@/features/session";
+import { apiMessage } from "@/lib/api";
 
 import { ActivityTimeline } from "../shared/activity/activity-timeline";
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
@@ -14,12 +16,16 @@ import { EvidenceList } from "../shared/evidence/evidence-list";
 import { RelationshipSummary } from "../shared/relationship/relationship-summary";
 import { ProjectStatusBadge } from "../shared/status/project-status";
 import { RiskBadge } from "../shared/status/work-status";
+import { canArchiveProject, canUpdateProject } from "../shared/permissions/authority";
+import { ProjectEditDialog } from "./project-edit-dialog";
+import { archiveProject } from "./project-model";
 import type { WorkProject } from "./project-types";
 import styles from "./projects.module.css";
 
 interface ProjectDetailViewProps {
   readonly isConnected?: boolean;
   readonly project: WorkProject;
+  readonly session?: SessionProjection | null;
   readonly workspaceKey?: string | null;
 }
 
@@ -40,11 +46,31 @@ function formatDate(dateString: string | null): string {
 
 export function ProjectDetailView({
   isConnected = true,
-  project,
+  project: initialProject,
+  session,
   workspaceKey,
 }: ProjectDetailViewProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
+  const [project, setProject] = useState(initialProject);
+  const [editOpen, setEditOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  async function archive() {
+    if (archiving) return;
+    setArchiving(true);
+    setActionError(null);
+    try {
+      setProject(await archiveProject(project.id));
+      setArchiveOpen(false);
+    } catch (caught) {
+      setActionError(apiMessage(caught));
+    } finally {
+      setArchiving(false);
+    }
+  }
 
   const backUrl = workspaceKey ? `/workspace/${workspaceKey}/projects` : "/workspace/projects";
 
@@ -180,8 +206,16 @@ export function ProjectDetailView({
   ];
 
   return (
+    <>
     <DetailPageShell
       actions={
+        <div className={styles.createActions}>
+        {canUpdateProject(session) && project.status !== "ARCHIVED" ? (
+          <Button onClick={() => setEditOpen(true)} variant="secondary">Ubah Proyek</Button>
+        ) : null}
+        {canArchiveProject(session) && project.status !== "ARCHIVED" ? (
+          <Button onClick={() => setArchiveOpen(true)} variant="secondary">Arsipkan Proyek</Button>
+        ) : null}
         <Button
           iconBefore={<ArrowLeft size={16} strokeWidth={2} />}
           onClick={() => router.push(backUrl)}
@@ -189,6 +223,7 @@ export function ProjectDetailView({
         >
           Kembali ke Daftar
         </Button>
+        </div>
       }
       activeTab={activeTab}
       description="Kelola dan pantau seluruh instrumen kerja yang terhubung dengan proyek ini."
@@ -198,5 +233,15 @@ export function ProjectDetailView({
       tabs={tabs}
       title={project.name}
     />
+    {editOpen ? <ProjectEditDialog onClose={() => setEditOpen(false)} onSaved={setProject} open project={project} /> : null}
+    <Dialog onClose={() => setArchiveOpen(false)} open={archiveOpen} title="Arsipkan Proyek">
+      <p>Proyek yang diarsipkan tidak dapat diubah lagi.</p>
+      {actionError ? <p role="alert">{actionError}</p> : null}
+      <div className={styles.createActions}>
+        <Button disabled={archiving} onClick={() => setArchiveOpen(false)} variant="secondary">Batal</Button>
+        <Button loading={archiving} onClick={() => void archive()}>Arsipkan</Button>
+      </div>
+    </Dialog>
+    </>
   );
 }

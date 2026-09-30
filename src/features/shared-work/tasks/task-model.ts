@@ -1,5 +1,5 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
-import type { SharedWorkTaskCreateRequest, SharedWorkTaskProjection } from "@/lib/contracts";
+import type { SharedWorkTaskAssignRequest, SharedWorkTaskCreateRequest, SharedWorkTaskProjection, SharedWorkTaskUpdateRequest } from "@/lib/contracts";
 
 import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkTask } from "./task-types";
@@ -100,6 +100,29 @@ export async function createTask(request: SharedWorkTaskCreateRequest): Promise<
   const data = await authenticatedApiRequest<SharedWorkTaskProjection>("/api/v1/tasks", {
     method: "POST",
     body: request,
+  });
+  return taskFromProjection(data);
+}
+
+export async function updateTask(taskId: string, request: SharedWorkTaskUpdateRequest): Promise<WorkTask> {
+  const data = await authenticatedApiRequest<SharedWorkTaskProjection>(`/api/v1/tasks/${encodeURIComponent(taskId)}`, {
+    method: "PATCH",
+    body: request,
+  });
+  return taskFromProjection(data);
+}
+
+export async function assignTask(taskId: string, request: SharedWorkTaskAssignRequest): Promise<WorkTask> {
+  const data = await authenticatedApiRequest<SharedWorkTaskProjection>(`/api/v1/tasks/${encodeURIComponent(taskId)}/assign`, {
+    method: "POST",
+    body: request,
+  });
+  return taskFromProjection(data);
+}
+
+export async function completeTask(taskId: string): Promise<WorkTask> {
+  const data = await authenticatedApiRequest<SharedWorkTaskProjection>(`/api/v1/tasks/${encodeURIComponent(taskId)}/complete`, {
+    method: "POST",
   });
   return taskFromProjection(data);
 }

@@ -13,7 +13,7 @@ import {
   isTaskOverdue,
   type WorkTask,
 } from "@/features/shared-work";
-import type { AuthenticatedPrincipalProjection, SharedWorkTaskProjection } from "@/lib/contracts";
+import type { AuthenticatedPrincipalProjection, SharedWorkProjectProjection, SharedWorkTaskProjection } from "@/lib/contracts";
 import { ApiError } from "@/lib/api";
 import * as api from "@/lib/api";
 
@@ -108,6 +108,18 @@ const canonicalTask: SharedWorkTaskProjection = {
   due_at: "2026-10-15T00:00:00Z",
   created_at: "2026-09-01T08:00:00Z",
   updated_at: "2026-09-27T10:00:00Z",
+};
+
+const canonicalProject: SharedWorkProjectProjection = {
+  project_id: "proj_the_park",
+  tenant_id: "tenant_andara",
+  organization_id: "org_andara",
+  workspace_ids: ["workspace_property"],
+  code: "PRJ-PRP-001",
+  name: "The Park Cluster Residence",
+  status: "ACTIVE",
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: "2026-09-27T00:00:00Z",
 };
 
 describe("Shared Work / Modul Tugas (Tasks)", () => {
@@ -219,16 +231,23 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession(principal));
       const request = vi.spyOn(api, "authenticatedApiRequest")
         .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([canonicalProject])
         .mockResolvedValueOnce(canonicalTask);
 
       render(<TasksPage workspaceKey="property" />);
 
       fireEvent.click(await screen.findByRole("button", { name: "Tambah Tugas" }));
       fireEvent.change(screen.getByRole("textbox", { name: /Judul Tugas/ }), { target: { value: "Verifikasi dokumen site plan" } });
+      await screen.findByRole("option", { name: "PRJ-PRP-001 — The Park Cluster Residence" });
+      fireEvent.change(screen.getByRole("combobox", { name: "Proyek" }), { target: { value: "proj_the_park" } });
+      fireEvent.change(screen.getByLabelText("Tenggat"), { target: { value: "2026-10-15T09:30" } });
       fireEvent.click(screen.getByRole("button", { name: "Simpan Tugas" }));
       await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/tasks", {
         method: "POST",
-        body: { title: "Verifikasi dokumen site plan", priority: "NORMAL" },
+        body: {
+          title: "Verifikasi dokumen site plan", priority: "NORMAL",
+          project_id: "proj_the_park", due_at: new Date("2026-10-15T09:30").toISOString(),
+        },
       }));
     });
   });
@@ -389,6 +408,57 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
   });
 
   describe("18, 19 & 20. Detail Page: No Fake Checklist, Comments, or Evidence", () => {
+    it("menggunakan dedicated API untuk update, assignment, dan completion", async () => {
+      const session = authenticatedSession(makePrincipal({
+        active_workspace: {
+          ...makePrincipal().active_workspace!,
+          permission_refs: ["task.update", "task.assign", "task.complete"],
+        },
+      }));
+      const request = vi.spyOn(api, "authenticatedApiRequest")
+        .mockResolvedValueOnce([canonicalProject])
+        .mockResolvedValueOnce({ ...canonicalTask, title: "Tugas direvisi" })
+        .mockResolvedValueOnce({ ...canonicalTask, title: "Tugas direvisi", owner_actor_id: "actor_rani" })
+        .mockResolvedValueOnce({ ...canonicalTask, title: "Tugas direvisi", owner_actor_id: "actor_rani", status: "COMPLETED" });
+      render(<TaskDetailView session={session} task={sampleTask} workspaceKey="property" />);
+
+      fireEvent.click(screen.getByRole("button", { name: "Ubah Tugas" }));
+      await screen.findByRole("option", { name: "PRJ-PRP-001 — The Park Cluster Residence" });
+      fireEvent.change(screen.getByRole("textbox", { name: /Judul Tugas/ }), { target: { value: "Tugas direvisi" } });
+      fireEvent.change(screen.getByRole("combobox", { name: "Proyek" }), { target: { value: "proj_the_park" } });
+      fireEvent.click(screen.getByRole("button", { name: "Simpan Perubahan" }));
+      await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/tasks/task_verify_site_plan", {
+        method: "PATCH",
+        body: expect.objectContaining({ title: "Tugas direvisi", project_id: "proj_the_park" }),
+      }));
+
+      fireEvent.click(await screen.findByRole("button", { name: "Tugaskan" }));
+      fireEvent.change(screen.getByRole("textbox", { name: /ID Actor Tujuan/ }), { target: { value: "actor_rani" } });
+      fireEvent.click(screen.getByRole("button", { name: "Simpan Penugasan" }));
+      await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/tasks/task_verify_site_plan/assign", {
+        method: "POST", body: { owner_actor_id: "actor_rani" },
+      }));
+
+      fireEvent.click(await screen.findByRole("button", { name: "Selesaikan Tugas" }));
+      fireEvent.click(screen.getByRole("button", { name: "Selesaikan" }));
+      await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/tasks/task_verify_site_plan/complete", { method: "POST" }));
+      expect(screen.queryByRole("button", { name: "Selesaikan Tugas" })).not.toBeInTheDocument();
+    });
+
+    it("tidak menyimpulkan assignment atau completion dari role dan work.write", () => {
+      const session = authenticatedSession(makePrincipal({
+        active_workspace: {
+          ...makePrincipal().active_workspace!,
+          role_refs: ["DIVISION_LEAD"],
+          permission_refs: ["work.write"],
+        },
+      }));
+      render(<TaskDetailView session={session} task={sampleTask} workspaceKey="property" />);
+      expect(screen.queryByRole("button", { name: "Ubah Tugas" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Tugaskan" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Selesaikan Tugas" })).not.toBeInTheDocument();
+    });
+
     it("merender halaman detail tugas dengan state kesiapan jujur tanpa fake local data", () => {
       render(
         <TaskDetailView

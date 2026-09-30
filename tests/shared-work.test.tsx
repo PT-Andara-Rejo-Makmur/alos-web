@@ -261,10 +261,15 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
       fireEvent.click(await screen.findByRole("button", { name: "Tambah Proyek" }));
       fireEvent.change(screen.getByRole("textbox", { name: /Kode Proyek/ }), { target: { value: "PRJ-PRP-001" } });
       fireEvent.change(screen.getByRole("textbox", { name: /Nama Proyek/ }), { target: { value: "The Park Cluster Residence" } });
+      fireEvent.change(screen.getByLabelText("Tanggal Mulai"), { target: { value: "2026-10-01" } });
+      fireEvent.change(screen.getByLabelText("Target Selesai"), { target: { value: "2026-12-31" } });
       fireEvent.click(screen.getByRole("button", { name: "Simpan Proyek" }));
       await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects", {
         method: "POST",
-        body: { code: "PRJ-PRP-001", name: "The Park Cluster Residence" },
+        body: {
+          code: "PRJ-PRP-001", name: "The Park Cluster Residence",
+          start_date: "2026-10-01", target_end_date: "2026-12-31",
+        },
       }));
     });
   });
@@ -301,6 +306,44 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
   });
 
   describe("Detail Page Shell & Tabulation", () => {
+    it("menampilkan lifecycle Project hanya dari permission canonical dan memakai API dedicated", async () => {
+      const session = authenticatedSession(makePrincipal({
+        active_workspace: {
+          ...makePrincipal().active_workspace!,
+          permission_refs: ["project.update", "project.archive"],
+        },
+      }));
+      const request = vi.spyOn(api, "authenticatedApiRequest")
+        .mockResolvedValueOnce({ ...canonicalProject, name: "Proyek direvisi" })
+        .mockResolvedValueOnce({ ...canonicalProject, name: "Proyek direvisi", status: "ARCHIVED" });
+      render(<ProjectDetailView project={sampleProject} session={session} workspaceKey="property" />);
+
+      fireEvent.click(screen.getByRole("button", { name: "Ubah Proyek" }));
+      fireEvent.change(screen.getByRole("textbox", { name: /Nama Proyek/ }), { target: { value: "Proyek direvisi" } });
+      fireEvent.click(screen.getByRole("button", { name: "Simpan Perubahan" }));
+      await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects/proj_the_park", {
+        method: "PATCH",
+        body: expect.objectContaining({ name: "Proyek direvisi" }),
+      }));
+      fireEvent.click(await screen.findByRole("button", { name: "Arsipkan Proyek" }));
+      fireEvent.click(screen.getByRole("button", { name: "Arsipkan" }));
+      await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects/proj_the_park/archive", { method: "POST" }));
+      expect(screen.queryByRole("button", { name: "Arsipkan Proyek" })).not.toBeInTheDocument();
+    });
+
+    it("tidak menyimpulkan izin lifecycle dari role atau work.write", () => {
+      const session = authenticatedSession(makePrincipal({
+        active_workspace: {
+          ...makePrincipal().active_workspace!,
+          role_refs: ["DIVISION_LEAD"],
+          permission_refs: ["work.write"],
+        },
+      }));
+      render(<ProjectDetailView project={sampleProject} session={session} workspaceKey="property" />);
+      expect(screen.queryByRole("button", { name: "Ubah Proyek" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Arsipkan Proyek" })).not.toBeInTheDocument();
+    });
+
     it("merender halaman rincian proyek dengan 8 tab canonical dan dua-column definition layout", () => {
       render(
         <ProjectDetailView

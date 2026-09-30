@@ -1,5 +1,5 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
-import type { SharedWorkProjectCreateRequest, SharedWorkProjectProjection } from "@/lib/contracts";
+import type { SharedWorkProjectCreateRequest, SharedWorkProjectProjection, SharedWorkProjectUpdateRequest } from "@/lib/contracts";
 
 import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkProject } from "./project-types";
@@ -99,6 +99,21 @@ export async function createProject(
   const data = await authenticatedApiRequest<SharedWorkProjectProjection>("/api/v1/projects", {
     method: "POST",
     body: request,
+  });
+  return projectFromProjection(data);
+}
+
+export async function updateProject(projectId: string, request: SharedWorkProjectUpdateRequest): Promise<WorkProject> {
+  const data = await authenticatedApiRequest<SharedWorkProjectProjection>(`/api/v1/projects/${encodeURIComponent(projectId)}`, {
+    method: "PATCH",
+    body: request,
+  });
+  return projectFromProjection(data);
+}
+
+export async function archiveProject(projectId: string): Promise<WorkProject> {
+  const data = await authenticatedApiRequest<SharedWorkProjectProjection>(`/api/v1/projects/${encodeURIComponent(projectId)}/archive`, {
+    method: "POST",
   });
   return projectFromProjection(data);
 }

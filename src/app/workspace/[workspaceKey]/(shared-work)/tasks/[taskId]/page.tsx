@@ -19,7 +19,7 @@ export default function WorkspaceTaskDetailPageRoute({
       id={taskId}
       loadingLabel="Memuat rincian tugas…"
       notFoundTitle="Tugas Tidak Ditemukan"
-      renderDetail={(task, connected, key) => <TaskDetailView isConnected={connected} task={task} workspaceKey={key} />}
+      renderDetail={(task, connected, key, session) => <TaskDetailView isConnected={connected} key={task.id} session={session} task={task} workspaceKey={key} />}
       title="Tugas"
       workspaceKey={workspaceKey}
     />

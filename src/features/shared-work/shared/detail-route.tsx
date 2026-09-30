@@ -23,7 +23,7 @@ export interface SharedWorkDetailRouteProps<T> {
   readonly title: string;
   readonly workspaceKey: string;
   readonly loadingLabel: string;
-  readonly renderDetail: (detail: T, connected: boolean, workspaceKey: string) => ReactNode;
+  readonly renderDetail: (detail: T, connected: boolean, workspaceKey: string, session: SessionProjection) => ReactNode;
 }
 
 /** Shared shell/access boundary for every universal Shared Work detail route. */
@@ -93,7 +93,7 @@ export function SharedWorkDetailRoute<T>({
       session={session}
     >
       {detail
-        ? renderDetail(detail, connected, resolution.activeWorkspaceKey)
+        ? renderDetail(detail, connected, resolution.activeWorkspaceKey, session)
         : <WorkErrorState error={new Error("Data yang Anda cari tidak ditemukan.")} title={notFoundTitle} />}
     </AppShell>
   );

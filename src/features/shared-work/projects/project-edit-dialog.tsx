@@ -5,22 +5,22 @@ import { useState, type FormEvent } from "react";
 import { Button, Dialog, FormField } from "@/components/ui";
 import { apiMessage } from "@/lib/api";
 
-import { createProject } from "./project-model";
+import { updateProject } from "./project-model";
 import type { WorkProject } from "./project-types";
 import styles from "./projects.module.css";
 
-interface ProjectCreateDialogProps {
-  readonly onClose: () => void;
-  readonly onCreated: (project: WorkProject) => void;
+interface ProjectEditDialogProps {
+  readonly project: WorkProject;
   readonly open: boolean;
+  readonly onClose: () => void;
+  readonly onSaved: (project: WorkProject) => void;
 }
 
-export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateDialogProps) {
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [targetEndDate, setTargetEndDate] = useState("");
+export function ProjectEditDialog({ project, open, onClose, onSaved }: ProjectEditDialogProps) {
+  const [name, setName] = useState(project.name);
+  const [description, setDescription] = useState(project.description ?? "");
+  const [startDate, setStartDate] = useState(project.startDate ?? "");
+  const [targetEndDate, setTargetEndDate] = useState(project.targetEndDate ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,19 +30,13 @@ export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateD
     setSubmitting(true);
     setError(null);
     try {
-      const created = await createProject({
-        code: code.trim(),
+      const saved = await updateProject(project.id, {
         name: name.trim(),
-        ...(description.trim() ? { description: description.trim() } : {}),
-        ...(startDate ? { start_date: startDate } : {}),
-        ...(targetEndDate ? { target_end_date: targetEndDate } : {}),
+        description: description.trim() || null,
+        start_date: startDate || null,
+        target_end_date: targetEndDate || null,
       });
-      onCreated(created);
-      setCode("");
-      setName("");
-      setDescription("");
-      setStartDate("");
-      setTargetEndDate("");
+      onSaved(saved);
       onClose();
     } catch (caught) {
       setError(apiMessage(caught));
@@ -52,11 +46,8 @@ export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateD
   }
 
   return (
-    <Dialog onClose={onClose} open={open} title="Tambah Proyek">
+    <Dialog onClose={onClose} open={open} title="Ubah Proyek">
       <form className={styles.createForm} onSubmit={submit}>
-        <FormField label="Kode Proyek" required>
-          <input maxLength={128} onChange={(event) => setCode(event.target.value)} required value={code} />
-        </FormField>
         <FormField label="Nama Proyek" required>
           <input maxLength={300} onChange={(event) => setName(event.target.value)} required value={name} />
         </FormField>
@@ -72,7 +63,7 @@ export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateD
         {error ? <p role="alert">{error}</p> : null}
         <div className={styles.createActions}>
           <Button disabled={submitting} onClick={onClose} variant="secondary">Batal</Button>
-          <Button loading={submitting} type="submit">Simpan Proyek</Button>
+          <Button loading={submitting} type="submit">Simpan Perubahan</Button>
         </div>
       </form>
     </Dialog>
