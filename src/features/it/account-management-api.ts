@@ -1,7 +1,9 @@
 import { authenticatedApiRequest } from "@/lib/api";
 import type {
   AuthorizationRole,
+  AdminSessionProjection,
   IdentityAccountProjection,
+  IdentityAuditProjection,
   ProvisioningCandidateProjection,
   ProvisionAccountRequest,
   MembershipMutationRequest,
@@ -45,32 +47,12 @@ export function changeAccountState(actorId: string, active: boolean, reason: str
   return authenticatedApiRequest(`/api/v1/identity/actors/${encodeURIComponent(actorId)}/${active ? "activate" : "suspend"}`, { method: "POST", body: { reason } });
 }
 
-export interface AdminSessionProjection {
-  readonly session_id: string;
-  readonly issued_at: string;
-  readonly expires_at: string;
-  readonly active_workspace_id: string | null;
-  readonly revoked: boolean;
-  readonly expired?: boolean;
-  readonly last_activity_at: string | null;
-}
-
 export function listActorSessions(actorId: string): Promise<AdminSessionProjection[]> {
   return authenticatedApiRequest<AdminSessionProjection[]>(`/api/v1/identity/actors/${encodeURIComponent(actorId)}/sessions`);
 }
 
 export function revokeActorSession(actorId: string, sessionId: string): Promise<void> {
   return authenticatedApiRequest<void>(`/api/v1/identity/actors/${encodeURIComponent(actorId)}/sessions/${encodeURIComponent(sessionId)}`, { method: "DELETE" });
-}
-
-export interface IdentityAuditProjection {
-  readonly occurred_at: string;
-  readonly event_type: string;
-  readonly entity_type: string;
-  readonly entity_id: string;
-  readonly workspace_id: string | null;
-  readonly actor_id: string;
-  readonly outcome: string;
 }
 
 export function listActorIdentityHistory(actorId: string): Promise<IdentityAuditProjection[]> {
