@@ -19,7 +19,7 @@ export default function WorkspaceReportDetailPageRoute({
       id={reportId}
       loadingLabel="Memuat rincian laporan…"
       notFoundTitle="Laporan Tidak Ditemukan"
-      renderDetail={(report, connected, key) => <ReportDetailView isConnected={connected} report={report} workspaceKey={key} />}
+      renderDetail={(report, connected, key, session) => <ReportDetailView isConnected={connected} report={report} session={session} workspaceKey={key} />}
       title="Laporan"
       workspaceKey={workspaceKey}
     />

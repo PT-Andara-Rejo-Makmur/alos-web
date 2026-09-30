@@ -2,7 +2,7 @@ import type { SessionContext, SessionProjection } from "@/features/session";
 
 /**
  * Evaluates whether an action is permitted based on Backend session authority.
- * Checks permission_refs, role_refs, and scope_refs from the authenticated session.
+ * Checks exact permission_refs from the authenticated active workspace session.
  */
 export function hasWorkPermission(
   session: SessionProjection | SessionContext | null | undefined,

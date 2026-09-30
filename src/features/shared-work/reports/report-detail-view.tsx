@@ -5,18 +5,21 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button, type TabItem } from "@/components/ui";
+import type { SessionProjection } from "@/features/session";
+import { apiMessage } from "@/lib/api";
 
-import { ActivityTimeline } from "../shared/activity/activity-timeline";
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
-import { EvidenceList } from "../shared/evidence/evidence-list";
+import { hasWorkPermission } from "../shared/permissions/authority";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
+import { transitionReport, type ReportTransition } from "./report-model";
 import { ReportStatusBadge } from "./report-status";
 import type { WorkReportResult } from "./report-types";
 
 interface ReportDetailViewProps {
   readonly isConnected?: boolean;
   readonly report: WorkReportResult;
+  readonly session?: SessionProjection | null;
   readonly workspaceKey?: string | null;
 }
 
@@ -37,11 +40,40 @@ function formatDate(dateString: string | null | undefined): string {
 
 export function ReportDetailView({
   isConnected = true,
-  report,
+  report: initialReport,
+  session,
   workspaceKey,
 }: ReportDetailViewProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("detail");
+  const [report, setReport] = useState(initialReport);
+  const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const currentActorId = session?.principal && "actor" in session.principal ? session.principal.actor.actor_id : null;
+  const isOwner = Boolean(currentActorId) && report.ownerActorId === currentActorId;
+  const lifecycleAction: { action: ReportTransition; label: string } | null =
+    report.status === "DRAFT" && isOwner && hasWorkPermission(session, "report.create")
+      ? { action: "submit-review", label: "Ajukan Review" }
+      : report.status === "IN_REVIEW" && Boolean(currentActorId) && !isOwner && hasWorkPermission(session, "report.review")
+        ? { action: "review", label: "Setujui Laporan" }
+        : report.status === "APPROVED" && hasWorkPermission(session, "report.publish")
+          ? { action: "publish", label: "Terbitkan" }
+          : report.status === "PUBLISHED" && hasWorkPermission(session, "report.archive")
+            ? { action: "archive", label: "Arsipkan" }
+            : null;
+
+  async function submitAction(action: ReportTransition) {
+    if (busy) return;
+    setBusy(true);
+    setActionError(null);
+    try {
+      setReport(await transitionReport(report.id, action));
+    } catch (caught) {
+      setActionError(apiMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const backUrl = workspaceKey ? `/workspace/${workspaceKey}/reports` : "/workspace/reports";
 
@@ -133,18 +165,19 @@ export function ReportDetailView({
     {
       id: "evidence",
       label: "Bukti",
-      content: <EvidenceList items={[]} />,
+      content: <p>Bukti belum terhubung dengan data laporan.</p>,
     },
     {
       id: "activity",
       label: "Aktivitas",
-      content: <ActivityTimeline items={[]} />,
+      content: <p>Riwayat aktivitas belum tersedia pada projection laporan.</p>,
     },
   ];
 
   return (
     <DetailPageShell
-      actions={
+      actions={<>
+        {lifecycleAction ? <Button disabled={busy} onClick={() => void submitAction(lifecycleAction.action)} size="sm">{lifecycleAction.label}</Button> : null}
         <Button
           iconBefore={<ArrowLeft size={16} />}
           onClick={() => router.push(backUrl)}
@@ -153,10 +186,10 @@ export function ReportDetailView({
         >
           Kembali ke Laporan
         </Button>
-      }
+      </>}
       activeTab={activeTab}
       eyebrow="PEKERJAAN / LAPORAN"
-      headerMetadata={headerMetadata}
+      headerMetadata={<>{actionError ? <p role="alert">{actionError}</p> : null}{headerMetadata}</>}
       onTabChange={setActiveTab}
       tabs={tabs}
       title={report.title}

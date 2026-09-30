@@ -146,3 +146,15 @@ export async function fetchReportDetail(
     };
   }
 }
+
+export type ReportTransition = "submit-review" | "review" | "publish" | "archive";
+
+export async function transitionReport(
+  reportId: string, action: ReportTransition,
+): Promise<WorkReportResult> {
+  const data = await authenticatedApiRequest<SharedWorkReportProjection>(
+    `/api/v1/work/reports/results/${encodeURIComponent(reportId)}/${action}`,
+    { method: "POST" },
+  );
+  return adaptReportProjection(data);
+}

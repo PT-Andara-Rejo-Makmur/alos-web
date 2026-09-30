@@ -14,7 +14,7 @@ import {
   fetchFindingDetail,
   fetchFindings,
 } from "@/features/shared-work/findings/finding-model";
-import { ReportsPage } from "@/features/shared-work/reports";
+import { ReportDetailView, ReportsPage } from "@/features/shared-work/reports";
 import { FindingsPage } from "@/features/shared-work/findings";
 
 vi.mock("next/navigation", () => ({
@@ -102,6 +102,56 @@ describe("Reports and Findings Authoritative Integration", () => {
     expect(adapted.publishedAt).toBeNull();
     expect(adapted.evidenceCount).toBeNull();
     expect(adapted.commentsCount).toBeNull();
+  });
+
+  it("shows Report lifecycle actions only for exact permission and ownership", async () => {
+    const base = adaptReportProjection({
+      report_id: "rep_lifecycle", tenant_id: "tenant_default", organization_id: "org_default",
+      workspace_ids: ["workspace_property"], title: "Laporan", report_type: "FINANCIAL",
+      status: "DRAFT", owner_actor_id: "act_1", created_at: "2026-09-30T00:00:00Z",
+      updated_at: "2026-09-30T00:00:00Z",
+    });
+    const legacy = render(<ReportDetailView report={base} session={mockSession(["work.write"])} />);
+    expect(screen.queryByRole("button", { name: "Ajukan Review" })).not.toBeInTheDocument();
+    legacy.unmount();
+    const request = vi.spyOn(api, "authenticatedApiRequest")
+      .mockResolvedValueOnce({ ...base, report_id: base.id, report_type: base.reportType, owner_actor_id: base.ownerActorId, workspace_ids: base.workspaceIds, created_at: base.createdAt, updated_at: "2026-09-30T00:01:00Z", status: "IN_REVIEW" });
+    render(<ReportDetailView report={base} session={mockSession(["report.create", "report.review"])} />);
+    fireEvent.click(screen.getByRole("button", { name: "Ajukan Review" }));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Ajukan Review" })).not.toBeInTheDocument());
+    expect(screen.queryByRole("button", { name: "Setujui Laporan" })).not.toBeInTheDocument();
+    expect(request).toHaveBeenCalledWith("/api/v1/work/reports/results/rep_lifecycle/submit-review", { method: "POST" });
+    fireEvent.click(screen.getByRole("tab", { name: "Bukti" }));
+    expect(screen.getByText("Bukti belum terhubung dengan data laporan.")).toBeInTheDocument();
+  });
+
+  it("separates review, publish and archive actions in the Report detail", () => {
+    const base = adaptReportProjection({
+      report_id: "rep_steps", tenant_id: "tenant_default", organization_id: "org_default",
+      workspace_ids: ["workspace_property"], title: "Laporan", report_type: "FINANCIAL",
+      status: "IN_REVIEW", owner_actor_id: "act_owner", created_at: "2026-09-30T00:00:00Z",
+      updated_at: "2026-09-30T00:00:00Z",
+    });
+    const owner = render(<ReportDetailView report={{ ...base, ownerActorId: "act_1" }} session={mockSession(["report.review"])} />);
+    expect(screen.queryByRole("button", { name: "Setujui Laporan" })).not.toBeInTheDocument();
+    owner.unmount();
+    const reviewer = render(<ReportDetailView report={base} session={mockSession(["report.review"])} />);
+    expect(screen.getByRole("button", { name: "Setujui Laporan" })).toBeInTheDocument();
+    reviewer.unmount();
+    const approved = render(<ReportDetailView report={{ ...base, status: "APPROVED" }} session={mockSession(["report.review"])} />);
+    expect(screen.queryByRole("button", { name: "Terbitkan" })).not.toBeInTheDocument();
+    approved.unmount();
+    const publisher = render(<ReportDetailView report={{ ...base, status: "APPROVED" }} session={mockSession(["report.publish"])} />);
+    expect(screen.getByRole("button", { name: "Terbitkan" })).toBeInTheDocument();
+    publisher.unmount();
+    const published = render(<ReportDetailView report={{ ...base, status: "PUBLISHED" }} session={mockSession(["report.publish"])} />);
+    expect(screen.queryByRole("button", { name: "Arsipkan" })).not.toBeInTheDocument();
+    published.unmount();
+    const archivist = render(<ReportDetailView report={{ ...base, status: "PUBLISHED" }} session={mockSession(["report.archive"])} />);
+    expect(screen.getByRole("button", { name: "Arsipkan" })).toBeInTheDocument();
+    archivist.unmount();
+    render(<ReportDetailView report={{ ...base, status: "ARCHIVED" }} session={mockSession(["report.archive"])} />);
+    expect(screen.queryByRole("button", { name: "Arsipkan" })).not.toBeInTheDocument();
   });
 
   it("adapts canonical FindingProjection without fabricating relations or verifier", () => {
