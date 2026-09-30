@@ -1,6 +1,9 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
 import type {
   SharedWorkReportCreateRequest,
+  SharedWorkReportDefinitionCreateRequest,
+  SharedWorkReportDefinitionProjection,
+  SharedWorkReportDefinitionUpdateRequest,
   SharedWorkReportProjection,
 } from "@/lib/contracts";
 
@@ -35,15 +38,15 @@ export function adaptReportProjection(projection: SharedWorkReportProjection): W
     status: projection.status,
     createdAt: projection.created_at,
     workspaceIds: projection.workspace_ids,
-    description: null,
-    periodStart: null,
-    periodEnd: null,
-    scope: null,
-    ownerName: null,
-    workspaceName: null,
-    publishedAt: null,
-    evidenceCount: null,
-    commentsCount: null,
+    description: projection.description ?? null,
+    periodStart: projection.period_start ?? null,
+    periodEnd: projection.period_end ?? null,
+    scope: projection.scope ?? null,
+    ownerName: projection.owner_name ?? null,
+    workspaceName: projection.workspace_name ?? null,
+    publishedAt: projection.published_at ?? null,
+    evidenceCount: projection.evidence_count ?? null,
+    commentsCount: projection.comments_count ?? null,
   };
 }
 
@@ -105,13 +108,67 @@ export async function createReportResult(
 export async function fetchReportDefinitions(
   options: FetchReportDefinitionsOptions = {},
 ): Promise<SourceHonestResponse<readonly WorkReportDefinition[]>> {
-  void options;
+  try {
+    const data = await authenticatedApiRequest<readonly SharedWorkReportDefinitionProjection[]>(
+      "/api/v1/work/reports/definitions", { signal: options.signal },
+    );
+    const query = options.search?.trim().toLowerCase();
+    return {
+      connected: true,
+      data: data.map(adaptReportDefinition).filter((definition) =>
+        (!query || definition.name.toLowerCase().includes(query)) &&
+        (!options.frequency || definition.frequency === options.frequency),
+      ),
+    };
+  } catch (error) {
+    const sourceState = sourceStateFor(error);
+    return { connected: false, data: [], sourceState,
+      message: sourceStateCopy(sourceState, "Definisi laporan").message };
+  }
+}
+
+export function adaptReportDefinition(
+  projection: SharedWorkReportDefinitionProjection,
+): WorkReportDefinition {
   return {
-    connected: false,
-    data: [],
-    sourceState: "unavailable",
-    message: "Fitur definisi laporan belum tersedia di backend.",
+    id: projection.report_definition_id,
+    name: projection.name,
+    description: projection.description ?? null,
+    reportType: projection.report_type,
+    frequency: projection.frequency,
+    scope: projection.scope ?? null,
+    ownerActorId: projection.owner_actor_id,
+    ownerName: projection.owner_name ?? null,
+    workspaceIds: [projection.workspace_id],
+    workspaceName: projection.workspace_name ?? null,
+    reviewRequired: projection.review_required,
+    recipients: projection.recipients,
+    sections: projection.sections,
+    dataSources: projection.data_sources,
+    scheduleConfig: projection.schedule_config,
+    createdAt: projection.created_at,
+    updatedAt: projection.updated_at,
   };
+}
+
+export async function createReportDefinition(
+  payload: SharedWorkReportDefinitionCreateRequest,
+): Promise<WorkReportDefinition> {
+  const result = await authenticatedApiRequest<SharedWorkReportDefinitionProjection>(
+    "/api/v1/work/reports/definitions",
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+  return adaptReportDefinition(result);
+}
+
+export async function updateReportDefinition(
+  id: string, payload: SharedWorkReportDefinitionUpdateRequest,
+): Promise<WorkReportDefinition> {
+  const result = await authenticatedApiRequest<SharedWorkReportDefinitionProjection>(
+    `/api/v1/work/reports/definitions/${encodeURIComponent(id)}`,
+    { method: "PATCH", body: JSON.stringify(payload) },
+  );
+  return adaptReportDefinition(result);
 }
 
 export async function fetchReportDetail(

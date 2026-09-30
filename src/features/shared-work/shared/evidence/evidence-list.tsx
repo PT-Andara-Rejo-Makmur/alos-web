@@ -9,7 +9,7 @@ interface EvidenceListProps {
 
 export function EvidenceList({ items = [] }: EvidenceListProps) {
   if (items.length === 0) {
-    return <p className={styles.emptyEvidence}>Belum ada berkas bukti pendukung yang terhubung.</p>;
+    return <p className={styles.emptyEvidence}>Belum ada bukti.</p>;
   }
 
   return (

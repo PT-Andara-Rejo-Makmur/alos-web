@@ -4,22 +4,22 @@ import { useEffect, useState, type FormEvent } from "react";
 
 import { Button, Dialog, FormField } from "@/components/ui";
 import { apiMessage } from "@/lib/api";
+
 import { fetchWorkspaceMembers, type WorkspaceMember } from "../shared/workspace-members";
+import { assignFinding } from "./finding-model";
+import type { WorkFinding } from "./finding-types";
+import styles from "./findings.module.css";
 
-import { assignTask } from "./task-model";
-import type { WorkTask } from "./task-types";
-import styles from "./tasks.module.css";
-
-interface TaskAssignDialogProps {
-  readonly task: WorkTask;
+interface FindingAssignDialogProps {
+  readonly finding: WorkFinding;
   readonly open: boolean;
   readonly onClose: () => void;
-  readonly onAssigned: (task: WorkTask) => void;
+  readonly onAssigned: (finding: WorkFinding) => void;
 }
 
-export function TaskAssignDialog({ task, open, onClose, onAssigned }: TaskAssignDialogProps) {
-  const [actorId, setActorId] = useState("");
+export function FindingAssignDialog({ finding, open, onClose, onAssigned }: FindingAssignDialogProps) {
   const [members, setMembers] = useState<readonly WorkspaceMember[]>([]);
+  const [actorId, setActorId] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +31,7 @@ export function TaskAssignDialog({ task, open, onClose, onAssigned }: TaskAssign
       if (!cancelled) { setLoading(true); setError(null); }
       return fetchWorkspaceMembers();
     }).then((items) => {
-      if (!cancelled) setMembers(items.filter((member) => member.task_assignable));
+      if (!cancelled) setMembers(items.filter((item) => item.finding_assignable));
     }).catch((caught) => {
       if (!cancelled) setError(apiMessage(caught));
     }).finally(() => {
@@ -46,8 +46,7 @@ export function TaskAssignDialog({ task, open, onClose, onAssigned }: TaskAssign
     setSubmitting(true);
     setError(null);
     try {
-      const assigned = await assignTask(task.id, { owner_actor_id: actorId.trim() });
-      onAssigned(assigned);
+      onAssigned(await assignFinding(finding.id, actorId));
       setActorId("");
       onClose();
     } catch (caught) {
@@ -58,7 +57,7 @@ export function TaskAssignDialog({ task, open, onClose, onAssigned }: TaskAssign
   }
 
   return (
-    <Dialog onClose={onClose} open={open} title="Tugaskan kepada Anggota Workspace">
+    <Dialog onClose={onClose} open={open} title="Tugaskan Temuan">
       <form className={styles.createForm} onSubmit={submit}>
         <FormField label="Anggota Tujuan" required>
           <select disabled={loading} onChange={(event) => setActorId(event.target.value)} required value={actorId}>
@@ -70,10 +69,10 @@ export function TaskAssignDialog({ task, open, onClose, onAssigned }: TaskAssign
             ))}
           </select>
         </FormField>
-        {!loading && members.length === 0 ? <p>Belum ada anggota yang dapat menerima tugas.</p> : null}
+        {!loading && members.length === 0 ? <p>Belum ada anggota yang dapat menerima temuan.</p> : null}
         {error ? <p role="alert">{error}</p> : null}
         <div className={styles.createActions}>
-          <Button disabled={submitting} onClick={onClose} variant="secondary">Batal</Button>
+          <Button onClick={onClose} variant="secondary">Batal</Button>
           <Button disabled={!actorId || loading} loading={submitting} type="submit">Simpan Penugasan</Button>
         </div>
       </form>

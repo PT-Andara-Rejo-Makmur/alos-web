@@ -171,6 +171,10 @@ const sampleReportResult: WorkReportResult = {
 
 const sampleReportDefinition: WorkReportDefinition = {
   id: "def_weekly_progress",
+  ownerActorId: "actor_ahmad",
+  createdAt: "2026-09-25T08:00:00Z",
+  updatedAt: "2026-09-25T08:00:00Z",
+  scheduleConfig: {},
   name: "Laporan Kemajuan Proyek Mingguan",
   reportType: "Laporan Proyek",
   frequency: "WEEKLY",

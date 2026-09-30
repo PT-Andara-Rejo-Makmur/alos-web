@@ -240,13 +240,15 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       fireEvent.change(screen.getByRole("textbox", { name: /Judul Tugas/ }), { target: { value: "Verifikasi dokumen site plan" } });
       await screen.findByRole("option", { name: "PRJ-PRP-001 — The Park Cluster Residence" });
       fireEvent.change(screen.getByRole("combobox", { name: "Proyek" }), { target: { value: "proj_the_park" } });
+      fireEvent.change(screen.getByLabelText("Tanggal Mulai"), { target: { value: "2026-10-01" } });
       fireEvent.change(screen.getByLabelText("Tenggat"), { target: { value: "2026-10-15T09:30" } });
       fireEvent.click(screen.getByRole("button", { name: "Simpan Tugas" }));
       await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/tasks", {
         method: "POST",
         body: {
           title: "Verifikasi dokumen site plan", priority: "NORMAL",
-          project_id: "proj_the_park", due_at: new Date("2026-10-15T09:30").toISOString(),
+          project_id: "proj_the_park", start_date: "2026-10-01",
+          due_at: new Date("2026-10-15T09:30").toISOString(),
         },
       }));
     });
@@ -418,6 +420,7 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       const request = vi.spyOn(api, "authenticatedApiRequest")
         .mockResolvedValueOnce([canonicalProject])
         .mockResolvedValueOnce({ ...canonicalTask, title: "Tugas direvisi" })
+        .mockResolvedValueOnce([{ actor_id: "actor_rani", display_name: "Rani Andara", task_assignable: true }])
         .mockResolvedValueOnce({ ...canonicalTask, title: "Tugas direvisi", owner_actor_id: "actor_rani" })
         .mockResolvedValueOnce({ ...canonicalTask, title: "Tugas direvisi", owner_actor_id: "actor_rani", status: "COMPLETED" });
       render(<TaskDetailView session={session} task={sampleTask} workspaceKey="property" />);
@@ -433,7 +436,8 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       }));
 
       fireEvent.click(await screen.findByRole("button", { name: "Tugaskan" }));
-      fireEvent.change(screen.getByRole("textbox", { name: /ID Actor Tujuan/ }), { target: { value: "actor_rani" } });
+      await screen.findByRole("option", { name: "Rani Andara" });
+      fireEvent.change(screen.getByRole("combobox", { name: "Anggota Tujuan" }), { target: { value: "actor_rani" } });
       fireEvent.click(screen.getByRole("button", { name: "Simpan Penugasan" }));
       await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/tasks/task_verify_site_plan/assign", {
         method: "POST", body: { owner_actor_id: "actor_rani" },
@@ -459,7 +463,8 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       expect(screen.queryByRole("button", { name: "Selesaikan Tugas" })).not.toBeInTheDocument();
     });
 
-    it("merender halaman detail tugas dengan state kesiapan jujur tanpa fake local data", () => {
+    it("merender checklist dan relasi dari API authoritative", async () => {
+      const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue([]);
       render(
         <TaskDetailView
           isConnected={true}
@@ -474,12 +479,14 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       // Click Checklist tab
       const checklistTab = screen.getByRole("tab", { name: "Checklist" });
       fireEvent.click(checklistTab);
-      expect(screen.getByText("Checklist belum tersedia.")).toBeInTheDocument();
+      expect(await screen.findByText("Belum ada item checklist.")).toBeInTheDocument();
+      expect(request).toHaveBeenCalledWith("/api/v1/work/TASK/task_verify_site_plan/checklist");
 
       // Click Relasi tab
       const relasiTab = screen.getByRole("tab", { name: "Relasi" });
       fireEvent.click(relasiTab);
-      expect(screen.getByText("Relasi Belum Terhubung")).toBeInTheDocument();
+      expect(await screen.findByText("Belum ada relasi.")).toBeInTheDocument();
+      expect(request).toHaveBeenCalledWith("/api/v1/work/TASK/task_verify_site_plan/relations");
     });
   });
 
@@ -513,18 +520,18 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       expect(screen.getByPlaceholderText("Cari tugas…")).toBeInTheDocument();
     });
 
-    it("tidak menyamakan tab Tim dengan Semua ketika scope tim belum canonical", async () => {
+    it("menampilkan tugas anggota aktif lain pada tab Tim", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
-      vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([canonicalTask]);
+      vi.spyOn(api, "authenticatedApiRequest")
+        .mockResolvedValueOnce([{ ...canonicalTask, owner_actor_id: "actor_rani" }])
+        .mockResolvedValueOnce([{ actor_id: "actor_rani", display_name: "Rani Andara", active: true }]);
 
       render(<TasksPage workspaceKey="property" />);
       await screen.findByText("Verifikasi dokumen site plan");
 
       fireEvent.click(screen.getByRole("tab", { name: "Tim" }));
 
-      expect(screen.getByText("Tugas Tim Belum Terhubung")).toBeInTheDocument();
-      expect(screen.getByText("Data tugas tim akan tersedia setelah sumber scope tim terhubung.")).toBeInTheDocument();
-      expect(screen.queryByText("Verifikasi dokumen site plan")).not.toBeInTheDocument();
+      expect(await screen.findByText("Verifikasi dokumen site plan")).toBeInTheDocument();
     });
   });
 });

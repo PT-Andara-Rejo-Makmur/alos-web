@@ -11,6 +11,9 @@ export interface FetchProjectsOptions {
 }
 
 export function projectFromProjection(project: SharedWorkProjectProjection): WorkProject {
+  const riskLabels = {
+    LOW: "RENDAH", MEDIUM: "SEDANG", HIGH: "TINGGI", CRITICAL: "KRITIS",
+  } as const;
   return {
     id: project.project_id,
     code: project.code,
@@ -18,21 +21,21 @@ export function projectFromProjection(project: SharedWorkProjectProjection): Wor
     description: project.description ?? null,
     status: project.status,
     ownerActorId: project.owner_actor_id ?? null,
-    ownerName: null,
+    ownerName: project.owner_name ?? null,
     workspaceIds: project.workspace_ids,
-    workspaceName: null,
+    workspaceName: project.workspace_name ?? null,
     startDate: project.start_date ?? null,
     targetEndDate: project.target_end_date ?? null,
     createdAt: project.created_at,
     updatedAt: project.updated_at,
-    progressPercentage: null,
-    riskLevel: null,
-    tasksCount: null,
-    documentsCount: null,
-    approvalsCount: null,
-    findingsCount: null,
-    reportsCount: null,
-    evidenceCount: null,
+    progressPercentage: project.progress_percentage ?? null,
+    riskLevel: project.risk_level ? riskLabels[project.risk_level] : null,
+    tasksCount: project.tasks_count ?? null,
+    documentsCount: project.documents_count ?? null,
+    approvalsCount: project.approvals_count ?? null,
+    findingsCount: project.findings_count ?? null,
+    reportsCount: project.reports_count ?? null,
+    evidenceCount: project.evidence_count ?? null,
   };
 }
 

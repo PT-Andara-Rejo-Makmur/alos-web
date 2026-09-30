@@ -8,7 +8,7 @@ import { AppShell } from "@/components/app-shell/app-shell";
 import { Alert, Button, PageHeader, Tabs, type DataTableColumn, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
 import { hasExecutiveContext } from "@/features/executive";
-import { ApiError, sessionApiRequest } from "@/lib/api";
+import { ApiError, apiMessage, sessionApiRequest } from "@/lib/api";
 
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { WorkErrorState } from "../shared/errors/work-error-state";
@@ -18,6 +18,7 @@ import { WorkLoading } from "../shared/loading/work-loading";
 import { canCreateTask } from "../shared/permissions/authority";
 import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-access";
 import { WorkDataTable } from "../shared/tables/work-data-table";
+import { fetchWorkspaceMembers } from "../shared/workspace-members";
 import type { SourceState } from "../shared/source-state";
 import { TaskDrawer } from "./task-drawer";
 import { TaskCreateDialog } from "./task-create-dialog";
@@ -49,6 +50,9 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
   const [selectedTask, setSelectedTask] = useState<WorkTask | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeMemberIds, setActiveMemberIds] = useState<ReadonlySet<string>>(new Set());
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [membersError, setMembersError] = useState<string | null>(null);
 
   // Load Session Context
   useEffect(() => {
@@ -106,6 +110,22 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
     };
   }, [authoritativeWorkspaceKey, priorityFilter, search, session, statusFilter]);
 
+  useEffect(() => {
+    if (activeTab !== "team" || !session || !authoritativeWorkspaceKey) return;
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (!cancelled) { setMembersLoading(true); setMembersError(null); }
+      return fetchWorkspaceMembers();
+    }).then((members) => {
+      if (!cancelled) setActiveMemberIds(new Set(members.map((member) => member.actor_id)));
+    }).catch((caught) => {
+      if (!cancelled) setMembersError(apiMessage(caught));
+    }).finally(() => {
+      if (!cancelled) setMembersLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [activeTab, authoritativeWorkspaceKey, session]);
+
   const effectiveWorkspaceKey = authoritativeWorkspaceKey;
 
   const currentActorId =
@@ -114,7 +134,6 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
   const canCreate = useMemo(() => canCreateTask(session), [session]);
 
   const filteredTasks = useMemo(() => {
-    if (activeTab === "team") return [];
     return tasks.filter((t) => {
       // Tab category filtering (source-honest)
       if (activeTab === "my_tasks") {
@@ -123,6 +142,8 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
         if (!currentActorId || t.createdBy !== currentActorId) return false;
       } else if (activeTab === "overdue") {
         if (!isTaskOverdue(t.dueAt, t.status)) return false;
+      } else if (activeTab === "team") {
+        if (!t.ownerActorId || t.ownerActorId === currentActorId || !activeMemberIds.has(t.ownerActorId)) return false;
       }
 
       // Status filter
@@ -149,7 +170,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
 
       return true;
     });
-  }, [activeTab, currentActorId, priorityFilter, search, statusFilter, tasks]);
+  }, [activeMemberIds, activeTab, currentActorId, priorityFilter, search, statusFilter, tasks]);
 
   const tabs: readonly TabItem[] = useMemo(
     () => [
@@ -272,12 +293,12 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
           />
         </div>
 
-        {activeTab === "team" ? (
+        {activeTab === "team" && membersError ? (
           <div className={styles.noticeContainer}>
             <Alert
-              message="Data tugas tim akan tersedia setelah sumber scope tim terhubung."
-              title="Tugas Tim Belum Terhubung"
-              variant="neutral"
+              message={membersError}
+              title="Anggota Tim Gagal Dimuat"
+              variant="danger"
             />
           </div>
         ) : null}
@@ -316,9 +337,9 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
             />
           }
           getRowKey={(t) => t.id}
-          loading={tasksLoading}
+          loading={tasksLoading || (activeTab === "team" && membersLoading)}
           loadingLabel="Memuat daftar tugas…"
-          unavailable={!backendConnected || sourceState !== "available" || activeTab === "team"}
+          unavailable={!backendConnected || sourceState !== "available" || (activeTab === "team" && Boolean(membersError))}
           onRowClick={(t) => {
             setSelectedTask(t);
             setDrawerOpen(true);

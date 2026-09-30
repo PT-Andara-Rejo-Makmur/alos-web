@@ -314,6 +314,7 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
         },
       }));
       const request = vi.spyOn(api, "authenticatedApiRequest")
+        .mockResolvedValueOnce([])
         .mockResolvedValueOnce({ ...canonicalProject, name: "Proyek direvisi" })
         .mockResolvedValueOnce({ ...canonicalProject, name: "Proyek direvisi", status: "ARCHIVED" });
       render(<ProjectDetailView project={sampleProject} session={session} workspaceKey="property" />);

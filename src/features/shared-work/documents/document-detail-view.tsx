@@ -8,16 +8,15 @@ import { Alert, Button, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
 import { apiMessage } from "@/lib/api";
 
-import { ActivityTimeline } from "../shared/activity/activity-timeline";
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
+import { SharedWorkActivityPanel, SharedWorkChecklistPanel, SharedWorkCommentsPanel, SharedWorkEvidencePanel, SharedWorkRelationsPanel } from "../shared/shared-work-relations";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
-import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
-import { EvidenceList } from "../shared/evidence/evidence-list";
 import { hasWorkPermission } from "../shared/permissions/authority";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
 import { DataClassificationBadge } from "../shared/status/work-status";
 import { approveDocument, retireDocument, reviewDocument } from "./document-model";
 import { DocumentStatusBadge } from "./document-status";
+import { DocumentVersionDialog } from "./document-version-dialog";
 import type { WorkDocument } from "./document-types";
 import styles from "./documents.module.css";
 
@@ -54,6 +53,7 @@ export function DocumentDetailView({
   const [activeTab, setActiveTab] = useState("detail");
   const [submitting, setSubmitting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [versionOpen, setVersionOpen] = useState(false);
 
   const backUrl = workspaceKey ? `/workspace/${workspaceKey}/documents` : "/workspace/documents";
 
@@ -65,6 +65,7 @@ export function DocumentDetailView({
   const hasReviewPerm = hasWorkPermission(session, "document.review");
   const hasApprovePerm = hasWorkPermission(session, "document.approve");
   const hasRetirePerm = hasWorkPermission(session, "document.retire");
+  const hasVersionPerm = hasWorkPermission(session, "document.version");
   const hasVersions = Boolean(doc.versions && doc.versions.length > 0);
 
   async function handleReview() {
@@ -307,66 +308,46 @@ export function DocumentDetailView({
                       {formatDate(v.createdAt)} oleh {v.creatorName ?? v.createdBy}
                     </span>
                   </div>
+                  <p>{v.sourceTitle ?? v.sourceId} · sumber versi {v.sourceVersion}</p>
                   <div className={styles.versionHash}>Hash Integritas: {v.contentHash}</div>
                 </div>
               ))
             ) : <p>Belum ada versi dokumen yang tercatat.</p>}
           </div>
-          <p>Penambahan versi belum tersedia di halaman ini.</p>
+          {doc.status === "DRAFT" && hasVersionPerm ? (
+            <Button onClick={() => setVersionOpen(true)} variant="secondary">Tambah Versi</Button>
+          ) : null}
         </div>
       ),
     },
     {
       id: "checklist",
       label: "Checklist",
-      content: (
-        <WorkEmptyState
-          description="Checklist kelengkapan dokumen kerja belum tersedia pada sistem."
-          module="documents"
-          title="Checklist belum tersedia."
-        />
-      ),
+      content: <SharedWorkChecklistPanel entityType="DOCUMENT" entityId={doc.id} session={session} />,
     },
     {
       id: "relations",
       label: "Relasi",
-      content: (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <Alert
-            message="Relasi instrumen kerja (Proyek, Tugas, dan Temuan) belum terhubung ke sumber data."
-            title="Relasi Belum Terhubung"
-            variant="neutral"
-          />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
-            <div style={{ padding: "16px", background: "var(--alos-surface)", border: "1px solid var(--alos-border)", borderRadius: "8px" }}>
-              <h4 style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: 600 }}>Proyek Terkait</h4>
-              <p style={{ margin: 0, fontSize: "13px", color: "var(--alos-text-muted)" }}>
-                {doc.projectName ?? "Belum Terhubung"}
-              </p>
-            </div>
-            <div style={{ padding: "16px", background: "var(--alos-surface)", border: "1px solid var(--alos-border)", borderRadius: "8px" }}>
-              <h4 style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: 600 }}>Tugas Terkait</h4>
-              <p style={{ margin: 0, fontSize: "13px", color: "var(--alos-text-muted)" }}>
-                Belum Terhubung
-              </p>
-            </div>
-          </div>
-        </div>
-      ),
+      content: <SharedWorkRelationsPanel entityType="DOCUMENT" entityId={doc.id} session={session} workspaceKey={workspaceKey} />,
     },
     {
       id: "evidence",
       label: "Bukti",
-      content: <EvidenceList items={[]} />,
+      content: <SharedWorkEvidencePanel entityType="DOCUMENT" entityId={doc.id} session={session} />,
     },
     {
       id: "activity",
       label: "Aktivitas",
-      content: <ActivityTimeline items={[]} />,
+      content: <SharedWorkActivityPanel entityType="DOCUMENT" entityId={doc.id} session={session} />,
+    },
+    {
+      id: "comments",
+      label: "Komentar",
+      content: <SharedWorkCommentsPanel entityType="DOCUMENT" entityId={doc.id} session={session} />,
     },
   ];
 
-  return (
+  return <>
     <DetailPageShell
       actions={
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -388,6 +369,14 @@ export function DocumentDetailView({
       tabs={tabs}
       title={doc.title}
     />
-  );
+    {versionOpen ? <DocumentVersionDialog
+      documentId={doc.id}
+      onClose={() => setVersionOpen(false)}
+      onCreated={(created) => setDoc((previous) => ({
+        ...previous, currentVersion: created.version,
+        versions: [created, ...(previous.versions ?? [])],
+      }))}
+    /> : null}
+  </>;
 }
 

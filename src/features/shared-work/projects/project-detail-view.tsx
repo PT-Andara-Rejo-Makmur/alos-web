@@ -2,17 +2,17 @@
 
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button, Dialog, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
-import { apiMessage } from "@/lib/api";
+import { apiMessage, authenticatedApiRequest } from "@/lib/api";
+import type { SharedWorkEntityType, SharedWorkRelationProjection } from "@/lib/contracts";
 
-import { ActivityTimeline } from "../shared/activity/activity-timeline";
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
+import { SharedWorkActivityPanel, SharedWorkCommentsPanel, SharedWorkEvidencePanel } from "../shared/shared-work-relations";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
-import { EvidenceList } from "../shared/evidence/evidence-list";
 import { RelationshipSummary } from "../shared/relationship/relationship-summary";
 import { ProjectStatusBadge } from "../shared/status/project-status";
 import { RiskBadge } from "../shared/status/work-status";
@@ -57,6 +57,42 @@ export function ProjectDetailView({
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [relations, setRelations] = useState<readonly SharedWorkRelationProjection[]>([]);
+  const [relationsLoading, setRelationsLoading] = useState(true);
+  const [relationsError, setRelationsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void authenticatedApiRequest<readonly SharedWorkRelationProjection[]>(
+      `/api/v1/projects/${encodeURIComponent(project.id)}/relations`,
+    ).then((items) => {
+      if (!cancelled) {
+        if (Array.isArray(items)) setRelations(items);
+        else setRelationsError("Respons relasi proyek tidak valid.");
+      }
+    }).catch((caught) => {
+      if (!cancelled) setRelationsError(apiMessage(caught));
+    }).finally(() => {
+      if (!cancelled) setRelationsLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [project.id]);
+
+  function relationContent(type: SharedWorkEntityType) {
+    if (relationsLoading) return <p>Memuat relasi…</p>;
+    if (relationsError) return <p role="alert">{relationsError}</p>;
+    const matching = relations.filter((item) => item.entity_type === type);
+    if (!matching.length) return <p>Belum ada data terkait.</p>;
+    const paths: Record<SharedWorkEntityType, string> = {
+      PROJECT: "projects", TASK: "tasks", APPROVAL: "approvals",
+      DOCUMENT: "documents", REPORT: "reports", FINDING: "findings",
+    };
+    return <ul>{matching.map((item) => <li key={item.entity_id}>
+      <Button onClick={() => router.push(
+        `${workspaceKey ? `/workspace/${workspaceKey}` : "/workspace"}/${paths[type]}/${encodeURIComponent(item.entity_id)}`,
+      )} variant="ghost">{item.title} · {item.status}</Button>
+    </li>)}</ul>;
+  }
 
   async function archive() {
     if (archiving) return;
@@ -156,52 +192,42 @@ export function ProjectDetailView({
     {
       id: "tasks",
       label: "Tugas",
-      content: (
-        <WorkEmptyState
-          module="tasks"
-          title="Tidak ada tugas yang terhubung dengan proyek ini."
-        />
-      ),
+      content: relationContent("TASK"),
     },
     {
       id: "documents",
       label: "Dokumen",
-      content: (
-        <WorkEmptyState
-          module="documents"
-          title="Belum ada dokumen yang terhubung dengan proyek ini."
-        />
-      ),
+      content: relationContent("DOCUMENT"),
     },
     {
       id: "approvals",
       label: "Persetujuan",
-      content: (
-        <WorkEmptyState
-          module="approvals"
-          title="Tidak ada persetujuan yang diajukan untuk proyek ini."
-        />
-      ),
+      content: relationContent("APPROVAL"),
     },
     {
       id: "findings",
       label: "Temuan",
-      content: (
-        <WorkEmptyState
-          module="findings"
-          title="Tidak ada temuan terbuka pada proyek ini."
-        />
-      ),
+      content: relationContent("FINDING"),
+    },
+    {
+      id: "reports",
+      label: "Laporan",
+      content: relationContent("REPORT"),
     },
     {
       id: "evidence",
       label: "Bukti",
-      content: <EvidenceList items={[]} />,
+      content: <SharedWorkEvidencePanel entityType="PROJECT" entityId={project.id} session={session} />,
     },
     {
       id: "activity",
       label: "Aktivitas",
-      content: <ActivityTimeline items={[]} />,
+      content: <SharedWorkActivityPanel entityType="PROJECT" entityId={project.id} session={session} />,
+    },
+    {
+      id: "comments",
+      label: "Komentar",
+      content: <SharedWorkCommentsPanel entityType="PROJECT" entityId={project.id} session={session} />,
     },
   ];
 

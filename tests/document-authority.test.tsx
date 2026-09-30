@@ -112,7 +112,32 @@ describe("authoritative document metadata", () => {
     expect(screen.getByText("Belum ada versi dokumen yang tercatat.")).toBeInTheDocument();
     expect(screen.queryByText("v1.0")).not.toBeInTheDocument();
     expect(screen.queryByText(/canonical-initial-version/)).not.toBeInTheDocument();
-    expect(screen.getByText("Penambahan versi belum tersedia di halaman ini.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tambah Versi" })).not.toBeInTheDocument();
+  });
+
+  it("creates an immutable version from a verified scoped source selector", async () => {
+    const request = vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path, options) => {
+      if (String(path).endsWith("/source-options")) return [{
+        source_id: "source_1", source_title: "Verified source",
+        source_version: "1", content_hash: version.content_hash,
+      }];
+      if (String(path).endsWith("/versions") && options?.method === "POST") return version;
+      return [];
+    });
+    render(<DocumentDetailView
+      document={{ ...documentFromProjection(document), versions: [] }}
+      session={session(["document.version"])}
+    />);
+    fireEvent.click(screen.getByRole("tab", { name: "Versi" }));
+    fireEvent.click(screen.getByRole("button", { name: "Tambah Versi" }));
+    expect(await screen.findByRole("option", { name: "Verified source · 1" })).toBeInTheDocument();
+    fireEvent.change(screen.getByRole("textbox", { name: "Versi" }), { target: { value: "1.0" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Sumber Terverifikasi" }), { target: { value: "0" } });
+    fireEvent.click(screen.getByRole("button", { name: "Simpan Versi" }));
+    await waitFor(() => expect(screen.getByText("Hash Integritas: " + version.content_hash)).toBeInTheDocument());
+    expect(request).toHaveBeenCalledWith("/api/v1/documents/document_1/versions", {
+      method: "POST", body: { version: "1.0", source_id: "source_1", source_version: "1" },
+    });
   });
 
   it("submits metadata only and does not offer a file upload", async () => {
@@ -132,7 +157,7 @@ describe("authoritative document metadata", () => {
     await waitFor(() => expect(onCreated).toHaveBeenCalledOnce());
     expect(request).toHaveBeenCalledWith("/api/v1/documents", {
       method: "POST",
-      body: { title: "Policy", category: "Governance", data_classification: "INTERNAL" },
+      body: { title: "Policy", category: "Governance", data_classification: "INTERNAL", description: null, project_id: null, effective_date: null, expiry_date: null },
     });
   });
 

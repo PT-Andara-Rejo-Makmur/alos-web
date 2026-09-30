@@ -1,5 +1,5 @@
 import { authenticatedApiRequest, withQuery } from "@/lib/api";
-import type { SharedWorkDocumentCreateRequest, SharedWorkDocumentProjection, SharedWorkDocumentVersionProjection } from "@/lib/contracts";
+import type { SharedWorkDocumentCreateRequest, SharedWorkDocumentProjection, SharedWorkDocumentSourceOptionProjection, SharedWorkDocumentVersionCreateRequest, SharedWorkDocumentVersionProjection } from "@/lib/contracts";
 
 import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
 import type { SourceHonestResponse, WorkDocument, WorkDocumentVersion } from "./document-types";
@@ -20,22 +20,22 @@ export function documentFromProjection(document: SharedWorkDocumentProjection): 
     dataClassification: document.data_classification,
     status: document.status,
     ownerActorId: document.owner_actor_id,
-    ownerName: null,
+    ownerName: document.owner_name ?? null,
     workspaceIds: [document.workspace_id],
-    workspaceName: null,
+    workspaceName: document.workspace_name ?? null,
     createdAt: document.created_at,
-    updatedAt: null,
-    currentVersion: null,
+    updatedAt: document.updated_at ?? null,
+    currentVersion: document.current_version ?? null,
     versions: null,
-    projectId: null,
-    projectName: null,
-    projectCode: null,
-    description: null,
-    effectiveDate: null,
-    expiryDate: null,
-    tasksCount: null,
-    approvalsCount: null,
-    evidenceCount: null,
+    projectId: document.project_id ?? null,
+    projectName: document.project_name ?? null,
+    projectCode: document.project_code ?? null,
+    description: document.description ?? null,
+    effectiveDate: document.effective_date ?? null,
+    expiryDate: document.expiry_date ?? null,
+    tasksCount: document.tasks_count ?? null,
+    approvalsCount: document.approvals_count ?? null,
+    evidenceCount: document.evidence_count ?? null,
   };
 }
 
@@ -44,11 +44,12 @@ export function documentVersionFromProjection(version: SharedWorkDocumentVersion
     documentId: version.document_id,
     version: version.version,
     sourceId: version.source_id,
+    sourceTitle: version.source_title ?? null,
     sourceVersion: version.source_version,
     storageUri: version.storage_uri,
     contentHash: version.content_hash,
     createdBy: version.created_by,
-    creatorName: null,
+    creatorName: version.creator_name ?? null,
     createdAt: version.created_at,
   };
 }
@@ -119,6 +120,20 @@ export async function createDocument(request: SharedWorkDocumentCreateRequest): 
     method: "POST", body: request,
   });
   return documentFromProjection(data);
+}
+
+export async function fetchDocumentSourceOptions(documentId: string): Promise<readonly SharedWorkDocumentSourceOptionProjection[]> {
+  return authenticatedApiRequest<readonly SharedWorkDocumentSourceOptionProjection[]>(
+    `/api/v1/documents/${encodeURIComponent(documentId)}/source-options`,
+  );
+}
+
+export async function createDocumentVersion(documentId: string, request: SharedWorkDocumentVersionCreateRequest): Promise<WorkDocumentVersion> {
+  const data = await authenticatedApiRequest<SharedWorkDocumentVersionProjection>(
+    `/api/v1/documents/${encodeURIComponent(documentId)}/versions`,
+    { method: "POST", body: request },
+  );
+  return documentVersionFromProjection(data);
 }
 
 export async function reviewDocument(documentId: string): Promise<WorkDocument> {

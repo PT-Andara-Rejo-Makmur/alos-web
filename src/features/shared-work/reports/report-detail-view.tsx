@@ -9,6 +9,7 @@ import type { SessionProjection } from "@/features/session";
 import { apiMessage } from "@/lib/api";
 
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
+import { SharedWorkActivityPanel, SharedWorkCommentsPanel, SharedWorkEvidencePanel } from "../shared/shared-work-relations";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
 import { hasWorkPermission } from "../shared/permissions/authority";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
@@ -165,12 +166,17 @@ export function ReportDetailView({
     {
       id: "evidence",
       label: "Bukti",
-      content: <p>Bukti belum terhubung dengan data laporan.</p>,
+      content: <SharedWorkEvidencePanel entityType="REPORT" entityId={report.id} session={session} />,
     },
     {
       id: "activity",
       label: "Aktivitas",
-      content: <p>Riwayat aktivitas belum tersedia pada projection laporan.</p>,
+      content: <SharedWorkActivityPanel entityType="REPORT" entityId={report.id} session={session} />,
+    },
+    {
+      id: "comments",
+      label: "Komentar",
+      content: <SharedWorkCommentsPanel entityType="REPORT" entityId={report.id} session={session} />,
     },
   ];
 

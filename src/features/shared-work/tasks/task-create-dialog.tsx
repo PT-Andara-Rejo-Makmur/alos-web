@@ -24,6 +24,7 @@ export function TaskCreateDialog({ onClose, onCreated, open }: TaskCreateDialogP
   const [priority, setPriority] = useState<SharedWorkTaskPriority>("NORMAL");
   const [projectId, setProjectId] = useState("");
   const [dueAt, setDueAt] = useState("");
+  const [startDate, setStartDate] = useState("");
   const [projects, setProjects] = useState<readonly WorkProject[]>([]);
   const [projectsConnected, setProjectsConnected] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -56,6 +57,7 @@ export function TaskCreateDialog({ onClose, onCreated, open }: TaskCreateDialogP
         ...(description.trim() ? { description: description.trim() } : {}),
         ...(projectId ? { project_id: projectId } : {}),
         ...(dueAt ? { due_at: new Date(dueAt).toISOString() } : {}),
+        ...(startDate ? { start_date: startDate } : {}),
       });
       onCreated(created);
       setTitle("");
@@ -63,6 +65,7 @@ export function TaskCreateDialog({ onClose, onCreated, open }: TaskCreateDialogP
       setPriority("NORMAL");
       setProjectId("");
       setDueAt("");
+      setStartDate("");
       onClose();
     } catch (caught) {
       setError(apiMessage(caught));
@@ -95,6 +98,9 @@ export function TaskCreateDialog({ onClose, onCreated, open }: TaskCreateDialogP
           </select>
         </FormField>
         {!projectsConnected ? <p>Daftar proyek belum terhubung. Tugas tetap dapat dibuat tanpa proyek.</p> : null}
+        <FormField label="Tanggal Mulai">
+          <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />
+        </FormField>
         <FormField label="Tenggat">
           <input onChange={(event) => setDueAt(event.target.value)} type="datetime-local" value={dueAt} />
         </FormField>

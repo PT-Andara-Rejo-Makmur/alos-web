@@ -31,6 +31,7 @@ export function TaskEditDialog({ task, open, onClose, onSaved }: TaskEditDialogP
   const [description, setDescription] = useState(task.description ?? "");
   const [priority, setPriority] = useState<SharedWorkTaskPriority>(task.priority as SharedWorkTaskPriority);
   const [dueAt, setDueAt] = useState(localDateTime(task.dueAt));
+  const [startDate, setStartDate] = useState(task.startDate ?? "");
   const [projectId, setProjectId] = useState(task.projectId ?? "");
   const [projectChanged, setProjectChanged] = useState(false);
   const [projects, setProjects] = useState<readonly WorkProject[]>([]);
@@ -64,6 +65,7 @@ export function TaskEditDialog({ task, open, onClose, onSaved }: TaskEditDialogP
         description: description.trim() || null,
         priority,
         due_at: dueAt ? new Date(dueAt).toISOString() : null,
+        start_date: startDate || null,
         ...(projectChanged ? { project_id: projectId || null } : {}),
       };
       const saved = await updateTask(task.id, request);
@@ -103,6 +105,9 @@ export function TaskEditDialog({ task, open, onClose, onSaved }: TaskEditDialogP
           </select>
         </FormField>
         {!projectsConnected ? <p>Daftar proyek belum terhubung. Relasi proyek saat ini tidak diubah.</p> : null}
+        <FormField label="Tanggal Mulai">
+          <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />
+        </FormField>
         <FormField label="Tenggat">
           <input onChange={(event) => setDueAt(event.target.value)} type="datetime-local" value={dueAt} />
         </FormField>

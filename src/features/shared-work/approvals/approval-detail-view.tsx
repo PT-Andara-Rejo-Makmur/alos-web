@@ -8,10 +8,9 @@ import { Alert, Button, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
 import { apiMessage } from "@/lib/api";
 
-import { ActivityTimeline } from "../shared/activity/activity-timeline";
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
+import { SharedWorkActivityPanel, SharedWorkCommentsPanel, SharedWorkEvidencePanel, SharedWorkRelationsPanel } from "../shared/shared-work-relations";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
-import { EvidenceList } from "../shared/evidence/evidence-list";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
 import { ApprovalStatusBadge, ApprovalSubjectBadge } from "./approval-status";
 import { hasWorkPermission } from "../shared/permissions/authority";
@@ -222,14 +221,24 @@ export function ApprovalDetailView({
       ),
     },
     {
+      id: "documents",
+      label: "Dokumen",
+      content: <SharedWorkRelationsPanel entityType="APPROVAL" entityId={approval.id} session={session} workspaceKey={workspaceKey} />,
+    },
+    {
       id: "evidence",
       label: "Bukti",
-      content: <EvidenceList items={[]} />,
+      content: <SharedWorkEvidencePanel entityType="APPROVAL" entityId={approval.id} session={session} />,
     },
     {
       id: "activity",
       label: "Aktivitas",
-      content: <ActivityTimeline items={[]} />,
+      content: <SharedWorkActivityPanel entityType="APPROVAL" entityId={approval.id} session={session} />,
+    },
+    {
+      id: "comments",
+      label: "Komentar",
+      content: <SharedWorkCommentsPanel entityType="APPROVAL" entityId={approval.id} session={session} />,
     },
   ];
 

@@ -4,15 +4,13 @@ import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { Alert, Button, Dialog, type TabItem } from "@/components/ui";
+import { Button, Dialog, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
 import { apiMessage } from "@/lib/api";
 
-import { ActivityTimeline } from "../shared/activity/activity-timeline";
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
+import { SharedWorkActivityPanel, SharedWorkChecklistPanel, SharedWorkCommentsPanel, SharedWorkEvidencePanel, SharedWorkRelationsPanel } from "../shared/shared-work-relations";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
-import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
-import { EvidenceList } from "../shared/evidence/evidence-list";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
 import { canAssignTask, canCompleteTask, canUpdateTask } from "../shared/permissions/authority";
 import { TaskAssignDialog } from "./task-assign-dialog";
@@ -195,50 +193,27 @@ export function TaskDetailView({
     {
       id: "checklist",
       label: "Checklist",
-      content: (
-        <WorkEmptyState
-          description="Checklist rincian kerja untuk tugas ini belum tersedia pada sistem."
-          module="tasks"
-          title="Checklist belum tersedia."
-        />
-      ),
+      content: <SharedWorkChecklistPanel entityType="TASK" entityId={task.id} session={session} />,
     },
     {
       id: "relations",
       label: "Relasi",
-      content: (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <Alert
-            message="Relasi instrumen kerja (Dokumen dan Temuan) belum terhubung ke sumber data."
-            title="Relasi Belum Terhubung"
-            variant="neutral"
-          />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
-            <div style={{ padding: "16px", background: "var(--alos-surface)", border: "1px solid var(--alos-border)", borderRadius: "8px" }}>
-              <h4 style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: 600 }}>Dokumen Terkait</h4>
-              <p style={{ margin: 0, fontSize: "13px", color: "var(--alos-text-muted)" }}>
-                Belum Terhubung
-              </p>
-            </div>
-            <div style={{ padding: "16px", background: "var(--alos-surface)", border: "1px solid var(--alos-border)", borderRadius: "8px" }}>
-              <h4 style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: 600 }}>Temuan Terkait</h4>
-              <p style={{ margin: 0, fontSize: "13px", color: "var(--alos-text-muted)" }}>
-                Belum Terhubung
-              </p>
-            </div>
-          </div>
-        </div>
-      ),
+      content: <SharedWorkRelationsPanel entityType="TASK" entityId={task.id} session={session} workspaceKey={workspaceKey} />,
     },
     {
       id: "evidence",
       label: "Bukti",
-      content: <EvidenceList items={[]} />,
+      content: <SharedWorkEvidencePanel entityType="TASK" entityId={task.id} session={session} />,
     },
     {
       id: "activity",
       label: "Aktivitas",
-      content: <ActivityTimeline items={[]} />,
+      content: <SharedWorkActivityPanel entityType="TASK" entityId={task.id} session={session} />,
+    },
+    {
+      id: "comments",
+      label: "Komentar",
+      content: <SharedWorkCommentsPanel entityType="TASK" entityId={task.id} session={session} />,
     },
   ];
 

@@ -1,14 +1,9 @@
 import type { SourceHonestResponse } from "../shared/types";
-import type { SharedWorkReportStatus } from "@/lib/contracts";
+import type { SharedWorkReportFrequency, SharedWorkReportStatus } from "@/lib/contracts";
 
 export type ReportResultStatus = SharedWorkReportStatus;
 
-export type ReportFrequency =
-  | "DAILY"
-  | "WEEKLY"
-  | "MONTHLY"
-  | "QUARTERLY"
-  | "ON_DEMAND";
+export type ReportFrequency = SharedWorkReportFrequency;
 
 export interface WorkReportResult {
   readonly id: string;
@@ -30,6 +25,10 @@ export interface WorkReportResult {
 }
 
 export interface WorkReportDefinition {
+  readonly ownerActorId: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly scheduleConfig: Readonly<Record<string, unknown>>;
   readonly dataSources?: readonly string[];
   readonly description?: string | null;
   readonly frequency: ReportFrequency | string;

@@ -115,14 +115,15 @@ describe("Reports and Findings Authoritative Integration", () => {
     expect(screen.queryByRole("button", { name: "Ajukan Review" })).not.toBeInTheDocument();
     legacy.unmount();
     const request = vi.spyOn(api, "authenticatedApiRequest")
-      .mockResolvedValueOnce({ ...base, report_id: base.id, report_type: base.reportType, owner_actor_id: base.ownerActorId, workspace_ids: base.workspaceIds, created_at: base.createdAt, updated_at: "2026-09-30T00:01:00Z", status: "IN_REVIEW" });
+      .mockResolvedValueOnce({ ...base, report_id: base.id, report_type: base.reportType, owner_actor_id: base.ownerActorId, workspace_ids: base.workspaceIds, created_at: base.createdAt, updated_at: "2026-09-30T00:01:00Z", status: "IN_REVIEW" })
+      .mockResolvedValueOnce([]);
     render(<ReportDetailView report={base} session={mockSession(["report.create", "report.review"])} />);
     fireEvent.click(screen.getByRole("button", { name: "Ajukan Review" }));
     await waitFor(() => expect(screen.queryByRole("button", { name: "Ajukan Review" })).not.toBeInTheDocument());
     expect(screen.queryByRole("button", { name: "Setujui Laporan" })).not.toBeInTheDocument();
     expect(request).toHaveBeenCalledWith("/api/v1/work/reports/results/rep_lifecycle/submit-review", { method: "POST" });
     fireEvent.click(screen.getByRole("tab", { name: "Bukti" }));
-    expect(screen.getByText("Bukti belum terhubung dengan data laporan.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada bukti.")).toBeInTheDocument();
   });
 
   it("separates review, publish and archive actions in the Report detail", () => {
@@ -195,7 +196,7 @@ describe("Reports and Findings Authoritative Integration", () => {
     expect(adapted.tasksCount).toBeNull();
   });
 
-  it("fetches report results from dedicated API and keeps definitions unavailable", async () => {
+  it("fetches report results and definitions from dedicated APIs", async () => {
     const apiSpy = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce([
       {
         report_id: "rep_999",
@@ -209,7 +210,7 @@ describe("Reports and Findings Authoritative Integration", () => {
         created_at: "2026-09-30T12:00:00Z",
         updated_at: "2026-09-30T12:00:00Z",
       },
-    ]);
+    ]).mockResolvedValueOnce([]);
 
     const results = await fetchReportResults({ status: "DRAFT", search: "Audit" });
     expect(results.connected).toBe(true);
@@ -220,11 +221,10 @@ describe("Reports and Findings Authoritative Integration", () => {
       expect.anything(),
     );
 
-    // Definitions must be unavailable and not call backend
     const defs = await fetchReportDefinitions();
-    expect(defs.connected).toBe(false);
-    expect(defs.sourceState).toBe("unavailable");
+    expect(defs.connected).toBe(true);
     expect(defs.data).toEqual([]);
+    expect(apiSpy).toHaveBeenCalledWith("/api/v1/work/reports/definitions", expect.anything());
   });
 
   it("fetches findings from dedicated API without sending unsupported project_id filter", async () => {
@@ -354,7 +354,7 @@ describe("Reports and Findings Authoritative Integration", () => {
     });
   });
 
-  it("renders create report button based on session permissions and submits only title and report_type", async () => {
+  it("renders create report button based on session permissions and submits canonical metadata", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(mockSession(["report.create", "report.read"]));
     vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (url, init) => {
       if (typeof url === "string" && url.includes("/api/v1/work/reports/results") && init?.method === "POST") {
@@ -362,6 +362,11 @@ describe("Reports and Findings Authoritative Integration", () => {
         expect(body).toEqual({
           title: "Laporan Operasional Baru",
           report_type: "OPERATIONAL",
+          description: null,
+          period_start: null,
+          period_end: null,
+          scope: null,
+          project_id: null,
         });
         expect(body).not.toHaveProperty("status");
         expect(body).not.toHaveProperty("owner_actor_id");
@@ -405,7 +410,7 @@ describe("Reports and Findings Authoritative Integration", () => {
     });
   });
 
-  it("renders create finding button based on session permissions and submits only title, description, and severity", async () => {
+  it("renders create finding button based on session permissions and submits canonical metadata", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(mockSession(["finding.create", "finding.read"]));
     vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (url, init) => {
       if (typeof url === "string" && url.includes("/api/v1/work/findings") && init?.method === "POST") {
@@ -414,6 +419,12 @@ describe("Reports and Findings Authoritative Integration", () => {
           title: "Temuan Kebocoran Pipa",
           description: "Pipa bocor di koridor utama",
           severity: "HIGH",
+          category: null,
+          project_id: null,
+          due_date: null,
+          impact: null,
+          root_cause: null,
+          corrective_action_task_id: null,
         });
         expect(body).not.toHaveProperty("status");
         expect(body).not.toHaveProperty("source_type");

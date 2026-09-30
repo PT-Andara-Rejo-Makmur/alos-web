@@ -11,9 +11,12 @@ import type { SessionProjection } from "@/features/session";
 import { apiMessage } from "@/lib/api";
 
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
+import { SharedWorkActivityPanel, SharedWorkCommentsPanel, SharedWorkEvidencePanel } from "../shared/shared-work-relations";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
 import { hasWorkPermission } from "../shared/permissions/authority";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
+import { FindingAssignDialog } from "./finding-assign-dialog";
+import { FindingEditDialog } from "./finding-edit-dialog";
 import { transitionFinding, type FindingTransition } from "./finding-model";
 import { FindingSeverityBadge, FindingStatusBadge } from "./finding-status";
 import type { WorkFinding } from "./finding-types";
@@ -51,6 +54,8 @@ export function FindingDetailView({
   const [activeTab, setActiveTab] = useState("detail");
   const [finding, setFinding] = useState(initialFinding);
   const [busy, setBusy] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const currentActorId = session?.principal && "actor" in session.principal ? session.principal.actor.actor_id : null;
   const isOwner = Boolean(currentActorId) && finding.ownerActorId === currentActorId;
@@ -199,12 +204,7 @@ export function FindingDetailView({
       label: "Tindak Lanjut",
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <Alert
-            icon={<CheckCircle2 size={16} />}
-            message="Relasi tugas perbaikan dan bukti belum tersedia dari data temuan ini. Status tindak lanjut dapat diproses sesuai kewenangan."
-            title="Tindak Lanjut Temuan"
-            variant="neutral"
-          />
+          <Alert icon={<CheckCircle2 size={16} />} message="Tugas perbaikan yang terkait ditampilkan di bawah. Bukti dapat dilihat pada tab Bukti." title="Tindak Lanjut Temuan" variant="neutral" />
 
           {finding.correctiveActionTaskId ? (
             <div className={styles.correctiveActionBox}>
@@ -227,7 +227,7 @@ export function FindingDetailView({
             <div className={styles.correctiveActionBox}>
               <span className={styles.correctiveActionTitle}>Belum Ada Tugas Perbaikan Terhubung</span>
               <p className={styles.correctiveActionDesc}>
-                Relasi tugas perbaikan belum terhubung dengan temuan ini.
+                Pilih tugas tindak lanjut melalui Ubah Temuan jika diperlukan.
               </p>
             </div>
           )}
@@ -237,18 +237,30 @@ export function FindingDetailView({
     {
       id: "evidence",
       label: "Bukti",
-      content: <p>Bukti belum terhubung dengan data temuan.</p>,
+      content: <SharedWorkEvidencePanel entityType="FINDING" entityId={finding.id} session={session} />,
     },
     {
       id: "activity",
       label: "Aktivitas",
-      content: <p>Riwayat aktivitas belum terhubung dengan data temuan.</p>,
+      content: <SharedWorkActivityPanel entityType="FINDING" entityId={finding.id} session={session} />,
+    },
+    {
+      id: "comments",
+      label: "Komentar",
+      content: <SharedWorkCommentsPanel entityType="FINDING" entityId={finding.id} session={session} />,
     },
   ];
 
   return (
+    <>
     <DetailPageShell
       actions={<>
+        {canUpdate && (finding.status === "OPEN" || finding.status === "ASSIGNED" || finding.status === "IN_PROGRESS") ? (
+          <Button onClick={() => setEditOpen(true)} size="sm" variant="secondary">Ubah Temuan</Button>
+        ) : null}
+        {(finding.status === "OPEN" || finding.status === "ASSIGNED") && hasWorkPermission(session, "finding.assign") ? (
+          <Button onClick={() => setAssignOpen(true)} size="sm" variant="secondary">Tugaskan Temuan</Button>
+        ) : null}
         {lifecycleAction ? <Button disabled={busy} onClick={() => void submitAction(lifecycleAction.action)} size="sm">{lifecycleAction.label}</Button> : null}
         <Button
           iconBefore={<ArrowLeft size={16} />}
@@ -266,5 +278,8 @@ export function FindingDetailView({
       tabs={tabs}
       title={finding.title}
     />
+    <FindingAssignDialog finding={finding} onAssigned={setFinding} onClose={() => setAssignOpen(false)} open={assignOpen} />
+    {editOpen ? <FindingEditDialog finding={finding} onClose={() => setEditOpen(false)} onSaved={setFinding} open /> : null}
+    </>
   );
 }

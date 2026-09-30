@@ -20,6 +20,7 @@ import { authoritativeSharedWorkKey } from "../shared/permissions/workspace-acce
 import { WorkDataTable } from "../shared/tables/work-data-table";
 import type { SourceState } from "../shared/source-state";
 import { ReportCreateDialog } from "./report-create-dialog";
+import { ReportDefinitionDialog } from "./report-definition-dialog";
 import { ReportDrawer } from "./report-drawer";
 import { fetchReportDefinitions, fetchReportResults } from "./report-model";
 import { ReportFrequencyBadge, ReportStatusBadge } from "./report-status";
@@ -73,6 +74,8 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
   const [selectedDefinition, setSelectedDefinition] = useState<WorkReportDefinition | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [definitionFormOpen, setDefinitionFormOpen] = useState(false);
+  const [editingDefinition, setEditingDefinition] = useState<WorkReportDefinition | null>(null);
 
   // Load Session Context
   useEffect(() => {
@@ -323,7 +326,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
   const connectionMessage = isResultsView ? resultsMessage : definitionsMessage;
   const isLoading = isResultsView ? resultsLoading : definitionsLoading;
   const sourceState = isResultsView ? resultsSourceState : definitionsSourceState;
-  const canCreate = isResultsView && canCreateReport(session);
+  const canCreate = canCreateReport(session);
 
   const innerContent = (
     <div className={styles.pageContainer}>
@@ -332,10 +335,16 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
             canCreate ? (
               <Button
                 iconBefore={<Plus size={16} strokeWidth={2} />}
-                onClick={() => setCreateOpen(true)}
+                onClick={() => {
+                  if (isResultsView) setCreateOpen(true);
+                  else {
+                    setEditingDefinition(null);
+                    setDefinitionFormOpen(true);
+                  }
+                }}
                 variant="primary"
               >
-                Tambah Laporan
+                {isResultsView ? "Tambah Laporan" : "Tambah Definisi"}
               </Button>
             ) : undefined
           }
@@ -405,17 +414,23 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
               setDrawerOpen(true);
             }}
             rowAction={(row) => (
-              <Button
-                onClick={() => {
-                  setSelectedDefinition(row);
-                  setSelectedResult(null);
-                  setDrawerOpen(true);
-                }}
-                size="sm"
-                variant="ghost"
-              >
-                Lihat
-              </Button>
+              <div>
+                <Button
+                  onClick={() => {
+                    setSelectedDefinition(row);
+                    setSelectedResult(null);
+                    setDrawerOpen(true);
+                  }}
+                  size="sm" variant="ghost"
+                >Lihat</Button>
+                {canCreate && session.principal && "actor" in session.principal &&
+                  session.principal.actor.actor_id === row.ownerActorId ? (
+                  <Button onClick={() => {
+                    setEditingDefinition(row);
+                    setDefinitionFormOpen(true);
+                  }} size="sm" variant="ghost">Ubah</Button>
+                ) : null}
+              </div>
             )}
             rows={filteredDefinitions}
           />
@@ -441,6 +456,17 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
           }}
           open={createOpen}
         />
+        {definitionFormOpen ? <ReportDefinitionDialog
+          definition={editingDefinition}
+          onClose={() => setDefinitionFormOpen(false)}
+          onSaved={(saved) => {
+            setReportDefinitions((previous) => [
+              saved, ...previous.filter((item) => item.id !== saved.id),
+            ]);
+            setSelectedDefinition(saved);
+          }}
+          open={definitionFormOpen}
+        /> : null}
       </div>
   );
 

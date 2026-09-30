@@ -14,6 +14,7 @@ export interface WorkDocumentVersion {
   readonly creatorName: string | null;
   readonly documentId: string;
   readonly sourceId?: string | null;
+  readonly sourceTitle?: string | null;
   readonly sourceVersion?: string | null;
   readonly storageUri?: string | null;
   readonly version: string;

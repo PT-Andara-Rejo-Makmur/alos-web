@@ -40,6 +40,25 @@ function session(actorId: string, permissions: string[]): SessionProjection {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe("Finding lifecycle presentation", () => {
+  it("edits scoped metadata through the canonical request and hides editing after verification request", async () => {
+    const request = vi.spyOn(api, "authenticatedApiRequest")
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce({ ...projection, title: "Revised", category: "Safety" });
+    const view = render(<FindingDetailView finding={adaptFindingProjection(projection)} session={session("actor_owner", ["finding.update"])} />);
+    fireEvent.click(screen.getByRole("button", { name: "Ubah Temuan" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Judul Temuan" }), { target: { value: "Revised" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Kategori" }), { target: { value: "Safety" } });
+    fireEvent.click(screen.getByRole("button", { name: "Simpan Perubahan" }));
+    await waitFor(() => expect(screen.getByText("Revised")).toBeInTheDocument());
+    expect(request).toHaveBeenCalledWith("/api/v1/work/findings/finding_1", expect.objectContaining({
+      method: "PATCH", body: expect.objectContaining({ title: "Revised", category: "Safety" }),
+    }));
+    view.unmount();
+    render(<FindingDetailView finding={adaptFindingProjection({ ...projection, status: "PENDING_VERIFICATION" })} session={session("actor_owner", ["finding.update"])} />);
+    expect(screen.queryByRole("button", { name: "Ubah Temuan" })).not.toBeInTheDocument();
+  });
+
   it("uses canonical endpoints and updates state from the Backend response", async () => {
     const request = vi.spyOn(api, "authenticatedApiRequest")
       .mockResolvedValueOnce({ ...projection, status: "IN_PROGRESS" })
@@ -81,12 +100,14 @@ describe("Finding lifecycle presentation", () => {
     const unauthorized = render(<FindingDetailView finding={verified} session={session("actor_other", ["finding.verify"])} />);
     expect(screen.queryByRole("button", { name: "Tutup Temuan" })).not.toBeInTheDocument();
     unauthorized.unmount();
-    const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValueOnce({ ...projection, status: "CLOSED" });
+    const request = vi.spyOn(api, "authenticatedApiRequest")
+      .mockResolvedValueOnce({ ...projection, status: "CLOSED" })
+      .mockResolvedValueOnce([]);
     render(<FindingDetailView finding={verified} session={session("actor_other", ["finding.close"])} />);
     fireEvent.click(screen.getByRole("button", { name: "Tutup Temuan" }));
     await waitFor(() => expect(screen.queryByRole("button", { name: "Tutup Temuan" })).not.toBeInTheDocument());
     expect(request).toHaveBeenCalledWith("/api/v1/work/findings/finding_1/close", { method: "POST" });
     fireEvent.click(screen.getByRole("tab", { name: "Bukti" }));
-    expect(screen.getByText("Bukti belum terhubung dengan data temuan.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada bukti.")).toBeInTheDocument();
   });
 });

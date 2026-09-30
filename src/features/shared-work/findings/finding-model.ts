@@ -28,22 +28,22 @@ export function adaptFindingProjection(projection: SharedWorkFindingProjection):
     sourceType: projection.source_type,
     ownerActorId: projection.owner_actor_id ?? null,
     createdAt: projection.created_at,
-    identifiedAt: projection.created_at,
+    identifiedAt: projection.identified_at ?? projection.created_at,
     workspaceIds: projection.workspace_ids,
-    category: null,
-    dueDate: null,
-    workspaceName: null,
-    projectId: null,
-    projectName: null,
-    ownerName: null,
-    verifierActorId: null,
-    verifierName: null,
-    impact: null,
-    rootCause: null,
-    correctiveActionTaskId: null,
-    correctiveActionTaskTitle: null,
-    evidenceCount: null,
-    tasksCount: null,
+    category: projection.category ?? null,
+    dueDate: projection.due_date ?? null,
+    workspaceName: projection.workspace_name ?? null,
+    projectId: projection.project_id ?? null,
+    projectName: projection.project_name ?? null,
+    ownerName: projection.owner_name ?? null,
+    verifierActorId: projection.verifier_actor_id ?? null,
+    verifierName: projection.verifier_name ?? null,
+    impact: projection.impact ?? null,
+    rootCause: projection.root_cause ?? null,
+    correctiveActionTaskId: projection.corrective_action_task_id ?? null,
+    correctiveActionTaskTitle: projection.corrective_action_task_title ?? null,
+    evidenceCount: projection.evidence_count ?? null,
+    tasksCount: projection.tasks_count ?? null,
   };
 }
 
@@ -142,6 +142,16 @@ export async function updateFinding(
   const data = await authenticatedApiRequest<SharedWorkFindingProjection>(
     `/api/v1/work/findings/${encodeURIComponent(findingId)}`,
     { method: "PATCH", body: payload },
+  );
+  return adaptFindingProjection(data);
+}
+
+export async function assignFinding(
+  findingId: string, ownerActorId: string,
+): Promise<WorkFinding> {
+  const data = await authenticatedApiRequest<SharedWorkFindingProjection>(
+    `/api/v1/work/findings/${encodeURIComponent(findingId)}/assign`,
+    { method: "POST", body: { owner_actor_id: ownerActorId } },
   );
   return adaptFindingProjection(data);
 }
