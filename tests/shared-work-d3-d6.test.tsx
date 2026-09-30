@@ -505,7 +505,7 @@ describe("Shared Work / FASE D3 sampai D6", () => {
       const correctiveTab = screen.getByRole("tab", { name: "Tindak Lanjut" });
       fireEvent.click(correctiveTab);
 
-      expect(screen.getByText("Alur Tindak Lanjut & Perbaikan")).toBeInTheDocument();
+      expect(screen.getByText("Tindak Lanjut Temuan")).toBeInTheDocument();
       expect(screen.getByText("Pembersihan endapan drainase blok C")).toBeInTheDocument();
     });
 

@@ -2,6 +2,7 @@ import { authenticatedApiRequest, withQuery } from "@/lib/api";
 import type {
   SharedWorkFindingCreateRequest,
   SharedWorkFindingProjection,
+  SharedWorkFindingUpdateRequest,
 } from "@/lib/contracts";
 
 import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
@@ -133,4 +134,26 @@ export async function fetchFindingDetail(
       message: sourceStateCopy(sourceState, "Temuan").message,
     };
   }
+}
+
+export async function updateFinding(
+  findingId: string, payload: SharedWorkFindingUpdateRequest,
+): Promise<WorkFinding> {
+  const data = await authenticatedApiRequest<SharedWorkFindingProjection>(
+    `/api/v1/work/findings/${encodeURIComponent(findingId)}`,
+    { method: "PATCH", body: payload },
+  );
+  return adaptFindingProjection(data);
+}
+
+export type FindingTransition = "start" | "submit-verification" | "verify" | "close";
+
+export async function transitionFinding(
+  findingId: string, action: FindingTransition,
+): Promise<WorkFinding> {
+  const data = await authenticatedApiRequest<SharedWorkFindingProjection>(
+    `/api/v1/work/findings/${encodeURIComponent(findingId)}/${action}`,
+    { method: "POST" },
+  );
+  return adaptFindingProjection(data);
 }

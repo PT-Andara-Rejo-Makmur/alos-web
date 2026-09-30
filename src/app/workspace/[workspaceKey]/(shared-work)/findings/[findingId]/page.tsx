@@ -19,7 +19,7 @@ export default function WorkspaceFindingDetailPageRoute({
       id={findingId}
       loadingLabel="Memuat rincian temuan…"
       notFoundTitle="Temuan Tidak Ditemukan"
-      renderDetail={(finding, connected, key) => <FindingDetailView finding={finding} isConnected={connected} workspaceKey={key} />}
+      renderDetail={(finding, connected, key, session) => <FindingDetailView finding={finding} isConnected={connected} session={session} workspaceKey={key} />}
       title="Temuan"
       workspaceKey={workspaceKey}
     />

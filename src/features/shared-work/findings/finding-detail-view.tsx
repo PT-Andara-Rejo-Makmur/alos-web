@@ -7,11 +7,14 @@ import { useState } from "react";
 
 import { Alert, Button, type TabItem } from "@/components/ui";
 
-import { ActivityTimeline } from "../shared/activity/activity-timeline";
+import type { SessionProjection } from "@/features/session";
+import { apiMessage } from "@/lib/api";
+
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
-import { EvidenceList } from "../shared/evidence/evidence-list";
+import { hasWorkPermission } from "../shared/permissions/authority";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
+import { transitionFinding, type FindingTransition } from "./finding-model";
 import { FindingSeverityBadge, FindingStatusBadge } from "./finding-status";
 import type { WorkFinding } from "./finding-types";
 import styles from "./findings.module.css";
@@ -19,6 +22,7 @@ import styles from "./findings.module.css";
 interface FindingDetailViewProps {
   readonly finding: WorkFinding;
   readonly isConnected?: boolean;
+  readonly session?: SessionProjection | null;
   readonly workspaceKey?: string | null;
 }
 
@@ -38,12 +42,42 @@ function formatDate(dateString: string | null | undefined): string {
 }
 
 export function FindingDetailView({
-  finding,
+  finding: initialFinding,
   isConnected = true,
+  session,
   workspaceKey,
 }: FindingDetailViewProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("detail");
+  const [finding, setFinding] = useState(initialFinding);
+  const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const currentActorId = session?.principal && "actor" in session.principal ? session.principal.actor.actor_id : null;
+  const isOwner = Boolean(currentActorId) && finding.ownerActorId === currentActorId;
+  const canUpdate = hasWorkPermission(session, "finding.update");
+  const lifecycleAction: { action: FindingTransition; label: string } | null =
+    (finding.status === "OPEN" || finding.status === "ASSIGNED") && isOwner && canUpdate
+      ? { action: "start", label: "Mulai Tindak Lanjut" }
+      : finding.status === "IN_PROGRESS" && isOwner && canUpdate
+        ? { action: "submit-verification", label: "Ajukan Verifikasi" }
+        : finding.status === "PENDING_VERIFICATION" && !isOwner && Boolean(currentActorId) && hasWorkPermission(session, "finding.verify")
+          ? { action: "verify", label: "Verifikasi" }
+          : finding.status === "VERIFIED" && hasWorkPermission(session, "finding.close")
+            ? { action: "close", label: "Tutup Temuan" }
+            : null;
+
+  async function submitAction(action: FindingTransition) {
+    if (busy) return;
+    setBusy(true);
+    setActionError(null);
+    try {
+      setFinding(await transitionFinding(finding.id, action));
+    } catch (caught) {
+      setActionError(apiMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const backUrl = workspaceKey ? `/workspace/${workspaceKey}/findings` : "/workspace/findings";
 
@@ -167,8 +201,8 @@ export function FindingDetailView({
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <Alert
             icon={<CheckCircle2 size={16} />}
-            message="Setiap temuan ditindaklanjuti melalui relasi tugas terstruktur: Temuan → Tindak Lanjut (Tugas) → Bukti Verifikasi → Penutupan Temuan."
-            title="Alur Tindak Lanjut & Perbaikan"
+            message="Relasi tugas perbaikan dan bukti belum tersedia dari data temuan ini. Status tindak lanjut dapat diproses sesuai kewenangan."
+            title="Tindak Lanjut Temuan"
             variant="neutral"
           />
 
@@ -193,7 +227,7 @@ export function FindingDetailView({
             <div className={styles.correctiveActionBox}>
               <span className={styles.correctiveActionTitle}>Belum Ada Tugas Perbaikan Terhubung</span>
               <p className={styles.correctiveActionDesc}>
-                Tindak lanjut dapat dibuat melalui tugas terstruktur setelah tindakan perbaikan disepakati oleh penanggung jawab.
+                Relasi tugas perbaikan belum terhubung dengan temuan ini.
               </p>
             </div>
           )}
@@ -203,18 +237,19 @@ export function FindingDetailView({
     {
       id: "evidence",
       label: "Bukti",
-      content: <EvidenceList items={[]} />,
+      content: <p>Bukti belum terhubung dengan data temuan.</p>,
     },
     {
       id: "activity",
       label: "Aktivitas",
-      content: <ActivityTimeline items={[]} />,
+      content: <p>Riwayat aktivitas belum terhubung dengan data temuan.</p>,
     },
   ];
 
   return (
     <DetailPageShell
-      actions={
+      actions={<>
+        {lifecycleAction ? <Button disabled={busy} onClick={() => void submitAction(lifecycleAction.action)} size="sm">{lifecycleAction.label}</Button> : null}
         <Button
           iconBefore={<ArrowLeft size={16} />}
           onClick={() => router.push(backUrl)}
@@ -223,10 +258,10 @@ export function FindingDetailView({
         >
           Kembali ke Temuan
         </Button>
-      }
+      </>}
       activeTab={activeTab}
       eyebrow="PEKERJAAN / TEMUAN"
-      headerMetadata={headerMetadata}
+      headerMetadata={<>{actionError ? <p role="alert">{actionError}</p> : null}{headerMetadata}</>}
       onTabChange={setActiveTab}
       tabs={tabs}
       title={finding.title}

@@ -15,6 +15,8 @@ export type {
   SharedWorkDocumentVersionCreateRequest,
   SharedWorkDocumentVersionProjection,
   SharedWorkFindingCreateRequest,
+  SharedWorkFindingUpdateRequest,
+  SharedWorkFindingAssignmentRequest,
   SharedWorkFindingProjection,
   SharedWorkFindingSeverity,
   SharedWorkFindingStatus,
