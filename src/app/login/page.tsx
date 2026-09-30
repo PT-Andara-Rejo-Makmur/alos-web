@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page() {
-  return <LoginPage />;
+export default async function Page({ searchParams }: { searchParams: Promise<{ activated?: string }> }) {
+  const params = await searchParams;
+  return <LoginPage activated={params.activated === "1"} />;
 }

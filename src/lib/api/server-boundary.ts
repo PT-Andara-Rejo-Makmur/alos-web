@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
+import type { ActivateAccountRequest, ActivateAccountResponse } from "@/lib/contracts";
 
 export const BACKEND_SESSION_COOKIE = "alos_backend_session";
 
@@ -149,6 +150,53 @@ export async function createBackendSession(request: NextRequest): Promise<Respon
     path: "/",
   });
   return result;
+}
+
+export async function activateBackendAccount(request: NextRequest): Promise<Response> {
+  const id = correlationId(request);
+  let body: unknown;
+  try {
+    body = await request.clone().json();
+  } catch {
+    return structuredError(400, "ACTIVATION_REQUEST_INVALID", "Permintaan aktivasi tidak valid.", id);
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return structuredError(400, "ACTIVATION_REQUEST_INVALID", "Permintaan aktivasi tidak valid.", id);
+  }
+  const fields = body as Record<string, unknown>;
+  if (
+    Object.keys(fields).some((key) => !["token", "password", "password_confirmation"].includes(key)) ||
+    typeof fields.token !== "string" || fields.token.length < 20 || fields.token.length > 256 ||
+    typeof fields.password !== "string" || fields.password.length < 8 || fields.password.length > 256 ||
+    typeof fields.password_confirmation !== "string" || fields.password_confirmation.length < 8 || fields.password_confirmation.length > 256
+  ) {
+    return structuredError(400, "ACTIVATION_REQUEST_INVALID", "Permintaan aktivasi tidak valid.", id);
+  }
+  const activation: ActivateAccountRequest = {
+    token: fields.token,
+    password: fields.password,
+    password_confirmation: fields.password_confirmation,
+  };
+  if (activation.password !== activation.password_confirmation) {
+    return structuredError(422, "PASSWORD_CONFIRMATION_MISMATCH", "Konfirmasi kata sandi tidak cocok.", id);
+  }
+  const response = await forward(request, "/api/v1/identity/activate");
+  if (response.status === 422) {
+    return structuredError(422, "ACTIVATION_CHALLENGE_INVALID", "Tautan aktivasi tidak valid atau telah kedaluwarsa.", id);
+  }
+  if (!response.ok) {
+    return structuredError(response.status, "ACTIVATION_UNAVAILABLE", "Aktivasi belum dapat diproses.", id);
+  }
+  let result: ActivateAccountResponse;
+  try {
+    result = (await response.json()) as ActivateAccountResponse;
+  } catch {
+    return structuredError(502, "BACKEND_ACTIVATION_INVALID", "Respons aktivasi tidak valid.", id);
+  }
+  if (!result || result.activation_state !== "ACTIVATED" || typeof result.actor_id !== "string") {
+    return structuredError(502, "BACKEND_ACTIVATION_INVALID", "Respons aktivasi tidak valid.", id);
+  }
+  return NextResponse.json(result, { headers: responseHeaders(response) });
 }
 
 export async function readBackendSession(request: NextRequest): Promise<Response> {

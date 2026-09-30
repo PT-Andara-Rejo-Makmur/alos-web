@@ -16,7 +16,7 @@ interface SessionProjection {
 // Canonical post-login destination: Workspace
 const POST_LOGIN_PATH = "/workspace";
 
-export function LoginForm() {
+export function LoginForm({ activated = false }: { activated?: boolean }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,6 +50,7 @@ export function LoginForm() {
 
   return (
     <div>
+      {activated ? <p role="status">Akun berhasil diaktifkan. Silakan masuk ke ALOS.</p> : null}
       <form className={styles.authForm} onSubmit={submit} noValidate={false}>
         {/* Email Field */}
         <div className={styles.fieldGroup}>

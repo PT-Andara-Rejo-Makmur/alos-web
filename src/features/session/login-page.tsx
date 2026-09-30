@@ -7,7 +7,7 @@ import Link from "next/link";
 import { LoginForm } from "./login-form";
 import styles from "./login-page.module.css";
 
-export function LoginPage() {
+export function LoginPage({ activated = false }: { activated?: boolean }) {
   return (
     <div className={styles.loginWrapper}>
       {/* ===================================================================
@@ -136,7 +136,7 @@ export function LoginPage() {
           </p>
 
           {/* Form */}
-          <LoginForm />
+          <LoginForm activated={activated} />
 
           {/* Mobile Bottom Links */}
           <div className={styles.mobileNavLinks}>
