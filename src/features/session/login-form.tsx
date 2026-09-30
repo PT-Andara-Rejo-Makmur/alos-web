@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, Eye, EyeOff, ShieldAlert } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
@@ -74,9 +75,14 @@ export function LoginForm({ activated = false }: { activated?: boolean }) {
 
         {/* Password Field */}
         <div className={styles.fieldGroup}>
-          <label className={styles.fieldLabel} htmlFor="session-password">
-            Kata sandi
-          </label>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <label className={styles.fieldLabel} htmlFor="session-password">
+              Kata sandi
+            </label>
+            <Link href="/lupa-sandi" className={styles.backLink} style={{ fontSize: "0.8125rem", margin: 0 }}>
+              Lupa kata sandi?
+            </Link>
+          </div>
           <div className={styles.inputWrapper}>
             <input
               autoComplete="current-password"

@@ -2,7 +2,13 @@ import { randomUUID } from "node:crypto";
 
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
-import type { ActivateAccountRequest, ActivateAccountResponse } from "@/lib/contracts";
+import type {
+  ActivateAccountRequest,
+  ActivateAccountResponse,
+  PasswordResetConfirmRequest,
+  PasswordResetConfirmResponse,
+  PasswordResetResponse,
+} from "@/lib/contracts";
 
 export const BACKEND_SESSION_COOKIE = "alos_backend_session";
 
@@ -251,3 +257,71 @@ export async function deleteBackendSession(request: NextRequest): Promise<NextRe
   });
   return response;
 }
+
+export async function requestBackendPasswordReset(request: NextRequest): Promise<Response> {
+  const id = correlationId(request);
+  let body: unknown;
+  try {
+    body = await request.clone().json();
+  } catch {
+    return structuredError(400, "PASSWORD_RESET_REQUEST_INVALID", "Permintaan pemulihan kata sandi tidak valid.", id);
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return structuredError(400, "PASSWORD_RESET_REQUEST_INVALID", "Permintaan pemulihan kata sandi tidak valid.", id);
+  }
+  const fields = body as Record<string, unknown>;
+  if (typeof fields.email !== "string" || !fields.email.includes("@")) {
+    return structuredError(400, "PASSWORD_RESET_REQUEST_INVALID", "Alamat email tidak valid.", id);
+  }
+  const response = await forward(request, "/api/v1/auth/password-reset/request");
+  if (!response.ok) {
+    return structuredError(response.status, "PASSWORD_RESET_UNAVAILABLE", "Layanan pemulihan kata sandi belum dapat memproses permintaan.", id);
+  }
+  const payload = (await response.json()) as PasswordResetResponse;
+  const result: PasswordResetResponse = {
+    message: payload.message ?? "Jika email terdaftar, instruksi pemulihan telah dikirim.",
+  };
+  return NextResponse.json(result, { headers: responseHeaders(response) });
+}
+
+export async function confirmBackendPasswordReset(request: NextRequest): Promise<Response> {
+  const id = correlationId(request);
+  let body: unknown;
+  try {
+    body = await request.clone().json();
+  } catch {
+    return structuredError(400, "PASSWORD_RESET_CONFIRM_INVALID", "Permintaan atur ulang kata sandi tidak valid.", id);
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return structuredError(400, "PASSWORD_RESET_CONFIRM_INVALID", "Permintaan atur ulang kata sandi tidak valid.", id);
+  }
+  const fields = body as Record<string, unknown>;
+  if (
+    typeof fields.token !== "string" || fields.token.length < 20 ||
+    typeof fields.password !== "string" || fields.password.length < 8 ||
+    typeof fields.password_confirmation !== "string" || fields.password_confirmation.length < 8
+  ) {
+    return structuredError(400, "PASSWORD_RESET_CONFIRM_INVALID", "Permintaan atur ulang kata sandi tidak valid.", id);
+  }
+  const confirmPayload: PasswordResetConfirmRequest = {
+    token: fields.token,
+    password: fields.password,
+    password_confirmation: fields.password_confirmation,
+  };
+  if (confirmPayload.password !== confirmPayload.password_confirmation) {
+    return structuredError(422, "PASSWORD_CONFIRMATION_MISMATCH", "Konfirmasi kata sandi tidak cocok.", id);
+  }
+  const response = await forward(request, "/api/v1/auth/password-reset/confirm");
+  if (response.status === 422) {
+    return structuredError(422, "PASSWORD_RESET_TOKEN_INVALID", "Tautan atur ulang kata sandi tidak valid atau telah kedaluwarsa.", id);
+  }
+  if (!response.ok) {
+    return structuredError(response.status, "PASSWORD_RESET_UNAVAILABLE", "Layanan atur ulang kata sandi belum dapat memproses permintaan.", id);
+  }
+  const payload = (await response.json()) as PasswordResetConfirmResponse;
+  const result: PasswordResetConfirmResponse = {
+    message: payload.message ?? "Kata sandi berhasil diperbarui.",
+  };
+  return NextResponse.json(result, { headers: responseHeaders(response) });
+}
+

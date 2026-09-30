@@ -7,9 +7,17 @@ import type {
   ProvisioningCandidateProjection,
   ProvisionAccountRequest,
   MembershipMutationRequest,
+  ResendActivationResponse,
   WorkspaceProjection,
   WorkspaceAccessProjection,
 } from "@/lib/contracts";
+
+export function resendActivation(actorId: string): Promise<ResendActivationResponse> {
+  return authenticatedApiRequest<ResendActivationResponse>(
+    `/api/v1/identity/actors/${encodeURIComponent(actorId)}/activation/resend`,
+    { method: "POST", body: {} },
+  );
+}
 
 export function listIdentityAccounts(): Promise<IdentityAccountProjection[]> {
   return authenticatedApiRequest<IdentityAccountProjection[]>("/api/v1/identity/accounts");
