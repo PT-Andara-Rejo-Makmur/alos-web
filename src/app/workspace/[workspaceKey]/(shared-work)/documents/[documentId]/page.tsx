@@ -19,7 +19,14 @@ export default function WorkspaceDocumentDetailPageRoute({
       id={documentId}
       loadingLabel="Memuat rincian dokumen…"
       notFoundTitle="Dokumen Tidak Ditemukan"
-      renderDetail={(document, connected, key) => <DocumentDetailView document={document} isConnected={connected} workspaceKey={key} />}
+      renderDetail={(document, connected, key, session) => (
+        <DocumentDetailView
+          document={document}
+          isConnected={connected}
+          session={session}
+          workspaceKey={key}
+        />
+      )}
       title="Dokumen"
       workspaceKey={workspaceKey}
     />

@@ -4,7 +4,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { DocumentCreateDialog } from "@/features/shared-work/documents/document-create-dialog";
 import { DocumentDetailView } from "@/features/shared-work/documents/document-detail-view";
 import { DocumentsPage } from "@/features/shared-work/documents/documents-page";
-import { createDocument, documentFromProjection, fetchDocumentDetail, fetchDocuments } from "@/features/shared-work/documents/document-model";
+import {
+  approveDocument,
+  createDocument,
+  documentFromProjection,
+  documentVersionFromProjection,
+  fetchDocumentDetail,
+  fetchDocuments,
+  retireDocument,
+  reviewDocument,
+} from "@/features/shared-work/documents/document-model";
 import type { SessionProjection } from "@/features/session";
 import type { SharedWorkDocumentProjection, SharedWorkDocumentVersionProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
@@ -41,12 +50,12 @@ const version: SharedWorkDocumentVersionProjection = {
   created_at: "2026-09-30T01:00:00Z",
 };
 
-function session(permissions: string[]): SessionProjection {
+function session(permissions: string[], actorId = "actor_1"): SessionProjection {
   return {
     authenticated: true,
     principal: {
       actor: {
-        actor_id: "actor_1", active: true, display_name: "Document User",
+        actor_id: actorId, active: true, display_name: "Document User",
         organization_id: "org_1", tenant_id: "tenant_1",
       },
       active_workspace: {
@@ -61,7 +70,7 @@ function session(permissions: string[]): SessionProjection {
       email: "document@andara.local", expires_at: "2026-10-01T00:00:00Z",
       issued_at: "2026-09-30T00:00:00Z", workspace_access: [],
     },
-  } as SessionProjection;
+  } as unknown as SessionProjection;
 }
 
 afterEach(() => {
@@ -138,4 +147,137 @@ describe("authoritative document metadata", () => {
     render(<DocumentsPage workspaceKey="property" />);
     await waitFor(() => expect(screen.getByRole("button", { name: "Tambah Metadata" })).toBeInTheDocument());
   });
+
+  it("uses dedicated lifecycle endpoints with exact paths", async () => {
+    const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue(document);
+    await reviewDocument("document_1");
+    await approveDocument("document_1");
+    await retireDocument("document_1");
+    expect(request).toHaveBeenNthCalledWith(1, "/api/v1/documents/document_1/review", { method: "POST" });
+    expect(request).toHaveBeenNthCalledWith(2, "/api/v1/documents/document_1/approve", { method: "POST" });
+    expect(request).toHaveBeenNthCalledWith(3, "/api/v1/documents/document_1/retire", { method: "POST" });
+  });
+
+  it("enforces exact session permissions and separation of duties for lifecycle actions", async () => {
+    const baseDoc = documentFromProjection(document); // owner_actor_id: "actor_1", status: "DRAFT"
+
+    // DRAFT without version: review button disabled and shows alert
+    const draftNoVersion = render(
+      <DocumentDetailView
+        document={{ ...baseDoc, versions: [] }}
+        session={session(["document.review"], "actor_1")}
+      />
+    );
+    const reviewBtnDisabled = screen.getByRole("button", { name: "Ajukan Review" });
+    expect(reviewBtnDisabled).toBeDisabled();
+    expect(
+      screen.getByText("Minimal satu versi authoritative diperlukan sebelum dokumen dapat diajukan untuk review.")
+    ).toBeInTheDocument();
+    draftNoVersion.unmount();
+
+    // DRAFT with work.write only: review button not displayed
+    const draftLegacy = render(
+      <DocumentDetailView
+        document={{ ...baseDoc, versions: [documentVersionFromProjection(version)] }}
+        session={session(["work.write"], "actor_1")}
+      />
+    );
+    expect(screen.queryByRole("button", { name: "Ajukan Review" })).not.toBeInTheDocument();
+    draftLegacy.unmount();
+
+    // DRAFT with version and document.review: review button enabled
+    const draftWithVersion = render(
+      <DocumentDetailView
+        document={{ ...baseDoc, versions: [documentVersionFromProjection(version)] }}
+        session={session(["document.review"], "actor_1")}
+      />
+    );
+    const reviewBtn = screen.getByRole("button", { name: "Ajukan Review" });
+    expect(reviewBtn).toBeEnabled();
+    const reqReview = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({
+      ...document,
+      status: "IN_REVIEW",
+    });
+    fireEvent.click(reviewBtn);
+    await waitFor(() => expect(reqReview).toHaveBeenCalledWith("/api/v1/documents/document_1/review", { method: "POST" }));
+    draftWithVersion.unmount();
+
+    // IN_REVIEW: Owner cannot approve (Separation of Duties) even if owner has document.approve
+    const inReviewOwner = render(
+      <DocumentDetailView
+        document={{ ...baseDoc, status: "IN_REVIEW", versions: [documentVersionFromProjection(version)] }}
+        session={session(["document.approve"], "actor_1")}
+      />
+    );
+    expect(screen.queryByRole("button", { name: "Setujui" })).not.toBeInTheDocument();
+    inReviewOwner.unmount();
+
+    // IN_REVIEW: Non-owner with work.write only cannot approve
+    const inReviewLegacy = render(
+      <DocumentDetailView
+        document={{ ...baseDoc, status: "IN_REVIEW", versions: [documentVersionFromProjection(version)] }}
+        session={session(["work.write"], "actor_2")}
+      />
+    );
+    expect(screen.queryByRole("button", { name: "Setujui" })).not.toBeInTheDocument();
+    inReviewLegacy.unmount();
+
+    // IN_REVIEW: Non-owner with document.approve can approve
+    const inReviewApprover = render(
+      <DocumentDetailView
+        document={{ ...baseDoc, status: "IN_REVIEW", versions: [documentVersionFromProjection(version)] }}
+        session={session(["document.approve"], "actor_2")}
+      />
+    );
+    const approveBtn = screen.getByRole("button", { name: "Setujui" });
+    expect(approveBtn).toBeEnabled();
+    const reqApprove = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({
+      ...document,
+      status: "APPROVED",
+    });
+    fireEvent.click(approveBtn);
+    await waitFor(() => expect(reqApprove).toHaveBeenCalledWith("/api/v1/documents/document_1/approve", { method: "POST" }));
+    inReviewApprover.unmount();
+
+    // APPROVED: with document.retire shows "Tidak Berlaku / Arsipkan"
+    const approvedRetirer = render(
+      <DocumentDetailView
+        document={{ ...baseDoc, status: "APPROVED", versions: [documentVersionFromProjection(version)] }}
+        session={session(["document.retire"], "actor_1")}
+      />
+    );
+    const retireBtn = screen.getByRole("button", { name: "Tidak Berlaku / Arsipkan" });
+    expect(retireBtn).toBeEnabled();
+    const reqRetire = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({
+      ...document,
+      status: "RETIRED",
+    });
+    fireEvent.click(retireBtn);
+    await waitFor(() => expect(reqRetire).toHaveBeenCalledWith("/api/v1/documents/document_1/retire", { method: "POST" }));
+    approvedRetirer.unmount();
+
+    // RETIRED: no mutation actions
+    render(
+      <DocumentDetailView
+        document={{ ...baseDoc, status: "RETIRED", versions: [documentVersionFromProjection(version)] }}
+        session={session(["document.review", "document.approve", "document.retire"], "actor_2")}
+      />
+    );
+    expect(screen.queryByRole("button", { name: "Ajukan Review" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Setujui" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tidak Berlaku / Arsipkan" })).not.toBeInTheDocument();
+  });
+
+  it("informs user that version creation is frozen when document is not in DRAFT", () => {
+    render(
+      <DocumentDetailView
+        document={{ ...documentFromProjection(document), status: "IN_REVIEW", versions: [documentVersionFromProjection(version)] }}
+      />
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "Versi" }));
+    expect(
+      screen.getByText("Penambahan versi dokumen dibekukan setelah dokumen diajukan untuk review atau disetujui.")
+    ).toBeInTheDocument();
+  });
 });
+

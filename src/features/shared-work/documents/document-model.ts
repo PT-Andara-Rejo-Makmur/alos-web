@@ -120,3 +120,28 @@ export async function createDocument(request: SharedWorkDocumentCreateRequest): 
   });
   return documentFromProjection(data);
 }
+
+export async function reviewDocument(documentId: string): Promise<WorkDocument> {
+  const data = await authenticatedApiRequest<SharedWorkDocumentProjection>(
+    `/api/v1/documents/${encodeURIComponent(documentId)}/review`,
+    { method: "POST" },
+  );
+  return documentFromProjection(data);
+}
+
+export async function approveDocument(documentId: string): Promise<WorkDocument> {
+  const data = await authenticatedApiRequest<SharedWorkDocumentProjection>(
+    `/api/v1/documents/${encodeURIComponent(documentId)}/approve`,
+    { method: "POST" },
+  );
+  return documentFromProjection(data);
+}
+
+export async function retireDocument(documentId: string): Promise<WorkDocument> {
+  const data = await authenticatedApiRequest<SharedWorkDocumentProjection>(
+    `/api/v1/documents/${encodeURIComponent(documentId)}/retire`,
+    { method: "POST" },
+  );
+  return documentFromProjection(data);
+}
+

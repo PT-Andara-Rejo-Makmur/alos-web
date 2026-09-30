@@ -5,14 +5,18 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Alert, Button, type TabItem } from "@/components/ui";
+import type { SessionProjection } from "@/features/session";
+import { apiMessage } from "@/lib/api";
 
 import { ActivityTimeline } from "../shared/activity/activity-timeline";
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { EvidenceList } from "../shared/evidence/evidence-list";
+import { hasWorkPermission } from "../shared/permissions/authority";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
 import { DataClassificationBadge } from "../shared/status/work-status";
+import { approveDocument, retireDocument, reviewDocument } from "./document-model";
 import { DocumentStatusBadge } from "./document-status";
 import type { WorkDocument } from "./document-types";
 import styles from "./documents.module.css";
@@ -21,6 +25,7 @@ interface DocumentDetailViewProps {
   readonly document: WorkDocument;
   readonly isConnected?: boolean;
   readonly workspaceKey?: string | null;
+  readonly session?: SessionProjection | null;
 }
 
 function formatDate(dateString: string | null | undefined): string {
@@ -39,14 +44,85 @@ function formatDate(dateString: string | null | undefined): string {
 }
 
 export function DocumentDetailView({
-  document: doc,
+  document: initialDoc,
   isConnected = true,
   workspaceKey,
+  session,
 }: DocumentDetailViewProps) {
   const router = useRouter();
+  const [doc, setDoc] = useState(initialDoc);
   const [activeTab, setActiveTab] = useState("detail");
+  const [submitting, setSubmitting] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const backUrl = workspaceKey ? `/workspace/${workspaceKey}/documents` : "/workspace/documents";
+
+  const currentActorId =
+    session?.principal && "actor" in session.principal
+      ? session.principal.actor.actor_id
+      : null;
+  const isOwner = Boolean(currentActorId && doc.ownerActorId === currentActorId);
+  const hasReviewPerm = hasWorkPermission(session, "document.review");
+  const hasApprovePerm = hasWorkPermission(session, "document.approve");
+  const hasRetirePerm = hasWorkPermission(session, "document.retire");
+  const hasVersions = Boolean(doc.versions && doc.versions.length > 0);
+
+  async function handleReview() {
+    if (submitting || !hasVersions) return;
+    setSubmitting(true);
+    setActionError(null);
+    try {
+      const updated = await reviewDocument(doc.id);
+      setDoc((prev) => ({
+        ...prev,
+        ...updated,
+        versions: prev.versions,
+        currentVersion: prev.currentVersion,
+      }));
+    } catch (caught) {
+      setActionError(apiMessage(caught));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleApprove() {
+    if (submitting || isOwner) return;
+    setSubmitting(true);
+    setActionError(null);
+    try {
+      const updated = await approveDocument(doc.id);
+      setDoc((prev) => ({
+        ...prev,
+        ...updated,
+        versions: prev.versions,
+        currentVersion: prev.currentVersion,
+      }));
+    } catch (caught) {
+      setActionError(apiMessage(caught));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleRetire() {
+    if (submitting) return;
+    setSubmitting(true);
+    setActionError(null);
+    try {
+      const updated = await retireDocument(doc.id);
+      setDoc((prev) => ({
+        ...prev,
+        ...updated,
+        versions: prev.versions,
+        currentVersion: prev.currentVersion,
+      }));
+    } catch (caught) {
+      setActionError(apiMessage(caught));
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   const relatedItems = [
     { key: "tasks", label: "Tugas", count: doc.tasksCount },
@@ -60,6 +136,46 @@ export function DocumentDetailView({
       return <span className={relationshipStyles.itemValueUnconnected}>—</span>;
     }
     return value;
+  }
+
+  let lifecycleAction: React.ReactNode = null;
+  if (doc.status === "DRAFT" && hasReviewPerm) {
+    lifecycleAction = (
+      <Button
+        disabled={!hasVersions || submitting}
+        loading={submitting}
+        loadingLabel="Mengajukan…"
+        onClick={handleReview}
+        title={!hasVersions ? "Dokumen wajib memiliki minimal satu versi sebelum dapat diajukan untuk review." : undefined}
+        variant="primary"
+      >
+        Ajukan Review
+      </Button>
+    );
+  } else if (doc.status === "IN_REVIEW" && hasApprovePerm && !isOwner) {
+    lifecycleAction = (
+      <Button
+        disabled={submitting}
+        loading={submitting}
+        loadingLabel="Menyetujui…"
+        onClick={handleApprove}
+        variant="primary"
+      >
+        Setujui
+      </Button>
+    );
+  } else if (doc.status === "APPROVED" && hasRetirePerm) {
+    lifecycleAction = (
+      <Button
+        disabled={submitting}
+        loading={submitting}
+        loadingLabel="Mengarsipkan…"
+        onClick={handleRetire}
+        variant="secondary"
+      >
+        Tidak Berlaku / Arsipkan
+      </Button>
+    );
   }
 
   const headerMetadata = (
@@ -121,6 +237,22 @@ export function DocumentDetailView({
       label: "Detail",
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          {actionError ? (
+            <Alert
+              message={actionError}
+              title="Gagal Memperbarui Status Dokumen"
+              variant="danger"
+            />
+          ) : null}
+
+          {doc.status === "DRAFT" && hasReviewPerm && !hasVersions ? (
+            <Alert
+              message="Minimal satu versi authoritative diperlukan sebelum dokumen dapat diajukan untuk review."
+              title="Versi Diperlukan"
+              variant="neutral"
+            />
+          ) : null}
+
           {doc.description ? (
             <div style={{ padding: "16px", background: "var(--alos-surface)", border: "1px solid var(--alos-border)", borderRadius: "8px" }}>
               <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--alos-text-muted)", textTransform: "uppercase" }}>
@@ -156,6 +288,14 @@ export function DocumentDetailView({
             title="Riwayat Versi Dokumen (Immutable)"
             variant="neutral"
           />
+
+          {doc.status !== "DRAFT" ? (
+            <Alert
+              message="Penambahan versi dokumen dibekukan setelah dokumen diajukan untuk review atau disetujui."
+              title="Versi Dibekukan"
+              variant="neutral"
+            />
+          ) : null}
 
           <div className={styles.versionList}>
             {doc.versions && doc.versions.length > 0 ? (
@@ -229,13 +369,16 @@ export function DocumentDetailView({
   return (
     <DetailPageShell
       actions={
-        <Button
-          iconBefore={<ArrowLeft size={16} strokeWidth={2} />}
-          onClick={() => router.push(backUrl)}
-          variant="secondary"
-        >
-          Kembali ke Daftar
-        </Button>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Button
+            iconBefore={<ArrowLeft size={16} strokeWidth={2} />}
+            onClick={() => router.push(backUrl)}
+            variant="secondary"
+          >
+            Kembali ke Daftar
+          </Button>
+          {lifecycleAction}
+        </div>
       }
       activeTab={activeTab}
       description="Rincian metadata dokumen kerja, klasifikasi keamanan, dan versi dokumen."
@@ -247,3 +390,4 @@ export function DocumentDetailView({
     />
   );
 }
+
