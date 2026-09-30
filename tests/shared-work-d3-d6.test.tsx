@@ -471,7 +471,7 @@ describe("Shared Work / FASE D3 sampai D6", () => {
       expect(getFindingSeverityInfo("UNKNOWN").label).toBe("Belum Dinilai");
 
       expect(getFindingStatusInfo("OPEN").label).toBe("Terbuka");
-      expect(getFindingStatusInfo("IN_REVIEW").label).toBe("Dalam Peninjauan");
+      expect(getFindingStatusInfo("IN_REVIEW").label).toBe("Belum Dinilai");
       expect(getFindingStatusInfo("ASSIGNED").label).toBe("Ditugaskan");
       expect(getFindingStatusInfo("IN_PROGRESS").label).toBe("Dalam Perbaikan");
       expect(getFindingStatusInfo("PENDING_VERIFICATION").label).toBe("Menunggu Verifikasi");

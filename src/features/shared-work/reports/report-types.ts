@@ -1,11 +1,7 @@
 import type { SourceHonestResponse } from "../shared/types";
+import type { SharedWorkReportStatus } from "@/lib/contracts";
 
-export type ReportResultStatus =
-  | "DRAFT"
-  | "IN_REVIEW"
-  | "APPROVED"
-  | "PUBLISHED"
-  | "ARCHIVED";
+export type ReportResultStatus = SharedWorkReportStatus;
 
 export type ReportFrequency =
   | "DAILY"

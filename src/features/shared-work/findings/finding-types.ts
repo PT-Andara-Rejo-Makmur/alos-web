@@ -1,17 +1,9 @@
 import type { SourceHonestResponse } from "../shared/types";
+import type { SharedWorkFindingSeverity, SharedWorkFindingStatus } from "@/lib/contracts";
 
-export type FindingSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type FindingSeverity = SharedWorkFindingSeverity;
 
-export type FindingStatus =
-  | "OPEN"
-  | "IN_REVIEW"
-  | "ASSIGNED"
-  | "IN_PROGRESS"
-  | "PENDING_VERIFICATION"
-  | "VERIFIED"
-  | "CLOSED"
-  | "CANCELLED"
-  | "DUPLICATE";
+export type FindingStatus = SharedWorkFindingStatus;
 
 export interface WorkFinding {
   readonly id: string;

@@ -2,6 +2,33 @@
 export const CONTRACT_SOURCE = "alos-contracts/generated/typescript" as const;
 
 export type {
+  SharedWorkApprovalDecision,
+  SharedWorkApprovalProjection,
+  SharedWorkApprovalRequest,
+  SharedWorkApprovalStatus,
+  SharedWorkDataClassification,
+  SharedWorkDocumentCreateRequest,
+  SharedWorkDocumentProjection,
+  SharedWorkDocumentStatus,
+  SharedWorkDocumentVersionProjection,
+  SharedWorkFindingCreateRequest,
+  SharedWorkFindingProjection,
+  SharedWorkFindingSeverity,
+  SharedWorkFindingStatus,
+  SharedWorkPermission,
+  SharedWorkProjectCreateRequest,
+  SharedWorkProjectProjection,
+  SharedWorkProjectStatus,
+  SharedWorkReportCreateRequest,
+  SharedWorkReportProjection,
+  SharedWorkReportStatus,
+  SharedWorkTaskCreateRequest,
+  SharedWorkTaskPriority,
+  SharedWorkTaskProjection,
+  SharedWorkTaskStatus,
+} from "../../../../alos-contracts/generated/typescript/shared-work";
+
+export type {
   AgentDraft,
   CapabilityCatalogItem,
   CapabilityDetail,

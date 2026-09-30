@@ -1,16 +1,8 @@
 import type { SourceHonestResponse } from "../shared/types";
+import type { SharedWorkApprovalStatus } from "@/lib/contracts";
 
-/**
- * Presentation values for Approval Status.
- * NOTE: In alos-backend migration 0013_shared_work, column `status` has server_default="PENDING".
- * Canonical decision outcomes in alos-contracts decision-ref: APPROVED, REJECTED, RETURNED, HOLD.
- */
-export type ApprovalStatusPresentationValue =
-  | "PENDING"
-  | "APPROVED"
-  | "RETURNED"
-  | "REJECTED"
-  | "HELD";
+/** Approval status values from the generated Shared Work contract. */
+export type ApprovalStatusPresentationValue = SharedWorkApprovalStatus;
 
 export type ApprovalSubjectType =
   | "PROJECT"

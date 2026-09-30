@@ -3,67 +3,39 @@
  * Canonical Backend authority remains in alos-backend / alos-contracts.
  */
 
-export type CanonicalProjectStatus =
-  | "PLANNED"
-  | "ACTIVE"
-  | "ON_HOLD"
-  | "COMPLETED"
-  | "CANCELLED"
-  | "ARCHIVED";
+import type {
+  SharedWorkApprovalStatus,
+  SharedWorkDataClassification,
+  SharedWorkDocumentStatus,
+  SharedWorkFindingSeverity,
+  SharedWorkFindingStatus,
+  SharedWorkProjectStatus,
+  SharedWorkTaskPriority,
+  SharedWorkTaskStatus,
+} from "@/lib/contracts";
 
-/**
- * Presentation values for Task Status.
- * NOTE: In alos-backend migration 0013_shared_work, column `status` has server_default="OPEN"
- * without an enum constraint. All other values are PROVISIONAL presentation states (NEEDS DECISION from Backend/Contracts).
- */
-export type TaskStatusPresentationValue =
-  | "OPEN"
-  | "IN_PROGRESS"
-  | "BLOCKED"
-  | "UNDER_REVIEW"
-  | "COMPLETED"
-  | "CANCELLED";
+export type CanonicalProjectStatus = SharedWorkProjectStatus;
 
-/**
- * Presentation values for Task Priority.
- * NOTE: In alos-backend migration 0013_shared_work, column `priority` has server_default="NORMAL"
- * without an enum constraint. All other values are PROVISIONAL presentation states (NEEDS DECISION from Backend/Contracts).
- */
-export type TaskPriorityPresentationValue = "LOW" | "NORMAL" | "HIGH" | "CRITICAL";
+/** Task status values from the generated Shared Work contract. */
+export type TaskStatusPresentationValue = SharedWorkTaskStatus;
 
-/** @deprecated Use TaskStatusPresentationValue instead of inventing canonical contract */
+/** Task priority values from the generated Shared Work contract. */
+export type TaskPriorityPresentationValue = SharedWorkTaskPriority;
+
+/** Compatibility alias for existing presentation components. */
 export type CanonicalTaskStatus = TaskStatusPresentationValue;
-/** @deprecated Use TaskPriorityPresentationValue instead of inventing canonical contract */
+/** Compatibility alias for existing presentation components. */
 export type CanonicalTaskPriority = TaskPriorityPresentationValue;
 
-export type CanonicalApprovalStatus =
-  | "PENDING"
-  | "APPROVED"
-  | "RETURNED"
-  | "REJECTED"
-  | "HELD";
+export type CanonicalApprovalStatus = SharedWorkApprovalStatus;
 
-export type CanonicalDocumentStatus =
-  | "DRAFT"
-  | "IN_REVIEW"
-  | "APPROVED"
-  | "REJECTED"
-  | "RETIRED";
+export type CanonicalDocumentStatus = SharedWorkDocumentStatus;
 
-export type CanonicalDataClassification =
-  | "PUBLIC"
-  | "INTERNAL"
-  | "CONFIDENTIAL"
-  | "RESTRICTED";
+export type CanonicalDataClassification = SharedWorkDataClassification;
 
-export type CanonicalFindingSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type CanonicalFindingSeverity = SharedWorkFindingSeverity;
 
-export type CanonicalFindingStatus =
-  | "OPEN"
-  | "IN_PROGRESS"
-  | "VERIFICATION_PENDING"
-  | "RESOLVED"
-  | "CLOSED";
+export type CanonicalFindingStatus = SharedWorkFindingStatus;
 
 /** Universal Project projection from Backend */
 export interface WorkProject {

@@ -22,22 +22,19 @@ export function getFindingSeverityInfo(severity: string | null | undefined): Fin
   return severityMap[normalized] ?? { label: "Belum Dinilai", variant: "neutral" };
 }
 
-const statusMap: Record<string, FindingStatusInfo> = {
+const statusMap = {
   OPEN: { label: "Terbuka", variant: "warning" },
-  IN_REVIEW: { label: "Dalam Peninjauan", variant: "info" },
   ASSIGNED: { label: "Ditugaskan", variant: "info" },
   IN_PROGRESS: { label: "Dalam Perbaikan", variant: "info" },
   PENDING_VERIFICATION: { label: "Menunggu Verifikasi", variant: "warning" },
   VERIFIED: { label: "Terverifikasi", variant: "success" },
   CLOSED: { label: "Ditutup", variant: "neutral" },
-  CANCELLED: { label: "Dibatalkan", variant: "neutral" },
-  DUPLICATE: { label: "Duplikat", variant: "neutral" },
-};
+} satisfies Record<FindingStatus, FindingStatusInfo>;
 
 export function getFindingStatusInfo(status: string | null | undefined): FindingStatusInfo {
   if (!status) return { label: "Belum Dinilai", variant: "neutral" };
   const normalized = status.trim().toUpperCase();
-  return statusMap[normalized] ?? { label: "Belum Dinilai", variant: "neutral" };
+  return statusMap[normalized as FindingStatus] ?? { label: "Belum Dinilai", variant: "neutral" };
 }
 
 export function FindingStatusBadge({

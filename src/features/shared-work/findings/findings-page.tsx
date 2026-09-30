@@ -275,7 +275,6 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
           searchValue={search}
           statusOptions={[
             { label: "Terbuka", value: "OPEN" },
-            { label: "Dalam Peninjauan", value: "IN_REVIEW" },
             { label: "Ditugaskan", value: "ASSIGNED" },
             { label: "Dalam Perbaikan", value: "IN_PROGRESS" },
             { label: "Menunggu Verifikasi", value: "PENDING_VERIFICATION" },
