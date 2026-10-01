@@ -1,30 +1,10 @@
 "use client";
+import { BusinessDataPage } from "@/features/business-records/data-page";
+import { financeResources } from "@/features/finance/resources";
+import { FinanceLayout } from "../finance-layout";
 
-import { useState } from "react";
-import { Button, type DataTableColumn } from "@/components/ui";
-import { FinanceDataPage, type FinanceTab } from "../shared/finance-data-page";
-import { FinanceExtractionDrawer, FinanceUnavailableFormDrawer, type FinanceFormField } from "../shared/finance-ui";
-
-interface TaxRow { readonly id: string; readonly type: string; readonly period: string; readonly transaction: string; readonly base: string; readonly amount: string; readonly due: string; readonly document: string; readonly payment: string; readonly reporting: string; readonly owner: string; readonly status: string; }
-const obligationColumns: readonly DataTableColumn<TaxRow>[] = [{ header: "Jenis", key: "type", render: (row) => row.type }, { header: "Periode", key: "period", render: (row) => row.period }, { header: "Transaksi Terkait", key: "transaction", render: (row) => row.transaction }, { header: "Dasar Pajak", key: "base", render: (row) => row.base }, { header: "Jumlah Pajak", key: "amount", render: (row) => row.amount }, { header: "Jatuh Tempo", key: "due", render: (row) => row.due }, { header: "Status Dokumen", key: "document", render: (row) => row.document }, { header: "Status Pembayaran", key: "payment", render: (row) => row.payment }, { header: "Status Pelaporan", key: "reporting", render: (row) => row.reporting }, { header: "Penanggung Jawab", key: "owner", render: (row) => row.owner }];
-const documentColumns: readonly DataTableColumn<TaxRow>[] = [{ header: "Dokumen", key: "document", render: (row) => row.document }, { header: "Jenis", key: "type", render: (row) => row.type }, { header: "Periode", key: "period", render: (row) => row.period }, { header: "Transaksi Terkait", key: "transaction", render: (row) => row.transaction }, { header: "Status", key: "status", render: (row) => row.status }];
-const paymentColumns: readonly DataTableColumn<TaxRow>[] = [{ header: "Jenis", key: "type", render: (row) => row.type }, { header: "Jumlah Pajak", key: "amount", render: (row) => row.amount }, { header: "Jatuh Tempo", key: "due", render: (row) => row.due }, { header: "Status Pembayaran", key: "payment", render: (row) => row.payment }, { header: "Status Rekonsiliasi", key: "status", render: (row) => row.status }];
-const reportingColumns: readonly DataTableColumn<TaxRow>[] = [{ header: "Jenis", key: "type", render: (row) => row.type }, { header: "Periode", key: "period", render: (row) => row.period }, { header: "Status Dokumen", key: "document", render: (row) => row.document }, { header: "Status Pelaporan", key: "reporting", render: (row) => row.reporting }, { header: "Penanggung Jawab", key: "owner", render: (row) => row.owner }];
-const historyColumns: readonly DataTableColumn<TaxRow>[] = [{ header: "Jenis", key: "type", render: (row) => row.type }, { header: "Periode", key: "period", render: (row) => row.period }, { header: "Peristiwa", key: "status", render: (row) => row.status }, { header: "Tanggal", key: "due", render: (row) => row.due }, { header: "Penanggung Jawab", key: "owner", render: (row) => row.owner }];
-const fields: readonly FinanceFormField[] = [{ label: "Jenis", name: "tax-type", required: true }, { label: "Periode", name: "period", required: true }, { label: "Transaksi Terkait", name: "related-transaction", relation: true, sourceReady: false }, { label: "Dasar Pajak", name: "tax-base", type: "number", required: true }, { label: "Jumlah Pajak", name: "tax-amount", type: "number", required: true }, { label: "Jatuh Tempo", name: "due-date", type: "date", required: true, helper: "Tanggal berasal dari aturan dan sumber resmi; tidak dihitung oleh halaman ini." }, { label: "Penanggung Jawab", name: "owner", relation: true, sourceReady: false, required: true }, { label: "Dokumen", name: "document", relation: true, sourceReady: false, required: true }, { label: "Bukti", name: "evidence", required: true }];
+const resources = [financeResources.tax_obligations, financeResources.tax_documents];
 
 export function FinanceTaxPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) {
-  const [formOpen, setFormOpen] = useState(false);
-  const [extractionOpen, setExtractionOpen] = useState(false);
-  const obligationAction = <Button onClick={() => setFormOpen(true)}>Tambah Kewajiban</Button>;
-  const documentAction = <Button onClick={() => setExtractionOpen(true)} variant="secondary">Telaah Dokumen</Button>;
-  const tabs: readonly FinanceTab<TaxRow>[] = [
-    { id: "obligation", label: "Kewajiban", title: "Kewajiban Pajak", description: "Daftar kewajiban pajak dari sumber resmi.", caption: "Kewajiban pajak", columns: obligationColumns, emptyDescription: "Kewajiban pajak belum tersedia.", actions: obligationAction, rows: [], children: <FinanceUnavailableFormDrawer description="Data pajak menunggu sumber resmi dan aturan yang telah ditetapkan." fields={fields} onClose={() => setFormOpen(false)} open={formOpen} submitLabel="Simpan Kewajiban" title="Tambah Kewajiban Pajak" /> },
-    { id: "due", label: "Jatuh Tempo", title: "Pajak Jatuh Tempo", description: "Jatuh tempo hanya ditampilkan bila disediakan oleh sumber resmi.", caption: "Pajak jatuh tempo", columns: obligationColumns, emptyDescription: "Pajak jatuh tempo belum tersedia.", rows: [] },
-    { id: "documents", label: "Dokumen", title: "Dokumen Pajak", description: "Dokumen pajak menggunakan sumber Dokumen Shared Work.", caption: "Dokumen pajak", columns: documentColumns, emptyDescription: "Dokumen pajak belum tersedia.", actions: documentAction, rows: [], children: <FinanceExtractionDrawer onClose={() => setExtractionOpen(false)} open={extractionOpen} /> },
-    { id: "payments", label: "Pembayaran", title: "Pembayaran Pajak", description: "Pantau pembayaran pajak tanpa menyimpulkan kepatuhan.", caption: "Pembayaran pajak", columns: paymentColumns, emptyDescription: "Pembayaran pajak belum tersedia.", rows: [] },
-    { id: "reporting", label: "Pelaporan", title: "Pelaporan Pajak", description: "Status pelaporan menunggu sumber resmi.", caption: "Pelaporan pajak", columns: reportingColumns, emptyDescription: "Pelaporan pajak belum tersedia.", rows: [] },
-    { id: "history", label: "Riwayat", title: "Riwayat Pajak", description: "Riwayat kewajiban, dokumen, pembayaran, dan pelaporan.", caption: "Riwayat pajak", columns: historyColumns, emptyDescription: "Riwayat pajak belum tersedia.", rows: [] },
-  ];
-  return <FinanceDataPage description="Pantau kewajiban pajak, dokumen, pembayaran, dan pelaporan setelah sumber resmi tersedia." tabs={tabs} title="Pajak & Kewajiban" workspaceKey={workspaceKey} />;
+  return <FinanceLayout workspaceKey={workspaceKey}>{(session) => <BusinessDataPage session={session} resources={resources} title="Pajak Internal" description="Catatan keuangan internal. Saldo bank, arus kas final, dan pelaporan resmi DJP belum tersedia." />}</FinanceLayout>;
 }
