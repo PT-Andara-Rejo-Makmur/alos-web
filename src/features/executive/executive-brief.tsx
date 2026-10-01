@@ -2,225 +2,72 @@
 
 import Link from "next/link";
 
-import { Button, DataTable, LoadingState, PageHeader, Status } from "@/components/ui";
-import type { SessionProjection } from "@/features/session";
-import { canCreateTask } from "@/features/shared-work/shared/permissions/authority";
+import { Alert, PageHeader, Status } from "@/components/ui";
 
 import { ExecutiveLayout } from "./executive-layout";
-import { useExecutiveStrategyData } from "./executive-data";
-import {
-  activePlan,
-  corporateTargets,
-  formatValue,
-  observationFor,
-  performanceLabel,
-  performanceVariant,
-  periodLabel,
-  valueForObservation,
-} from "./executive-model";
+import { useExecutiveOverview } from "./executive-data";
+import { periodLabel } from "./executive-model";
+import { connectionLabel, executiveDomainLabel, ExecutiveSourceState, sourceDate } from "./executive-source-status";
+import { ExecutiveTargetTable } from "./executive-summary";
 import styles from "./executive.module.css";
 
-interface BriefProps {
-  readonly session: SessionProjection;
-  readonly workspaceKey: string;
-}
-
 export function ExecutiveBriefPage({ workspaceKey }: Readonly<{ workspaceKey?: string }> = {}) {
-  return (
-    <ExecutiveLayout workspaceKey={workspaceKey}>
-      {(session, activeKey) => <ExecutiveBriefContent session={session} workspaceKey={activeKey} />}
-    </ExecutiveLayout>
-  );
+  return <ExecutiveLayout workspaceKey={workspaceKey}>{(_session, activeKey) => <ExecutiveBriefContent key={activeKey} workspaceKey={activeKey} />}</ExecutiveLayout>;
 }
 
-function ExecutiveBriefContent({ session, workspaceKey }: BriefProps) {
+function ExecutiveBriefContent({ workspaceKey }: Readonly<{ workspaceKey: string }>) {
   const base = `/workspace/${encodeURIComponent(workspaceKey)}`;
-  const { data, error, loading, sessionExpired } = useExecutiveStrategyData();
-  const currentPlan = activePlan(data?.plans ?? []);
-  const targets = corporateTargets(data?.targets ?? []);
-  const strategyUnavailable = !loading && (Boolean(error) || sessionExpired || !data);
-  const strategyHasNoTargets = !loading && !strategyUnavailable && targets.length === 0;
+  const { data, error, loading, sessionExpired } = useExecutiveOverview(workspaceKey);
+  const strategyStatus = data?.strategy.status ?? (loading ? "loading" : "ERROR");
+  const workStatus = data?.shared_work.status ?? (loading ? "loading" : "ERROR");
+  const strategy = strategyStatus === "CONNECTED" || strategyStatus === "CONNECTED_EMPTY" ? data?.strategy_data : null;
+  const work = workStatus === "CONNECTED" || workStatus === "CONNECTED_EMPTY" ? data?.shared_work_data : null;
+  const plan = strategy?.active_operating_plans[0] ?? strategy?.active_strategic_plans[0];
+  const targets = strategy?.targets ?? [];
 
-  // Check task mutation capability and permission
-  const hasTaskPermission = canCreateTask(session);
-  // Task mutation endpoint is not yet supported in Backend contract
-  const taskMutationAvailable = false;
-  const canAddDirection = hasTaskPermission && taskMutationAvailable;
-
-  const onTrackCount = targets.filter((t) => t.performance_state === "ON_TRACK" || t.performance_state === "ACHIEVED").length;
-  const atRiskCount = targets.filter((t) => t.performance_state === "AT_RISK" || t.performance_state === "OFF_TRACK").length;
-  const unassessedCount = targets.filter(
-    (t) => !t.performance_state || !["ON_TRACK", "ACHIEVED", "AT_RISK", "OFF_TRACK"].includes(t.performance_state),
-  ).length;
-
-  return (
-    <div className={styles.page}>
-      <PageHeader
-        description="Ringkasan eksekutif 1–3 menit untuk membaca kondisi, memantau tenggat, dan mengambil keputusan."
-        eyebrow="EKSEKUTIF"
-        metadata={currentPlan
-          ? `Rencana Aktif: ${currentPlan.name} · ${periodLabel(currentPlan.period)}`
-          : loading
-            ? "Memuat rencana aktif"
-            : strategyUnavailable
-              ? "Data strategi belum terhubung"
-              : "Rencana aktif belum ditentukan"}
-        title="Brief Eksekutif"
-      />
-
-      <div className={styles.briefLayout}>
-        {/* A. Kondisi Perusahaan Saat Ini */}
-        <section aria-labelledby="brief-condition" className={styles.briefSection}>
-          <div className={styles.briefHeader}>
-            <h2 id="brief-condition">A. Kondisi Perusahaan Saat Ini</h2>
-            {!loading ? <Status
-              label={strategyUnavailable ? "Belum Terhubung" : currentPlan ? "Rencana Berjalan" : "Perlu Rencana"}
-              variant={currentPlan ? "success" : "neutral"}
-            /> : null}
-          </div>
-          {loading ? <LoadingState label="Memuat kondisi perusahaan" variant="section" /> : strategyUnavailable ? (
-            <div className={styles.inlineReadiness}>
-              <Status label="Belum Terhubung" variant="neutral" />
-              <span>Kondisi perusahaan belum dapat disimpulkan karena data strategi belum tersedia.</span>
-            </div>
-          ) : currentPlan ? (
-            <p className={styles.briefTimelineText}>
-              Perusahaan beroperasi mengacu pada <strong>{currentPlan.name}</strong> ({periodLabel(currentPlan.period)}).
-              {targets.length > 0
-                ? ` Dari ${targets.length} sasaran perusahaan terpantau: ${onTrackCount} sesuai target, ${atRiskCount} perlu perhatian khusus${unassessedCount > 0 ? `, ${unassessedCount} belum dinilai` : ""}.`
-                : " Sasaran perusahaan belum tersedia untuk diringkas."}
-            </p>
-          ) : (
-            <div className={styles.inlineReadiness}>
-              <Status label="Belum Tersedia" variant="neutral" />
-              <span>Rencana strategis aktif belum ditetapkan dalam sistem perencanaan.</span>
-            </div>
-          )}
-        </section>
-
-        {/* B. Sorotan Utama */}
-        <section aria-labelledby="brief-highlights" className={styles.briefSection}>
-          <div className={styles.briefHeader}>
-            <h2 id="brief-highlights">B. Sorotan Utama</h2>
-            <Link className={styles.detailLink} href={`${base}/performance`}>Lihat Kinerja</Link>
-          </div>
-          {loading ? <LoadingState label="Memuat sorotan utama" variant="table" /> : strategyUnavailable ? (
-            <div className={styles.inlineReadiness}>
-              <Status label="Belum Terhubung" variant="neutral" />
-              <span>Sorotan utama belum dapat disimpulkan karena data strategi belum tersedia.</span>
-            </div>
-          ) : targets.length > 0 ? (
-            <DataTable
-              caption="Sasaran perusahaan utama"
-              columns={[
-                { header: "Sasaran", key: "name", render: (t) => t.name },
-                { header: "Target", key: "target", render: (t) => valueForObservation(observationFor(t, "TARGET"), formatValue) },
-                { header: "Aktual", key: "actual", render: (t) => valueForObservation(observationFor(t, "ACTUAL"), formatValue) },
-                { header: "Status", key: "status", render: (t) => <Status label={performanceLabel(t.performance_state)} variant={performanceVariant(t.performance_state)} /> },
-              ]}
-              getRowKey={(t) => t.target_id}
-              rows={targets.slice(0, 3)}
-            />
-          ) : (
-            <div className={styles.inlineReadiness}>
-              <Status label="Belum ada data" variant="neutral" />
-              <span>Sasaran korporasi belum didaftarkan pada rencana aktif.</span>
-            </div>
-          )}
-        </section>
-
-        {/* C. Keputusan Hari Ini */}
-        <section aria-labelledby="brief-decisions" className={styles.briefSection}>
-          <div className={styles.briefHeader}>
-            <h2 id="brief-decisions">C. Keputusan Hari Ini</h2>
-            <Link className={styles.detailLink} href={`${base}/approvals`}>Semua Persetujuan</Link>
-          </div>
-          <div className={styles.inlineReadiness}>
-            <Status label="Belum Tersedia" variant="neutral" />
-            <span>Persetujuan yang memerlukan tanda tangan atau pengesahan eksekutif akan dirangkum di sini.</span>
-          </div>
-        </section>
-
-        {/* D. Risiko & Peringatan */}
-        <section aria-labelledby="brief-risks" className={styles.briefSection}>
-          <div className={styles.briefHeader}>
-            <h2 id="brief-risks">D. Risiko & Peringatan</h2>
-            <Link className={styles.detailLink} href={`${base}/findings`}>Semua Temuan</Link>
-          </div>
-          {loading ? <LoadingState label="Memuat risiko dan peringatan" variant="section" /> : strategyUnavailable ? (
-            <div className={styles.inlineReadiness}>
-              <Status label="Belum Terhubung" variant="neutral" />
-              <span>Risiko dan peringatan belum dapat disimpulkan karena data strategi belum tersedia.</span>
-            </div>
-          ) : atRiskCount > 0 ? (
-            <ul className={styles.briefCompactList}>
-              {targets.filter((t) => t.performance_state === "AT_RISK" || t.performance_state === "OFF_TRACK").map((t) => (
-                <li className={styles.briefListItem} key={t.target_id}>
-                  <span>Target <strong>{t.name}</strong> menunjukkan deviasi dari rencana kinerja.</span>
-                  <Status label={performanceLabel(t.performance_state)} variant={performanceVariant(t.performance_state)} />
-                </li>
-              ))}
-            </ul>
-          ) : strategyHasNoTargets ? (
-            <div className={styles.inlineReadiness}>
-              <Status label="Belum ada data" variant="neutral" />
-              <span>Risiko belum dapat diringkas karena belum ada sasaran perusahaan pada data strategi.</span>
-            </div>
-          ) : (
-            <div className={styles.inlineReadiness}>
-              <Status label="Belum Tersedia" variant="neutral" />
-              <span>Data temuan belum tersedia. Ringkasan risiko akan ditampilkan ketika sumber temuan tersedia.</span>
-            </div>
-          )}
-        </section>
-
-        {/* E. Progres Penting */}
-        <section aria-labelledby="brief-progress" className={styles.briefSection}>
-          <div className={styles.briefHeader}>
-            <h2 id="brief-progress">E. Progres Penting</h2>
-            <Link className={styles.detailLink} href={`${base}/projects`}>Semua Proyek</Link>
-          </div>
-          <div className={styles.inlineReadiness}>
-            <Status label="Belum Tersedia" variant="neutral" />
-            <span>Progres pencapaian proyek strategis lintas divisi akan tampil setelah data pelaksanaan terhubung.</span>
-          </div>
-        </section>
-
-        {/* F. Agenda & Tenggat */}
-        <section aria-labelledby="brief-deadlines" className={styles.briefSection}>
-          <div className={styles.briefHeader}>
-            <h2 id="brief-deadlines">F. Agenda & Tenggat</h2>
-          </div>
-          <div className={styles.inlineReadiness}>
-            <Status label="Belum Tersedia" variant="neutral" />
-            <span>Agenda dan tenggat belum terhubung.</span>
-          </div>
-        </section>
-
-        {/* G. Arahan Pimpinan */}
-        <section aria-labelledby="brief-directives" className={styles.briefSection}>
-          <div className={styles.briefHeader}>
-            <h2 id="brief-directives">G. Arahan Pimpinan</h2>
-            {canAddDirection ? (
-              <Button size="sm" variant="primary">Tambah Arahan</Button>
-            ) : null}
-          </div>
-          <div className={styles.briefNotice}>
-            Pembuatan arahan akan tersedia setelah tindakan tugas dapat digunakan.
-          </div>
-        </section>
-
-        {/* H. GENESIS Advisory */}
-        <section aria-labelledby="brief-advisory" className={styles.briefSection}>
-          <div className={styles.briefHeader}>
-            <h2 id="brief-advisory">H. GENESIS Advisory</h2>
-            <Status label="Belum Terhubung" variant="neutral" />
-          </div>
-          <p className={styles.briefTimelineText}>
-            Advisory cerdas GENESIS akan menganalisis anomali, tren belanja, dan risiko operasional secara otomatis setelah integrasi governed data selesai.
-          </p>
-        </section>
-      </div>
+  return <div className={styles.page}>
+    <PageHeader title="Brief Eksekutif" eyebrow="EKSEKUTIF" description="Ringkasan faktual dari Strategy dan Shared Work dalam visibility ruang kerja aktif." metadata={`Waktu sumber · ${sourceDate(data?.last_updated_at)}`} />
+    {sessionExpired ? <Alert title="Sesi berakhir" message="Sesi Anda sudah berakhir. Silakan masuk kembali." variant="warning" /> : null}
+    {error ? <Alert title="Data belum dapat dimuat." message={error} variant="warning" /> : null}
+    <div className={styles.briefLayout}>
+      <section className={styles.briefSection}>
+        <div className={styles.briefHeader}><h2>A. Kondisi Perusahaan Saat Ini</h2><Status {...connectionLabel(strategyStatus)} /></div>
+        <ExecutiveSourceState status={strategyStatus} />
+        {strategy ? <p className={styles.briefTimelineText}>{plan ? `Rencana aktif: ${plan.name} (${periodLabel(plan.period)}).` : "Rencana aktif belum ditentukan."} {targets.length} target perusahaan tersedia. Sumber Strategy: {sourceDate(data?.strategy.last_updated_at)}.</p> : null}
+      </section>
+      <section className={styles.briefSection}>
+        <div className={styles.briefHeader}><h2>B. Sorotan Utama</h2><Link className={styles.detailLink} href={`${base}/performance`}>Lihat Kinerja</Link></div>
+        <ExecutiveSourceState status={strategyStatus} />
+        {targets.length > 0 ? <ExecutiveTargetTable base={base} targets={targets.slice(0, 3)} /> : null}
+      </section>
+      <section className={styles.briefSection}>
+        <div className={styles.briefHeader}><h2>C. Keputusan Menunggu</h2><Link className={styles.detailLink} href={`${base}/approvals`}>Semua Persetujuan</Link></div>
+        <ExecutiveSourceState status={workStatus} />
+        {work ? <p>{work.counts.pending_approvals} persetujuan berstatus menunggu dalam visibility ruang kerja aktif.</p> : null}
+      </section>
+      <section className={styles.briefSection}>
+        <div className={styles.briefHeader}><h2>D. Temuan & Perhatian</h2><Link className={styles.detailLink} href={`${base}/findings`}>Semua Temuan</Link></div>
+        <ExecutiveSourceState status={workStatus} />
+        {work ? <p>{work.counts.active_findings} temuan aktif: {work.counts.critical_findings} kritis, {work.counts.high_findings} tinggi, {work.counts.pending_verification_findings} menunggu verifikasi.</p> : null}
+      </section>
+      <section className={styles.briefSection}>
+        <div className={styles.briefHeader}><h2>E. Status Proyek</h2><Link className={styles.detailLink} href={`${base}/projects`}>Semua Proyek</Link></div>
+        <ExecutiveSourceState status={workStatus} />
+        {work ? <p>{work.counts.active_projects} proyek aktif, {work.counts.on_hold_projects} ditahan, {work.counts.completed_projects} selesai. {work.counts.reports} laporan dan {work.counts.documents} dokumen tersedia.</p> : null}
+      </section>
+      <section className={styles.briefSection}>
+        <div className={styles.briefHeader}><h2>F. Agenda & Tenggat</h2><Link className={styles.detailLink} href={`${base}/tasks`}>Semua Tugas</Link></div>
+        <ExecutiveSourceState status={workStatus} />
+        {work ? <p>{work.counts.overdue_tasks} tugas lewat tenggat, {work.counts.blocked_tasks} terhambat, {work.counts.critical_tasks} kritis, {work.counts.pending_review_tasks} menunggu peninjauan. Tenggat hanya dihitung jika tercatat pada sumber.</p> : null}
+      </section>
+      <section className={styles.briefSection}>
+        <div className={styles.briefHeader}><h2>G. Koneksi Domain</h2></div>
+        {loading ? <ExecutiveSourceState status="loading" /> : data ? <p>{data.domains.filter((domain) => domain.status === "UNAVAILABLE").map((domain) => executiveDomainLabel(domain.domain)).join(", ")} belum terhubung ke layanan canonical.</p> : <ExecutiveSourceState status="ERROR" />}
+      </section>
+      <section className={styles.briefSection}>
+        <div className={styles.briefHeader}><h2>H. GENESIS Advisory</h2><Status label="Belum Terhubung" variant="neutral" /></div>
+        <p className={styles.briefTimelineText}>Analisis advisory belum terhubung.</p>
+      </section>
     </div>
-  );
+  </div>;
 }

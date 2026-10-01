@@ -188,6 +188,7 @@ export type {
   ExecutiveDomainStatus,
   ExecutiveSourceStatus,
   ExecutiveConnectionStatus,
+  ExecutiveSharedWorkSummary,
 } from "../../../../alos-contracts/generated/typescript/executive";
 
 /** Existing Web view enrichment from the canonical target detail response. */

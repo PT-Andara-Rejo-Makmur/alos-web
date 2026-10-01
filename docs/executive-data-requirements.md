@@ -1,5 +1,10 @@
 # Executive Data Requirements Registry
 
+Status implementasi aktual dan audit menu ada pada [Executive Workspace](executive-workspace.md).
+Tabel kebutuhan di bawah mencatat tujuan data; label readiness lama bukan bukti koneksi runtime.
+Ringkasan dan Brief kini memakai satu Executive overview authoritative, sementara detail divisi
+Shared Work, initiative, extraction dan GENESIS/ARA tetap belum tersedia sesuai audit aktual.
+
 Registry ini mendokumentasikan spesifikasi kebutuhan data resmi untuk seluruh komponen pada Ruang Kerja Eksekutif (Executive Workspace) ALOS.
 Setiap komponen didefinisikan dengan 17 atribut canonical:
 

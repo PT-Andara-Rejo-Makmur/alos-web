@@ -15,4 +15,3 @@ export {
   performanceLabel,
   performanceVariant,
 } from "./executive-model";
-export type { ExecutiveStrategyData } from "./executive-model";

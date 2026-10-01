@@ -7,11 +7,6 @@ import type {
   StrategyVerificationState,
 } from "@/lib/contracts";
 
-export interface ExecutiveStrategyData {
-  readonly plans: readonly StrategyPlan[];
-  readonly targets: readonly BusinessTarget[];
-}
-
 export function hasExecutiveContext(session: SessionProjection): boolean {
   const resolution = resolveWorkspaceDomain(session);
   return resolution.valid && resolution.domain === "EXECUTIVE";

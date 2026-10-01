@@ -1,3 +1,4 @@
+import { executiveOverviewFixture } from "./executive-overview-fixture";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -157,6 +158,7 @@ function authenticatedSession(principal = executivePrincipal) {
 describe("Executive Workspace Completion & Functional Gap Closure", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(strategyApi, "getExecutiveOverview").mockResolvedValue(executiveOverviewFixture({ plans: [mockPlan], targets: [mockTarget] }));
     mockSearchParams = new URLSearchParams();
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(authenticatedSession());
     vi.spyOn(strategyApi, "listPlans").mockResolvedValue([mockPlan]);
@@ -179,16 +181,16 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(await screen.findByRole("heading", { name: "Brief Eksekutif" })).toBeInTheDocument();
     expect(screen.getByText("A. Kondisi Perusahaan Saat Ini")).toBeInTheDocument();
     expect(screen.getByText("B. Sorotan Utama")).toBeInTheDocument();
-    expect(screen.getByText("C. Keputusan Hari Ini")).toBeInTheDocument();
-    expect(screen.getByText("D. Risiko & Peringatan")).toBeInTheDocument();
-    expect(screen.getByText("E. Progres Penting")).toBeInTheDocument();
+    expect(screen.getByText("C. Keputusan Menunggu")).toBeInTheDocument();
+    expect(screen.getByText("D. Temuan & Perhatian")).toBeInTheDocument();
+    expect(screen.getByText("E. Status Proyek")).toBeInTheDocument();
     expect(screen.getByText("F. Agenda & Tenggat")).toBeInTheDocument();
-    expect(screen.getByText("G. Arahan Pimpinan")).toBeInTheDocument();
+    expect(screen.getByText("G. Koneksi Domain")).toBeInTheDocument();
     expect(screen.getByText("H. GENESIS Advisory")).toBeInTheDocument();
 
     // Directive notice when task mutation is not available
     expect(
-      screen.getByText("Pembuatan arahan akan tersedia setelah tindakan tugas dapat digunakan."),
+      await screen.findByText(/Sales & Marketing, Finance & Pajak, Property & Teknik, Legal, HR\/GA, IT belum terhubung/),
     ).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Tambah Arahan" })).not.toBeInTheDocument();
   });

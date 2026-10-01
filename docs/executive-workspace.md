@@ -1,49 +1,71 @@
 # Executive Workspace
 
-Executive Workspace adalah pusat pengendalian perusahaan pada boundary canonical `/workspace/[workspaceKey]`. Route dasar mengarahkan workspace Executive aktif ke `/workspace/[workspaceKey]/summary`.
+Executive is a governed read/projection layer over canonical Strategy and Shared Work.
+It owns no business database, entity lifecycle, KPI, approval system or AI summary.
 
-## Authority dan batasan
+## Actual menu and page audit
 
-Setiap halaman Executive memeriksa session HttpOnly melalui ALOS Web/BFF. Halaman hanya dibuka ketika active workspace Backend bertipe `EXECUTIVE`; URL, nama pengguna, dan penyimpanan browser tidak menjadi authority. Executive tidak memperoleh akses data berklasifikasi melalui frontend.
+| Existing menu/page | Actual source and behavior |
+| --- | --- |
+| Ringkasan / Pusat Kendali Eksekutif (`summary`) | One GET `/api/v1/executive/overview`; renders canonical Strategy target details, Shared Work counts/previews and source lineage |
+| Brief Eksekutif (`brief`) | Same overview; factual plan, approval, finding, project/task/report/document counts and unavailable domains; no LLM |
+| Rencana & Target (`planning`) | Dedicated Strategy API for strategic/operating plans, objectives, company targets, assumptions, cascade, constraints and lifecycle |
+| Kinerja (`performance`) | Dedicated Strategy API; Backend-selected observations, performance, verification, owner, period and lifecycle; target detail uses target/version |
+| Review & Revisi (`reviews`) | Canonical target revision and history APIs; performance review narrative remains unavailable because no canonical review source exists |
+| Verification (`performance` action/drawer) | Canonical Strategy observation verification and planning verification; permission gated |
+| Assumptions, cascade, history | Existing planning/review/detail tabs and drawers; no added navigation menu |
+| Inisiatif Strategis (`initiatives`) | Readiness only; no canonical initiative or project-to-strategy relationship is inferred |
+| Divisi (`divisions`) | Dedicated Strategy targets where explicit scope permits; business-domain connection remains unavailable |
+| Detail Divisi (`divisions/{sales,property,finance,legal,hr,it}`) | Strategy detail where explicit scope exists; division Shared Work tabs remain unavailable because no canonical division-to-workspace projection exists |
+| Proyek, Tugas, Persetujuan, Laporan, Temuan, Dokumen | Existing canonical Shared Work list/detail APIs; active workspace visibility; default Executive is read-oriented |
+| Tanya ARA and Analisis GENESIS | READINESS ONLY / Belum Terhubung; no new calls, prompt, summary or recommendation |
 
-Browser → ALOS Web/BFF → ALOS Backend → GENESIS/internal systems. GENESIS bersifat advisory dan tidak menjadi authority.
+Routes use `/workspace/[workspaceKey]/...`, with workspaceKey from the authoritative
+active session. `/workspace/executive` remains a compatibility redirect to the actual
+active key. The existing navigation, CSS and responsive AppShell are retained.
 
-## Navigasi dan route
+## Data flow and visibility
 
-| Menu | Route | Ketersediaan |
-| --- | --- | --- |
-| Ringkasan | `/workspace/[workspaceKey]/summary` | UI READY (Strategy Plan/Target; domain lain READINESS ONLY / NOT CONNECTED) |
-| Brief Eksekutif | `/workspace/[workspaceKey]/brief` | READINESS ONLY (Agenda/Tenggat & Temuan NOT CONNECTED) |
-| Rencana & Target | `/workspace/[workspaceKey]/planning` | UI READY (Strategy Plan, Target, Asumsi, Cascade; Ekstraksi Dokumen UI READY / NEEDS BACKEND) |
-| Kinerja | `/workspace/[workspaceKey]/performance` | UI READY (Target & Observasi Aktif/Forecast) |
-| Inisiatif Strategis | `/workspace/[workspaceKey]/initiatives` | UI READY / NEEDS BACKEND (data kosong jujur tanpa dummy) |
-| Review & Revisi | `/workspace/[workspaceKey]/reviews` | UI READY (Revisi Target); Review Kinerja UI READY / NEEDS CONTRACT |
-| Divisi | `/workspace/[workspaceKey]/divisions` | UI READY (Fail-closed scoping) |
-| Detail Divisi | `/workspace/[workspaceKey]/divisions/[divisionKey]` | UI READY (Shared Work lintas ruang kerja READINESS ONLY) |
-| Proyek, Tugas, Persetujuan, Dokumen, Laporan, Temuan | `/workspace/[workspaceKey]/{module}` | UI READY / NEEDS BACKEND (Universal Shared Work — UI siap, koneksi backend belum aktif) |
-| Tanya ARA | `/workspace/[workspaceKey]/ara` | NOT CONNECTED / READINESS ONLY (Tanpa percakapan simulasi) |
+Summary and brief use `useExecutiveOverview` in `executive-data.ts`. They do not fetch
+separate Strategy lists or Shared Work endpoints to assemble a competing overview.
+Dedicated Strategy screens retain `useExecutiveStrategyData` for detail and commands.
+The unused ExecutiveStrategyData declaration was removed.
 
-`[workspaceKey]` berasal dari `active_workspace.workspace.workspace_key` pada session Executive yang authoritative. `/workspace/executive` hanya compatibility alias yang memuat session lalu mengarahkan ke key aktual; alias tersebut bukan workspace authority dan bukan route tree kedua.
+The Backend requires an active principal, EXECUTIVE, strategy.read and work.read.
+IT_ADMIN alone grants no Executive access. Company Strategy authority remains with
+Strategy. Shared Work remains within tenant, organization and existing active workspace
+links; company context never opens every company workspace. A source shared into the
+Executive workspace is visible there. Documents retain workspace ownership. Existing
+Shared Work details have the same boundary as overview links.
 
-Detail Divisi mempertahankan tab Proyek, Tugas, Persetujuan, Temuan, dan Laporan sebagai readiness only. Detail tersebut belum memiliki governed cross-workspace Shared Work projection, sehingga tidak menampilkan Shared Work dari active workspace Executive dan tidak menebak workspace berdasarkan `divisionKey`.
+Counts cover every matching record. Preview lists contain at most 50 canonical entities
+per collection and link to existing list/detail routes. Sources carry authoritative
+timestamps; loading the page never creates a source update timestamp. Unknown times
+remain `—`. Workspace changes remount the overview consumer and abort its old request.
 
-Sidebar desktop tetap 248px saat terbuka dan 72px saat ringkas. Toggle berada di header sidebar. Mobile menggunakan drawer.
+## Source states and honest metrics
 
-## Audit implementasi
+| Canonical state | Rendering |
+| --- | --- |
+| Loading | Memuat; no numbers |
+| CONNECTED | Terhubung, canonical data |
+| CONNECTED_EMPTY | Terhubung · Belum ada data; successful empty state and known empty counts |
+| UNAVAILABLE | Belum Terhubung, `—`, no invented zero |
+| ERROR | Gagal Memuat, `—`; no empty-state substitution |
 
-| Area | Kondisi aktual | Gap |
-| --- | --- | --- |
-| Executive lama | Ringkasan Strategy tersedia | Dipecah menjadi halaman berdasarkan fungsi bisnis |
-| Strategy | Plan, objective, target, observation, assumption, cascade, lifecycle tersedia pada Backend | Initiative dan performance review belum memiliki endpoint public yang digunakan Web |
-| Shared Work | Proyek, tugas, persetujuan, dokumen, laporan, temuan universal tersedia | Top-level memakai workspace aktif; tab Shared Work pada Detail Divisi readiness only sampai projection lintas ruang kerja tersedia |
-| Contracts | Strategy contract mencakup plan/target/observation/assumption/cascade | Initiative belum diekspor facade Web |
-| GENESIS/ARA | Tidak ada surface public yang dapat dipakai Executive | Readiness tanpa hasil atau rekomendasi buatan |
-| Document extraction | Belum ada governed extraction endpoint untuk Web | UX dinyatakan belum terhubung |
+Strategy source failure leaves Shared Work renderable and vice versa. Whole-request
+errors remain errors. Session expiry and denied authority have distinct messages.
+Summary targets render Backend performance and selected TARGET/ACTUAL/FORECAST;
+NOT_EVALUATED remains Belum Dinilai. Web does not calculate performance again.
 
-## Source honesty
+Pendapatan, Penjualan / Closing, Kas & Likuiditas and Progres Proyek remain unavailable
+until Sales/Finance/Property have dedicated canonical sources. Keputusan Menunggu
+uses Backend PENDING approval count. Temuan Aktif replaces the over-specific risk label
+and uses unresolved canonical finding count. Severity is rendered directly with existing
+Shared Work badges, never inferred from text. RETURNED, REJECTED, HELD and HOLD retain
+their meanings. No Segarkan Data button is introduced.
 
-Nilai kosong ditampilkan sebagai `—`. Sumber tidak terhubung ditampilkan sebagai `Belum Terhubung`; tidak diganti menjadi nol, aman, atau status kinerja lain. Ringkasan hanya menggunakan target `scope.type = COMPANY`. Performance state dan verification state berasal dari Backend.
-
-## Detail destination
-
-Target menuju Kinerja. Domain menuju detail Divisi. Proyek, tugas, persetujuan, dokumen, laporan, dan temuan menuju route Shared Work universal. Ringkasan tidak menyimpan nilai bisnis atau mengambil keputusan.
+Domain status is deliberately UNAVAILABLE for Sales & Marketing, Property & Teknik,
+Finance & Pajak, Legal, HR/GA and IT. Generic domain CRUD does not change this status.
+Document extraction, initiative lifecycle, company risk scores, cross-workspace division
+aggregation and GENESIS/ARA integration remain outside this closure.

@@ -1,3 +1,4 @@
+import { executiveOverviewFixture } from "./executive-overview-fixture";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import fs from "node:fs";
@@ -145,6 +146,7 @@ function authenticatedSession(principal = executivePrincipal) {
 describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls + Hygiene)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(strategyApi, "getExecutiveOverview").mockResolvedValue(executiveOverviewFixture({ plans: [mockPlan], targets: [mockTarget] }));
     mockSearchParams = new URLSearchParams();
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(authenticatedSession());
     vi.spyOn(strategyApi, "listPlans").mockResolvedValue([mockPlan]);
@@ -201,16 +203,16 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
 
     expect(await screen.findByRole("heading", { name: "Brief Eksekutif" })).toBeInTheDocument();
     expect(screen.queryByText(/Nihil/i)).not.toBeInTheDocument();
-    expect(await screen.findByText(/Data temuan belum tersedia/)).toBeInTheDocument();
+    expect((await screen.findAllByText("Kapabilitas sumber untuk proyeksi ini belum tersedia.")).length).toBeGreaterThan(0);
   });
 
   it("does not infer risk or safety when the Strategy source cannot be loaded", async () => {
-    vi.spyOn(strategyApi, "listPlans").mockRejectedValueOnce(new Error("Failed to fetch"));
+    vi.spyOn(strategyApi, "getExecutiveOverview").mockRejectedValueOnce(new Error("Failed to fetch"));
 
     render(<ExecutiveBriefPage />);
 
-    expect(await screen.findByText("Kondisi perusahaan belum dapat disimpulkan karena data strategi belum tersedia.")).toBeInTheDocument();
-    expect(screen.getByText("Risiko dan peringatan belum dapat disimpulkan karena data strategi belum tersedia.")).toBeInTheDocument();
+    expect(await screen.findByText("Data Executive belum dapat dimuat. Silakan coba kembali beberapa saat lagi.")).toBeInTheDocument();
+    expect(screen.getAllByText("Sumber belum dapat dibaca. Data dan jumlah belum dapat ditampilkan.").length).toBeGreaterThan(0);
     expect(screen.queryByText(/Tidak ada target korporasi yang terindikasi berisiko/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/aman/i)).not.toBeInTheDocument();
   });
@@ -220,7 +222,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     render(<ExecutiveBriefPage />);
 
     expect(await screen.findByText("F. Agenda & Tenggat")).toBeInTheDocument();
-    expect(screen.getByText("Agenda dan tenggat belum terhubung.")).toBeInTheDocument();
+    expect((await screen.findAllByText("Kapabilitas sumber untuk proyeksi ini belum tersedia.")).length).toBeGreaterThan(0);
     expect(screen.queryByText("Pelaporan Triwulan")).not.toBeInTheDocument();
   });
 
@@ -241,7 +243,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
       name: "Target Berisiko",
       performance_state: "AT_RISK",
     };
-    vi.spyOn(strategyApi, "listTargets").mockResolvedValue([atRiskTarget]);
+    vi.spyOn(strategyApi, "getExecutiveOverview").mockResolvedValue(executiveOverviewFixture({ plans: [mockPlan], targets: [atRiskTarget] }));
 
     render(<ExecutiveBriefPage />);
 
@@ -261,7 +263,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
       name: "Target Tanpa Status",
       performance_state: null as unknown as BusinessTarget["performance_state"],
     };
-    vi.spyOn(strategyApi, "listTargets").mockResolvedValueOnce([unknownTarget]);
+    vi.spyOn(strategyApi, "getExecutiveOverview").mockResolvedValueOnce(executiveOverviewFixture({ plans: [mockPlan], targets: [unknownTarget] }));
 
     render(<ExecutiveBriefPage />);
 
@@ -538,7 +540,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     expect(await screen.findByRole("heading", { name: "Brief Eksekutif" })).toBeInTheDocument();
     // Directive creation is not an active button pretending to work
     expect(screen.queryByRole("button", { name: "Tambah Arahan" })).not.toBeInTheDocument();
-    expect(screen.getByText("Pembuatan arahan akan tersedia setelah tindakan tugas dapat digunakan.")).toBeInTheDocument();
+    expect(await screen.findByText(/Sales & Marketing, Finance & Pajak, Property & Teknik, Legal, HR\/GA, IT belum terhubung/)).toBeInTheDocument();
   });
 
   // 23. Docs do not claim unavailable features as Live/Tersedia
