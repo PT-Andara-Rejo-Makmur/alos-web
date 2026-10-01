@@ -402,19 +402,20 @@ interface ObservationDrawerProps {
 function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDrawerProps) {
   const isActual = mode === "ACTUAL";
   const title = mode === "TARGET" ? "Catat Nilai Target" : isActual ? "Catat Aktual" : "Catat Perkiraan";
+  const valueLabel = mode === "TARGET" ? "Target" : isActual ? "Aktual" : "Perkiraan";
+  const isBoolean = target.unit === "BOOLEAN";
 
   const [value, setValue] = useState("");
   const [observedAt, setObservedAt] = useState(new Date().toISOString().slice(0, 10));
   const [sourceMode, setSourceMode] = useState<"MANUAL_EVIDENCED" | "SOURCE_LINKED">("MANUAL_EVIDENCED");
   const [sourceRef, setSourceRef] = useState("");
   const [evidenceRef, setEvidenceRef] = useState("");
-  const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!value.trim()) {
+    if (!value.trim() || (isBoolean && value !== "true" && value !== "false")) {
       setFeedback("Nilai pengamatan wajib diisi.");
       return;
     }
@@ -449,7 +450,7 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
         target_id: target.target_id,
         target_version: target.version,
         kind: mode,
-        value: Number(value),
+        value: isBoolean ? value === "true" : Number(value),
         unit: target.unit,
         period: target.period,
         source_mode: sourceMode,
@@ -488,8 +489,16 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="obs-val">Nilai {isActual ? "Aktual" : "Perkiraan"} *</label>
-            <input className={styles.formInput} id="obs-val" onChange={(e) => setValue(e.target.value)} placeholder="0.00" required type="number" value={value} />
+            <label htmlFor="obs-val">Nilai {valueLabel} *</label>
+            {isBoolean ? (
+              <select className={styles.formSelect} id="obs-val" onChange={(e) => setValue(e.target.value)} required value={value}>
+                <option value="">Pilih nilai</option>
+                <option value="true">True</option>
+                <option value="false">False</option>
+              </select>
+            ) : (
+              <input className={styles.formInput} id="obs-val" onChange={(e) => setValue(e.target.value)} placeholder="0.00" required step="any" type="number" value={value} />
+            )}
           </div>
 
           <div className={styles.formField}>
@@ -528,11 +537,6 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
           )}
 
           <div className={`${styles.formField} ${styles.formFullWidth}`}>
-            <label htmlFor="obs-notes">Catatan Tambahan (Opsional)</label>
-            <textarea className={styles.formTextarea} id="obs-notes" onChange={(e) => setNotes(e.target.value)} rows={2} value={notes} />
-          </div>
-
-          <div className={`${styles.formField} ${styles.formFullWidth}`}>
             <div className={styles.briefNotice}>
               Status Verifikasi Awal: <strong>Menunggu Verifikasi</strong>. Data tidak dapat langsung diubah menjadi Terverifikasi tanpa proses telaah berwenang.
             </div>
@@ -543,7 +547,7 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
           <Button onClick={onClose} type="button" variant="ghost">Batal</Button>
           {canSubmit ? (
             <Button disabled={submitting} type="submit" variant="primary">
-              {submitting ? "Menyimpan…" : `Simpan ${isActual ? "Aktual" : "Perkiraan"}`}
+              {submitting ? "Menyimpan…" : `Simpan ${valueLabel}`}
             </Button>
           ) : (
             <div className={styles.briefNotice}>

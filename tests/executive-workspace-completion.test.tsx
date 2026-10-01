@@ -495,6 +495,81 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
   });
 
   // 10. Initiative UI Detail
+  it.each([
+    ["TARGET", "true", true],
+    ["TARGET", "false", false],
+    ["ACTUAL", "true", true],
+    ["ACTUAL", "false", false],
+    ["FORECAST", "true", true],
+    ["FORECAST", "false", false],
+  ] as const)("records BOOLEAN/BINARY %s as boolean %s", async (kind, input, expected) => {
+    const target: BusinessTarget = {
+      ...mockTarget,
+      lifecycle_state: kind === "TARGET" ? "DRAFT" : "ACTIVE",
+      measurement_type: "BINARY",
+      unit: "BOOLEAN",
+      observations: [],
+      authorized_actions: [kind === "TARGET" ? "RECORD_TARGET" : kind === "ACTUAL" ? "RECORD_ACTUAL" : "RECORD_FORECAST"],
+    };
+    vi.mocked(strategyApi.listTargets).mockResolvedValue([target]);
+    const create = vi.spyOn(strategyApi, "createObservation").mockResolvedValue({
+      ...mockTarget.observations[0], unit: "BOOLEAN", kind, value: expected,
+    });
+    mockSearchParams = new URLSearchParams("target=tgt_revenue");
+    render(<ExecutivePerformancePage />);
+    const label = kind === "TARGET" ? "Target" : kind === "ACTUAL" ? "Aktual" : "Perkiraan";
+    const action = kind === "TARGET" ? "Catat Nilai Target" : `Catat ${label}`;
+    fireEvent.click(await screen.findByRole("button", { name: action }));
+    const value = screen.getByRole("combobox", { name: `Nilai ${label} *` });
+    expect(value).toHaveValue("");
+    expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Catatan Tambahan/)).not.toBeInTheDocument();
+    fireEvent.change(value, { target: { value: input } });
+    fireEvent.change(screen.getByLabelText("Bukti Pendukung (Evidence) *"), { target: { value: "evidence:boolean-observation" } });
+    fireEvent.click(screen.getByRole("button", { name: `Simpan ${label}` }));
+    await waitFor(() => expect(create).toHaveBeenCalledTimes(1));
+    const payload = create.mock.calls[0][1];
+    expect(payload).toMatchObject({
+      kind, unit: "BOOLEAN", value: expected, target_version: target.version,
+      source_mode: "MANUAL_EVIDENCED", verification_state: "PENDING_VERIFICATION",
+      evidence_refs: ["evidence:boolean-observation"],
+    });
+    expect(typeof payload.value).toBe("boolean");
+    expect(payload).not.toHaveProperty("notes");
+  });
+
+  it("requires an explicit boolean selection before recording", async () => {
+    vi.mocked(strategyApi.listTargets).mockResolvedValue([{
+      ...mockTarget, measurement_type: "BINARY", unit: "BOOLEAN", observations: [],
+    }]);
+    const create = vi.spyOn(strategyApi, "createObservation");
+    mockSearchParams = new URLSearchParams("target=tgt_revenue");
+    render(<ExecutivePerformancePage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Catat Aktual" }));
+    fireEvent.change(screen.getByLabelText("Bukti Pendukung (Evidence) *"), { target: { value: "evidence:boolean" } });
+    fireEvent.submit(screen.getByRole("button", { name: "Simpan Aktual" }).closest("form")!);
+    expect(await screen.findByText("Nilai pengamatan wajib diisi.")).toBeInTheDocument();
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("retains numeric decimal observations for non-BOOLEAN units without a notes field", async () => {
+    const create = vi.spyOn(strategyApi, "createObservation").mockResolvedValue({
+      ...mockTarget.observations[0], kind: "ACTUAL", value: 12.5,
+    });
+    mockSearchParams = new URLSearchParams("target=tgt_revenue");
+    render(<ExecutivePerformancePage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Catat Aktual" }));
+    const value = screen.getByRole("spinbutton", { name: "Nilai Aktual *" });
+    expect(value).toHaveAttribute("step", "any");
+    expect(screen.queryByLabelText(/Catatan Tambahan/)).not.toBeInTheDocument();
+    fireEvent.change(value, { target: { value: "12.5" } });
+    fireEvent.change(screen.getByLabelText("Bukti Pendukung (Evidence) *"), { target: { value: "evidence:numeric" } });
+    fireEvent.click(screen.getByRole("button", { name: "Simpan Aktual" }));
+    await waitFor(() => expect(create).toHaveBeenCalledTimes(1));
+    expect(create.mock.calls[0][1]).toMatchObject({ kind: "ACTUAL", unit: "IDR", value: 12.5 });
+    expect(typeof create.mock.calls[0][1].value).toBe("number");
+  });
+
   it("renders initiative readiness table and detail drawer without invented payload fields", async () => {
     const mockInitiativeFixture = {
       id: "init_res_1",
