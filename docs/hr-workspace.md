@@ -1,5 +1,7 @@
 # HR / GA Workspace
 
+Sumber operasional canonical kini terhubung sesuai [mapping Legal, HR & GA dan IT](legal-hr-it-operations.md). Catatan SOURCE UNAVAILABLE berikut merekam desain awal; capability tanpa persistence/authority tetap unavailable.
+
 Status: **UI FINAL / SOURCE UNAVAILABLE**. Frontend HR/GA menggunakan `workspace.workspace_key` hanya sebagai identitas URL. Domain berasal dari `resolveWorkspaceDomain()` dan metadata workspace authoritative. Mismatch workspace fail closed.
 
 Route utama:

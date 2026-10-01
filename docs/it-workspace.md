@@ -1,5 +1,7 @@
 # IT Workspace
 
+Sumber operasional canonical kini terhubung sesuai [mapping Legal, HR & GA dan IT](legal-hr-it-operations.md). Catatan SOURCE UNAVAILABLE berikut merekam desain awal; capability tanpa persistence/authority tetap unavailable.
+
 Status: UI FINAL / SOURCE UNAVAILABLE untuk data operasional yang belum disediakan.
 
 Authority IT hanya berasal dari `resolveWorkspaceDomain(session, requestedWorkspaceKey)` dengan domain `IT` dan workspace aktif yang sama. URL, nama workspace, role string, dan local storage bukan authority. `/accounts` adalah surface canonical “Akun Karyawan”; tidak ada route admin IT kedua.

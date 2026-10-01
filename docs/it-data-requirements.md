@@ -1,5 +1,7 @@
 # IT Data Requirements
 
+Sumber operasional canonical kini terhubung sesuai [mapping Legal, HR & GA dan IT](legal-hr-it-operations.md). Catatan SOURCE UNAVAILABLE berikut merekam desain awal; capability tanpa persistence/authority tetap unavailable.
+
 Status keseluruhan: UI FINAL / SOURCE UNAVAILABLE. Setiap availability yang bertanda `NEEDS CONTRACT`, `NEEDS BACKEND`, atau `NEEDS DECISION` belum boleh dipresentasikan sebagai data operasional.
 
 | Component ID | Menu | Purpose | Entity | Employee Source | Identity Source | Workspace Source | Role Source | Permission Source | Owner | Verification | Freshness | Classification | Authority | Destination | Availability |
