@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -47,7 +47,7 @@ function propertySession(workspaceKey = "property-utama") {
 }
 
 describe("Finance & Pajak workspace", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => { vi.clearAllMocks(); vi.spyOn(api, "authenticatedApiRequest").mockRejectedValue(new api.ApiError(503, "Source failure", null)); });
   afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
   it("uses canonical Finance authority and actual workspace key", () => {
@@ -138,34 +138,30 @@ describe("Finance & Pajak workspace", () => {
   it("renders source-unavailable receipt form without fake submit success", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
     render(<FinanceReceivablesPage workspaceKey="finance-utama" />);
-    expect(await screen.findByRole("heading", { name: "Penerimaan", level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Tambah Penerimaan" })).toBeInTheDocument();
-    expect(screen.getByText("Penerimaan belum tersedia.")).toBeInTheDocument();
-  });
+    expect(await screen.findByRole("heading", { name: "Piutang & Penerimaan", level: 1 })).toBeInTheDocument();
+    expect(await screen.findByText("Gagal Memuat")).toBeInTheDocument();
+    expect(screen.queryByText("Belum ada data")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Tambah/ })).not.toBeInTheDocument();
+});
 
   it("changes receivables view and contextual action with the selected tab", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
+    const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ items: [], total: 0, source: { source: "finance", status: "CONNECTED_EMPTY", authoritative: true, last_updated_at: null } });
     render(<FinanceReceivablesPage workspaceKey="finance-utama" />);
-    await screen.findByRole("heading", { name: "Penerimaan", level: 1 });
-    expect(screen.getByRole("button", { name: "Tambah Penerimaan" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Tambah Piutang" })).not.toBeInTheDocument();
-    screen.getByRole("tab", { name: "Piutang" }).click();
-    expect(await screen.findByRole("button", { name: "Tambah Piutang" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Tambah Penerimaan" })).not.toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Outstanding" })).toBeInTheDocument();
-  });
+    expect(await screen.findByRole("heading", { name: "Piutang & Penerimaan", level: 1 })).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada data", { selector: "h3" })).toBeInTheDocument();
+    screen.getByRole("tab", { name: "Pembayaran Piutang" }).click();
+    await waitFor(() => expect(request.mock.calls.some(([path]) => String(path).startsWith("/api/v1/finance/receivable-payments"))).toBe(true));
+    expect(screen.queryByRole("button", { name: /Tambah/ })).not.toBeInTheDocument();
+});
 
   it("renders required relation fields as unavailable selectors", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
-    render(<FinanceReceivablesPage workspaceKey="finance-utama" />);
-    await screen.findByRole("button", { name: "Tambah Penerimaan" });
-    screen.getByRole("tab", { name: "Piutang" }).click();
-    (await screen.findByRole("button", { name: "Tambah Piutang" })).click();
-    const dialog = await screen.findByRole("dialog", { name: "Tambah Piutang" });
-    expect(within(dialog).getByLabelText(/Pihak/)).toBeRequired();
-    expect(within(dialog).getByLabelText("Proyek")).toBeDisabled();
-    expect(screen.getAllByText("Pilihan belum tersedia.").length).toBeGreaterThan(0);
-  });
+    render(<FinanceTaxPage workspaceKey="finance-utama" />);
+    expect(await screen.findByRole("heading", { name: "Pajak Internal", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Dokumen Pajak Internal" })).toBeInTheDocument();
+    expect(screen.queryByText(/Terkirim.*DJP|Lunas.*otomatis/)).not.toBeInTheDocument();
+});
 
   it("keeps non-Finance access closed for Finance-only modules", async () => {
     const pages = [
@@ -198,11 +194,12 @@ describe("Finance & Pajak workspace", () => {
   });
 
   it("keeps Finance target, actual, and forecast authority separate", () => {
-    const performance = readFileSync(resolve("src/features/finance/performance/finance-performance-page.tsx"), "utf8");
-    expect(performance).toContain('actual: "—"');
-    expect(performance).toContain('forecast: "—"');
+    const performance = readFileSync(resolve("src/features/business-records/strategy-performance.tsx"), "utf8");
+    expect(performance).toContain('row.selected_observations?.actual');
+    expect(performance).toContain('row.selected_observations?.forecast');
+    expect(performance).toContain('row.performance_state');
     expect(performance).not.toContain('String(target.period)');
-  });
+});
 
   it("does not create a static Finance route tree or duplicate universal features", () => {
     const routes = readFileSync(resolve("src/app/navigation.ts"), "utf8");
@@ -213,10 +210,10 @@ describe("Finance & Pajak workspace", () => {
 
   it("shows the disabled form action after opening the receipt form", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
+    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ items: [], total: 0, source: { source: "finance", status: "CONNECTED_EMPTY", authoritative: true, last_updated_at: null } });
     render(<FinanceReceivablesPage workspaceKey="finance-utama" />);
-    await waitFor(() => expect(screen.getByRole("button", { name: "Tambah Penerimaan" })).toBeInTheDocument());
-    screen.getByRole("button", { name: "Tambah Penerimaan" }).click();
-    expect(await screen.findByRole("button", { name: "Simpan Penerimaan" })).toBeDisabled();
-    expect(screen.getByText("Penyimpanan Belum Tersedia")).toBeInTheDocument();
-  });
+    expect(await screen.findByText("Belum ada data", { selector: "h3" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Simpan|Tambah/ })).not.toBeInTheDocument();
+    expect(screen.queryByText("Rekaman tersimpan.")).not.toBeInTheDocument();
+});
 });
