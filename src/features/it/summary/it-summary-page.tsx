@@ -1,30 +1,9 @@
 "use client";
-
-import { Metric, PageHeader, Section } from "@/components/ui";
-import type { SessionProjection } from "@/features/session";
-
+import { DomainOverview } from "@/features/business-records/overview";
 import { ItLayout } from "../it-layout";
-import { ItSourceStrip, ItSourceStateView } from "../shared/it-ui";
-import styles from "../it.module.css";
-
-const operationalMetrics = ["Layanan Berjalan", "Insiden Terbuka", "Aset Terdaftar", "Permintaan Dukungan"];
-const identityMetrics = ["Akun Menunggu Pendaftaran", "Aktivasi Menunggu", "Permintaan Akses", "Akses Perlu Review", "Leaver Menunggu Revokasi"];
-
+import { itApi } from "../api";
+import { itResources } from "../resources";
+const labels = Object.fromEntries(Object.values(itResources).map((resource) => [resource.key, resource.title]));
 export function ItSummaryPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) {
-  return <ItLayout workspaceKey={workspaceKey}>{(session) => <ItSummary session={session} />}</ItLayout>;
+  return <ItLayout workspaceKey={workspaceKey}>{(session) => <DomainOverview key={session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_id : "unknown"} title="Operasional IT" labels={labels} read={itApi.overview} unavailable={["Live Monitoring", "Connector Eksternal", "Skor Keamanan", "Uptime", "MTTR", "Tingkat Keberhasilan Backup", "Aset IT", "Tiket Dukungan"]} />}</ItLayout>;
 }
-
-function ItSummary({ session }: Readonly<{ session: SessionProjection }>) {
-  const workspace = session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace : null;
-  return <div className={styles.page}>
-    <PageHeader description="Ringkasan layanan, sistem, akses, keamanan, dan dukungan IT." eyebrow="IT & IDENTITAS" metadata={`Workspace aktif: ${workspace?.workspace_name ?? "—"}`} title="Ringkasan IT" />
-    <div className={styles.contextBar}><ContextItem label="Periode" value="—" /><ContextItem label="Workspace" value={workspace?.workspace_name ?? "—"} /><ContextItem label="Status Data" value="Belum Terhubung" /><ContextItem label="Pembaruan Terverifikasi Terakhir" value="—" /></div>
-    <ItSourceStrip />
-    <Section title="Indikator Identitas"><section aria-label="Indikator identitas IT" className={styles.metricGrid}>{identityMetrics.map((label) => <Metric key={label} label={label} status="Belum Terhubung" value="—" />)}</section></Section>
-    <Section title="Indikator Operasional"><section aria-label="Indikator operasional IT" className={styles.metricGrid}>{operationalMetrics.map((label) => <Metric key={label} label={label} status="Belum Terhubung" value="—" />)}</section></Section>
-    <Section title="Kondisi Layanan"><ItSourceStateView description="Status layanan dan insiden belum tersedia dari sumber operasional IT." state="unavailable" /></Section>
-    <Section title="Akses & Keamanan"><ItSourceStateView description="Data akses, identitas, dan keamanan akan tampil setelah sumber resmi terhubung." state="unavailable" /></Section>
-  </div>;
-}
-
-function ContextItem({ label, value }: Readonly<{ label: string; value: string }>) { return <div className={styles.contextItem}><span className={styles.contextLabel}>{label}</span><span className={styles.contextValue}>{value}</span></div>; }
