@@ -6,5 +6,5 @@ import { FinanceLayout } from "../finance-layout";
 const resources = [financeResources.budgets, financeResources.budget_lines];
 
 export function FinanceBudgetPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) {
-  return <FinanceLayout workspaceKey={workspaceKey}>{(session) => <BusinessDataPage session={session} resources={resources} title="Anggaran" description="Catatan keuangan internal. Saldo bank, arus kas final, dan pelaporan resmi DJP belum tersedia." />}</FinanceLayout>;
+  return <FinanceLayout workspaceKey={workspaceKey}>{(session) => <BusinessDataPage session={session} resources={resources} title="Anggaran" description="Draft dan telaah internal anggaran tersedia. Persetujuan, aktivasi, dan penutupan anggaran belum tersedia karena authority keputusan canonical belum tersedia." />}</FinanceLayout>;
 }

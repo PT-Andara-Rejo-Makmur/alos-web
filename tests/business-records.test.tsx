@@ -9,7 +9,7 @@ import { marketingResources } from "@/features/marketing/resources";
 import { propertyResources } from "@/features/property/resources";
 import type { Resource } from "@/features/business-records/resource";
 import type { SessionProjection } from "@/features/session";
-import type { AuthenticatedPrincipalProjection, ExecutiveSourceStatus, FinanceBankAccountProjection, SalesCustomerProjection, FinanceOverview } from "@/lib/contracts";
+import type { AuthenticatedPrincipalProjection, ExecutiveSourceStatus, FinanceBankAccountProjection, SalesCustomerProjection, FinanceOverview, SalesPricingProjection, FinanceBudgetProjection, FinanceMonthCloseProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
 
 const stamp = "2027-01-02T03:04:05Z";
@@ -17,10 +17,10 @@ const source = (status: ExecutiveSourceStatus["status"], name = "finance"): Exec
 const bank: FinanceBankAccountProjection = { bank_account_id: "bank_1", account_name: "Recorded Bank", bank_name: "Internal", account_number_masked: null, currency: "USD", status: "ACTIVE", tenant_id: "tenant_1", organization_id: "org_1", workspace_id: "workspace_1", created_at: stamp, updated_at: stamp, allowed_transitions: ["INACTIVE"] };
 const customer: SalesCustomerProjection = { customer_id: "customer_1", customer_code: "C1", customer_type: "INDIVIDUAL", name: "Recorded Customer", email: null, phone: null, status: "ACTIVE", tenant_id: "tenant_1", organization_id: "org_1", workspace_id: "workspace_1", created_at: stamp, updated_at: stamp, allowed_transitions: ["INACTIVE"] };
 
-function session(workspace = "workspace_1", write = true): SessionProjection {
+function session(workspace = "workspace_1", write = true, role: "DIVISION_LEAD" | "DIVISION_MEMBER" = "DIVISION_LEAD"): SessionProjection {
   const principal: AuthenticatedPrincipalProjection = {
     actor: { actor_id: "actor_1", tenant_id: "tenant_1", organization_id: "org_1", active: true, display_name: "Owner" },
-    active_workspace: { active: true, role_refs: ["DIVISION_LEAD"], permission_refs: write ? ["finance.write", "sales.write", "marketing.write", "property.write"] : [], scope_refs: [], data_scope: "WORKSPACE",
+    active_workspace: { active: true, role_refs: [role], permission_refs: write ? ["finance.write", "sales.write", "marketing.write", "property.write"] : [], scope_refs: [], data_scope: "WORKSPACE",
       workspace: { workspace_id: workspace, workspace_key: workspace, workspace_name: "Business", workspace_type: "BUSINESS", division_code: "FINANCE", organization_id: "org_1", active: true } },
     workspace_access: [], issued_at: stamp, expires_at: "2028-01-01T00:00:00Z", email: "owner@example.test",
   };
@@ -87,6 +87,42 @@ it("hides mutation buttons without canonical write permission", async () => {
   expect(screen.queryByRole("button", { name: /Tambah/ })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Lihat detail" }));
   expect(screen.queryByRole("button", { name: "INACTIVE" })).not.toBeInTheDocument();
+});
+
+const recordScope = { tenant_id: "tenant_1", organization_id: "org_1", workspace_id: "workspace_1", created_at: stamp, updated_at: stamp };
+const pricing: SalesPricingProjection = { ...recordScope, pricing_id: "pricing_1", name: "Prepared Pricing", effective_from: null, effective_to: null, status: "DRAFT", allowed_transitions: [] };
+const budget: FinanceBudgetProjection = { ...recordScope, budget_id: "budget_1", name: "Recorded Budget", fiscal_year: 2027, status: "UNDER_REVIEW", allowed_transitions: [] };
+const month: FinanceMonthCloseProjection = { ...recordScope, month_close_id: "month_1", period: "2027-01", status: "OPEN", opened_at: stamp, closed_at: null, closed_by: null, allowed_transitions: [] };
+
+describe.each(["DIVISION_MEMBER", "DIVISION_LEAD"] as const)("material commands for %s", (role) => {
+  it.each([
+    { resource: salesResources.pricings, record: pricing },
+    { resource: financeResources.budgets, record: budget },
+    ...["APPROVED", "ACTIVE", "CLOSED"].map((status) => ({ resource: financeResources.budgets, record: { ...budget, status } })),
+    { resource: financeResources.month_closes, record: month },
+    { resource: financeResources.month_closes, record: { ...month, status: "CLOSED", closed_at: stamp } },
+  ])("preserves $resource.key $record.status without inventing material actions", async ({ resource, record }) => {
+    const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ items: [record], total: 1, source: source("CONNECTED", resource.domain) });
+    render(<RecordPanel resource={resource} session={session("workspace_1", true, role)} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Lihat detail" }));
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText(record.status)).toBeInTheDocument();
+    for (const status of ["ACTIVE", "APPROVED", "CLOSED"]) {
+      expect(within(dialog).queryByRole("button", { name: status })).not.toBeInTheDocument();
+    }
+    expect(request).not.toHaveBeenCalledWith(expect.stringContaining("/transition"), expect.anything());
+  });
+});
+
+it.each([
+  { status: "DRAFT", allowed_transitions: ["UNDER_REVIEW"] },
+  { status: "UNDER_REVIEW", allowed_transitions: ["DRAFT"] },
+] as const)("renders only Backend budget preparation action from $status", async (state) => {
+  vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ items: [{ ...budget, ...state } satisfies FinanceBudgetProjection], total: 1, source: source("CONNECTED") });
+  render(<RecordPanel resource={financeResources.budgets} session={session()} />);
+  fireEvent.click(await screen.findByRole("button", { name: "Lihat detail" }));
+  expect(within(screen.getByRole("dialog")).getByRole("button", { name: state.allowed_transitions[0] })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "APPROVED" })).not.toBeInTheDocument();
 });
 
 it.each([true, false])("reports mutation success only after Backend success=%s", async (success) => {
