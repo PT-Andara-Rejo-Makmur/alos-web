@@ -42,7 +42,7 @@ describe("LoginPage Component", () => {
     // Inputs & Labels
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(screen.getByLabelText("Kata sandi")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("nama@andara.co.id")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("nama@example.com")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Masukkan kata sandi")).toBeInTheDocument();
 
     // Submit button
@@ -80,13 +80,13 @@ describe("LoginPage Component", () => {
   it("memanggil sessionApiRequest dengan kredensial yang dimasukkan", async () => {
     const sessionSpy = vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce({
       authenticated: true,
-      principal: { display_name: "Admin", email: "admin@andara.co.id" },
+      principal: { display_name: "Admin", email: "admin@example.com" },
     });
 
     render(<LoginPage />);
 
-    fireEvent.change(screen.getByPlaceholderText("nama@andara.co.id"), {
-      target: { value: "admin@andara.co.id" },
+    fireEvent.change(screen.getByPlaceholderText("nama@example.com"), {
+      target: { value: "admin@example.com" },
     });
     fireEvent.change(screen.getByPlaceholderText("Masukkan kata sandi"), {
       target: { value: "SecretPassword123" },
@@ -97,7 +97,7 @@ describe("LoginPage Component", () => {
     await waitFor(() => {
       expect(sessionSpy).toHaveBeenCalledWith("/login", {
         method: "POST",
-        body: { email: "admin@andara.co.id", password: "SecretPassword123" },
+        body: { email: "admin@example.com", password: "SecretPassword123" },
       });
       expect(mockReplace).toHaveBeenCalledWith("/workspace");
       expect(mockRefresh).toHaveBeenCalled();
@@ -111,8 +111,8 @@ describe("LoginPage Component", () => {
 
     render(<LoginPage />);
 
-    fireEvent.change(screen.getByPlaceholderText("nama@andara.co.id"), {
-      target: { value: "invalid@andara.co.id" },
+    fireEvent.change(screen.getByPlaceholderText("nama@example.com"), {
+      target: { value: "invalid@example.com" },
     });
     fireEvent.change(screen.getByPlaceholderText("Masukkan kata sandi"), {
       target: { value: "WrongPassword123" },

@@ -66,7 +66,7 @@ export function ForgotPasswordForm() {
             disabled={submitting}
             id="reset-email"
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="nama@andara.co.id"
+            placeholder="nama@example.com"
             required
             type="email"
             value={email}

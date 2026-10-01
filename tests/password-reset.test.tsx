@@ -33,14 +33,14 @@ describe("Password Reset Web Flow", () => {
       render(<ForgotPasswordForm />);
 
       fireEvent.change(screen.getByLabelText(/Email Akun/i), {
-        target: { value: "user@andara.co.id" },
+        target: { value: "user@example.com" },
       });
       fireEvent.click(screen.getByRole("button", { name: /Kirim Instruksi Pemulihan/i }));
 
       await waitFor(() => {
         expect(apiSpy).toHaveBeenCalledWith("/password-reset/request", {
           method: "POST",
-          body: { email: "user@andara.co.id" },
+          body: { email: "user@example.com" },
         });
         expect(screen.getByRole("status")).toHaveTextContent(
           "Jika email terdaftar, instruksi pemulihan telah dikirim."
@@ -56,7 +56,7 @@ describe("Password Reset Web Flow", () => {
       render(<ForgotPasswordForm />);
 
       fireEvent.change(screen.getByLabelText(/Email Akun/i), {
-        target: { value: "user@andara.co.id" },
+        target: { value: "user@example.com" },
       });
       fireEvent.click(screen.getByRole("button", { name: /Kirim Instruksi Pemulihan/i }));
 
@@ -144,7 +144,7 @@ describe("Password Reset Web Flow", () => {
         new NextRequest("http://web.test/api/session/password-reset/request", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ email: "test@andara.co.id" }),
+          body: JSON.stringify({ email: "test@example.com" }),
         })
       );
 

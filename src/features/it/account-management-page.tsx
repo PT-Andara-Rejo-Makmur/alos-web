@@ -353,7 +353,6 @@ function DetailItem({ label, value }: Readonly<{ label: string; value: string }>
 
 function AccountReadinessDialog({ candidates = [], formRoles, formWorkspaces, onClose, onCreated, open }: Readonly<{ candidates?: readonly ProvisioningCandidateProjection[]; formRoles: readonly AuthorizationRole[]; formWorkspaces: readonly WorkspaceProjection[]; onClose: () => void; onCreated: () => void; open: boolean }>) {
   const [employeeId, setEmployeeId] = useState("");
-  const [email, setEmail] = useState("");
   const [workspaceId, setWorkspaceId] = useState("");
   const [role, setRole] = useState<AuthorizationRole | "">("");
   const [effectiveDate, setEffectiveDate] = useState(new Date().toISOString().slice(0, 10));
@@ -367,7 +366,7 @@ function AccountReadinessDialog({ candidates = [], formRoles, formWorkspaces, on
     if (!employee || !role || !workspaceId) return;
     setBusy(true); setError("");
     try {
-      await provisionAccount({ employee_id: employee.employee_id, email: email || employee.email || "", workspace_id: workspaceId, role_refs: [role], effective_at: new Date(`${effectiveDate}T00:00:00Z`).toISOString(), expires_at: expiresDate ? new Date(`${expiresDate}T23:59:59Z`).toISOString() : null, note: note || null });
+      await provisionAccount({ employee_id: employee.employee_id, workspace_id: workspaceId, role_refs: [role], effective_at: new Date(`${effectiveDate}T00:00:00Z`).toISOString(), expires_at: expiresDate ? new Date(`${expiresDate}T23:59:59Z`).toISOString() : null, note: note || null });
       onCreated();
     } catch (cause) { setError(humanizeIdentityError(cause)); }
     finally { setBusy(false); }
@@ -376,10 +375,10 @@ function AccountReadinessDialog({ candidates = [], formRoles, formWorkspaces, on
     <form id="identity-provision-form" onSubmit={(event) => void submit(event)}>
       <section aria-labelledby="it-register-employee"><h3 id="it-register-employee">1. Karyawan</h3>
         <FormField description="Pilihan hanya memuat karyawan aktif yang belum terhubung ke akun." htmlFor="it-employee-ref" label="Karyawan" required><select className={styles.formControl} id="it-employee-ref" onChange={(event) => setEmployeeId(event.target.value)} required value={employeeId}><option value="">Pilih karyawan</option>{candidates.map((candidate) => <option key={candidate.employee_id} value={candidate.employee_id}>{candidate.full_name} · {candidate.employee_number}</option>)}</select></FormField>
-        <div className={styles.detailGrid}><DetailItem label="Nama" value={employee?.full_name ?? "—"} /><DetailItem label="ID Karyawan" value={employee?.employee_number ?? employee?.employee_id ?? "—"} /><DetailItem label="Jabatan" value={employee?.position_title ?? "—"} /><DetailItem label="Divisi" value={employee?.department_code ?? "—"} /></div>
+        <div className={styles.detailGrid}><DetailItem label="Nama" value={employee?.full_name ?? "—"} /><DetailItem label="Nomor Karyawan" value={employee?.employee_number ?? employee?.employee_id ?? "—"} /><DetailItem label="Jabatan" value={employee?.position_title ?? "—"} /><DetailItem label="Divisi" value={employee?.department_code ?? "—"} /></div>
       </section>
       <section aria-labelledby="it-register-identity"><h3 id="it-register-identity">2. Identitas Akun</h3>
-        <FormField htmlFor="it-login-identifier" label="Email Akun" required><input className={styles.formControl} id="it-login-identifier" onChange={(event) => setEmail(event.target.value)} placeholder="Alamat email" required type="email" value={email || employee?.email || ""} /></FormField>
+        <FormField htmlFor="it-login-identifier" label="Email Akun" required><input className={styles.formControl} id="it-login-identifier" readOnly type="email" value={employee?.email ?? ""} /></FormField>
       </section>
       <section aria-labelledby="it-register-access"><h3 id="it-register-access">3. Workspace & Role</h3>
         <FormField htmlFor="it-primary-workspace" label="Workspace Utama" required><select className={styles.formControl} id="it-primary-workspace" onChange={(event) => setWorkspaceId(event.target.value)} required value={workspaceId}><option value="">Pilih workspace</option>{formWorkspaces.map((workspace) => <option key={workspace.workspace_id} value={workspace.workspace_id}>{workspace.workspace_name}</option>)}</select></FormField>

@@ -65,7 +65,7 @@ export function LoginForm({ activated = false }: { activated?: boolean }) {
               disabled={submitting}
               id="session-email"
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="nama@andara.co.id"
+              placeholder="nama@example.com"
               required
               type="email"
               value={email}
