@@ -36,7 +36,7 @@ function ExecutiveSummaryContent({ workspaceKey }: Readonly<{ workspaceKey: stri
     <ExecutiveSourceStatus overview={data} loading={loading} error={error} />
 
     <Section bordered title="Ringkasan Utama"><div className={styles.metricsStrip}>
-      {[["Pendapatan", "SALES"], ["Penjualan / Closing", "SALES"], ["Kas & Likuiditas", "FINANCE"], ["Progres Proyek", "PROPERTY"]].map(([label, domain]) => <Metric key={label} label={label} supportingText={connectionLabel(domainStatus(domain)).label} value="—" />)}
+      {[["Pendapatan", "SALES"], ["Penjualan / Closing", "SALES"], ["Kas & Likuiditas", "FINANCE"], ["Progres Proyek", "PROPERTY"]].map(([label, domain]) => <Metric key={label} label={label} supportingText={["CONNECTED", "CONNECTED_EMPTY"].includes(domainStatus(domain)) ? "Sumber terhubung; metrik belum tersedia." : connectionLabel(domainStatus(domain)).label} value="—" />)}
       <Metric label="Keputusan Menunggu" supportingText={connectionLabel(workStatus).label} value={work ? String(work.counts.pending_approvals) : "—"} />
       <Metric label="Temuan Aktif" supportingText={connectionLabel(workStatus).label} value={work ? String(work.counts.active_findings) : "—"} />
     </div></Section>
