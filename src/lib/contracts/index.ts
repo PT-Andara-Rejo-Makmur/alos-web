@@ -124,7 +124,19 @@ export type {
 export type {
   BusinessPeriod as StrategyBusinessPeriod,
   BusinessScope as StrategyBusinessScope,
-  BusinessTarget,
+  BusinessTarget as CanonicalBusinessTarget,
+  BusinessTargetCreateRequest,
+  BusinessTargetDetail,
+  CascadeAcceptRequest,
+  CascadePreviewRequest,
+  CascadeRule,
+  MetricObservationCreateRequest,
+  PlanningAssumptionCreateRequest,
+  StrategicObjectiveCreateRequest,
+  StrategyPlanUpdateRequest,
+  TargetRevision,
+  TargetRevisionCreateRequest,
+  TargetRelationshipCreateRequest,
   BusinessUnit,
   CascadePreview,
   CascadeRunStatus,
@@ -165,3 +177,14 @@ export interface IntegrationDiagnostic {
     readonly correlation_id: string;
   };
 }
+
+export type {
+  ExecutiveOverviewProjection,
+  ExecutiveDomainStatus,
+  ExecutiveSourceStatus,
+  ExecutiveConnectionStatus,
+} from "../../../../alos-contracts/generated/typescript/executive";
+
+/** Existing Web view enrichment from the canonical target detail response. */
+export type BusinessTarget = import("../../../../alos-contracts/generated/typescript/strategy").BusinessTarget
+  & Partial<Pick<import("../../../../alos-contracts/generated/typescript/strategy").BusinessTargetDetail, "observations">>;

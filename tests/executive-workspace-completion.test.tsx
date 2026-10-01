@@ -114,7 +114,6 @@ const mockTarget: BusinessTarget & { readonly observations: readonly MetricObser
   unit: "IDR",
   updated_at: "2027-01-01T00:00:00Z",
   version: 1,
-  authorized_actions: ["EDIT"],
   observations: [
     {
       evidence_refs: ["ev_tgt_1"],
@@ -325,6 +324,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
           result: "PASS",
           critical: true,
           message: "Kapasitas anggaran mencukupi",
+          evaluated_at: "2026-10-01T00:00:00Z",
         },
       ],
       blocking_conditions: [],
@@ -358,6 +358,12 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(await screen.findByText("Hasil Pratinjau Cascade")).toBeInTheDocument();
     expect(screen.getByText("Kapasitas anggaran mencukupi")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Terapkan Cascade/ })).toBeInTheDocument();
+    const acceptSpy = vi.spyOn(strategyApi, "acceptCascade");
+    fireEvent.click(screen.getByRole("button", { name: /Terapkan Cascade/ }));
+    expect(await screen.findByText("Metadata canonical target turunan belum tersedia untuk penerimaan cascade.")).toBeInTheDocument();
+    expect(acceptSpy).not.toHaveBeenCalled();
+    expect(screen.queryByText("Hasil cascade berhasil diterima dan target turunan didaftarkan.")).not.toBeInTheDocument();
+
   });
 
   // 7. Document extraction UX and candidate review

@@ -118,7 +118,6 @@ const mockTarget: BusinessTarget & { readonly observations: readonly MetricObser
   unit: "IDR",
   updated_at: "2027-01-01T00:00:00Z",
   version: 1,
-  authorized_actions: ["EDIT"],
   observations: [
     {
       evidence_refs: ["ev_tgt_1"],
@@ -443,12 +442,16 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
         rules: expect.arrayContaining([
           expect.objectContaining({
             parameters: expect.objectContaining({
-              ratio: 0.75,
+              allocations: expect.arrayContaining([expect.objectContaining({ share: 0.75 })]),
             }),
           }),
         ]),
       }),
     );
+    const sent = previewSpy.mock.calls[0]?.[0];
+    expect(Object.values(sent?.rule_inputs ?? {})[0]?.ratio).toBe(0.75);
+    expect(sent?.rules[0]?.parameters).not.toHaveProperty("ratio");
+
   });
 
   // 19. Cascade accept is permission-aware

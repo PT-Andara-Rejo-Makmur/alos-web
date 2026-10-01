@@ -19,6 +19,12 @@ import type { SessionProjection } from "@/features/session";
 import type {
   BusinessTarget,
   CascadePreview,
+  CascadePreviewRequest,
+  CascadeRule,
+  BusinessUnit,
+  PlanningAssumptionCreateRequest,
+  StrategyVerificationState,
+  StrategyMeasurementType,
   PlanningAssumption,
   StrategicObjective,
   StrategyBusinessPeriod as BusinessPeriod,
@@ -258,7 +264,7 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose, session 
   const [granularity, setGranularity] = useState(isRenstra ? "ANNUAL" : "MONTHLY");
   const [label, setLabel] = useState("");
   const [parentPlanId, setParentPlanId] = useState(strategicPlans[0]?.plan_id ?? "");
-  const [scopeType, setScopeType] = useState("COMPANY");
+  const [scopeType, setScopeType] = useState<BusinessScope["type"]>("COMPANY");
   const [ownerWorkspace, setOwnerWorkspace] = useState(() => activeExecutiveWorkspaceId(session));
   const [ownerRole, setOwnerRole] = useState("");
   const [materiality, setMateriality] = useState<"MATERIAL" | "NON_MATERIAL">("MATERIAL");
@@ -390,7 +396,7 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose, session 
 
           <div className={styles.formField}>
             <label htmlFor="plan-scope">Ruang Lingkup *</label>
-            <select className={styles.formSelect} id="plan-scope" onChange={(e) => setScopeType(e.target.value)} value={scopeType}>
+            <select className={styles.formSelect} id="plan-scope" onChange={(e) => setScopeType(e.target.value as BusinessScope["type"])} value={scopeType}>
               <option value="COMPANY">Korporasi</option>
               <option value="DIVISION">Divisi</option>
             </select>
@@ -526,7 +532,7 @@ function ObjectiveFormDrawer({ plans, canSubmit, onClose, session }: Readonly<{ 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [workspace, setWorkspace] = useState(() => activeExecutiveWorkspaceId(session));
-  const [scopeType, setScopeType] = useState("COMPANY");
+  const [scopeType, setScopeType] = useState<BusinessScope["type"]>("COMPANY");
   const [ownerRole, setOwnerRole] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -610,7 +616,7 @@ function ObjectiveFormDrawer({ plans, canSubmit, onClose, session }: Readonly<{ 
 
           <div className={styles.formField}>
             <label htmlFor="obj-scope">Ruang Lingkup *</label>
-            <select className={styles.formSelect} id="obj-scope" onChange={(e) => setScopeType(e.target.value)} value={scopeType}>
+            <select className={styles.formSelect} id="obj-scope" onChange={(e) => setScopeType(e.target.value as BusinessScope["type"])} value={scopeType}>
               <option value="COMPANY">Korporasi</option>
               <option value="DIVISION">Divisi</option>
             </select>
@@ -693,11 +699,11 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
   const [metricCode, setMetricCode] = useState("METRIC_PRIMARY");
   const [objectiveId, setObjectiveId] = useState("");
   const [objectives, setObjectives] = useState<readonly StrategicObjective[]>([]);
-  const [scopeType, setScopeType] = useState("COMPANY");
+  const [scopeType, setScopeType] = useState<BusinessScope["type"]>("COMPANY");
   const [startsAt, setStartsAt] = useState("");
   const [endsAt, setEndsAt] = useState("");
-  const [measurementType, setMeasurementType] = useState("HIGHER_IS_BETTER");
-  const [unit, setUnit] = useState("IDR");
+  const [measurementType, setMeasurementType] = useState<StrategyMeasurementType>("HIGHER_IS_BETTER");
+  const [unit, setUnit] = useState<BusinessUnit>("IDR");
   const [ownerWorkspace, setOwnerWorkspace] = useState(() => activeExecutiveWorkspaceId(session));
   const [ownerRole, setOwnerRole] = useState("");
   const [materiality, setMateriality] = useState<"MATERIAL" | "NON_MATERIAL">("MATERIAL");
@@ -900,7 +906,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
 
             <div className={styles.formField}>
               <label htmlFor="tgt-measure">Cara Pengukuran *</label>
-              <select className={styles.formSelect} id="tgt-measure" onChange={(e) => setMeasurementType(e.target.value)} value={measurementType}>
+              <select className={styles.formSelect} id="tgt-measure" onChange={(e) => setMeasurementType(e.target.value as StrategyMeasurementType)} value={measurementType}>
                 <option value="HIGHER_IS_BETTER">Makin Tinggi Makin Baik</option>
                 <option value="LOWER_IS_BETTER">Makin Rendah Makin Baik</option>
                 <option value="EXACT">Tepat Sesuai Angka</option>
@@ -911,7 +917,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
 
             <div className={styles.formField}>
               <label htmlFor="tgt-unit">Satuan (Unit) *</label>
-              <select className={styles.formSelect} id="tgt-unit" onChange={(e) => setUnit(e.target.value)} value={unit}>
+              <select className={styles.formSelect} id="tgt-unit" onChange={(e) => setUnit(e.target.value as BusinessUnit)} value={unit}>
                 <option value="IDR">IDR (Rupiah)</option>
                 <option value="COUNT">Jumlah (Count)</option>
                 <option value="PERCENT">Persentase (%)</option>
@@ -923,7 +929,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
 
             <div className={styles.formField}>
               <label htmlFor="tgt-scope">Ruang Lingkup *</label>
-              <select className={styles.formSelect} id="tgt-scope" onChange={(e) => setScopeType(e.target.value)} value={scopeType}>
+              <select className={styles.formSelect} id="tgt-scope" onChange={(e) => setScopeType(e.target.value as BusinessScope["type"])} value={scopeType}>
                 <option value="COMPANY">Korporasi</option>
                 <option value="DIVISION">Divisi</option>
               </select>
@@ -1069,21 +1075,21 @@ function AssumptionsSection({ assumptions, canCreate, onOpenForm }: AssumptionsS
 }
 
 function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSubmit: boolean; onClose: () => void; session: SessionProjection }>) {
-  const [category, setCategory] = useState("AVERAGE_SELLING_PRICE");
+  const [category, setCategory] = useState<PlanningAssumptionCreateRequest["category"]>("AVERAGE_SELLING_PRICE");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
-  const [unit, setUnit] = useState("IDR");
+  const [unit, setUnit] = useState<BusinessUnit>("IDR");
   const [startsAt, setStartsAt] = useState("");
   const [endsAt, setEndsAt] = useState("");
   const [granularity, setGranularity] = useState("ANNUAL");
-  const [scopeType, setScopeType] = useState("COMPANY");
+  const [scopeType, setScopeType] = useState<BusinessScope["type"]>("COMPANY");
   const [ownerWorkspace, setOwnerWorkspace] = useState(() => activeExecutiveWorkspaceId(session));
   const [ownerRole, setOwnerRole] = useState("");
   const [sourceMode, setSourceMode] = useState<"MANUAL_EVIDENCED" | "SOURCE_LINKED">("MANUAL_EVIDENCED");
   const [sourceRef, setSourceRef] = useState("");
   const [evidenceRef, setEvidenceRef] = useState("");
-  const [verificationState, setVerificationState] = useState("UNVERIFIED");
+  const [verificationState, setVerificationState] = useState<StrategyVerificationState>("UNVERIFIED");
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -1155,7 +1161,7 @@ function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSub
         <div className={styles.formGrid}>
           <div className={`${styles.formField} ${styles.formFullWidth}`}>
             <label htmlFor="asm-cat">Kategori *</label>
-            <select className={styles.formSelect} id="asm-cat" onChange={(e) => setCategory(e.target.value)} value={category}>
+            <select className={styles.formSelect} id="asm-cat" onChange={(e) => setCategory(e.target.value as PlanningAssumptionCreateRequest["category"])} value={category}>
               <option value="AVERAGE_SELLING_PRICE">Harga Jual Rata-rata (Average Selling Price)</option>
               <option value="CONVERSION_RATIO">Rasio Konversi (Conversion Ratio)</option>
               <option value="EXPECTED_CPL">Perkiraan Biaya per Prospek (Expected CPL)</option>
@@ -1173,7 +1179,7 @@ function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSub
 
           <div className={styles.formField}>
             <label htmlFor="asm-unit">Satuan (Unit) *</label>
-            <select className={styles.formSelect} id="asm-unit" onChange={(e) => setUnit(e.target.value)} value={unit}>
+            <select className={styles.formSelect} id="asm-unit" onChange={(e) => setUnit(e.target.value as BusinessUnit)} value={unit}>
               <option value="IDR">IDR (Rupiah)</option>
               <option value="COUNT">Jumlah (Count)</option>
               <option value="PERCENT">Persentase (%)</option>
@@ -1218,7 +1224,7 @@ function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSub
 
           <div className={styles.formField}>
             <label htmlFor="asm-verify">Status Verifikasi *</label>
-            <select className={styles.formSelect} id="asm-verify" onChange={(e) => setVerificationState(e.target.value)} value={verificationState}>
+            <select className={styles.formSelect} id="asm-verify" onChange={(e) => setVerificationState(e.target.value as StrategyVerificationState)} value={verificationState}>
               <option value="UNVERIFIED">Belum Diverifikasi</option>
               <option value="PENDING_VERIFICATION">Menunggu Verifikasi</option>
             </select>
@@ -1236,7 +1242,7 @@ function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSub
 
           <div className={styles.formField}>
             <label htmlFor="asm-scope">Ruang Lingkup *</label>
-            <select className={styles.formSelect} id="asm-scope" onChange={(e) => setScopeType(e.target.value)} value={scopeType}>
+            <select className={styles.formSelect} id="asm-scope" onChange={(e) => setScopeType(e.target.value as BusinessScope["type"])} value={scopeType}>
               <option value="COMPANY">Korporasi</option>
               <option value="DIVISION">Divisi</option>
             </select>
@@ -1293,9 +1299,7 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
   const [selectedAssumptionId, setSelectedAssumptionId] = useState(assumptions[0]?.assumption_id ?? "");
   const [previewData, setPreviewData] = useState<CascadePreview | null>(null);
   const [previewing, setPreviewing] = useState(false);
-  const [accepting, setAccepting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const selectedTarget = targets.find((t) => t.target_id === rootTargetId);
 
@@ -1327,29 +1331,27 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
     const derivedTargetId = generateCanonicalId("target");
     const ruleId = generateCanonicalId("rule");
 
-    const parameters: Record<string, unknown> = {};
+    let parameters: CascadeRule["parameters"] = {};
     if (ruleType === "SPLIT_PERCENT" || ruleType === "RATIO_MULTIPLY") {
       const parsedRatio = Number(ratioInput);
       if (Number.isNaN(parsedRatio) || parsedRatio < 0 || parsedRatio > 1) {
         setErrorMsg("Nilai rasio harus berupa angka valid antara 0.00 hingga 1.00.");
         return;
       }
-      parameters.ratio = parsedRatio;
-      parameters.allocations = [{ target_id: derivedTargetId, share: parsedRatio }];
+      parameters = { allocations: [{ target_id: derivedTargetId, share: parsedRatio }] };
     } else if (ruleType === "SPLIT_FIXED") {
       const parsedVal = Number(fixedAllocation);
       if (Number.isNaN(parsedVal) || parsedVal <= 0) {
         setErrorMsg("Nilai alokasi tetap harus diisi dengan angka positif.");
         return;
       }
-      parameters.value = parsedVal;
+      parameters = { value: parsedVal };
     }
 
     setPreviewing(true);
     setErrorMsg(null);
-    setSuccessMsg(null);
     try {
-      const payload = {
+      const payload: CascadePreviewRequest = {
         root_target_ref: {
           target_id: selectedTarget?.target_id ?? rootTargetId,
           version: selectedTarget?.version ?? 1,
@@ -1372,6 +1374,7 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
         rule_inputs: {
           [ruleId]: {
             input: null,
+            ratio: ruleType === "SPLIT_PERCENT" || ruleType === "RATIO_MULTIPLY" ? Number(ratioInput) : null,
           },
         },
         constraints: [],
@@ -1393,34 +1396,14 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
     canCascade
   );
 
-  async function handleAccept() {
-    if (!previewData || !canAccept) return;
-    setAccepting(true);
-    setErrorMsg(null);
-    try {
-      // Build derived targets from calculation_trace output
-      const derivedTargets = (previewData.calculation_trace ?? []).flatMap((trace: Record<string, unknown>) => {
-        const outputTargetId = trace["output_target_id"] as string | undefined;
-        if (!outputTargetId || trace["status"] !== "VALID" || trace["output"] == null) return [];
-        return [{
-          target_id: outputTargetId,
-          version: 1,
-          cascade_run_id: previewData.cascade_run_id,
-        }];
-      });
-      await strategyApi.acceptCascade(previewData.cascade_run_id, derivedTargets);
-      setSuccessMsg("Hasil cascade berhasil diterima dan target turunan didaftarkan.");
-    } catch {
-      setErrorMsg("Tindakan penerimaan cascade belum dapat diselesaikan.");
-    } finally {
-      setAccepting(false);
-    }
+  function handleAccept() {
+    if (!canAccept || !previewData) return;
+    setErrorMsg("Metadata canonical target turunan belum tersedia untuk penerimaan cascade.");
   }
 
   return (
     <Section description="Penurunan target korporasi ke unit turunan melalui perhitungan terarah dan tata kelola resmi." title="Cascade Target">
       {errorMsg ? <Alert message={errorMsg} title="Perhatian" variant="warning" /> : null}
-      {successMsg ? <Alert message={successMsg} title="Sukses" variant="success" /> : null}
 
       <div className={styles.cascadeFlow}>
         <div className={styles.cascadeStep}>
@@ -1525,7 +1508,7 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
 
             <div style={{ marginTop: "var(--alos-space-3)" }}>
               <p style={{ fontSize: "13px" }}>
-                Target Asal: <strong>{selectedTarget?.name ?? "Target tidak tersedia"}</strong> (v{previewData.root_target_ref.version})
+                Target Asal: <strong>{selectedTarget?.name ?? "Target tidak tersedia"}</strong> (v{String(previewData.root_target_ref.version ?? "—")})
               </p>
 
               {previewData.blocking_conditions && previewData.blocking_conditions.length > 0 ? (
@@ -1558,11 +1541,10 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
               <div className={styles.formActions}>
                 {canAccept ? (
                   <Button
-                    disabled={accepting}
                     onClick={handleAccept}
                     variant="primary"
                   >
-                    {accepting ? "Menerapkan…" : "Terapkan Cascade"}
+                    Terapkan Cascade
                   </Button>
                 ) : (
                   <div className={styles.briefNotice}>
