@@ -2,6 +2,12 @@ import { authenticatedApiRequest } from "@/lib/api";
 import type {
   BusinessTarget,
   BusinessTargetCreateRequest,
+  BusinessTargetUpdateRequest,
+  StrategyVerificationRequest,
+  TargetRevisionResponse,
+  ExecutiveOverviewProjection,
+  CascadeAcceptRequest,
+  CascadeRun,
   BusinessTargetDetail,
   CascadePreviewRequest,
   MetricObservationCreateRequest,
@@ -32,6 +38,9 @@ export const STRATEGY_API = {
 export type StrategyRequest = typeof authenticatedApiRequest;
 
 export const strategyApi = {
+  getExecutiveOverview(signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest) {
+    return request<ExecutiveOverviewProjection>("/api/v1/executive/overview", { signal });
+  },
   getAuthority(signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest) {
     return request<StrategyAuthorityProjection>(STRATEGY_API.authority, { signal });
   },
@@ -50,14 +59,15 @@ export const strategyApi = {
   listObjectives(planId: string, signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest) {
     return request<StrategicObjective[]>(`${STRATEGY_API.objectives}?plan_id=${encodeURIComponent(planId)}`, { signal });
   },
-  listAssumptions(signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest) {
-    return request<PlanningAssumption[]>(STRATEGY_API.assumptions, { signal });
+  async listAssumptions(signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest) {
+    const history = await request<PlanningAssumption[]>(STRATEGY_API.assumptions, { signal });
+    return history.filter((item) => !history.some((other) => other.assumption_id === item.assumption_id && other.version > item.version));
   },
-  async listTargets(signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest) {
+  async listTargets(signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest): Promise<BusinessTarget[]> {
     const targets = await request<BusinessTarget[]>(STRATEGY_API.targets, { signal });
     return Promise.all(targets.map(async (target) => {
-      const detail = await request<BusinessTargetDetail>(`${STRATEGY_API.targets}/${encodeURIComponent(target.target_id)}`, { signal });
-      return { ...detail.target, observations: detail.observations };
+      const detail = await request<BusinessTargetDetail>(`${STRATEGY_API.targets}/${encodeURIComponent(target.target_id)}?version=${target.version}`, { signal });
+      return { ...detail.target, observations: detail.observations, selected_observations: detail.selected_observations, authorized_actions: detail.authorized_actions, last_updated_at: detail.last_updated_at };
     }));
   },
   getTarget(targetId: string, signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest) {
@@ -66,10 +76,10 @@ export const strategyApi = {
   previewCascade(payload: CascadePreviewRequest, request: StrategyRequest = authenticatedApiRequest) {
     return request<CascadePreview>(STRATEGY_API.cascadePreview, { method: "POST", body: payload });
   },
-  acceptCascade(cascadeRunId: string, derivedTargets: readonly BusinessTargetCreateRequest[], request: StrategyRequest = authenticatedApiRequest) {
-    return request(`${STRATEGY_API.cascadeRuns}/${encodeURIComponent(cascadeRunId)}/accept`, {
+  acceptCascade(cascadeRunId: string, payload: CascadeAcceptRequest, request: StrategyRequest = authenticatedApiRequest) {
+    return request<CascadeRun>(`${STRATEGY_API.cascadeRuns}/${encodeURIComponent(cascadeRunId)}/accept`, {
       method: "POST",
-      body: { derived_targets: derivedTargets },
+      body: payload,
     });
   },
   createObjective(payload: StrategicObjectiveCreateRequest, request: StrategyRequest = authenticatedApiRequest) {
@@ -88,7 +98,7 @@ export const strategyApi = {
     return request<PlanningAssumption>(STRATEGY_API.assumptions, { method: "POST", body: payload });
   },
   createRevision(targetId: string, payload: TargetRevisionCreateRequest, request: StrategyRequest = authenticatedApiRequest) {
-    return request<{ revision: TargetRevision; target: BusinessTarget }>(
+    return request<TargetRevisionResponse>(
       `${STRATEGY_API.targets}/${encodeURIComponent(targetId)}/revisions`,
       { method: "POST", body: payload },
     );
@@ -96,7 +106,21 @@ export const strategyApi = {
   listRevisions(targetId: string, signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest) {
     return request<TargetRevision[]>(`${STRATEGY_API.targets}/${encodeURIComponent(targetId)}/revisions`, { signal });
   },
-  transitionPlan(planId: string, action: "submit" | "approve" | "activate", request: StrategyRequest = authenticatedApiRequest) {
-    return request<StrategyPlan>(`${STRATEGY_API.plans}/${encodeURIComponent(planId)}/${action}`, { method: "POST" });
+  verifyObservation(targetId: string, observationId: string, payload: StrategyVerificationRequest, version?: number, request: StrategyRequest = authenticatedApiRequest) {
+    const query = version === undefined ? "" : `?version=${version}`;
+    return request<MetricObservation>(`${STRATEGY_API.targets}/${encodeURIComponent(targetId)}/observations/${encodeURIComponent(observationId)}/verification${query}`, { method: "POST", body: payload });
+  },
+  verifyAssumption(assumptionId: string, payload: StrategyVerificationRequest, request: StrategyRequest = authenticatedApiRequest) {
+    return request<PlanningAssumption>(`${STRATEGY_API.assumptions}/${encodeURIComponent(assumptionId)}/verification`, { method: "POST", body: payload });
+  },
+  updateTarget(targetId: string, payload: BusinessTargetUpdateRequest, request: StrategyRequest = authenticatedApiRequest) {
+    return request<BusinessTarget>(`${STRATEGY_API.targets}/${encodeURIComponent(targetId)}`, { method: "PATCH", body: payload });
+  },
+  transitionTarget(targetId: string, action: "submit" | "approve" | "activate", request: StrategyRequest = authenticatedApiRequest) {
+    return request<BusinessTarget>(`${STRATEGY_API.targets}/${encodeURIComponent(targetId)}/${action}`, { method: "POST" });
+  },
+  transitionPlan(planId: string, action: "submit" | "approve" | "activate" | "archive", version?: number, request: StrategyRequest = authenticatedApiRequest) {
+    const query = action === "archive" && version !== undefined ? `?version=${version}` : "";
+    return request<StrategyPlan>(`${STRATEGY_API.plans}/${encodeURIComponent(planId)}/${action}${query}`, { method: "POST" });
   },
 };

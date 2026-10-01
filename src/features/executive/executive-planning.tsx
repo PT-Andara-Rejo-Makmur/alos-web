@@ -18,6 +18,7 @@ import {
 import type { SessionProjection } from "@/features/session";
 import type {
   BusinessTarget,
+  BusinessTargetCreateRequest,
   CascadePreview,
   CascadePreviewRequest,
   CascadeRule,
@@ -33,6 +34,7 @@ import type {
 } from "@/lib/contracts";
 import { strategyApi } from "@/modules/strategy";
 
+import { ExecutiveVerificationDrawer } from "./executive-verification";
 import { ExecutiveLayout } from "./executive-layout";
 import { useExecutiveStrategyData } from "./executive-data";
 import { activeExecutiveWorkspaceId, ExecutiveWorkspacePicker } from "./executive-form-fields";
@@ -69,7 +71,7 @@ function PlanningContent({
   initialProcessed,
   session,
 }: ExecutivePlanningPageProps & { readonly session: SessionProjection }) {
-  const { data, error, loading } = useExecutiveStrategyData();
+  const { data, error, loading, reload } = useExecutiveStrategyData();
   const [tab, setTab] = useState("strategic");
   const [planFormType, setPlanFormType] = useState<"STRATEGIC_PLAN" | "OPERATING_PLAN" | null>(null);
   const [objectiveFormOpen, setObjectiveFormOpen] = useState(false);
@@ -114,6 +116,7 @@ function PlanningContent({
           canCreate={canCreateCompanyPlan}
           onOpenForm={() => setPlanFormType("STRATEGIC_PLAN")}
           plans={strategicPlans}
+          onChanged={reload}
           title="Rencana Strategis (Renstra)"
         />
       ) : null}
@@ -124,6 +127,7 @@ function PlanningContent({
           canCreate={canCreateCompanyPlan}
           onOpenForm={() => setPlanFormType("OPERATING_PLAN")}
           plans={operatingPlans}
+          onChanged={reload}
           title="Rencana Kerja dan Anggaran (RKAP)"
         />
       ) : null}
@@ -148,6 +152,8 @@ function PlanningContent({
       {!loading && tab === "assumptions" ? (
         <AssumptionsSection
           assumptions={assumptions}
+          canReview={data?.authority?.verification_actions?.includes("VERIFY_PLANNING") ?? false}
+          onChanged={reload}
           canCreate={canCreate}
           onOpenForm={() => setAssumptionFormOpen(true)}
         />
@@ -159,6 +165,7 @@ function PlanningContent({
           canCascade={canCreate}
           session={session}
           targets={targets}
+          onChanged={reload}
         />
       ) : null}
 
@@ -173,7 +180,7 @@ function PlanningContent({
       {planFormType ? (
         <PlanFormDrawer
           canSubmit={canCreateCompanyPlan}
-          onClose={() => setPlanFormType(null)}
+          onClose={() => { setPlanFormType(null); reload(); }}
           planType={planFormType}
           session={session}
           strategicPlans={strategicPlans}
@@ -183,8 +190,8 @@ function PlanningContent({
       {objectiveFormOpen ? (
         <ObjectiveFormDrawer
           canSubmit={canCreateCompanyPlan}
-          onClose={() => setObjectiveFormOpen(false)}
-          plans={plans}
+          onClose={() => { setObjectiveFormOpen(false); reload(); }}
+          plans={plans.filter((plan) => plan.lifecycle_state === "DRAFT")}
           session={session}
         />
       ) : null}
@@ -193,8 +200,8 @@ function PlanningContent({
         <TargetFormDrawer
           canSubmitCompany={canCreateCompanyPlan}
           canSubmitDivision={canCreateDivisionPlan}
-          onClose={() => setTargetFormOpen(false)}
-          plans={plans}
+          onClose={() => { setTargetFormOpen(false); reload(); }}
+          plans={plans.filter((plan) => plan.lifecycle_state === "DRAFT")}
           session={session}
         />
       ) : null}
@@ -202,7 +209,7 @@ function PlanningContent({
       {assumptionFormOpen ? (
         <AssumptionFormDrawer
           canSubmit={canCreateCompanyPlan}
-          onClose={() => setAssumptionFormOpen(false)}
+          onClose={() => { setAssumptionFormOpen(false); reload(); }}
           session={session}
         />
       ) : null}
@@ -220,15 +227,22 @@ interface PlanSectionProps {
   readonly actionLabel: string;
   readonly canCreate: boolean;
   readonly onOpenForm: () => void;
+  readonly onChanged: () => void;
 }
 
-function PlanSection({ title, plans, actionLabel, canCreate, onOpenForm }: PlanSectionProps) {
+function PlanSection({ title, plans, actionLabel, canCreate, onOpenForm, onChanged }: PlanSectionProps) {
+  const [error, setError] = useState<string | null>(null);
+  async function transition(plan: StrategyPlan, action: "submit" | "approve" | "activate" | "archive") {
+    try { await strategyApi.transitionPlan(plan.plan_id, action, plan.version); onChanged(); }
+    catch { setError("Transisi rencana ditolak. Periksa status, nilai target terverifikasi, dan bukti."); }
+  }
   return (
     <Section
       actions={canCreate ? <Button onClick={onOpenForm} size="sm" variant="primary">{actionLabel}</Button> : undefined}
       description="Data mengikuti kewenangan dan siklus hidup resmi Strategy."
       title={title}
     >
+      {error ? <Alert message={error} title="Perhatian" variant="warning" /> : null}
       <DataTable
         caption={title}
         columns={[
@@ -240,6 +254,7 @@ function PlanSection({ title, plans, actionLabel, canCreate, onOpenForm }: PlanS
           { header: "Versi", key: "version", render: (plan) => `v${plan.version}` },
           { header: "Pembaruan", key: "updated", render: (plan) => formatDate(plan.updated_at) },
         ]}
+        rowAction={(plan) => <div>{(["SUBMIT", "APPROVE", "ACTIVATE", "ARCHIVE"] as const).filter((action) => plan.authorized_actions?.includes(action)).map((action) => <Button key={action} size="sm" onClick={() => void transition(plan, action.toLowerCase() as "submit" | "approve" | "activate" | "archive")}>{action === "SUBMIT" ? "Ajukan Review" : action === "APPROVE" ? "Setujui" : action === "ARCHIVE" ? "Arsipkan" : "Aktifkan"}</Button>)}</div>}
         getRowKey={(plan) => `${plan.plan_id}-${plan.version}`}
         rows={plans}
       />
@@ -310,8 +325,8 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose, session 
         owner_role_ref: ownerRole,
         period: {
           granularity: granularity as BusinessPeriod["granularity"],
-          starts_at: `${startsAt}T00:00:00Z`,
-          ends_at: `${endsAt}T23:59:59Z`,
+          starts_at: startsAt,
+          ends_at: endsAt,
           label: label || null,
         },
         scope: {
@@ -690,6 +705,7 @@ function TargetsSection({ plans, targets, canCreate, onOpenForm }: TargetsSectio
 
 function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose, session }: Readonly<{ plans: readonly StrategyPlan[]; canSubmitCompany: boolean; canSubmitDivision: boolean; onClose: () => void; session: SessionProjection }>) {
   const [step, setStep] = useState<1 | 2>(1);
+  const [savedTargetId, setSavedTargetId] = useState<string | null>(null);
 
   // Step 1: Metadata
   const [code, setCode] = useState("");
@@ -712,7 +728,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
 
   // Step 2: Observation TARGET
   const [targetValue, setTargetValue] = useState("");
-  const [sourceMode, setSourceMode] = useState<"MANUAL_EVIDENCED" | "SOURCE_LINKED">("SOURCE_LINKED");
+  const [sourceMode, setSourceMode] = useState<"MANUAL_EVIDENCED" | "SOURCE_LINKED">("MANUAL_EVIDENCED");
   const [obsSourceRef, setObsSourceRef] = useState("");
   const [obsEvidenceRef, setObsEvidenceRef] = useState("");
 
@@ -784,7 +800,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
     setFeedback(null);
     try {
       const selectedPlan = plans.find((p) => p.plan_id === planId);
-      const generatedTargetId = generateCanonicalId("target");
+      const generatedTargetId = savedTargetId ?? generateCanonicalId("target");
       const generatedObservationId = generateCanonicalId("obs");
       const period: BusinessPeriod = {
         granularity: selectedPlan?.period.granularity ?? "ANNUAL",
@@ -794,7 +810,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
       const selectedObjective = objectives.find((o) => o.objective_id === objectiveId);
 
       // 1. Create Target Metadata
-      await strategyApi.createTarget({
+      if (!savedTargetId) await strategyApi.createTarget({
         target_id: generatedTargetId,
         version: 1,
         code,
@@ -816,6 +832,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
         evidence_refs: evidenceRef.trim() ? [evidenceRef.trim()] : [],
       });
 
+      setSavedTargetId(generatedTargetId);
       // 2. Create TARGET Observation
       await strategyApi.createObservation(generatedTargetId, {
         observation_id: generatedObservationId,
@@ -1003,7 +1020,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
             <div className={`${styles.formField} ${styles.formFullWidth}`}>
               <label htmlFor="tgt-source-mode">Mode Sumber *</label>
               <select className={styles.formSelect} id="tgt-source-mode" onChange={(e) => setSourceMode(e.target.value as "SOURCE_LINKED")} value={sourceMode}>
-                <option value="SOURCE_LINKED">Terhubung ke Sumber Resmi</option>
+                <option disabled value="SOURCE_LINKED">Sumber resmi eksternal belum tersedia</option>
                 <option value="MANUAL_EVIDENCED">Diisi Manual dengan Bukti</option>
               </select>
             </div>
@@ -1044,12 +1061,15 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
 // ============================================================
 
 interface AssumptionsSectionProps {
+  readonly canReview: boolean;
+  readonly onChanged: () => void;
   readonly assumptions: readonly PlanningAssumption[];
   readonly canCreate: boolean;
   readonly onOpenForm: () => void;
 }
 
-function AssumptionsSection({ assumptions, canCreate, onOpenForm }: AssumptionsSectionProps) {
+function AssumptionsSection({ assumptions, canCreate, onOpenForm, canReview, onChanged }: AssumptionsSectionProps) {
+  const [verificationId, setVerificationId] = useState<string | null>(null);
   return (
     <Section
       actions={canCreate ? <Button onClick={onOpenForm} size="sm" variant="primary">Tambah Asumsi</Button> : undefined}
@@ -1057,6 +1077,7 @@ function AssumptionsSection({ assumptions, canCreate, onOpenForm }: AssumptionsS
       title="Asumsi Perencanaan"
     >
       <DataTable
+        rowAction={(item) => canReview && ["UNVERIFIED", "PENDING_VERIFICATION"].includes(item.verification_state) ? <Button onClick={() => setVerificationId(item.assumption_id)}>Telaah Asumsi</Button> : undefined}
         caption="Asumsi perencanaan"
         columns={[
           { header: "Nama", key: "name", render: (item) => item.name },
@@ -1070,6 +1091,7 @@ function AssumptionsSection({ assumptions, canCreate, onOpenForm }: AssumptionsS
         getRowKey={(item) => `${item.assumption_id}-${item.version}`}
         rows={assumptions}
       />
+      {verificationId ? <ExecutiveVerificationDrawer onSave={(payload) => strategyApi.verifyAssumption(verificationId, payload)} onClose={() => { setVerificationId(null); onChanged(); }} /> : null}
     </Section>
   );
 }
@@ -1128,8 +1150,8 @@ function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSub
         unit,
         period: {
           granularity: granularity as BusinessPeriod["granularity"],
-          starts_at: `${startsAt}T00:00:00Z`,
-          ends_at: `${endsAt}T23:59:59Z`,
+          starts_at: startsAt,
+          ends_at: endsAt,
         },
         scope: { type: scopeType, ref: null, label: scopeType === "COMPANY" ? "Korporasi" : null },
         source_mode: sourceMode,
@@ -1218,7 +1240,7 @@ function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSub
             <label htmlFor="asm-source-mode">Mode Sumber *</label>
             <select className={styles.formSelect} id="asm-source-mode" onChange={(e) => setSourceMode(e.target.value as "MANUAL_EVIDENCED")} value={sourceMode}>
               <option value="MANUAL_EVIDENCED">Diisi Manual dengan Bukti</option>
-              <option value="SOURCE_LINKED">Terhubung ke Sumber Resmi</option>
+              <option disabled value="SOURCE_LINKED">Sumber resmi eksternal belum tersedia</option>
             </select>
           </div>
 
@@ -1289,19 +1311,43 @@ interface CascadeSectionProps {
   readonly assumptions: readonly PlanningAssumption[];
   readonly canCascade?: boolean;
   readonly session: SessionProjection;
+  readonly onChanged: () => void;
 }
 
-function CascadeSection({ targets, assumptions, canCascade = false, session }: CascadeSectionProps) {
+function CascadeSection({ targets, assumptions, canCascade = false, session, onChanged }: CascadeSectionProps) {
   const [rootTargetId, setRootTargetId] = useState(targets[0]?.target_id ?? "");
   const [ruleType, setRuleType] = useState<"SPLIT_PERCENT" | "SPLIT_FIXED" | "DIRECT" | "RATIO_MULTIPLY" | "SUM_ROLLUP" | "RATIO_DIVIDE_CEIL" | "LIMIT_CHECK">("SPLIT_PERCENT");
   const [ratioInput, setRatioInput] = useState("");
   const [fixedAllocation, setFixedAllocation] = useState("");
-  const [selectedAssumptionId, setSelectedAssumptionId] = useState(assumptions[0]?.assumption_id ?? "");
+  const [selectedAssumptionId, setSelectedAssumptionId] = useState("");
   const [previewData, setPreviewData] = useState<CascadePreview | null>(null);
   const [previewing, setPreviewing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const selectedTarget = targets.find((t) => t.target_id === rootTargetId);
+
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [metricCode, setMetricCode] = useState("");
+  const [scope, setScope] = useState<BusinessScope["type"] | "">("");
+  const [ownerWorkspace, setOwnerWorkspace] = useState(() => activeExecutiveWorkspaceId(session));
+  const [ownerRole, setOwnerRole] = useState("");
+  const [unit, setUnit] = useState<BusinessUnit | "">("");
+  const [measurement, setMeasurement] = useState<StrategyMeasurementType | "">("");
+  const [materiality, setMateriality] = useState<BusinessTargetCreateRequest["materiality"] | "">("");
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
+  const [evidence, setEvidence] = useState("");
+  const [source, setSource] = useState("");
+  const [objectiveId, setObjectiveId] = useState("");
+  const [objectives, setObjectives] = useState<readonly StrategicObjective[]>([]);
+  const [accepting, setAccepting] = useState(false);
+  const [accepted, setAccepted] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    if (selectedTarget) void strategyApi.listObjectives(selectedTarget.plan_ref.id).then((values) => { if (!cancelled) setObjectives(values); }).catch(() => { if (!cancelled) setObjectives([]); });
+    return () => { cancelled = true; };
+  }, [selectedTarget]);
 
   async function handlePreview() {
     if (!rootTargetId) {
@@ -1332,9 +1378,9 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
     const ruleId = generateCanonicalId("rule");
 
     let parameters: CascadeRule["parameters"] = {};
-    if (ruleType === "SPLIT_PERCENT" || ruleType === "RATIO_MULTIPLY") {
+    if (ruleType === "SPLIT_PERCENT" || ruleType === "RATIO_MULTIPLY" || ruleType === "RATIO_DIVIDE_CEIL") {
       const parsedRatio = Number(ratioInput);
-      if (Number.isNaN(parsedRatio) || parsedRatio < 0 || parsedRatio > 1) {
+      if (!ratioInput.trim() || !Number.isFinite(parsedRatio) || parsedRatio <= 0 || parsedRatio > 1) {
         setErrorMsg("Nilai rasio harus berupa angka valid antara 0.00 hingga 1.00.");
         return;
       }
@@ -1348,7 +1394,18 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
       parameters = { value: parsedVal };
     }
 
+    if (!selectedTarget) { setErrorMsg("Target authoritative belum tersedia."); return; }
+    const objective = objectives.find((item) => item.objective_id === objectiveId);
+    const candidate: BusinessTargetCreateRequest | null = code.trim() && name.trim() && metricCode.trim() && scope && ownerWorkspace && ownerRole.trim() && unit && measurement && materiality && startsAt && endsAt ? {
+      target_id: derivedTargetId, version: 1, code: code.trim(), name: name.trim(), metric_code: metricCode.trim(),
+      plan_ref: selectedTarget.plan_ref, objective_ref: objective ? { id: objective.objective_id, version: objective.version } : null,
+      scope: { type: scope, ref: scope === "DIVISION" ? ownerWorkspace : null },
+      period: { granularity: selectedTarget.period.granularity, starts_at: startsAt, ends_at: endsAt },
+      owner_workspace_id: ownerWorkspace, owner_role_ref: ownerRole.trim(), unit, measurement_type: measurement, materiality,
+      evidence_refs: evidence.trim() ? [evidence.trim()] : [], source_refs: source.trim() ? [source.trim()] : [],
+    } : null;
     setPreviewing(true);
+    setAccepted(false);
     setErrorMsg(null);
     try {
       const payload: CascadePreviewRequest = {
@@ -1367,16 +1424,16 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
               version: selectedTarget?.version ?? 1,
             }],
             output_target_refs: [{ target_id: derivedTargetId, version: 1 }],
-            parameters,
+            parameters: { ...parameters, ...(selectedAssumptionId ? { ratio_assumption_id: selectedAssumptionId } : {}) },
             version: 1,
           },
         ],
-        rule_inputs: {
-          [ruleId]: {
-            input: null,
-            ratio: ruleType === "SPLIT_PERCENT" || ruleType === "RATIO_MULTIPLY" ? Number(ratioInput) : null,
-          },
-        },
+        rule_inputs: { [ruleId]: {
+          ...(!selectedAssumptionId && (ruleType === "SPLIT_PERCENT" || ruleType === "RATIO_MULTIPLY" || ruleType === "RATIO_DIVIDE_CEIL") ? { ratio: Number(ratioInput) } : {}),
+          ...(ruleType === "SPLIT_FIXED" ? { [`child:${derivedTargetId}`]: Number(fixedAllocation) } : {}),
+          ...(ruleType === "LIMIT_CHECK" ? { available: fixedAllocation.trim() ? Number(fixedAllocation) : null } : {}),
+        } },
+        ...(candidate ? { derived_targets: [candidate] } : {}),
         constraints: [],
         assumption_refs: selectedAssumptionId ? [selectedAssumptionId] : [],
       };
@@ -1393,24 +1450,32 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
     previewData &&
     previewData.status === "VALID" &&
     (!previewData.blocking_conditions || previewData.blocking_conditions.length === 0) &&
-    canCascade
+    canCascade && previewData.derived_targets.length > 0 && previewData.derived_targets.every((item) => item.request !== null && item.required_metadata.length === 0) && !accepted
   );
 
-  function handleAccept() {
+  async function handleAccept() {
     if (!canAccept || !previewData) return;
-    setErrorMsg("Metadata canonical target turunan belum tersedia untuk penerimaan cascade.");
+    const requests = previewData.derived_targets.map((item) => item.request);
+    if (requests.some((item) => item === null)) return;
+    setAccepting(true); setErrorMsg(null);
+    try {
+      await strategyApi.acceptCascade(previewData.cascade_run_id, { derived_targets: requests as BusinessTargetCreateRequest[], input_hash: previewData.input_hash, result_hash: previewData.result_hash });
+      setAccepted(true); onChanged();
+    } catch { setErrorMsg("Penerimaan cascade ditolak. Periksa metadata, sumber, atau pratinjau yang berubah."); }
+    finally { setAccepting(false); }
   }
 
   return (
     <Section description="Penurunan target korporasi ke unit turunan melalui perhitungan terarah dan tata kelola resmi." title="Cascade Target">
       {errorMsg ? <Alert message={errorMsg} title="Perhatian" variant="warning" /> : null}
+      {accepted ? <Alert message="Cascade diterima oleh Backend; target turunan dan observation tersimpan." title="Tersimpan" variant="success" /> : null}
 
       <div className={styles.cascadeFlow}>
         <div className={styles.cascadeStep}>
           <div className={styles.briefHeader} style={{ marginBottom: "var(--alos-space-3)" }}>
             <h3>Alur Penurunan: Target Utama → Aturan Cascade → Asumsi → Pembatas (Constraints) → Pratinjau</h3>
           </div>
-          <div className={styles.formGrid}>
+          <div className={styles.formGrid} onChange={() => setPreviewData(null)}>
             <div className={styles.formField}>
               <label htmlFor="cas-root">Target Utama *</label>
               <select className={styles.formSelect} id="cas-root" onChange={(e) => setRootTargetId(e.target.value)} value={rootTargetId}>
@@ -1438,7 +1503,7 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
               </select>
             </div>
 
-            {ruleType === "SPLIT_PERCENT" || ruleType === "RATIO_MULTIPLY" ? (
+            {ruleType === "SPLIT_PERCENT" || ruleType === "RATIO_MULTIPLY" || ruleType === "RATIO_DIVIDE_CEIL" ? (
               <div className={styles.formField}>
                 <label htmlFor="cas-ratio">Nilai Rasio / Persentase (0.00 – 1.00) *</label>
                 <input
@@ -1456,7 +1521,7 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
               </div>
             ) : null}
 
-            {ruleType === "SPLIT_FIXED" ? (
+            {ruleType === "SPLIT_FIXED" || ruleType === "LIMIT_CHECK" ? (
               <div className={styles.formField}>
                 <label htmlFor="cas-fixed">Nilai Alokasi Tetap *</label>
                 <input
@@ -1481,6 +1546,21 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
               </select>
             </div>
 
+            <div className={styles.formField}><label htmlFor="cas-code">Kode Target Turunan *</label><input id="cas-code" className={styles.formInput} value={code} onChange={(e) => setCode(e.target.value)} /></div>
+            <div className={styles.formField}><label htmlFor="cas-name">Nama Target Turunan *</label><input id="cas-name" className={styles.formInput} value={name} onChange={(e) => setName(e.target.value)} /></div>
+            <div className={styles.formField}><label htmlFor="cas-metric">Kode KPI Turunan *</label><input id="cas-metric" className={styles.formInput} value={metricCode} onChange={(e) => setMetricCode(e.target.value)} /></div>
+            <div className={styles.formField}><label>Plan Turunan</label><span>{selectedTarget ? `${selectedTarget.plan_ref.id} v${selectedTarget.plan_ref.version}` : "Belum tersedia"}</span></div>
+            <div className={styles.formField}><label htmlFor="cas-objective">Sasaran Turunan</label><select id="cas-objective" className={styles.formSelect} value={objectiveId} onChange={(e) => setObjectiveId(e.target.value)}><option value="">Tanpa sasaran</option>{objectives.map((item) => <option key={item.objective_id} value={item.objective_id}>{item.name}</option>)}</select></div>
+            <div className={styles.formField}><label htmlFor="cas-scope">Scope Turunan *</label><select id="cas-scope" className={styles.formSelect} value={scope} onChange={(e) => setScope(e.target.value as BusinessScope["type"])}><option value="">Pilih scope</option><option value="COMPANY">Korporasi</option><option value="DIVISION">Divisi</option></select></div>
+            <div className={styles.formField}><ExecutiveWorkspacePicker id="cas-workspace" onChange={setOwnerWorkspace} session={session} value={ownerWorkspace} /></div>
+            <div className={styles.formField}><label htmlFor="cas-role">Peran Owner Turunan *</label><input id="cas-role" className={styles.formInput} value={ownerRole} onChange={(e) => setOwnerRole(e.target.value)} /></div>
+            <div className={styles.formField}><label htmlFor="cas-unit">Satuan Turunan *</label><select id="cas-unit" className={styles.formSelect} value={unit} onChange={(e) => setUnit(e.target.value as BusinessUnit)}><option value="">Pilih satuan</option>{(["IDR", "COUNT", "PERCENT", "RATIO", "MINUTE", "HOUR", "DAY", "SCORE", "UNIT", "BOOLEAN"] as const).map((value) => <option key={value} value={value}>{value}</option>)}</select></div>
+            <div className={styles.formField}><label htmlFor="cas-measurement">Pengukuran Turunan *</label><select id="cas-measurement" className={styles.formSelect} value={measurement} onChange={(e) => setMeasurement(e.target.value as StrategyMeasurementType)}><option value="">Pilih pengukuran</option>{(["HIGHER_IS_BETTER", "LOWER_IS_BETTER", "RANGE", "EXACT", "PERCENTAGE", "RATIO", "BINARY", "MILESTONE", "CUMULATIVE"] as const).map((value) => <option key={value} value={value}>{value}</option>)}</select></div>
+            <div className={styles.formField}><label htmlFor="cas-materiality">Materiality Turunan *</label><select id="cas-materiality" className={styles.formSelect} value={materiality} onChange={(e) => setMateriality(e.target.value as BusinessTargetCreateRequest["materiality"])}><option value="">Pilih materiality</option><option value="MATERIAL">Material</option><option value="NON_MATERIAL">Non Material</option></select></div>
+            <div className={styles.formField}><label htmlFor="cas-start">Periode Turunan Mulai *</label><input id="cas-start" type="date" className={styles.formInput} value={startsAt} onChange={(e) => setStartsAt(e.target.value)} /></div>
+            <div className={styles.formField}><label htmlFor="cas-end">Periode Turunan Selesai *</label><input id="cas-end" type="date" className={styles.formInput} value={endsAt} onChange={(e) => setEndsAt(e.target.value)} /></div>
+            <div className={styles.formField}><label htmlFor="cas-evidence">Bukti Metadata Turunan</label><input id="cas-evidence" className={styles.formInput} value={evidence} onChange={(e) => setEvidence(e.target.value)} /></div>
+            <div className={styles.formField}><label htmlFor="cas-source">Referensi Metadata Turunan</label><input id="cas-source" className={styles.formInput} value={source} onChange={(e) => setSource(e.target.value)} /></div>
             <div className={styles.formField} style={{ alignSelf: "flex-end" }}>
               {canCascade ? (
                 <Button disabled={previewing} onClick={handlePreview} variant="primary">
@@ -1541,10 +1621,11 @@ function CascadeSection({ targets, assumptions, canCascade = false, session }: C
               <div className={styles.formActions}>
                 {canAccept ? (
                   <Button
-                    onClick={handleAccept}
+                    disabled={accepting}
+                    onClick={() => void handleAccept()}
                     variant="primary"
                   >
-                    Terapkan Cascade
+                    {accepting ? "Menyimpan…" : "Terapkan Cascade"}
                   </Button>
                 ) : (
                   <div className={styles.briefNotice}>

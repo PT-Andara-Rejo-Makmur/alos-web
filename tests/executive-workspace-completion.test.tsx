@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -31,10 +31,10 @@ vi.mock("next/navigation", () => ({
 }));
 
 const period = {
-  ends_at: "2027-12-31T00:00:00Z",
+  ends_at: "2027-12-31",
   granularity: "ANNUAL" as const,
   label: "2027",
-  starts_at: "2027-01-01T00:00:00Z",
+  starts_at: "2027-01-01",
 };
 
 const executivePrincipal: AuthenticatedPrincipalProjection = {
@@ -114,6 +114,7 @@ const mockTarget: BusinessTarget & { readonly observations: readonly MetricObser
   unit: "IDR",
   updated_at: "2027-01-01T00:00:00Z",
   version: 1,
+  authorized_actions: ["RECORD_ACTUAL", "RECORD_FORECAST", "REVISE"],
   observations: [
     {
       evidence_refs: ["ev_tgt_1"],
@@ -250,6 +251,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
 
   // 4. Form Target metadata + TARGET observation separation
   it("enforces Target metadata Step 1 and observation TARGET Step 2 separation", async () => {
+    vi.mocked(strategyApi.listPlans).mockResolvedValue([{ ...mockPlan, lifecycle_state: "DRAFT" }]);
     render(<ExecutivePlanningPage />);
 
     expect(await screen.findByRole("heading", { name: "Rencana & Target" })).toBeInTheDocument();
@@ -267,6 +269,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(screen.queryByText(/ID Bukti Dokumen/i)).not.toBeInTheDocument();
 
     // Fill metadata Step 1
+    fireEvent.change(screen.getByLabelText("Kode Metrik *"), { target: { value: "METRIC_COUNT" } });
     fireEvent.change(screen.getByLabelText("Kode Target *"), { target: { value: "TGT-NEW-01" } });
     fireEvent.change(screen.getByLabelText("Nama Target *"), { target: { value: "Target Baru" } });
     fireEvent.change(screen.getByLabelText("Ruang Kerja Penanggung Jawab *"), { target: { value: "workspace_exec" } });
@@ -315,7 +318,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
       cascade_run_id: "cas_run_1",
       status: "VALID",
       root_target_ref: { id: "tgt_revenue", version: 1 },
-      derived_targets: [{ target_id: "tgt_sales_derived" }],
+      derived_targets: [{ target_id: "tgt_sales_derived", version: 1, calculated_value: "7", request: null, required_metadata: ["code", "name"] }],
       calculation_trace: [],
       assumptions_used: [],
       constraint_results: [
@@ -344,6 +347,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(screen.queryByRole("button", { name: /Terapkan Cascade/ })).not.toBeInTheDocument();
 
     const previewBtn = await screen.findByRole("button", { name: "Jalankan Pratinjau Cascade" });
+    fireEvent.change(screen.getByLabelText(/Nilai Rasio \/ Persentase/), { target: { value: "0.5" } });
     fireEvent.click(previewBtn);
 
     expect(previewSpy).toHaveBeenCalled();
@@ -357,13 +361,60 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     }));
     expect(await screen.findByText("Hasil Pratinjau Cascade")).toBeInTheDocument();
     expect(screen.getByText("Kapasitas anggaran mencukupi")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Terapkan Cascade/ })).toBeInTheDocument();
-    const acceptSpy = vi.spyOn(strategyApi, "acceptCascade");
-    fireEvent.click(screen.getByRole("button", { name: /Terapkan Cascade/ }));
-    expect(await screen.findByText("Metadata canonical target turunan belum tersedia untuk penerimaan cascade.")).toBeInTheDocument();
-    expect(acceptSpy).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: /Terapkan Cascade/ })).not.toBeInTheDocument();
+    expect(screen.getByText(/Penerimaan hasil cascade memerlukan/)).toBeInTheDocument();
     expect(screen.queryByText("Hasil cascade berhasil diterima dan target turunan didaftarkan.")).not.toBeInTheDocument();
 
+  });
+
+  it("confirms complete canonical cascade metadata and reports Backend rejection honestly", async () => {
+    vi.spyOn(strategyApi, "listObjectives").mockResolvedValue([]);
+    const preview = vi.spyOn(strategyApi, "previewCascade").mockImplementation(async (payload) => {
+      const request = payload.derived_targets![0]!;
+      return {
+        cascade_run_id: "cascade.confirmed", status: "VALID", root_target_ref: { id: mockTarget.target_id, version: 1 },
+        derived_targets: [{ target_id: request.target_id, version: request.version, calculated_value: "10", request, required_metadata: [] }],
+        calculation_trace: [], assumptions_used: [], constraint_results: [], blocking_conditions: [],
+        input_hash: "sha256:" + "a".repeat(64), result_hash: "sha256:" + "b".repeat(64),
+      };
+    });
+    const accept = vi.spyOn(strategyApi, "acceptCascade").mockRejectedValue(new Error("stale authoritative preview"));
+    render(<ExecutivePlanningPage />);
+    fireEvent.click(await screen.findByRole("tab", { name: "Cascade" }));
+    for (const [label, value] of [
+      ["Kode Target Turunan *", "COUNT-DERIVED"], ["Nama Target Turunan *", "Confirmed derived target"],
+      ["Kode KPI Turunan *", "COUNT"], ["Scope Turunan *", "COMPANY"],
+      ["Peran Owner Turunan *", "EXECUTIVE"], ["Satuan Turunan *", "COUNT"],
+      ["Pengukuran Turunan *", "HIGHER_IS_BETTER"], ["Materiality Turunan *", "MATERIAL"],
+      ["Periode Turunan Mulai *", "2027-01-01"], ["Periode Turunan Selesai *", "2027-12-31"],
+      ["Bukti Metadata Turunan", "evidence:reviewed-plan"],
+    ]) fireEvent.change(screen.getByLabelText(label!), { target: { value } });
+    fireEvent.change(screen.getByLabelText(/Nilai Rasio \/ Persentase/), { target: { value: "0.5" } });
+    fireEvent.click(screen.getByRole("button", { name: "Jalankan Pratinjau Cascade" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Terapkan Cascade" }));
+    expect(await screen.findByText(/Penerimaan cascade ditolak/)).toBeInTheDocument();
+    const payload = preview.mock.calls[0]![0];
+    expect(accept).toHaveBeenCalledWith("cascade.confirmed", {
+      derived_targets: payload.derived_targets,
+      input_hash: "sha256:" + "a".repeat(64), result_hash: "sha256:" + "b".repeat(64),
+    });
+    expect(payload.rule_inputs).not.toEqual(expect.objectContaining({ input: null }));
+    expect(screen.queryByText(/Cascade diterima oleh Backend/)).not.toBeInTheDocument();
+  });
+
+  it("uses Backend verification actions and preserves the exact target version", async () => {
+    vi.mocked(strategyApi.listTargets).mockResolvedValue([{ ...mockTarget, authorized_actions: ["VERIFY_MONITORING"] }]);
+    const verify = vi.spyOn(strategyApi, "verifyObservation").mockResolvedValue(mockTarget.observations[1]!);
+    mockSearchParams = new URLSearchParams("target=tgt_revenue&version=1");
+    render(<ExecutivePerformancePage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Telaah ACTUAL obs_act_val" }));
+    const submit = screen.getByRole("button", { name: "Catat Keputusan" });
+    expect(submit).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("Alasan Verifikasi *"), { target: { value: "Source evidence reviewed" } });
+    fireEvent.click(submit);
+    await waitFor(() => expect(verify).toHaveBeenCalledWith("tgt_revenue", "obs_act_val",
+      { verification_state: "VERIFIED", reason: "Source evidence reviewed" }, 1));
+    expect(screen.getByRole("button", { name: "Catat Aktual" })).toBeDisabled();
   });
 
   // 7. Document extraction UX and candidate review

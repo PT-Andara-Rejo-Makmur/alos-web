@@ -126,6 +126,11 @@ export type {
   BusinessScope as StrategyBusinessScope,
   BusinessTarget as CanonicalBusinessTarget,
   BusinessTargetCreateRequest,
+  BusinessTargetUpdateRequest,
+  StrategyVerificationRequest,
+  StrategyOverviewProjection,
+  TargetRevisionResponse,
+  CascadeRun,
   BusinessTargetDetail,
   CascadeAcceptRequest,
   CascadePreviewRequest,
@@ -187,4 +192,4 @@ export type {
 
 /** Existing Web view enrichment from the canonical target detail response. */
 export type BusinessTarget = import("../../../../alos-contracts/generated/typescript/strategy").BusinessTarget
-  & Partial<Pick<import("../../../../alos-contracts/generated/typescript/strategy").BusinessTargetDetail, "observations">>;
+  & Partial<Pick<import("../../../../alos-contracts/generated/typescript/strategy").BusinessTargetDetail, "observations" | "selected_observations" | "authorized_actions" | "last_updated_at">>;

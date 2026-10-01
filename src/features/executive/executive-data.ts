@@ -14,6 +14,7 @@ export interface ExecutiveStrategySnapshot {
 }
 
 export function useExecutiveStrategyData() {
+  const [refresh, setRefresh] = useState(0);
   const [data, setData] = useState<ExecutiveStrategySnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
@@ -21,6 +22,7 @@ export function useExecutiveStrategyData() {
 
   useEffect(() => {
     let cancelled = false;
+
     async function load() {
       try {
         const [plans, targets, assumptions, authority] = await Promise.all([
@@ -41,7 +43,7 @@ export function useExecutiveStrategyData() {
     }
     void load();
     return () => { cancelled = true; };
-  }, []);
+  }, [refresh]);
 
-  return { data, error, loading, sessionExpired } as const;
+  return { data, error, loading, sessionExpired, reload: () => { setLoading(true); setError(null); setRefresh((value) => value + 1); } } as const;
 }

@@ -20,6 +20,7 @@ import {
 import type { BusinessTarget, MetricObservation } from "@/lib/contracts";
 import { strategyApi } from "@/modules/strategy";
 
+import { ExecutiveVerificationDrawer } from "./executive-verification";
 import { ExecutiveLayout } from "./executive-layout";
 import { useExecutiveStrategyData } from "./executive-data";
 import {
@@ -50,7 +51,7 @@ function PerformanceContent({ workspaceKey }: Readonly<{ workspaceKey: string }>
   const searchParams = useSearchParams();
   const targetIdParam = searchParams.get("target");
 
-  const { data, error, loading } = useExecutiveStrategyData();
+  const { data, error, loading, reload } = useExecutiveStrategyData();
   const [tab, setTab] = useState("company");
 
   const tabs: readonly TabItem[] = useMemo(() => [
@@ -67,7 +68,7 @@ function PerformanceContent({ workspaceKey }: Readonly<{ workspaceKey: string }>
   // Selected target for detail view (Corporate or Division scoped)
   const allTargets = data?.targets ?? [];
   const activeDetailTarget = targetIdParam
-    ? allTargets.find((t) => t.target_id === targetIdParam) ?? null
+    ? allTargets.filter((t) => t.target_id === targetIdParam && (!searchParams.get("version") || t.version === Number(searchParams.get("version")))).sort((a, b) => b.version - a.version)[0] ?? null
     : null;
 
   // If URL has target query parameter, show Target Performance Detail
@@ -78,6 +79,7 @@ function PerformanceContent({ workspaceKey }: Readonly<{ workspaceKey: string }>
     return (
       <TargetPerformanceDetail
         canMutate={canMutate}
+        onChanged={reload}
         onBack={() => router.push(`${base}/performance`)}
         target={activeDetailTarget}
       />
@@ -185,7 +187,7 @@ function PerformanceTable({ targets, base }: PerformanceTableProps) {
         rowAction={(t) => (
           <Link
             className={styles.detailLink}
-            href={`${base}/performance?target=${encodeURIComponent(t.target_id)}`}
+            href={`${base}/performance?target=${encodeURIComponent(t.target_id)}&version=${t.version}`}
           >
             Lihat Detail
           </Link>
@@ -204,15 +206,17 @@ interface TargetPerformanceDetailProps {
   readonly target: BusinessTarget;
   readonly canMutate: boolean;
   readonly onBack: () => void;
+  readonly onChanged: () => void;
 }
 
 function TargetPerformanceDetail({
   target,
   canMutate,
   onBack,
+  onChanged,
 }: TargetPerformanceDetailProps) {
   const [revisionDrawerOpen, setRevisionDrawerOpen] = useState(false);
-  const [recordingMode, setRecordingMode] = useState<"ACTUAL" | "FORECAST" | null>(null);
+  const [recordingMode, setRecordingMode] = useState<"TARGET" | "ACTUAL" | "FORECAST" | null>(null);
 
   const targetObs = observationFor(target, "TARGET");
   const actualObs = observationFor(target, "ACTUAL");
@@ -222,6 +226,13 @@ function TargetPerformanceDetail({
   // Check mutation capability
   // Button only shows if authority permits AND capability exists
   const showActionButtons = canMutate;
+  const actions = target.authorized_actions ?? [];
+  const [verificationId, setVerificationId] = useState<string | null>(null);
+  const [transitionError, setTransitionError] = useState<string | null>(null);
+  async function transition(action: "submit" | "approve" | "activate") {
+    try { await strategyApi.transitionTarget(target.target_id, action); onChanged(); }
+    catch { setTransitionError("Transisi target ditolak. Periksa lifecycle dan observation TARGET terverifikasi."); }
+  }
 
   return (
     <div className={styles.page}>
@@ -239,18 +250,23 @@ function TargetPerformanceDetail({
       {/* Action Bar (Permission-aware) */}
       {showActionButtons ? (
         <div style={{ display: "flex", gap: "var(--alos-space-3)" }}>
-          <Button onClick={() => setRecordingMode("ACTUAL")} size="sm" variant="primary">
+          <Button disabled={!actions.includes("RECORD_ACTUAL")} onClick={() => setRecordingMode("ACTUAL")} size="sm" variant="primary">
             Catat Aktual
           </Button>
-          <Button onClick={() => setRecordingMode("FORECAST")} size="sm" variant="secondary">
+          <Button disabled={!actions.includes("RECORD_FORECAST")} onClick={() => setRecordingMode("FORECAST")} size="sm" variant="secondary">
             Catat Perkiraan
           </Button>
-          <Button onClick={() => setRevisionDrawerOpen(true)} size="sm" variant="ghost">
+          <Button disabled={!actions.includes("REVISE")} onClick={() => setRevisionDrawerOpen(true)} size="sm" variant="ghost">
             Ajukan Revisi
           </Button>
         </div>
       ) : null}
 
+      {transitionError ? <Alert title="Perhatian" message={transitionError} variant="warning" /> : null}
+      {actions.includes("RECORD_TARGET") ? <Button onClick={() => setRecordingMode("TARGET")}>Catat Nilai Target</Button> : null}
+      {(["SUBMIT", "APPROVE", "ACTIVATE"] as const).filter((action) => actions.includes(action)).map((action) => <Button key={action} onClick={() => void transition(action.toLowerCase() as "submit" | "approve" | "activate")}>{action === "SUBMIT" ? "Ajukan Review Target" : action === "APPROVE" ? "Setujui Target" : "Aktifkan Target"}</Button>)}
+      {observations.filter((item) => ["UNVERIFIED", "PENDING_VERIFICATION"].includes(item.verification_state) && !observations.some((other) => other.supersedes_observation_id === item.observation_id) && actions.includes(item.kind === "TARGET" || item.kind === "ASSUMPTION" ? "VERIFY_PLANNING" : "VERIFY_MONITORING")).map((item) => <Button key={item.observation_id} onClick={() => setVerificationId(item.observation_id)}>Telaah {item.kind} {item.observation_id}</Button>)}
+      {verificationId ? <ExecutiveVerificationDrawer onSave={(payload) => strategyApi.verifyObservation(target.target_id, verificationId, payload, target.version)} onClose={() => { setVerificationId(null); onChanged(); }} /> : null}
       {/* Target Performance Overview Grid */}
       <div className={styles.targetDetailGrid}>
         <div className={styles.candidateCard}>
@@ -355,7 +371,7 @@ function TargetPerformanceDetail({
         <ObservationDrawer
           canSubmit={canMutate}
           mode={recordingMode}
-          onClose={() => setRecordingMode(null)}
+          onClose={() => { setRecordingMode(null); onChanged(); }}
           target={target}
         />
       ) : null}
@@ -364,7 +380,7 @@ function TargetPerformanceDetail({
       {revisionDrawerOpen ? (
         <TargetRevisionDrawer
           canSubmit={canMutate}
-          onClose={() => setRevisionDrawerOpen(false)}
+          onClose={() => { setRevisionDrawerOpen(false); onChanged(); }}
           target={target}
         />
       ) : null}
@@ -377,7 +393,7 @@ function TargetPerformanceDetail({
 // ============================================================
 
 interface ObservationDrawerProps {
-  readonly mode: "ACTUAL" | "FORECAST";
+  readonly mode: "TARGET" | "ACTUAL" | "FORECAST";
   readonly target: BusinessTarget;
   readonly canSubmit: boolean;
   readonly onClose: () => void;
@@ -385,7 +401,7 @@ interface ObservationDrawerProps {
 
 function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDrawerProps) {
   const isActual = mode === "ACTUAL";
-  const title = isActual ? "Catat Aktual" : "Catat Perkiraan";
+  const title = mode === "TARGET" ? "Catat Nilai Target" : isActual ? "Catat Aktual" : "Catat Perkiraan";
 
   const [value, setValue] = useState("");
   const [observedAt, setObservedAt] = useState(new Date().toISOString().slice(0, 10));
@@ -495,7 +511,7 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
             <label htmlFor="obs-mode">Mode Sumber *</label>
             <select className={styles.formSelect} id="obs-mode" onChange={(e) => setSourceMode(e.target.value as "MANUAL_EVIDENCED")} value={sourceMode}>
               <option value="MANUAL_EVIDENCED">Manual dengan Bukti (Evidence Wajib)</option>
-              <option value="SOURCE_LINKED">Tertaut Sumber Resmi (Referensi Sumber Wajib)</option>
+              <option disabled value="SOURCE_LINKED">Sumber resmi eksternal belum tersedia</option>
             </select>
           </div>
 

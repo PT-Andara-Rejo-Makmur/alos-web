@@ -14,10 +14,10 @@ vi.mock("next/navigation", () => ({
 }));
 
 const period = {
-  ends_at: "2027-12-31T00:00:00Z",
+  ends_at: "2027-12-31",
   granularity: "ANNUAL" as const,
   label: "2027",
-  starts_at: "2027-01-01T00:00:00Z",
+  starts_at: "2027-01-01",
 };
 
 const executivePrincipal: AuthenticatedPrincipalProjection = {

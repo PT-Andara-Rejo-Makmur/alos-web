@@ -48,6 +48,11 @@ export function observationFor(
   target: BusinessTarget,
   kind: MetricObservation["kind"],
 ): MetricObservation | null {
+  if (target.selected_observations) {
+    if (kind === "TARGET") return target.selected_observations.target;
+    if (kind === "ACTUAL") return target.selected_observations.actual;
+    if (kind === "FORECAST") return target.selected_observations.forecast;
+  }
   return target.observations?.find((observation) => observation.kind === kind) ?? null;
 }
 
@@ -124,6 +129,6 @@ export function periodLabel(period: StrategyPlan["period"] | BusinessTarget["per
 export function generateCanonicalId(prefix: string): string {
   const uuid = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
     ? crypto.randomUUID()
-    : "00000000-0000-4000-8000-000000000000";
+    : (() => { throw new Error("Canonical identifier generation is unavailable."); })();
   return `${prefix}-${uuid}`;
 }
