@@ -194,3 +194,11 @@ export type {
 /** Existing Web view enrichment from the canonical target detail response. */
 export type BusinessTarget = import("../../../../alos-contracts/generated/typescript/strategy").BusinessTarget
   & Partial<Pick<import("../../../../alos-contracts/generated/typescript/strategy").BusinessTargetDetail, "observations" | "selected_observations" | "authorized_actions" | "last_updated_at">>;
+
+export type * from "../../../../alos-contracts/generated/typescript/sales";
+
+export type * from "../../../../alos-contracts/generated/typescript/marketing";
+
+export type * from "../../../../alos-contracts/generated/typescript/property";
+
+export type * from "../../../../alos-contracts/generated/typescript/finance";

@@ -38,6 +38,12 @@ export const STRATEGY_API = {
 export type StrategyRequest = typeof authenticatedApiRequest;
 
 export const strategyApi = {
+  async listTargetDetails(signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest) {
+    const targets = await request<BusinessTarget[]>(STRATEGY_API.targets, { signal });
+    return Promise.all(targets.map((target) => request<BusinessTargetDetail>(
+      `${STRATEGY_API.targets}/${encodeURIComponent(target.target_id)}?version=${target.version}`, { signal },
+    )));
+  },
   getExecutiveOverview(signal?: AbortSignal, request: StrategyRequest = authenticatedApiRequest) {
     return request<ExecutiveOverviewProjection>("/api/v1/executive/overview", { signal });
   },
