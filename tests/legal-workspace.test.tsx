@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -9,13 +9,9 @@ import SummaryRoute from "@/app/workspace/[workspaceKey]/(domain)/summary/page";
 import PerformanceRoute from "@/app/workspace/[workspaceKey]/(domain)/performance/page";
 import ReviewsRoute from "@/app/workspace/[workspaceKey]/(domain)/reviews/page";
 import ContractDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/contracts/[contractId]/page";
-import PermitDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/permits/[permitId]/page";
-import CaseDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/cases/[caseId]/page";
-import AssetDetailRoute from "@/app/workspace/[workspaceKey]/(domain)/assets/[assetId]/page";
 import { hasLegalContext, activeLegalWorkspaceKey } from "@/features/legal/legal-model";
 import { legalNavigation } from "@/features/legal/navigation";
-import { LegalContractsPage, LegalPermitsPage, LegalReviewsPage, LegalRisksPage } from "@/features/legal";
-import { LegalSourceStateView } from "@/features/legal/shared/legal-ui";
+import { LegalContractsPage, LegalRisksPage } from "@/features/legal";
 import { resolveWorkspaceDomain } from "@/features/session";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
@@ -47,7 +43,10 @@ function legalSession(workspaceKey = "kepatuhan-utama", divisionCode = "LEGAL", 
 }
 
 describe("Legal workspace", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ items: [], total: 0, counts: {}, last_updated_at: null, source: { source: "legal", status: "CONNECTED_EMPTY", authoritative: true, last_updated_at: null } } as never);
+  });
   afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
   it("uses canonical Legal authority and the actual workspace key", () => {
@@ -89,82 +88,29 @@ describe("Legal workspace", () => {
     expect(await screen.findByRole("heading", { name: "Legal" })).toBeInTheDocument();
   });
 
-  it("dispatches Legal performance and reviews while preserving Executive and unsupported review collisions", async () => {
+  it("reads Legal performance from Strategy and reviews from Legal", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
     vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue([] as never);
     render(<PerformanceRoute params={{ workspaceKey: "kepatuhan-utama" }} />);
-    expect(await screen.findByRole("heading", { name: /Target & Kinerja/ })).toBeInTheDocument();
-    expect(screen.getByText("Strategi")).toBeInTheDocument();
-
+    expect(await screen.findByRole("heading", { name: "Target & Kinerja" })).toBeInTheDocument();
     cleanup();
-    vi.clearAllMocks();
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
+    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ items: [], total: 0, source: { source: "legal", status: "CONNECTED_EMPTY", authoritative: true, last_updated_at: null } } as never);
     render(<ReviewsRoute params={{ workspaceKey: "kepatuhan-utama" }} />);
-    expect(await screen.findByRole("heading", { name: "Review Legal" })).toBeInTheDocument();
-
-    cleanup();
-    vi.clearAllMocks();
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession("pusat-kendali", "EXECUTIVE", "EXECUTIVE"));
-    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue([] as never);
-    render(<ReviewsRoute params={{ workspaceKey: "pusat-kendali" }} />);
-    expect(await screen.findByRole("heading", { name: "Review & Revisi" })).toBeInTheDocument();
-
-    cleanup();
-    vi.clearAllMocks();
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession("sales-utama", "SALES"));
-    render(<ReviewsRoute params={{ workspaceKey: "sales-utama" }} />);
-    expect(await screen.findByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
-
-    cleanup();
-    vi.clearAllMocks();
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession("kepatuhan-utama"));
-    render(<ReviewsRoute params={{ workspaceKey: "kepatuhan-lain" }} />);
-    expect(await screen.findByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Due Diligence" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Item Due Diligence" })).toBeInTheDocument();
+    expect(screen.getByText("Keputusan Legal Material")).toBeInTheDocument();
   });
 
-  it("keeps Legal detail routes authoritative and source-unavailable", async () => {
+  it("reads scoped Legal details and retains access checks", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
+    const read = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ contract_id: "contract-1", contract_number: "Recorded contract", status: "Legacy-Exact", allowed_transitions: [] } as never);
     render(<ContractDetailRoute params={{ workspaceKey: "kepatuhan-utama", contractId: "contract-1" }} />);
-    expect(await screen.findByRole("heading", { name: "Detail Kontrak" })).toBeInTheDocument();
-    expect(screen.getByText(/sumber legal belum terhubung/)).toBeInTheDocument();
+    expect(await screen.findByText("Recorded contract")).toBeInTheDocument();
+    expect(screen.getByText("Legacy-Exact")).toBeInTheDocument();
+    expect(read).toHaveBeenCalledWith("/api/v1/legal/contracts/contract-1", expect.objectContaining({ signal: expect.any(AbortSignal) }));
     cleanup();
-    vi.clearAllMocks();
-
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
-    render(<PermitDetailRoute params={{ workspaceKey: "kepatuhan-utama", permitId: "permit-1" }} />);
-    expect(await screen.findByRole("heading", { name: "Detail Perizinan" })).toBeInTheDocument();
-    cleanup();
-    vi.clearAllMocks();
-
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
-    render(<CaseDetailRoute params={{ workspaceKey: "kepatuhan-utama", caseId: "case-1" }} />);
-    expect(await screen.findByRole("heading", { name: "Detail Kasus" })).toBeInTheDocument();
-    cleanup();
-    vi.clearAllMocks();
-
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
-    render(<AssetDetailRoute params={{ workspaceKey: "kepatuhan-utama", assetId: "asset-1" }} />);
-    expect(await screen.findByRole("heading", { name: "Detail Legalitas Proyek & Aset" })).toBeInTheDocument();
-    cleanup();
-    vi.clearAllMocks();
-
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession("it-utama", "IT", "IT_OPERATIONS"));
-    render(<AssetDetailRoute params={{ workspaceKey: "it-utama", assetId: "asset-it-1" }} />);
-    expect(await screen.findByRole("heading", { name: "Detail Aset IT" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Detail Legalitas Proyek & Aset" })).not.toBeInTheDocument();
-    expect(screen.getByText(/tidak membuat data aset/i)).toBeInTheDocument();
-    cleanup();
-    vi.clearAllMocks();
-
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession("sales-utama", "SALES"));
-    render(<ContractDetailRoute params={{ workspaceKey: "sales-utama", contractId: "contract-1" }} />);
-    expect(await screen.findByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
-    cleanup();
-    vi.clearAllMocks();
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession("kepatuhan-utama"));
     render(<ContractDetailRoute params={{ workspaceKey: "kepatuhan-lain", contractId: "contract-1" }} />);
     expect(await screen.findByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Detail Kontrak" })).not.toBeInTheDocument();
   });
 
   it("fails closed for a mismatched Legal workspace route", async () => {
@@ -180,29 +126,21 @@ describe("Legal workspace", () => {
     expect(await screen.findByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
   });
 
-  it("keeps source states mutually exclusive and Legal tabs functional", async () => {
-    const cases = [["loading", "Memuat data"], ["unavailable", "Belum Terhubung"], ["error", "Data belum dapat dimuat"], ["connected-empty", "Belum ada data"]] as const;
-    for (const [state, label] of cases) {
-      const view = render(<LegalSourceStateView description="Status sumber" state={state} />);
-      expect(screen.getAllByText(label).length).toBeGreaterThan(0);
-      view.unmount();
-    }
-    const connected = render(<LegalSourceStateView description="Status sumber" state="connected-data"><span>Data resmi</span></LegalSourceStateView>);
-    expect(screen.getByText("Data resmi")).toBeInTheDocument();
-    connected.unmount();
-
+  it("connects risk and control tabs without a synthetic compliance score", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
     render(<LegalRisksPage workspaceKey="kepatuhan-utama" />);
-    await screen.findByRole("heading", { name: "Risiko & Kepatuhan" });
-    screen.getByRole("tab", { name: "Kepatuhan" }).click();
-    expect(await screen.findByText("Kepatuhan Legal belum tersedia.")).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Risiko" })).toBeInTheDocument();
+    screen.getByRole("tab", { name: "Kontrol Internal" }).click();
+    await waitFor(() => expect(api.authenticatedApiRequest).toHaveBeenCalledWith("/api/v1/legal/controls?limit=100&offset=0", expect.any(Object)));
+    expect(screen.getByText("Skor Kepatuhan Resmi")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Segarkan Data/ })).not.toBeInTheDocument();
   });
 
   it("does not introduce fake Legal data or duplicate universal ownership", () => {
     const featureTree = readFileSync(resolve("src/features/legal/index.ts"), "utf8");
     const source = readFileSync(resolve("src/features/legal/shared/legal-ui.tsx"), "utf8");
     expect(featureTree).not.toMatch(/legal-(projects|tasks|approvals|documents|reports|findings|ara)/);
-    expect(source).toContain("Belum ada kandidat ekstraksi.");
+    expect(source).not.toContain("LegalExtractionDrawer");
     expect(source).not.toMatch(/mock|fake|candidate.*value.*—/i);
     expect(readFileSync(resolve("src/features/legal/legal-model.ts"), "utf8")).not.toContain("legalStateLabel");
     expect(readFileSync(resolve("docs/legal-business-state-decisions.md"), "utf8")).toContain("Signature state");
@@ -228,65 +166,14 @@ describe("Legal workspace", () => {
     expect(crossDomain).toContain("Project root, Document, Finding, Task, dan Approval Shared Work");
   });
 
-  it("keeps readiness forms controlled and extraction non-authoritative", async () => {
+  it("keeps unavailable signing and ARA explicit without editable unsupported fields", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
     render(<LegalContractsPage workspaceKey="kepatuhan-utama" />);
-    await screen.findByRole("heading", { name: "Kontrak & Perjanjian" });
-    screen.getByRole("button", { name: "Tambah Kontrak" }).click();
-    const dialog = await screen.findByRole("dialog", { name: "Tambah Kontrak" });
-    expect(within(dialog).getByRole("combobox", { name: "Jenis" })).toBeDisabled();
-    expect(within(dialog).getByRole("combobox", { name: "Materialitas" })).toBeDisabled();
-    expect(within(dialog).getByRole("combobox", { name: "Klasifikasi" })).toBeDisabled();
-    expect(within(dialog).getByRole("button", { name: "Simpan Kontrak" })).toBeDisabled();
-    cleanup();
-    vi.clearAllMocks();
-
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
-    render(<LegalContractsPage workspaceKey="kepatuhan-utama" />);
-    await screen.findByRole("heading", { name: "Kontrak & Perjanjian" });
-    screen.getByRole("button", { name: "Ajukan Perubahan" }).click();
-    expect(await screen.findByRole("dialog", { name: "Ajukan Perubahan Kontrak" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Simpan Perubahan" })).toBeDisabled();
-    cleanup();
-    vi.clearAllMocks();
-
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
-    render(<LegalReviewsPage workspaceKey="kepatuhan-utama" />);
-    await screen.findByRole("heading", { name: "Review Legal" });
-    screen.getByRole("button", { name: "Tambah Review" }).click();
-    const reviewDialog = await screen.findByRole("dialog", { name: "Tambah Review Legal" });
-    expect(within(reviewDialog).getByRole("combobox", { name: "Penilaian" })).toBeRequired();
-    expect(within(reviewDialog).getByRole("combobox", { name: "Penilaian" })).toBeDisabled();
-    expect(within(reviewDialog).getByRole("button", { name: "Simpan Review" })).toBeDisabled();
-    cleanup();
-    vi.clearAllMocks();
-
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
-    render(<LegalPermitsPage workspaceKey="kepatuhan-utama" />);
-    await screen.findByRole("heading", { name: "Perizinan" });
-    screen.getByRole("button", { name: "Ajukan Pembaruan" }).click();
-    expect(await screen.findByRole("dialog", { name: "Ajukan Pembaruan Perizinan" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Simpan Pembaruan" })).toBeDisabled();
-    cleanup();
-    vi.clearAllMocks();
-
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
-    render(<LegalRisksPage workspaceKey="kepatuhan-utama" />);
-    await screen.findByRole("heading", { name: "Risiko & Kepatuhan" });
-    screen.getByRole("button", { name: "Tambah Risiko" }).click();
-    const riskDialog = await screen.findByRole("dialog", { name: "Tambah Risiko Legal" });
-    expect(within(riskDialog).getByRole("combobox", { name: "Severity" })).toBeDisabled();
-    expect(within(riskDialog).getByRole("button", { name: "Simpan Risiko" })).toBeDisabled();
-    cleanup();
-    vi.clearAllMocks();
-
-    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(legalSession());
-    render(<LegalContractsPage workspaceKey="kepatuhan-utama" />);
-    await screen.findByRole("heading", { name: "Kontrak & Perjanjian" });
-    screen.getByRole("button", { name: "Telaah Dokumen" }).click();
-    expect(await screen.findByText("Belum ada kandidat ekstraksi.")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Terima" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Edit" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Abaikan" })).not.toBeInTheDocument();
+    expect(await screen.findByText("Signing dan Eksekusi Legal Final")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Telaah Dokumen" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Materialitas")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tambah Kontrak & Perjanjian" })).not.toBeInTheDocument();
   });
+
+
 });

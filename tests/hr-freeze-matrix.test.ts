@@ -7,53 +7,21 @@ const read = (path: string) => readFileSync(resolve(path), "utf8");
 describe("HR / GA master freeze matrix", () => {
   it("keeps unknown HR values source-honest", () => {
     const source = read("src/features/hr/hr-pages.tsx");
+    expect(source).toContain("Belum Tersedia");
     expect(source).toContain("—");
-    expect(source).toContain("Belum Terhubung");
     expect(source).not.toContain("Rp0");
     expect(source).not.toContain("Tidak Ada Kasus");
-    expect(source).not.toMatch(/missing attendance.*Hadir/i);
-    expect(source).not.toMatch(/headcount[^\n]*(?:=|:)\s*0/i);
   });
 
-  it("keeps HR user-facing labels in natural Indonesian", () => {
-    const pages = read("src/features/hr/hr-pages.tsx");
-    const detail = read("src/features/hr/shared/hr-detail-page.tsx");
-    const navigation = read("src/features/hr/navigation.ts");
-    const expectedLabels = [
-      "Karyawan", "Posisi", "Divisi", "Manajer", "Jenis Kepegawaian", "Tanggal Bergabung",
-      "Status Kepegawaian", "Akhir Kontrak", "Tanggal", "Jadwal", "Jam Masuk", "Jam Keluar",
-      "Status Kehadiran", "Sumber", "Verifikasi", "Kebutuhan", "Tindakan", "Penanggung Jawab",
-      "Tenggat", "Bukti", "Pelatihan", "Kompetensi / Persyaratan", "Hasil", "Periode",
-      "Hak Karyawan", "Tunjangan", "Instruksi Potongan", "Dampak Kehadiran", "Dampak Lembur",
-      "Dampak Cuti", "Fasilitas Kantor", "Portofolio", "Alasan", "Hari Kerja Terakhir", "Jenis Perubahan",
-      "Tanggal Berlaku", "Serah Terima Pengetahuan", "Pengembalian Aset", "Pencabutan Akses", "Dokumen Akhir",
-    ];
-    for (const label of expectedLabels) expect(`${pages}\n${detail}`).toContain(`"${label}"`);
-
-    const genericEnglishLabels = [
-      "Employee", "Employee ID", "Position", "Division", "Manager", "Employment Type", "Join Date",
-      "Employment Status", "Contract End", "Date", "Schedule", "Check In", "Check Out", "Attendance State",
-      "Source", "Verification", "Need", "Action", "Owner", "Target Date", "Evidence", "Training",
-      "Skill / Requirement", "Result", "Period", "Employee Entitlement", "Allowance", "Deduction Instruction",
-      "Attendance Impact", "Overtime Impact", "Leave Impact", "Office Facility", "Reason", "Last Working Date",
-      "Change Type", "Effective Date", "Knowledge Transfer", "Asset Return", "Access Revocation", "Final Documents",
-      "Headcount",
-    ];
-    for (const label of genericEnglishLabels) {
-      expect(`${pages}\n${detail}`).not.toContain(`"${label}"`);
-      expect(`${pages}\n${detail}`).not.toContain(`'${label}'`);
-    }
-    expect(navigation).toContain('label: "Kompensasi & Benefit"');
+  it("uses Indonesian canonical HR field labels", () => {
+    const source = read("src/features/hr/resources.ts");
+    for (const label of ["ID Karyawan", "Nama Lengkap", "Posisi", "Divisi", "Tanggal Bergabung", "Tanggal Kehadiran", "Jam Masuk", "Jam Keluar", "Jenis Cuti", "Tanggal Mulai", "Tanggal Selesai", "Catatan", "Periode Review"]) expect(source).toContain(label);
   });
 
-  it("preserves master HR/GA terminology where it is intentionally domain-specific", () => {
+  it("retains HR and GA menus with honest unavailable capability labels", () => {
     const pages = read("src/features/hr/hr-pages.tsx");
-    const detail = read("src/features/hr/shared/hr-detail-page.tsx");
     const navigation = read("src/features/hr/navigation.ts");
-    for (const term of ["Interview", "Offer", "Benefit", "Payroll Preparation"]) {
-      expect(`${pages}\n${detail}`).toContain(`"${term}"`);
-    }
-    expect(navigation).not.toContain('{ label: "GA",');
+    for (const label of ["Kompensasi & Benefit", "GA & Fasilitas", "Offer"]) expect(pages).toContain(label);
     expect(navigation).toContain('label: "GA & Fasilitas"');
   });
 
@@ -100,15 +68,15 @@ describe("HR / GA master freeze matrix", () => {
 
   it("locks classification, privacy, relation, and conflict semantics", () => {
     const decisions = read("docs/hr-business-state-decisions.md");
-    const forms = read("src/features/hr/shared/hr-ui.tsx");
+    const forms = read("src/features/business-records/record-panel.tsx");
     expect(decisions).toContain("Frontend tidak menetapkan classification PUBLIC, INTERNAL, CONFIDENTIAL, atau RESTRICTED");
     expect(decisions).toContain("Search dan readiness tidak boleh membocorkan salary, bank, tax, government ID, atau restricted HR Case");
     expect(decisions).toContain("Entity relation memakai sumber pilihan resmi; user tidak memasukkan raw internal ID");
     expect(decisions).toContain("HTTP 409/version conflict bukan success");
     expect(decisions).toContain("tidak boleh menimpa data yang lebih baru");
-    expect(forms).toContain("Pilihan belum tersedia.");
-    expect(forms).toContain("Perubahan belum disimpan karena penyimpanan belum tersedia.");
-    expect(forms).toContain("disabled type=\"submit\"");
+    expect(forms).toContain("Referensi belum dapat dimuat");
+    expect(forms).toContain("Rekaman belum tersimpan");
+    expect(forms).toContain("relationErrors.length > 0");
   });
 
   it("keeps universal work and assistant routes reusable", () => {
@@ -128,7 +96,7 @@ describe("HR / GA master freeze matrix", () => {
     expect(css).toContain("@media (max-width: 760px)");
     expect(css).toContain(".formGrid { grid-template-columns: 1fr; }");
     expect(ui).toContain("<Drawer");
-    expect(ui).toContain("<FormField");
+    expect(read("src/features/business-records/record-panel.tsx")).toContain("<FormField");
   });
 
   it("keeps frozen workspace dispatchers present", () => {

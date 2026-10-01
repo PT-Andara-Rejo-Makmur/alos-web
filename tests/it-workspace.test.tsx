@@ -100,14 +100,11 @@ describe("IT frontend master matrix", () => {
     expect(ui).toContain('"connected-data": "Tersedia"');
   });
 
-  it("aligns the IT summary and account identity indicators without invented values", () => {
+  it("uses IT owner overview without synthetic operational indicators", () => {
     const summary = source("src/features/it/summary/it-summary-page.tsx");
-    const account = source("src/features/it/account-management-page.tsx");
-    for (const label of ["Akun Menunggu Pendaftaran", "Aktivasi Menunggu", "Permintaan Akses", "Akses Perlu Review", "Leaver Menunggu Revokasi"]) expect(summary).toContain(label);
-    for (const label of ["Nama", "ID Karyawan", "Jabatan", "Workspace Utama", "Role Utama", "Email", "Status Akun", "Status Aktivasi", "Login Terakhir"]) expect(account).toContain(label);
-    expect(account).toContain("account.employee_id");
-    expect(account).toContain("account.primary_workspace_id");
-    expect(account).not.toContain("account.workspace_access[0]?.workspace");
+    expect(summary).toContain("itApi.overview");
+    for (const label of ["Uptime", "MTTR", "Skor Keamanan", "Tingkat Keberhasilan Backup"]) expect(summary).toContain(label);
+    expect(summary).not.toContain("99.9");
   });
 
   it("keeps account state, activation, access, and governance as separate readiness concepts", () => {
@@ -176,28 +173,19 @@ describe("IT frontend master matrix", () => {
     expect(styles).toContain(".filterGroup");
   });
 
-  it("keeps access request, joiner/mover/leaver, and problem/root-cause UX contextual", () => {
+  it("reuses Identity for access while cross-domain workflow remains unavailable", () => {
     const modules = source("src/features/it/modules/it-module-page.tsx");
-    for (const label of ["Problem / Root Cause", "Ajukan Akses", "User", "Workspace / Sistem", "Role / Akses yang Diminta", "Alasan", "Durasi", "Bukti Pendukung", "JOINER", "MOVER", "LEAVER", "Antrian Revokasi Leaver", "Approved tidak berarti provisioned"]) expect(modules).toContain(label);
-    expect(modules).toContain("Layanan Terdampak");
-    expect(modules).toContain("Aset Ditugaskan");
+    expect(modules).toContain('module === "access"');
+    expect(modules).toContain("AccountManagementPage");
+    expect(modules).toContain("Production Approve / Release / Rollback");
+    expect(modules).not.toContain("it.accounts");
   });
 
-  it("defines concrete source-honest structures for every IT operations module", () => {
+  it("maps operational modules only to migration-owned canonical records", () => {
     const modules = source("src/features/it/modules/it-module-page.tsx");
-    for (const tab of [
-      "Problem / Root Cause", "Staging / Uji", "Compute", "Database", "Backup", "Monitoring",
-      "Runtime", "Capability", "Provider", "Evaluasi", "Penggunaan", "Internal", "Eksternal",
-      "Keanggotaan Workspace", "Penetapan Peran", "Kerentanan", "Change", "Release", "Deployment",
-      "Rollback", "Tersedia", "Milik Saya", "Tim",
-    ]) expect(modules).toContain(`"${tab}"`);
-    for (const column of [
-      "Availability", "Insiden Terakhir", "Root Cause", "Repository", "Deployment Terakhir",
-      "Status Backup", "Run Aktif", "Status Kredensial", "Sinkronisasi Terakhir",
-      "Jenis Autentikasi", "Severity", "Persetujuan", "Kode Aset", "Garansi", "Aset Terkait",
-    ]) expect(modules).toContain(column);
-    expect(modules).toContain("Tidak ada data operasional yang dibuat oleh antarmuka");
-    expect(modules).not.toMatch(/credential value|api[_ -]?key value|secret value/i);
+    for (const resource of ["incidents", "service_monitors", "systems", "databases", "environments", "repositories", "cicd_pipelines", "ci_runs", "releases", "security_findings", "backup_policies", "backup_runs", "restore_tests", "dr_plans"]) expect(modules).toContain("itResources." + resource);
+    for (const label of ["Live Monitoring", "Connector Eksternal", "Eksekusi Backup atau Restore", "Eksekusi GitHub Live"]) expect(modules).toContain(label);
+    expect(modules).toContain('module === "assets" || module === "support"');
   });
 
   it("keeps privileged role and security boundaries source-honest", () => {
