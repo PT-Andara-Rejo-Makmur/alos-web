@@ -27,7 +27,7 @@ export function SourceStateView({ state }: Readonly<{ state: SourceState }>) {
 
 function permission(session: SessionProjection, domain: string): boolean {
   const active = session.principal && "actor" in session.principal ? session.principal.active_workspace : null;
-  return !!active && active.role_refs.some((role) => role === "DIVISION_LEAD" || role === "DIVISION_MEMBER") && active.permission_refs.includes(`${domain}.write`);
+  return !!active && active.role_refs.some((role) => role === "DIVISION_LEAD" || role === "DIVISION_MEMBER" || (domain === "it" && role === "IT_ADMIN" && active.workspace.workspace_type === "IT_OPERATIONS")) && active.permission_refs.includes(`${domain}.write`);
 }
 
 export function SourceMetadata({ source }: Readonly<{ source: ExecutiveSourceStatus }>) {

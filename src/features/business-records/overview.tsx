@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { DataTable, Metric, PageHeader, Section } from "@/components/ui";
-import type { SalesOverview, MarketingOverview, PropertyOverview, FinanceOverview } from "@/lib/contracts";
+import type { SalesOverview, MarketingOverview, PropertyOverview, FinanceOverview, LegalOverview, HrOverview, ItOverview } from "@/lib/contracts";
 import type { SourceState } from "./resource";
 import { SourceMetadata, SourceStateView, sourceFailure } from "./record-panel";
 import styles from "@/features/property/property.module.css";
 
-type Overview = SalesOverview | MarketingOverview | PropertyOverview | FinanceOverview;
+type Overview = SalesOverview | MarketingOverview | PropertyOverview | FinanceOverview | LegalOverview | HrOverview | ItOverview;
 
 export function DomainOverview({ title, read, labels, unavailable }: Readonly<{
   title: string; read: (signal?: AbortSignal) => Promise<Overview>; labels: Readonly<Record<string, string>>; unavailable: readonly string[];

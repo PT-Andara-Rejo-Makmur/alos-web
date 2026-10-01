@@ -202,3 +202,6 @@ export type * from "../../../../alos-contracts/generated/typescript/marketing";
 export type * from "../../../../alos-contracts/generated/typescript/property";
 
 export type * from "../../../../alos-contracts/generated/typescript/finance";
+export type * from "../../../../alos-contracts/generated/typescript/it";
+export type * from "../../../../alos-contracts/generated/typescript/hr";
+export type * from "../../../../alos-contracts/generated/typescript/legal";
