@@ -14,6 +14,12 @@ describe("ARA conversation", () => {
   beforeEach(() => { vi.spyOn(araApi, "threads").mockResolvedValue([thread]); vi.spyOn(araApi, "messages").mockResolvedValue([]); });
   afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
+  it.each([true, false])("displays authoritative provider readiness %s", async (connected) => {
+    render(<AraConversation authority={{...authority, runtime_mode: "NORMAL", production_provider_connected: connected}} workspaceName="Sales" />);
+    expect(screen.getByText(new RegExp(`Production Model Provider: ${connected ? "Terhubung" : "Belum Terhubung"}`))).toBeInTheDocument();
+    await waitFor(() => expect(araApi.threads).toHaveBeenCalled());
+  });
+
   it.each([["ANSWER", "Jawaban"], ["DENIED", "Kewenangan ditolak"], ["NEEDS_INFO", "Perlu informasi"], ["NEEDS_REVIEW", "Perlu tinjauan manusia"], ["FAILED", "Gagal"]] as const)("renders %s distinctly and restores persisted history", async (kind, label) => {
     vi.mocked(araApi.messages).mockResolvedValue([message(kind)]);
     const { unmount } = render(<AraConversation authority={authority} workspaceName="Sales" />);

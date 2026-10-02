@@ -136,9 +136,9 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
   }
 
   return <main className={styles.conversation}>
-    <header className={styles.conversationHeader}><div><p>{authority.service_available === false ? "Layanan ARA belum tersedia" : "ARA Core Connected · Mode deterministik"}</p><h1>Tanya ARA</h1>
+    <header className={styles.conversationHeader}><div><p>{authority.service_available === false ? "Layanan ARA belum tersedia" : `ARA Core Connected · ${authority.runtime_mode === "NORMAL" ? "Model production" : "Mode deterministik"}`}</p><h1>Tanya ARA</h1>
       <p>Ruang kerja aktif: {workspaceName}</p>
-      <p>Production Model Provider: Belum Terhubung · Klasifikasi maksimum: {authority.maximum_data_classification}</p></div>
+      <p>Production Model Provider: {authority.production_provider_connected ? "Terhubung" : "Belum Terhubung"} · Klasifikasi maksimum: {authority.maximum_data_classification}</p></div>
       <button type="button" disabled={sending || loading} onClick={() => void create()}>Percakapan baru</button></header>
     <div className={styles.chatLayout}>
       <nav aria-label="Riwayat percakapan" className={styles.threadList}>
