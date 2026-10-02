@@ -1,6 +1,14 @@
 import { authenticatedApiRequest } from "@/lib/api";
 import { recordApi } from "@/features/business-records/record-api";
 import type {
+  LegalReviewCreateRequest,
+  LegalReviewProjection,
+  LegalReviewListProjection,
+  LegalReviewUpdateRequest,
+  LegalReviewTransitionRequest,
+  LegalContractRevisionCreateRequest,
+  LegalContractRevisionProjection,
+  LegalContractRevisionListProjection,
   LegalPermitCreateRequest,
   LegalPermitUpdateRequest,
   LegalPermitProjection,
@@ -60,6 +68,9 @@ import type {
 } from "@/lib/contracts";
 
 export const legalApi = {
+  legal_reviews: recordApi<LegalReviewCreateRequest, LegalReviewUpdateRequest, LegalReviewProjection, LegalReviewListProjection, LegalReviewTransitionRequest>("/api/v1/legal/legal-reviews"),
+  contract_revisions: recordApi<LegalContractRevisionCreateRequest, object, LegalContractRevisionProjection, LegalContractRevisionListProjection, object>("/api/v1/legal/contract-revisions"),
+
   overview(signal?: AbortSignal) { return authenticatedApiRequest<LegalOverview>("/api/v1/legal/overview", { signal }); },
   permits: recordApi<LegalPermitCreateRequest, LegalPermitUpdateRequest, LegalPermitProjection, LegalPermitListProjection, LegalPermitTransitionRequest>("/api/v1/legal/permits"),
   contracts: recordApi<LegalContractCreateRequest, LegalContractUpdateRequest, LegalContractProjection, LegalContractListProjection, LegalContractTransitionRequest>("/api/v1/legal/contracts"),

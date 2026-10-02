@@ -2,6 +2,352 @@ import { defineResource } from "@/features/business-records/resource";
 import { legalApi } from "./api";
 
 export const legalResources = {
+  legal_reviews: defineResource({
+  "key": "legal_reviews",
+  "domain": "legal",
+  "title": "Review Legal",
+  "identifier": "legal_review_id",
+  "createFields": [
+    {
+      "name": "contract_id",
+      "label": "Contract Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "contract_number"
+      }
+    },
+    {
+      "name": "title",
+      "label": "Title",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "review_summary",
+      "label": "Review Summary",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "assessment",
+      "label": "Assessment",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "options": [
+        "RECORDED_ISSUES",
+        "NO_RECORDED_ISSUES",
+        "INCONCLUSIVE"
+      ]
+    }
+  ],
+  "updateFields": [
+    {
+      "name": "title",
+      "label": "Title",
+      "required": false,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "review_summary",
+      "label": "Review Summary",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "assessment",
+      "label": "Assessment",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "options": [
+        "RECORDED_ISSUES",
+        "NO_RECORDED_ISSUES",
+        "INCONCLUSIVE"
+      ]
+    }
+  ],
+  "columns": [
+    {
+      "name": "contract_id",
+      "label": "Contract Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "contract_number"
+      }
+    },
+    {
+      "name": "title",
+      "label": "Title",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "review_summary",
+      "label": "Review Summary",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "assessment",
+      "label": "Assessment",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "options": [
+        "RECORDED_ISSUES",
+        "NO_RECORDED_ISSUES",
+        "INCONCLUSIVE"
+      ]
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "tenant_id",
+      "label": "Tenant Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "organization_id",
+      "label": "Organization Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "workspace_id",
+      "label": "Workspace Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "legal_review_id",
+      "label": "Legal Review Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "label": "Created At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "label": "Updated At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "reviewed_by",
+      "label": "Reviewed By",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "reviewed_at",
+      "label": "Reviewed At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    }
+  ],
+  "immutable": false
+}, legalApi.legal_reviews),
+  contract_revisions: defineResource({
+  "key": "contract_revisions",
+  "domain": "legal",
+  "title": "Referensi Revisi Kontrak",
+  "identifier": "contract_revision_id",
+  "createFields": [
+    {
+      "name": "contract_id",
+      "label": "Contract Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "contract_number"
+      }
+    },
+    {
+      "name": "document_id",
+      "label": "Document Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/documents",
+        "identifier": "document_id",
+        "label": "title",
+        "array": true
+      }
+    },
+    {
+      "name": "document_version",
+      "label": "Document Version",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "revision_number",
+      "label": "Revision Number",
+      "required": true,
+      "nullable": false,
+      "type": "integer"
+    },
+    {
+      "name": "summary",
+      "label": "Summary",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "recorded_on",
+      "label": "Recorded On",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    }
+  ],
+  "updateFields": [],
+  "columns": [
+    {
+      "name": "contract_id",
+      "label": "Contract Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "contract_number"
+      }
+    },
+    {
+      "name": "document_id",
+      "label": "Document Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/documents",
+        "identifier": "document_id",
+        "label": "title",
+        "array": true
+      }
+    },
+    {
+      "name": "document_version",
+      "label": "Document Version",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "revision_number",
+      "label": "Revision Number",
+      "required": true,
+      "nullable": false,
+      "type": "integer"
+    },
+    {
+      "name": "summary",
+      "label": "Summary",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "recorded_on",
+      "label": "Recorded On",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "tenant_id",
+      "label": "Tenant Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "organization_id",
+      "label": "Organization Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "workspace_id",
+      "label": "Workspace Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "contract_revision_id",
+      "label": "Contract Revision Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "label": "Created At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "label": "Updated At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    }
+  ],
+  "immutable": true
+}, legalApi.contract_revisions),
+
   permits: defineResource({
     "key": "permits",
     "domain": "legal",
