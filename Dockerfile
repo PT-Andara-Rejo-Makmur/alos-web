@@ -21,7 +21,7 @@ ENV NEXT_PUBLIC_ALOS_API_BASE_URL=${NEXT_PUBLIC_ALOS_API_BASE_URL}
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 COPY --from=contracts generated/typescript /alos-contracts/generated/typescript
-RUN pnpm build
+RUN ./node_modules/.bin/next build
 
 FROM node:22-alpine AS runtime
 WORKDIR /app
