@@ -6,5 +6,5 @@ import { SalesLayout } from "../sales-layout";
 const resources = [salesResources.customers, salesResources.leads];
 
 export function SalesLeadsPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) {
-  return <SalesLayout workspaceKey={workspaceKey}>{(session) => <BusinessDataPage session={session} resources={resources} title="Prospek & Lead" description="Rekaman internal authoritative; booking dan closing final menunggu authority lintas domain." />}</SalesLayout>;
+  return <SalesLayout workspaceKey={workspaceKey}>{(session) => <BusinessDataPage session={session} resources={resources} title="Prospek & Lead" description="Rekaman internal authoritative. Konfirmasi booking dan penyelesaian closing memerlukan persetujuan independen dan eksekusi eksplisit; rekaman ini tidak membuktikan settlement, tanda tangan, atau eksekusi Legal." />}</SalesLayout>;
 }
