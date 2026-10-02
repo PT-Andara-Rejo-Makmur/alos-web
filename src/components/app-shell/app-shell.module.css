@@ -623,6 +623,10 @@
     display: none;
   }
 
+  .sidebar.mobileSidebar {
+    display: flex;
+  }
+
   .menuButton {
     display: inline-flex;
   }
