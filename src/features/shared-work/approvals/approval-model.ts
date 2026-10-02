@@ -33,6 +33,9 @@ export function approvalFromProjection(approval: SharedWorkApprovalProjection): 
     documentsCount: approval.documents_count ?? null,
     evidenceCount: approval.evidence_count ?? null,
     commentsCount: approval.comments_count ?? null,
+    requestedAction: approval.requested_action ?? null,
+    consumedAt: approval.consumed_at ?? null,
+    allowedDecisions: approval.allowed_decisions,
   };
 }
 

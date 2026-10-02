@@ -4,7 +4,8 @@ import { Fragment, useEffect, useState, type FormEvent } from "react";
 import { Alert, Button, DataTable, Drawer, EmptyState, FormField, LoadingState, Section, Status } from "@/components/ui";
 import { ApiRequestError, authenticatedApiRequest } from "@/lib/api";
 import type { SessionProjection } from "@/features/session";
-import type { ExecutiveSourceStatus } from "@/lib/contracts";
+import type { ExecutiveSourceStatus, SharedWorkMaterialActionProjection } from "@/lib/contracts";
+import { MaterialActions } from "./material-actions";
 import type { Field, Resource, SourceState } from "./resource";
 import styles from "@/features/property/property.module.css";
 
@@ -36,6 +37,11 @@ export function SourceMetadata({ source }: Readonly<{ source: ExecutiveSourceSta
 }
 
 export function RecordPanel({ resource, session }: Readonly<{ resource: Resource; session: SessionProjection }>) {
+  const principal = session.principal && "actor" in session.principal ? session.principal : null;
+  return <ScopedRecordPanel key={`${principal?.actor.actor_id}-${principal?.active_workspace?.workspace.workspace_id}-${resource.domain}-${resource.key}`} resource={resource} session={session} />;
+}
+
+function ScopedRecordPanel({ resource, session }: Readonly<{ resource: Resource; session: SessionProjection }>) {
   const [state, setState] = useState<SourceState>("loading");
   const [source, setSource] = useState<ExecutiveSourceStatus | null>(null);
   const [rows, setRows] = useState<readonly object[]>([]);
@@ -75,6 +81,9 @@ export function RecordPanel({ resource, session }: Readonly<{ resource: Resource
   const detail = selected ? view(selected) : null;
   const actions = detail && Array.isArray(detail.allowed_transitions) ? detail.allowed_transitions.filter((value): value is string => typeof value === "string") : [];
   const pipelineActions = detail && Array.isArray(detail.allowed_pipeline_stages) ? detail.allowed_pipeline_stages.filter((value): value is string => typeof value === "string") : [];
+  const materialActions = detail && Array.isArray(detail.material_actions) ? detail.material_actions as readonly SharedWorkMaterialActionProjection[] : [];
+  const active = session.principal && "actor" in session.principal ? session.principal.active_workspace : null;
+  const canRequest = !!active && active.permission_refs.some((value) => value === "approval.request" || value === "work.write");
 
   return <Section title={resource.title} description="Rekaman canonical dalam workspace aktif. Nominal ditampilkan persis dari sumber.">
     <div className={styles.page}>
@@ -97,10 +106,12 @@ export function RecordPanel({ resource, session }: Readonly<{ resource: Resource
       {mutationError ? <Alert title="Perubahan belum tersimpan" message={mutationError} variant="danger" /> : null}
     </div>
     <Drawer title={`Detail ${resource.title}`} open={selected !== null && form === null} onClose={() => setSelected(null)}>
-      {detail ? <div className={styles.page}><dl className={styles.detailList}>{Object.entries(detail).filter(([key]) => !["allowed_transitions", "allowed_pipeline_stages", "tenant_id", "organization_id", "workspace_id"].includes(key)).map(([key, value]) => <Fragment key={key}><dt>{resource.columns.find((field) => field.name === key)?.label ?? (key === resource.identifier ? "ID Rekaman" : key)}</dt><dd>{display(value)}</dd></Fragment>)}</dl>
+      {detail ? <div className={styles.page}><dl className={styles.detailList}>{Object.entries(detail).filter(([key]) => !["allowed_transitions", "allowed_pipeline_stages", "material_actions", "tenant_id", "organization_id", "workspace_id"].includes(key)).map(([key, value]) => <Fragment key={key}><dt>{resource.columns.find((field) => field.name === key)?.label ?? (key === resource.identifier ? "ID Rekaman" : key)}</dt><dd>{display(value)}</dd></Fragment>)}</dl>
         {writable && !resource.immutable && resource.updateFields.length > 0 ? <Button variant="secondary" onClick={() => setForm("update")}>Edit {resource.title}</Button> : null}
         {writable ? <div className={styles.actionBar}>{actions.map((status) => <Button disabled={busy} key={status} onClick={() => void transition(status)} variant="secondary">{status}</Button>)}</div> : null}
         {writable && resource.pipeline ? <div className={styles.actionBar}>{pipelineActions.map((stage) => <Button disabled={busy} key={stage} onClick={() => void transition(stage, true)} variant="secondary">Lanjut ke {stage}</Button>)}</div> : null}
+        {writable && materialActions.length ? <MaterialActions key={String(detail[resource.identifier])} actions={materialActions} identity={String(detail[resource.identifier])} resource={resource} canRequest={canRequest}
+          onSaved={(row) => { setSelected(row); setFeedback("Tindakan material tersimpan."); setRevision((value) => value + 1); }} /> : null}
         {mutationError ? <Alert title="Perubahan belum tersimpan" message={mutationError} variant="danger" /> : null}
       </div> : null}
     </Drawer>

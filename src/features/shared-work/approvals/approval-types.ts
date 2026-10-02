@@ -27,6 +27,9 @@ export interface WorkApproval {
   readonly documentsCount: number | null;
   readonly evidenceCount: number | null;
   readonly commentsCount: number | null;
+  readonly requestedAction?: import("@/lib/contracts").SharedWorkMaterialAction | null;
+  readonly consumedAt?: string | null;
+  readonly allowedDecisions?: import("@/lib/contracts").SharedWorkApprovalProjection["allowed_decisions"];
 }
 
 export interface ApprovalFilterState {

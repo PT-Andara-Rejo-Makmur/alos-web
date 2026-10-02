@@ -45,6 +45,18 @@ afterEach(() => {
 });
 
 describe("canonical approval workflow", () => {
+  it("does not offer material review when backend decision authority is absent", () => {
+    const material = approvalFromProjection({ ...projection, subject_type: "SALES_BOOKING", requested_action: "CONFIRM_BOOKING", allowed_decisions: [] });
+    render(<ApprovalDetailView approval={material} session={session("actor_reviewer", ["approval.approve"])} />);
+    expect(screen.queryByRole("button", { name: "Setujui" })).not.toBeInTheDocument();
+  });
+
+  it("offers only the material decisions projected by the owner backend", () => {
+    const material = approvalFromProjection({ ...projection, subject_type: "SALES_BOOKING", requested_action: "CONFIRM_BOOKING", allowed_decisions: ["RETURNED"] });
+    render(<ApprovalDetailView approval={material} session={session("actor_reviewer", ["approval.approve", "approval.return"])} />);
+    expect(screen.getByRole("button", { name: "Kembalikan" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Setujui" })).not.toBeInTheDocument();
+  });
   it("maps backend projection without invented presentation fields", async () => {
     const mapped = approvalFromProjection(projection);
     expect(mapped.id).toBe("approval_1");

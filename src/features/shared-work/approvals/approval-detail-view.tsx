@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { Alert, Button, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
+import type { SharedWorkApprovalDecision } from "@/lib/contracts";
 import { apiMessage } from "@/lib/api";
 
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
@@ -60,6 +61,13 @@ export function ApprovalDetailView({
     { action: "reject", label: "Tolak", permission: "approval.reject" },
     { action: "hold", label: "Tahan", permission: "approval.hold" },
   ];
+  const decisionByAction: Record<ApprovalAction, SharedWorkApprovalDecision> = {
+    approve: "APPROVED", return: "RETURNED", reject: "REJECTED", hold: "HOLD",
+  };
+  function decisionAllowed(action: ApprovalAction, permission: string) {
+    return hasWorkPermission(session, permission) && (!approval.requestedAction ||
+      approval.allowedDecisions?.includes(decisionByAction[action]) === true);
+  }
 
   async function submitDecision(action: ApprovalAction) {
     if (deciding) return;
@@ -100,6 +108,7 @@ export function ApprovalDetailView({
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
         <ApprovalSubjectBadge subjectType={approval.subjectType} />
         <ApprovalStatusBadge status={approval.status} />
+        {approval.requestedAction ? <span>{approval.requestedAction.replaceAll("_", " ")} · {approval.consumedAt ? "Sudah dieksekusi" : "Eksekusi terpisah di rekaman bisnis"}</span> : null}
       </div>
 
       <dl className={drawerStyles.definitionList}>
@@ -172,12 +181,12 @@ export function ApprovalDetailView({
             </div>
           ) : null}
           {approval.decisionReason ? <div><strong>Alasan Keputusan</strong><p>{approval.decisionReason}</p></div> : null}
-          {canDecide && actions.some(({ permission }) => hasWorkPermission(session, permission)) ? (
+          {canDecide && actions.some(({ action, permission }) => decisionAllowed(action, permission)) ? (
             <div>
               <label htmlFor="approval-decision-reason">Alasan keputusan</label>
               <textarea id="approval-decision-reason" onChange={(event) => setDecisionReason(event.target.value)} value={decisionReason} />
               <div className={styles.drawerFooterActions}>
-                {actions.filter(({ permission }) => hasWorkPermission(session, permission)).map(({ action, label }) => (
+                {actions.filter(({ action, permission }) => decisionAllowed(action, permission)).map(({ action, label }) => (
                   <Button disabled={deciding} key={action} onClick={() => void submitDecision(action)} variant="secondary">{label}</Button>
                 ))}
               </div>

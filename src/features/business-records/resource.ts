@@ -24,7 +24,7 @@ export type Resource = Readonly<{
   list: (signal?: AbortSignal, offset?: number) => Promise<Pick<SalesCustomerListProjection, "source" | "total"> & { readonly items: readonly object[] }>;
   create: (values: object) => Promise<object>;
   update: (identity: string, values: object) => Promise<object>;
-  transition: (identity: string, status: string) => Promise<object>;
+  transition: (identity: string, status: string, approvalId?: string) => Promise<object>;
   pipeline?: (identity: string, stage: string) => Promise<object>;
 }>;
 
@@ -36,7 +36,7 @@ export function defineResource<C extends object, U extends object, P extends obj
 ): Resource {
   return { ...metadata, list: api.list, create: (values) => api.create(values as C),
     update: (identity, values) => api.update(identity, values as U),
-    transition: (identity, status) => api.transition(identity, { status } as T) };
+    transition: (identity, status, approvalId) => api.transition(identity, { status, ...(approvalId ? { approval_id: approvalId } : {}) } as T) };
 }
 
 export type SourceState = "loading" | ExecutiveSourceStatus["status"];
