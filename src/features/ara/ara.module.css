@@ -1,11 +1,3 @@
-.page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6, 24px);
-  padding: var(--space-6, 24px);
-  max-width: 1200px;
-}
-
 .conversation { padding: 24px; color: var(--text-primary, #172c32); }
 .conversationHeader { display: flex; justify-content: space-between; gap: 20px; align-items: center; margin-bottom: 24px; }
 .conversationHeader h1 { font-size: 2rem; margin: 8px 0; }
@@ -34,51 +26,6 @@
 .composer button { align-self: flex-end; background: #204d40; color: white; }
 .chatError { padding: 12px 20px; color: #9b2828; background: #fff0f0; }
 @media (max-width: 760px) { .chatLayout { grid-template-columns: 1fr; } .threadList { flex-direction: row; overflow-x: auto; } .conversationHeader { align-items: flex-start; flex-direction: column; } }
-
-.contextBanner {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4, 16px);
-  align-items: center;
-  padding: var(--space-4, 16px);
-  background: var(--surface-subtle, #f8fafc);
-  border: 1px solid var(--border-default, #e2e8f0);
-  border-radius: var(--radius-md, 8px);
-}
-
-.contextItem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 140px;
-}
-
-.contextLabel {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted, #64748b);
-}
-
-.contextValue {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary, #0f172a);
-}
-
-.readinessRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3, 12px);
-  font-size: 0.875rem;
-  color: var(--text-secondary, #334155);
-}
-
-.readinessRow p {
-  margin: 0;
-}
 
 .accessState {
   display: flex;
