@@ -101,6 +101,7 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
     try {
       const [nextAccounts, nextWorkspaces, nextRoles, nextCandidates] = await Promise.all([listIdentityAccounts(), listIdentityWorkspaces(), listAssignableRoles(), listProvisioningCandidates()]);
       setAccounts(nextAccounts);
+      setSelectedAccount((current) => current ? nextAccounts.find((account) => account.actor_id === current.actor_id) ?? null : null);
       setWorkspaces(nextWorkspaces);
       setRoles(nextRoles);
       setCandidates(nextCandidates ?? []);
@@ -241,7 +242,7 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
     <AccountDetailDrawer account={selectedAccount} canManageMemberships={manageMemberships} formWorkspaces={workspaces} key={selectedAccount?.actor_id ?? "empty-account"} onGovernance={(action, account) => { setGovernanceAction(action); setGovernanceAccount(account); }} onMembership={(action, account, workspace) => { setMembershipAction(action); setMembershipAccount(account); setMembershipWorkspace(workspace ?? null); }} onResendActivation={handleResendActivation} resendBusy={Boolean(resendBusyId && selectedAccount && resendBusyId === selectedAccount.actor_id)} onClose={() => setSelectedAccount(null)} open={Boolean(selectedAccount)} />
     <AccountReadinessDialog candidates={candidates} formRoles={roles} formWorkspaces={workspaces} onClose={() => setCreateOpen(false)} onCreated={() => { setCreateOpen(false); void loadData(); }} open={createOpen} />
     <GovernanceReadinessDialog account={governanceAccount} action={governanceAction} onClose={() => { setGovernanceAction(null); setGovernanceAccount(null); }} onSaved={() => { setGovernanceAction(null); setGovernanceAccount(null); setSelectedAccount(null); void loadData(); }} open={Boolean(governanceAction)} />
-    <MembershipReadinessDialog action={membershipAction} account={membershipAccount} formRoles={roles} formWorkspaces={workspaces} onClose={() => { setMembershipAction(null); setMembershipAccount(null); setMembershipWorkspace(null); }} onSaved={() => { setMembershipAction(null); setMembershipAccount(null); setMembershipWorkspace(null); void loadData(); }} open={Boolean(membershipAction)} workspace={membershipWorkspace} />
+    <MembershipReadinessDialog key={`${membershipAction}:${membershipAccount?.actor_id}:${membershipWorkspace?.workspace_id}`} action={membershipAction} account={membershipAccount} formRoles={roles} formWorkspaces={workspaces} onClose={() => { setMembershipAction(null); setMembershipAccount(null); setMembershipWorkspace(null); }} onSaved={() => { setMembershipAction(null); setMembershipAccount(null); setMembershipWorkspace(null); void loadData(); }} open={Boolean(membershipAction)} workspace={membershipWorkspace} />
   </AppShell>;
 }
 
@@ -446,7 +447,7 @@ function MembershipReadinessDialog({ account, action, formRoles, formWorkspaces,
       {!revoke ? <FormField htmlFor="membership-effective-date" label="Tanggal Aktif" required><input className={styles.formControl} id="membership-effective-date" onChange={(event) => setEffectiveDate(event.target.value)} required type="date" value={effectiveDate} /></FormField> : null}
       {!revoke ? <FormField htmlFor="membership-expiration-date" label="Tanggal Berakhir"><input className={styles.formControl} id="membership-expiration-date" onChange={(event) => setExpiresDate(event.target.value)} type="date" value={expiresDate} /></FormField> : null}
       <div className={styles.formFull}><FormField htmlFor="membership-reason" label={revoke ? "Alasan" : "Alasan / Catatan"} required={revoke}><textarea className={styles.formControl} id="membership-reason" onChange={(event) => setNote(event.target.value)} placeholder="Jelaskan kebutuhan atau alasan perubahan" required={revoke} rows={3} value={note} /></FormField></div>
-      <div className={styles.formFull}><FormField htmlFor="membership-evidence" label="Bukti Pendukung"><input className={styles.formControl} id="membership-evidence" placeholder="Nomor arsip, dokumen, atau tautan referensi" /></FormField></div>
+      <p className={styles.formHint}>Pencatatan bukti pendukung belum tersedia.</p>
     </div>{error ? <p role="alert" className={styles.formHint}>{error}</p> : null}<p className={styles.formHint}>{revoke ? "Pencabutan bukan penghapusan; riwayat membership harus tetap dapat diaudit." : "Workspace tambahan tidak diberikan otomatis dan perubahan membership tidak membuat ulang akun."}</p></form>
   </UiDialog>;
 }

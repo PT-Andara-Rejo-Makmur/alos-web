@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AccountManagementPage, hasItAccountManagementAccess, itNavigation } from "@/features/it";
@@ -78,7 +78,7 @@ const accountFixture: IdentityAccountProjection = {
 
 const candidateFixture = { employee_id: "employee_02", employee_number: "EMP-02", full_name: "Pegawai Baru", email: "pegawai@example.test", department_code: "IT", position_title: "Staf", employment_status: "ACTIVE" as const, linkage_state: "AVAILABLE" as const };
 
-afterEach(() => { vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe("IT account management authority boundary", () => {
   it("uses the canonical IT resolver and fails closed for mismatch or non-IT workspace", () => {
@@ -189,7 +189,7 @@ describe("IT account management authority boundary", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Riwayat" }));
     await screen.findByRole("columnheader", { name: "Waktu" });
     for (const header of ["Aktivitas", "Objek", "Workspace", "Pelaksana", "Hasil", "Sumber"]) expect(screen.getByRole("columnheader", { name: header })).toBeInTheDocument();
-    expect(await screen.findByText("Belum ada data")).toBeInTheDocument();
+    expect(await within(detailDialog).findByText("Belum ada perubahan identitas yang tercatat.")).toBeInTheDocument();
   });
 
   it("keeps the exact 20-item IT sidebar and encodes the actual workspace key", () => {
@@ -198,5 +198,41 @@ describe("IT account management authority boundary", () => {
     expect(labels).toHaveLength(20);
     expect(labels).toEqual(["Ringkasan", "Layanan & Insiden", "Sistem & Aplikasi", "Infrastruktur & Lingkungan", "ALOS & GENESIS", "Integrasi & Connector", "Akun Karyawan", "Akses & Identitas", "Keamanan & Kepatuhan", "Perubahan & Rilis", "Aset IT", "Dukungan & Permintaan", "Target & Kinerja", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA"]);
     expect(sections[0].items[0].href).toBe("/workspace/it%2Futama/summary");
+  });
+
+  it.each(["add", "edit", "revoke"] as const)("refreshes the selected account after governed membership %s", async (action) => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(session);
+    let stored: IdentityAccountProjection = { ...accountFixture, workspace_access: [financeMembership] };
+    const next: IdentityAccountProjection = { ...stored, workspace_access: action === "add" ? [financeMembership, itMembership]
+      : [{ ...financeMembership, ...(action === "edit" ? { role_refs: ["DIVISION_LEAD"] as const } : { active: false }) }] };
+    const request = vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path) => {
+      if (path.includes("/memberships")) { stored = next; return undefined as never; }
+      if (path === "/api/v1/identity/accounts") return [stored] as never;
+      if (path === "/api/v1/identity/workspaces") return [itMembership.workspace, financeMembership.workspace] as never;
+      if (path === "/api/v1/identity/assignable-roles") return ["DIVISION_MEMBER", "DIVISION_LEAD", "IT_ADMIN"] as never;
+      return [] as never;
+    });
+    render(<AccountManagementPage workspaceKey="it-operations" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Lihat Detail" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Workspace & Akses" }));
+    const title = action === "add" ? "Tambah Workspace" : action === "edit" ? "Edit Akses" : "Cabut Akses";
+    fireEvent.click(screen.getByRole("button", { name: action === "add" ? "+ Tambah Workspace" : title }));
+    const dialog = screen.getByRole("dialog", { name: title });
+    if (action !== "add") {
+      expect(dialog.querySelector("#membership-workspace")).toHaveValue(financeMembership.workspace.workspace_id);
+      if (action === "edit") expect(dialog.querySelector("#membership-role")).toHaveValue("DIVISION_MEMBER");
+    }
+    expect(within(dialog).queryByLabelText("Bukti Pendukung")).not.toBeInTheDocument();
+    expect(within(dialog).getByText("Pencatatan bukti pendukung belum tersedia.")).toBeInTheDocument();
+    if (action === "add") {
+      fireEvent.change(dialog.querySelector("#membership-workspace")!, { target: { value: itMembership.workspace.workspace_id } });
+      fireEvent.change(dialog.querySelector("#membership-role")!, { target: { value: "IT_ADMIN" } });
+    } else if (action === "edit") fireEvent.change(dialog.querySelector("#membership-role")!, { target: { value: "DIVISION_LEAD" } });
+    fireEvent.change(dialog.querySelector("#membership-reason")!, { target: { value: "Governed fixture change" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: title }));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: title })).not.toBeInTheDocument());
+    const detail = screen.getByRole("dialog", { name: "Detail Akun Karyawan" });
+    expect(await within(detail).findByText(action === "add" ? "IT Operations" : action === "edit" ? "Manajer / Kepala Divisi" : "Nonaktif")).toBeInTheDocument();
+    expect(request).toHaveBeenCalledWith(expect.stringContaining("/memberships"), expect.objectContaining({ method: action === "add" ? "POST" : action === "edit" ? "PUT" : "DELETE" }));
   });
 });
