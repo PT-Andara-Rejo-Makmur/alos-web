@@ -1,5 +1,20 @@
 # Legal Form Requirements
 
+## Current canonical integration (2026-10-02)
+
+Status aktual: **PARTIAL** untuk seluruh kebutuhan Stage 3; capability internal yang didukung tercatat **CONNECTED** di [canonical coverage matrix](canonical-business-coverage.md). Table dan form historis di bawah tetap menyimpan kebutuhan asli, termasuk field yang belum mempunyai authority. Label historis NEEDS BACKEND / SOURCE UNAVAILABLE tidak menyatakan kondisi runtime terkini.
+
+| Capability | Current status | Owner / source and boundary |
+|---|---|---|
+| Supported internal records / dedicated forms | CONNECTED | 13 Legal canonical resources including distinct LegalReview and immutable ContractRevision → real Shared Work document version; assessment does not imply signature/execution |
+| Entire Stage 3 metric/form requirements | PARTIAL | Only accepted canonical fields and Backend-projected actions are active; historical wishlist fields are not invented |
+| Production ARA/GENESIS / automatic extraction or reasoning | DEFERRED_TO_AI | Existing readiness only; no provider integration in this work |
+| External/live sources and provider execution | DEFERRED_TO_CONNECTOR | UNAVAILABLE in UI until connected; recorded sources remain explicit |
+| Unsupported final business policy / sensitive sources | UNAVAILABLE | Fail closed; see exact exceptions in canonical coverage matrix |
+
+## Historical Stage 3 requirements
+
+
 Status seluruh form: **UI FINAL / SOURCE UNAVAILABLE**. Submit tetap **Disabled** sampai permission, Contracts/Backend, evidence, verification, dan governance tersedia. Lifecycle di bawah adalah `NEEDS DECISION`; alur ekstraksi adalah ilustrasi UX, bukan lifecycle canonical.
 
 | Form ID | Purpose | Required Fields | Optional Fields | Generated Fields | Source | Permission | Classification | Evidence | Verification | Approval | Lifecycle | Submit | Result Entity | Destination | Error | Conflict | Availability |
