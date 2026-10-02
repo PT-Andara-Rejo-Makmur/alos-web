@@ -18,6 +18,14 @@ export function sourceFailure(error: unknown): SourceState {
   return error instanceof ApiRequestError && error.code === "CONTRACTS_UNAVAILABLE" ? "UNAVAILABLE" : "ERROR";
 }
 
+function mutationFailure(error: unknown): string {
+  if (!(error instanceof ApiRequestError)) return "Permintaan belum tersimpan. Periksa koneksi lalu coba kembali.";
+  const semantics = error.status === 401 ? "Sesi berakhir" : error.status === 403 ? "Akses ditolak"
+    : error.status === 404 ? "Rekaman atau referensi tidak ditemukan" : error.status === 409 ? "Konflik data atau lifecycle"
+      : error.status === 422 ? "Input tidak valid" : error.status >= 500 ? "Layanan belum dapat memproses permintaan" : "Permintaan ditolak";
+  return `${semantics} (${error.status}). ${error.detail}${error.correlationId ? ` Referensi: ${error.correlationId}` : ""}`;
+}
+
 export function SourceStateView({ state }: Readonly<{ state: SourceState }>) {
   if (state === "loading") return <LoadingState label="Memuat data authoritative…" variant="section" />;
   if (state === "ERROR") return <Alert title="Gagal Memuat" message="Data belum dapat dibaca. Tidak ada nilai pengganti yang ditampilkan." variant="danger" />;
@@ -72,7 +80,7 @@ function ScopedRecordPanel({ resource, session }: Readonly<{ resource: Resource;
     try {
       const next = pipeline && resource.pipeline ? await resource.pipeline(String(view(selected)[resource.identifier]), status) : await resource.transition(String(view(selected)[resource.identifier]), status);
       setSelected(next); setFeedback("Perubahan status tersimpan."); setRevision((value) => value + 1);
-    } catch { setMutationError("Perubahan status ditolak atau belum tersimpan. Periksa lifecycle dan authority."); }
+    } catch (error) { setMutationError(mutationFailure(error)); }
     finally { setBusy(false); }
   }
 
@@ -145,30 +153,52 @@ function RecordForm({ mode, resource, record, onClose, onSaved }: Readonly<{
 }>) {
   const fields = mode === "create" ? resource.createFields : resource.updateFields;
   const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(fields.map((field) => [field.name, inputValue(field, mode === "update" ? record?.[field.name] : undefined)])));
-  const [options, setOptions] = useState<Record<string, readonly Options[]>>({});
-  const [relationErrors, setRelationErrors] = useState<readonly string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const referenceSignature = JSON.stringify(fields.filter((field) => field.relation).map((field) => {
+    const relation = field.relation!;
+    const parent = relation.dependsOn ? values[relation.dependsOn] : undefined;
+    const target = relation.variants ? relation.variants[parent ?? ""] : relation;
+    return { name: field.name, required: field.required, ...target,
+      path: !target || (relation.dependsOn && !parent) ? null
+        : target.path.replace(`{${relation.dependsOn}}`, encodeURIComponent(parent ?? "")) };
+  }));
+  const [references, setReferences] = useState<{
+    signature: string; options: Record<string, readonly Options[]>; errors: readonly string[];
+  }>({ signature: "", options: {}, errors: [] });
+  const loading = references.signature !== referenceSignature;
+  const options: Record<string, readonly Options[]> = loading ? {} : references.options;
+  const relationErrors = loading ? [] : references.errors;
+  const unresolved = fields.some((field) => field.required && field.relation
+    && (!values[field.name] || !options[field.name]?.some((option) => option.value === values[field.name])));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let current = true;
     const controller = new AbortController();
-    void Promise.allSettled(fields.filter((field) => field.relation).map(async (field) => {
-      const relation = field.relation!;
+    const relations = JSON.parse(referenceSignature) as readonly { name: string; path: string | null; identifier?: string; label?: string }[];
+    void Promise.allSettled(relations.map(async (relation) => {
+      if (!relation.path) return { name: relation.name, options: [] };
       const items = await referenceRows(relation.path, controller.signal);
-      return { name: field.name, options: items.map((row) => ({ value: String(view(row)[relation.identifier]), label: `${display(view(row)[relation.label])} · ${String(view(row)[relation.identifier])}` })) };
+      return { name: relation.name, options: items.map((row) => {
+        const value = String(view(row)[relation.identifier!]);
+        const label = display(view(row)[relation.label!]);
+        return { value, label: label === value ? label : `${label} · ${value}` };
+      }) };
     })).then((results) => {
       if (!current) return;
       const failed: string[] = []; const next: Record<string, readonly Options[]> = {};
-      const relations = fields.filter((field) => field.relation);
       results.forEach((result, index) => { if (result.status === "fulfilled") next[result.value.name] = result.value.options; else failed.push(relations[index].name); });
-      setOptions(next); setRelationErrors(failed); setLoading(false);
+      setReferences({ signature: referenceSignature, options: next, errors: failed });
     });
     return () => { current = false; controller.abort(); };
-  }, [fields]);
+  }, [referenceSignature]);
+
+  function change(name: string, value: string) {
+    setValues((old) => ({ ...old, [name]: value,
+      ...Object.fromEntries(fields.filter((field) => field.relation?.dependsOn === name).map((field) => [field.name, ""])) }));
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); if (busy || loading || relationErrors.length) return;
+    event.preventDefault(); if (busy || loading || unresolved || relationErrors.length) return;
     setBusy(true); setError(null);
     const payload: Record<string, string | number | null> = {};
     for (const field of fields) {
@@ -180,7 +210,7 @@ function RecordForm({ mode, resource, record, onClose, onSaved }: Readonly<{
     try {
       const row = mode === "create" ? await resource.create(payload) : await resource.update(String(record?.[resource.identifier]), payload);
       onSaved(row);
-    } catch { setError("Rekaman belum tersimpan. Periksa field, referensi, scope, dan lifecycle yang diizinkan."); }
+    } catch (error) { setError(mutationFailure(error)); }
     finally { setBusy(false); }
   }
 
@@ -192,15 +222,15 @@ function RecordForm({ mode, resource, record, onClose, onSaved }: Readonly<{
         const required = field.required || (mode === "update" && !field.nullable);
         return <FormField key={field.name} label={field.label} htmlFor={`record-${field.name}`} required={required}
           description={field.type === "decimal" ? "Masukkan angka desimal dengan titik, maksimal dua digit pecahan. Nilai tidak dibulatkan oleh Web." : undefined}>
-          {field.relation || field.options ? <select id={`record-${field.name}`} value={values[field.name] ?? ""} required={required} disabled={loading || relationErrors.includes(field.name) || busy} onChange={(event) => setValues((old) => ({ ...old, [field.name]: event.target.value }))}>
+          {field.relation || field.options ? <select id={`record-${field.name}`} value={values[field.name] ?? ""} required={required} disabled={loading || relationErrors.includes(field.name) || busy || !!(field.relation?.dependsOn && !values[field.relation.dependsOn])} onChange={(event) => change(field.name, event.target.value)}>
             <option value="">Pilih {field.label}</option>
             {(field.relation ? options[field.name] ?? [] : field.options!.map((value) => ({ value, label: value }))).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select> : <input id={`record-${field.name}`} type={field.type === "integer" ? "number" : field.type === "decimal" ? "text" : field.type} inputMode={field.type === "decimal" ? "decimal" : undefined}
-            required={required} value={values[field.name] ?? ""} disabled={busy} onChange={(event) => setValues((old) => ({ ...old, [field.name]: event.target.value }))} />}
+            required={required} value={values[field.name] ?? ""} disabled={busy} onChange={(event) => change(field.name, event.target.value)} />}
         </FormField>;
       })}
       {error ? <Alert title="Perubahan belum tersimpan" message={error} variant="danger" /> : null}
-      <div className={styles.actionBar}><Button type="button" variant="ghost" disabled={busy} onClick={onClose}>Batal</Button><Button type="submit" variant="primary" disabled={busy || loading || relationErrors.length > 0}>{busy ? "Menyimpan…" : "Simpan"}</Button></div>
+      <div className={styles.actionBar}><Button type="button" variant="ghost" disabled={busy} onClick={onClose}>Batal</Button><Button type="submit" variant="primary" disabled={busy || loading || unresolved || relationErrors.length > 0}>{busy ? "Menyimpan…" : "Simpan"}</Button></div>
     </form>
   </Drawer>;
 }

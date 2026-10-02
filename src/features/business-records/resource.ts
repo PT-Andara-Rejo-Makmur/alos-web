@@ -8,7 +8,11 @@ export type Field = Readonly<{
   nullable: boolean;
   type: "text" | "date" | "datetime-local" | "integer" | "decimal";
   options?: readonly string[];
-  relation?: Readonly<{ path: string; identifier: string; label: string; array?: boolean }>;
+  relation?: Readonly<{
+    path: string; identifier: string; label: string; array?: boolean;
+    dependsOn?: string;
+    variants?: Readonly<Record<string, Readonly<{ path: string; identifier: string; label: string }>>>;
+  }>;
 }>;
 
 /** Presentation metadata only: references, fields and lifecycle are canonical types. */

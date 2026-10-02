@@ -7,6 +7,7 @@ import { financeResources } from "@/features/finance/resources";
 import { salesResources } from "@/features/sales/resources";
 import { marketingResources } from "@/features/marketing/resources";
 import { propertyResources } from "@/features/property/resources";
+import { legalResources } from "@/features/legal/resources";
 import type { Resource } from "@/features/business-records/resource";
 import type { SessionProjection } from "@/features/session";
 import type { AuthenticatedPrincipalProjection, ExecutiveSourceStatus, FinanceBankAccountProjection, SalesCustomerProjection, FinanceOverview, SalesPricingProjection, FinanceBudgetProjection, FinanceMonthCloseProjection } from "@/lib/contracts";
@@ -20,7 +21,7 @@ const customer: SalesCustomerProjection = { customer_id: "customer_1", customer_
 function session(workspace = "workspace_1", write = true, role: "DIVISION_LEAD" | "DIVISION_MEMBER" = "DIVISION_LEAD"): SessionProjection {
   const principal: AuthenticatedPrincipalProjection = {
     actor: { actor_id: "actor_1", tenant_id: "tenant_1", organization_id: "org_1", active: true, display_name: "Owner" },
-    active_workspace: { active: true, role_refs: [role], permission_refs: write ? ["finance.write", "sales.write", "marketing.write", "property.write"] : [], scope_refs: [], data_scope: "WORKSPACE",
+    active_workspace: { active: true, role_refs: [role], permission_refs: write ? ["finance.write", "sales.write", "marketing.write", "property.write", "legal.write"] : [], scope_refs: [], data_scope: "WORKSPACE",
       workspace: { workspace_id: workspace, workspace_key: workspace, workspace_name: "Business", workspace_type: "BUSINESS", division_code: "FINANCE", organization_id: "org_1", active: true } },
     workspace_access: [], issued_at: stamp, expires_at: "2028-01-01T00:00:00Z", email: "owner@example.test",
   };
@@ -42,6 +43,83 @@ it("loads all canonical reference pages before enabling a real form", async () =
   expect(await screen.findByRole("option", { name: /Second page buyer/ })).toBeInTheDocument();
   expect(request).toHaveBeenCalledWith("/api/v1/sales/customers?limit=200&offset=1", expect.anything());
   expect(screen.getByRole("button", { name: "Simpan" })).toBeEnabled();
+  fireEvent.change(screen.getByLabelText(/^Customer/), { target: { value: "customer_2" } });
+  expect(screen.getByRole("button", { name: "Simpan" })).toBeEnabled();
+});
+
+it.each([[403, "Akses ditolak"], [409, "Konflik data atau lifecycle"], [422, "Input tidak valid"], [503, "Layanan belum dapat memproses permintaan"]])("preserves mutation denial %s and input without fake success", async (status, explanation) => {
+  const request = vi.spyOn(api, "authenticatedApiRequest").mockImplementation((_path, options) => options?.method === "POST"
+    ? Promise.reject(new api.ApiError(Number(status), "Canonical rejection", "corr_record_denied"))
+    : Promise.resolve({ items: [], total: 0, source: source("CONNECTED_EMPTY", "sales") }));
+  render(<RecordPanel resource={salesResources.customers} session={session()} />);
+  fireEvent.click(await screen.findByRole("button", { name: "Tambah Customer" }));
+  fireEvent.change(screen.getByLabelText(/Kode Customer/), { target: { value: "C1" } });
+  fireEvent.change(screen.getByLabelText(/^Nama/), { target: { value: "Retry Customer" } });
+  await waitFor(() => expect(screen.getByRole("button", { name: "Simpan" })).toBeEnabled());
+  fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+  expect(await screen.findByText(new RegExp(String(explanation)))).toHaveTextContent(`(${status}). Canonical rejection Referensi: corr_record_denied`);
+  expect(screen.getByLabelText(/^Nama/)).toHaveValue("Retry Customer");
+  expect(screen.queryByText("Rekaman tersimpan.")).not.toBeInTheDocument();
+  expect(request).toHaveBeenCalledWith("/api/v1/sales/customers", expect.objectContaining({ method: "POST" }));
+});
+
+it("preserves transition conflict and the authoritative prior state", async () => {
+  vi.spyOn(api, "authenticatedApiRequest").mockImplementation((_path, options) => options?.method === "POST"
+    ? Promise.reject(new api.ApiError(409, "State changed", "corr_transition"))
+    : Promise.resolve({ items: [bank], total: 1, source: source("CONNECTED") }));
+  render(<RecordPanel resource={financeResources.bank_accounts} session={session()} />);
+  fireEvent.click(await screen.findByRole("button", { name: "Lihat detail" }));
+  const dialog = screen.getByRole("dialog");
+  fireEvent.click(within(dialog).getByRole("button", { name: "INACTIVE" }));
+  expect(await within(dialog).findByText(/Konflik data atau lifecycle/)).toHaveTextContent("corr_transition");
+  expect(within(dialog).getByText("ACTIVE", { exact: true })).toBeInTheDocument();
+  expect(screen.queryByText("Perubahan status tersimpan.")).not.toBeInTheDocument();
+});
+
+it("loads scoped Legal subjects for the selected type and clears the previous subject", async () => {
+  const request = vi.spyOn(api, "authenticatedApiRequest").mockImplementation((path) => {
+    const records = path.includes("/contracts?") ? [{ contract_id: "contract_1", contract_number: "Contract A" }]
+      : path.includes("/permits?") ? [{ permit_id: "permit_1", permit_number: "Permit B" }] : [];
+    return Promise.resolve({ items: records, total: records.length, source: source(records.length ? "CONNECTED" : "CONNECTED_EMPTY", "legal") });
+  });
+  render(<RecordPanel resource={legalResources.due_diligences} session={session()} />);
+  fireEvent.click(await screen.findByRole("button", { name: `Tambah ${legalResources.due_diligences.title}` }));
+  const subject = screen.getByLabelText(/^Referensi Internal/);
+  expect(subject).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Simpan" })).toBeDisabled();
+  fireEvent.change(screen.getByLabelText(/^Jenis Referensi Internal/), { target: { value: "CONTRACT" } });
+  await screen.findByRole("option", { name: /Contract A/ });
+  fireEvent.change(subject, { target: { value: "contract_1" } });
+  await waitFor(() => expect(screen.getByRole("button", { name: "Simpan" })).toBeEnabled());
+  fireEvent.change(screen.getByLabelText(/^Jenis Referensi Internal/), { target: { value: "PERMIT" } });
+  expect(subject).toHaveValue("");
+  expect(screen.getByRole("button", { name: "Simpan" })).toBeDisabled();
+  await screen.findByRole("option", { name: /Permit B/ });
+  expect(screen.queryByRole("option", { name: /Contract A/ })).not.toBeInTheDocument();
+  expect(request).toHaveBeenCalledWith("/api/v1/legal/permits?limit=200&offset=0", expect.anything());
+});
+
+it.each([false, true])("binds immutable version choices to their selected Document; source failure=%s", async (failure) => {
+  vi.spyOn(api, "authenticatedApiRequest").mockImplementation((path) => {
+    if (path.includes("/documents/doc_a/versions?")) return Promise.resolve([{ version: "1.0" }]);
+    if (path.includes("/documents/doc_b/versions?")) return failure ? Promise.reject(new api.ApiError(503, "Source down", null)) : Promise.resolve([{ version: "2.0" }]);
+    const items = path.includes("/documents?") ? [{ document_id: "doc_a", title: "Document A" }, { document_id: "doc_b", title: "Document B" }]
+      : path.includes("/contracts?") ? [{ contract_id: "contract_1", contract_number: "Contract A" }] : [];
+    return Promise.resolve({ items, total: items.length, source: source(items.length ? "CONNECTED" : "CONNECTED_EMPTY", "legal") });
+  });
+  render(<RecordPanel resource={legalResources.contract_revisions} session={session()} />);
+  fireEvent.click(await screen.findByRole("button", { name: `Tambah ${legalResources.contract_revisions.title}` }));
+  await screen.findByRole("option", { name: /Document A/ });
+  fireEvent.change(screen.getByLabelText(/^Contract Id/), { target: { value: "contract_1" } });
+  fireEvent.change(screen.getByLabelText(/^Document Id/), { target: { value: "doc_a" } });
+  await screen.findByRole("option", { name: /^1\.0$/ });
+  const version = screen.getByLabelText(/^Document Version/);
+  fireEvent.change(version, { target: { value: "1.0" } });
+  fireEvent.change(screen.getByLabelText(/^Document Id/), { target: { value: "doc_b" } });
+  expect(version).toHaveValue("");
+  expect(screen.getByRole("button", { name: "Simpan" })).toBeDisabled();
+  if (failure) { expect(await screen.findByText("Referensi belum dapat dimuat", { selector: "h3, p" })).toBeInTheDocument(); expect(version).toBeDisabled(); }
+  else { await screen.findByRole("option", { name: /^2\.0$/ }); expect(screen.queryByRole("option", { name: /^1\.0$/ })).not.toBeInTheDocument(); }
 });
 
 describe.each([salesResources.customers, marketingResources.campaigns, propertyResources.property_units, financeResources.bank_accounts])("canonical $domain source states", (resource: Resource) => {

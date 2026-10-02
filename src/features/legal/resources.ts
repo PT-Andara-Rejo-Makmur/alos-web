@@ -216,7 +216,13 @@ export const legalResources = {
       "label": "Document Version",
       "required": true,
       "nullable": false,
-      "type": "text"
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/documents/{document_id}/versions",
+        "identifier": "version",
+        "label": "version",
+        "dependsOn": "document_id"
+      }
     },
     {
       "name": "revision_number",
@@ -272,7 +278,13 @@ export const legalResources = {
       "label": "Document Version",
       "required": true,
       "nullable": false,
-      "type": "text"
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/documents/{document_id}/versions",
+        "identifier": "version",
+        "label": "version",
+        "dependsOn": "document_id"
+      }
     },
     {
       "name": "revision_number",
@@ -950,7 +962,35 @@ export const legalResources = {
         "label": "Referensi Internal",
         "required": true,
         "nullable": false,
-        "type": "text"
+        "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "contract_number",
+        "dependsOn": "subject_type",
+        "variants": {
+          "CONTRACT": {
+            "path": "/api/v1/legal/contracts",
+            "identifier": "contract_id",
+            "label": "contract_number"
+          },
+          "PERMIT": {
+            "path": "/api/v1/legal/permits",
+            "identifier": "permit_id",
+            "label": "permit_number"
+          },
+          "LAND_DOCUMENT": {
+            "path": "/api/v1/legal/land-documents",
+            "identifier": "land_document_id",
+            "label": "document_number"
+          },
+          "CASE": {
+            "path": "/api/v1/legal/cases",
+            "identifier": "case_id",
+            "label": "title"
+          }
+        }
+      }
       },
       {
         "name": "title",
@@ -1021,7 +1061,35 @@ export const legalResources = {
         "label": "Referensi Internal",
         "required": true,
         "nullable": false,
-        "type": "text"
+        "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "contract_number",
+        "dependsOn": "subject_type",
+        "variants": {
+          "CONTRACT": {
+            "path": "/api/v1/legal/contracts",
+            "identifier": "contract_id",
+            "label": "contract_number"
+          },
+          "PERMIT": {
+            "path": "/api/v1/legal/permits",
+            "identifier": "permit_id",
+            "label": "permit_number"
+          },
+          "LAND_DOCUMENT": {
+            "path": "/api/v1/legal/land-documents",
+            "identifier": "land_document_id",
+            "label": "document_number"
+          },
+          "CASE": {
+            "path": "/api/v1/legal/cases",
+            "identifier": "case_id",
+            "label": "title"
+          }
+        }
+      }
       },
       {
         "name": "title",
@@ -1397,7 +1465,35 @@ export const legalResources = {
         "label": "Referensi Internal",
         "required": true,
         "nullable": false,
-        "type": "text"
+        "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "contract_number",
+        "dependsOn": "subject_type",
+        "variants": {
+          "CONTRACT": {
+            "path": "/api/v1/legal/contracts",
+            "identifier": "contract_id",
+            "label": "contract_number"
+          },
+          "PERMIT": {
+            "path": "/api/v1/legal/permits",
+            "identifier": "permit_id",
+            "label": "permit_number"
+          },
+          "LAND_DOCUMENT": {
+            "path": "/api/v1/legal/land-documents",
+            "identifier": "land_document_id",
+            "label": "document_number"
+          },
+          "CASE": {
+            "path": "/api/v1/legal/cases",
+            "identifier": "case_id",
+            "label": "title"
+          }
+        }
+      }
       },
       {
         "name": "claimant_name",
@@ -1496,7 +1592,35 @@ export const legalResources = {
         "label": "Referensi Internal",
         "required": true,
         "nullable": false,
-        "type": "text"
+        "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "contract_number",
+        "dependsOn": "subject_type",
+        "variants": {
+          "CONTRACT": {
+            "path": "/api/v1/legal/contracts",
+            "identifier": "contract_id",
+            "label": "contract_number"
+          },
+          "PERMIT": {
+            "path": "/api/v1/legal/permits",
+            "identifier": "permit_id",
+            "label": "permit_number"
+          },
+          "LAND_DOCUMENT": {
+            "path": "/api/v1/legal/land-documents",
+            "identifier": "land_document_id",
+            "label": "document_number"
+          },
+          "CASE": {
+            "path": "/api/v1/legal/cases",
+            "identifier": "case_id",
+            "label": "title"
+          }
+        }
+      }
       },
       {
         "name": "claimant_name",
@@ -1567,7 +1691,35 @@ export const legalResources = {
         "label": "Referensi Internal",
         "required": true,
         "nullable": false,
-        "type": "text"
+        "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "contract_number",
+        "dependsOn": "subject_type",
+        "variants": {
+          "CONTRACT": {
+            "path": "/api/v1/legal/contracts",
+            "identifier": "contract_id",
+            "label": "contract_number"
+          },
+          "PERMIT": {
+            "path": "/api/v1/legal/permits",
+            "identifier": "permit_id",
+            "label": "permit_number"
+          },
+          "LAND_DOCUMENT": {
+            "path": "/api/v1/legal/land-documents",
+            "identifier": "land_document_id",
+            "label": "document_number"
+          },
+          "CASE": {
+            "path": "/api/v1/legal/cases",
+            "identifier": "case_id",
+            "label": "title"
+          }
+        }
+      }
       },
       {
         "name": "expires_at",
@@ -1652,7 +1804,35 @@ export const legalResources = {
         "label": "Referensi Internal",
         "required": true,
         "nullable": false,
-        "type": "text"
+        "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "contract_number",
+        "dependsOn": "subject_type",
+        "variants": {
+          "CONTRACT": {
+            "path": "/api/v1/legal/contracts",
+            "identifier": "contract_id",
+            "label": "contract_number"
+          },
+          "PERMIT": {
+            "path": "/api/v1/legal/permits",
+            "identifier": "permit_id",
+            "label": "permit_number"
+          },
+          "LAND_DOCUMENT": {
+            "path": "/api/v1/legal/land-documents",
+            "identifier": "land_document_id",
+            "label": "document_number"
+          },
+          "CASE": {
+            "path": "/api/v1/legal/cases",
+            "identifier": "case_id",
+            "label": "title"
+          }
+        }
+      }
       },
       {
         "name": "expires_at",

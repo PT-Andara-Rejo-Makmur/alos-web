@@ -75,7 +75,7 @@ describe("HR / GA master freeze matrix", () => {
     expect(decisions).toContain("HTTP 409/version conflict bukan success");
     expect(decisions).toContain("tidak boleh menimpa data yang lebih baru");
     expect(forms).toContain("Referensi belum dapat dimuat");
-    expect(forms).toContain("Rekaman belum tersimpan");
+    expect(forms).toContain("Perubahan belum tersimpan");
     expect(forms).toContain("relationErrors.length > 0");
   });
 
