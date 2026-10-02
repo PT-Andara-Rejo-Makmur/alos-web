@@ -2,6 +2,731 @@ import { defineResource } from "@/features/business-records/resource";
 import { hrApi } from "./api";
 
 export const hrResources = {
+  facility_requests: defineResource({
+  "key": "facility_requests",
+  "domain": "hr",
+  "title": "Permintaan Fasilitas",
+  "identifier": "facility_request_id",
+  "createFields": [
+    {
+      "name": "facility_code",
+      "label": "Facility Code",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "title",
+      "label": "Title",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "needed_on",
+      "label": "Needed On",
+      "required": false,
+      "nullable": true,
+      "type": "date"
+    },
+    {
+      "name": "resolution_notes",
+      "label": "Resolution Notes",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    }
+  ],
+  "updateFields": [
+    {
+      "name": "title",
+      "label": "Title",
+      "required": false,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "needed_on",
+      "label": "Needed On",
+      "required": false,
+      "nullable": true,
+      "type": "date"
+    },
+    {
+      "name": "resolution_notes",
+      "label": "Resolution Notes",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    }
+  ],
+  "columns": [
+    {
+      "name": "facility_code",
+      "label": "Facility Code",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "title",
+      "label": "Title",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "needed_on",
+      "label": "Needed On",
+      "required": false,
+      "nullable": true,
+      "type": "date"
+    },
+    {
+      "name": "resolution_notes",
+      "label": "Resolution Notes",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "tenant_id",
+      "label": "Tenant Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "organization_id",
+      "label": "Organization Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "workspace_id",
+      "label": "Workspace Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "facility_request_id",
+      "label": "Facility Request Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "label": "Created At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "label": "Updated At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    }
+  ],
+  "immutable": false
+}, hrApi.facility_requests),
+  inventory_items: defineResource({
+  "key": "inventory_items",
+  "domain": "hr",
+  "title": "Inventaris Tercatat",
+  "identifier": "inventory_item_id",
+  "createFields": [
+    {
+      "name": "asset_code",
+      "label": "Asset Code",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "name",
+      "label": "Name",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "condition",
+      "label": "Condition",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "options": [
+        "GOOD",
+        "NEEDS_MAINTENANCE",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "name": "recorded_on",
+      "label": "Recorded On",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "notes",
+      "label": "Notes",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    }
+  ],
+  "updateFields": [],
+  "columns": [
+    {
+      "name": "asset_code",
+      "label": "Asset Code",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "name",
+      "label": "Name",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "condition",
+      "label": "Condition",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "options": [
+        "GOOD",
+        "NEEDS_MAINTENANCE",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "name": "recorded_on",
+      "label": "Recorded On",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "notes",
+      "label": "Notes",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "tenant_id",
+      "label": "Tenant Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "organization_id",
+      "label": "Organization Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "workspace_id",
+      "label": "Workspace Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "inventory_item_id",
+      "label": "Inventory Item Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "label": "Created At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "label": "Updated At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    }
+  ],
+  "immutable": true
+}, hrApi.inventory_items),
+  asset_handovers: defineResource({
+  "key": "asset_handovers",
+  "domain": "hr",
+  "title": "Serah Terima Aset",
+  "identifier": "asset_handover_id",
+  "createFields": [
+    {
+      "name": "inventory_item_id",
+      "label": "Inventory Item Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/inventory-items",
+        "identifier": "inventory_item_id",
+        "label": "name"
+      }
+    },
+    {
+      "name": "employee_id",
+      "label": "Employee Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/employees",
+        "identifier": "employee_id",
+        "label": "full_name"
+      }
+    },
+    {
+      "name": "handover_on",
+      "label": "Handover On",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "event",
+      "label": "Event",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "options": [
+        "GIVEN",
+        "RETURNED"
+      ]
+    },
+    {
+      "name": "notes",
+      "label": "Notes",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    }
+  ],
+  "updateFields": [],
+  "columns": [
+    {
+      "name": "inventory_item_id",
+      "label": "Inventory Item Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/inventory-items",
+        "identifier": "inventory_item_id",
+        "label": "name"
+      }
+    },
+    {
+      "name": "employee_id",
+      "label": "Employee Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/employees",
+        "identifier": "employee_id",
+        "label": "full_name"
+      }
+    },
+    {
+      "name": "handover_on",
+      "label": "Handover On",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "event",
+      "label": "Event",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "options": [
+        "GIVEN",
+        "RETURNED"
+      ]
+    },
+    {
+      "name": "notes",
+      "label": "Notes",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "tenant_id",
+      "label": "Tenant Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "organization_id",
+      "label": "Organization Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "workspace_id",
+      "label": "Workspace Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "asset_handover_id",
+      "label": "Asset Handover Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "label": "Created At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "label": "Updated At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    }
+  ],
+  "immutable": true
+}, hrApi.asset_handovers),
+  maintenance_records: defineResource({
+  "key": "maintenance_records",
+  "domain": "hr",
+  "title": "Riwayat Pemeliharaan",
+  "identifier": "maintenance_record_id",
+  "createFields": [
+    {
+      "name": "inventory_item_id",
+      "label": "Inventory Item Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/inventory-items",
+        "identifier": "inventory_item_id",
+        "label": "name"
+      }
+    },
+    {
+      "name": "performed_on",
+      "label": "Performed On",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "summary",
+      "label": "Summary",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "result",
+      "label": "Result",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "options": [
+        "INSPECTED",
+        "REPAIR_COMPLETED",
+        "UNRESOLVED"
+      ]
+    }
+  ],
+  "updateFields": [],
+  "columns": [
+    {
+      "name": "inventory_item_id",
+      "label": "Inventory Item Id",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/inventory-items",
+        "identifier": "inventory_item_id",
+        "label": "name"
+      }
+    },
+    {
+      "name": "performed_on",
+      "label": "Performed On",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "summary",
+      "label": "Summary",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "result",
+      "label": "Result",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "options": [
+        "INSPECTED",
+        "REPAIR_COMPLETED",
+        "UNRESOLVED"
+      ]
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "tenant_id",
+      "label": "Tenant Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "organization_id",
+      "label": "Organization Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "workspace_id",
+      "label": "Workspace Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "maintenance_record_id",
+      "label": "Maintenance Record Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "label": "Created At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "label": "Updated At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    }
+  ],
+  "immutable": true
+}, hrApi.maintenance_records),
+  service_assessments: defineResource({
+  "key": "service_assessments",
+  "domain": "hr",
+  "title": "Penilaian Kesiapan Layanan",
+  "identifier": "service_assessment_id",
+  "createFields": [
+    {
+      "name": "facility_code",
+      "label": "Facility Code",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "assessed_on",
+      "label": "Assessed On",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "readiness",
+      "label": "Readiness",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "options": [
+        "READY",
+        "NOT_READY",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "name": "notes",
+      "label": "Notes",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    }
+  ],
+  "updateFields": [],
+  "columns": [
+    {
+      "name": "facility_code",
+      "label": "Facility Code",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "assessed_on",
+      "label": "Assessed On",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "readiness",
+      "label": "Readiness",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "options": [
+        "READY",
+        "NOT_READY",
+        "UNKNOWN"
+      ]
+    },
+    {
+      "name": "notes",
+      "label": "Notes",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "tenant_id",
+      "label": "Tenant Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "organization_id",
+      "label": "Organization Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "workspace_id",
+      "label": "Workspace Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "service_assessment_id",
+      "label": "Service Assessment Id",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "label": "Created At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "label": "Updated At",
+      "type": "text",
+      "required": false,
+      "nullable": false
+    }
+  ],
+  "immutable": true
+}, hrApi.service_assessments),
+
   employees: defineResource({
     "key": "employees",
     "domain": "hr",

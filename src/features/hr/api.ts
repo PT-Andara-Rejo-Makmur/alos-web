@@ -1,6 +1,23 @@
 import { authenticatedApiRequest } from "@/lib/api";
 import { recordApi } from "@/features/business-records/record-api";
 import type {
+  HrFacilityRequestCreateRequest,
+  HrFacilityRequestProjection,
+  HrFacilityRequestListProjection,
+  HrFacilityRequestUpdateRequest,
+  HrFacilityRequestTransitionRequest,
+  HrInventoryItemCreateRequest,
+  HrInventoryItemProjection,
+  HrInventoryItemListProjection,
+  HrAssetHandoverCreateRequest,
+  HrAssetHandoverProjection,
+  HrAssetHandoverListProjection,
+  HrMaintenanceRecordCreateRequest,
+  HrMaintenanceRecordProjection,
+  HrMaintenanceRecordListProjection,
+  HrServiceAssessmentCreateRequest,
+  HrServiceAssessmentProjection,
+  HrServiceAssessmentListProjection,
   HrEmployeeCreateRequest,
   HrEmployeeUpdateRequest,
   HrEmployeeProjection,
@@ -76,6 +93,12 @@ import type {
 } from "@/lib/contracts";
 
 export const hrApi = {
+  facility_requests: recordApi<HrFacilityRequestCreateRequest, HrFacilityRequestUpdateRequest, HrFacilityRequestProjection, HrFacilityRequestListProjection, HrFacilityRequestTransitionRequest>("/api/v1/hr/facility-requests"),
+  inventory_items: recordApi<HrInventoryItemCreateRequest, object, HrInventoryItemProjection, HrInventoryItemListProjection, object>("/api/v1/hr/inventory-items"),
+  asset_handovers: recordApi<HrAssetHandoverCreateRequest, object, HrAssetHandoverProjection, HrAssetHandoverListProjection, object>("/api/v1/hr/asset-handovers"),
+  maintenance_records: recordApi<HrMaintenanceRecordCreateRequest, object, HrMaintenanceRecordProjection, HrMaintenanceRecordListProjection, object>("/api/v1/hr/maintenance-records"),
+  service_assessments: recordApi<HrServiceAssessmentCreateRequest, object, HrServiceAssessmentProjection, HrServiceAssessmentListProjection, object>("/api/v1/hr/service-assessments"),
+
   overview(signal?: AbortSignal) { return authenticatedApiRequest<HrOverview>("/api/v1/hr/overview", { signal }); },
   employees: recordApi<HrEmployeeCreateRequest, HrEmployeeUpdateRequest, HrEmployeeProjection, HrEmployeeListProjection, HrEmployeeTransitionRequest>("/api/v1/hr/employees"),
   attendances: recordApi<HrAttendanceCreateRequest, object, HrAttendanceProjection, HrAttendanceListProjection, object>("/api/v1/hr/attendances"),
