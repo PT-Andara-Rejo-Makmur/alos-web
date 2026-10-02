@@ -6,6 +6,35 @@
   max-width: 1200px;
 }
 
+.conversation { padding: 24px; color: var(--text-primary, #172c32); }
+.conversationHeader { display: flex; justify-content: space-between; gap: 20px; align-items: center; margin-bottom: 24px; }
+.conversationHeader h1 { font-size: 2rem; margin: 8px 0; }
+.conversationHeader p { color: var(--text-muted, #64748b); font-size: .85rem; }
+.conversation button { cursor: pointer; border: 1px solid var(--border-default, #d8e3e4); border-radius: 8px; padding: 10px 14px; background: var(--surface-default, white); color: inherit; }
+.conversation button:disabled { cursor: default; opacity: .55; }
+.chatLayout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; }
+.threadList { display: flex; flex-direction: column; gap: 8px; }
+.threadList button { text-align: left; }
+.threadList button[aria-current="true"] { background: #e4f1eb; border-color: #5a8875; }
+.threadList small { display: block; margin-top: 6px; color: #64748b; }
+.chatBody { border: 1px solid var(--border-default, #d8e3e4); border-radius: 12px; background: var(--surface-default, white); overflow: hidden; }
+.messageList { min-height: 340px; max-height: 65vh; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.emptyChat { margin: auto; max-width: 560px; text-align: center; color: #64748b; line-height: 1.7; }
+.userMessage, .assistantMessage { padding: 16px; border-radius: 10px; overflow-wrap: anywhere; }
+.userMessage { background: #edf5f0; margin-left: 8%; }
+.assistantMessage { border: 1px solid #e4e9e8; }
+.answerText { white-space: pre-wrap; line-height: 1.6; }
+.messageList small { display: block; color: #64748b; font-size: .7rem; margin: 8px 0; }
+.sources { margin: 16px 0; font-size: .8rem; }
+.sources li { margin: 12px 0; }
+.sources span, .sources code { display: block; margin-top: 4px; }
+.proposal { background: #fff7e4; border-radius: 8px; padding: 12px; }
+.composer { padding: 16px; border-top: 1px solid #e4e9e8; display: flex; flex-direction: column; gap: 10px; }
+.composer textarea { border: 1px solid #cbd8d6; border-radius: 8px; resize: vertical; padding: 12px; font: inherit; }
+.composer button { align-self: flex-end; background: #204d40; color: white; }
+.chatError { padding: 12px 20px; color: #9b2828; background: #fff0f0; }
+@media (max-width: 760px) { .chatLayout { grid-template-columns: 1fr; } .threadList { flex-direction: row; overflow-x: auto; } .conversationHeader { align-items: flex-start; flex-direction: column; } }
+
 .contextBanner {
   display: flex;
   flex-wrap: wrap;

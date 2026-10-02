@@ -10,7 +10,9 @@ import type { SessionProjection } from "@/features/session";
 import { ApiError, sessionApiRequest } from "@/lib/api";
 
 import { extractAraContext, type AraContext } from "./ara-model";
-import { AraReadiness } from "./ara-readiness";
+import { AraConversation } from "./ara-conversation";
+import { araApi } from "./api";
+import type { AraAuthorityProjection } from "@/lib/contracts";
 import styles from "./ara.module.css";
 
 type AccessState = "loading" | "ready" | "no_access" | "session_expired" | "error";
@@ -20,27 +22,34 @@ interface AraPageProps {
   readonly embed?: boolean;
 }
 
-export function AraPage({ workspaceKey, embed }: AraPageProps) {
+function AraAccess({ workspaceKey, embed }: AraPageProps) {
   const router = useRouter();
   const [state, setState] = useState<AccessState>("loading");
   const [session, setSession] = useState<SessionProjection | null>(null);
   const [context, setContext] = useState<AraContext | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [authority, setAuthority] = useState<AraAuthorityProjection | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-
     sessionApiRequest<SessionProjection>("/")
-      .then((nextSession) => {
+      .then(async (nextSession) => {
         if (cancelled) return;
-        const araContext = extractAraContext(nextSession, workspaceKey);
+        if (!extractAraContext(nextSession, workspaceKey)) { setState("no_access"); return; }
+        const backendAuthority = await araApi.authority();
+        if (cancelled) return;
+        const araContext = extractAraContext(nextSession, workspaceKey, backendAuthority.maximum_data_classification);
         if (!araContext) {
           setState("no_access");
-        } else {
+        } else if (araContext.tenantId === backendAuthority.tenant_id &&
+          araContext.organizationId === backendAuthority.organization_id &&
+          araContext.actor.actorId === backendAuthority.actor_id &&
+          araContext.activeWorkspace.workspaceId === backendAuthority.workspace_id && backendAuthority.status === "ACTIVE") {
           setSession(nextSession);
           setContext(araContext);
+          setAuthority(backendAuthority);
           setState("ready");
-        }
+        } else { setState("no_access"); }
       })
       .catch((error: unknown) => {
         if (!cancelled) {
@@ -53,8 +62,8 @@ export function AraPage({ workspaceKey, embed }: AraPageProps) {
     };
   }, [workspaceKey, retryCount]);
 
-  if (state === "ready" && context && session) {
-    const inner = <AraReadiness context={context} />;
+  if (state === "ready" && context && session && authority) {
+    const inner = <AraConversation key={`${authority.tenant_id}:${authority.organization_id}:${authority.workspace_id}:${authority.actor_id}`} authority={authority} workspaceName={context.activeWorkspace.workspaceName} />;
     if (embed) return inner;
 
     const canExecutive = hasExecutiveContext(session);
@@ -124,4 +133,8 @@ export function AraPage({ workspaceKey, embed }: AraPageProps) {
       </div>
     </main>
   );
+}
+
+export function AraPage(props: AraPageProps) {
+  return <AraAccess key={props.workspaceKey ?? "active-workspace"} {...props} />;
 }

@@ -35,6 +35,7 @@ import {
 } from "@/features/shared-work";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
+import { mockAraBackend } from "./helpers/ara";
 
 const mockReplace = vi.fn();
 
@@ -114,6 +115,7 @@ function propertySession(workspaceKey = "property") {
 describe("Sales workspace", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAraBackend();
   });
 
   afterEach(() => {

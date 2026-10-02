@@ -11,6 +11,7 @@ import {
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import type { SessionProjection } from "@/features/session";
 import * as api from "@/lib/api";
+import { mockAraBackend } from "./helpers/ara";
 
 const mockReplace = vi.fn();
 
@@ -62,6 +63,7 @@ function makeSession(
 describe("Universal ARA (Asisten Ruang Kerja)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAraBackend();
   });
 
   afterEach(() => {
@@ -123,29 +125,29 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
     });
   });
 
-  describe("Readiness State & No Fake Chat / Fake Answers", () => {
-    it("displays honest unintegrated readiness status", async () => {
+  describe("Connected Core & Source Honesty", () => {
+    it("displays deterministic core and disconnected production provider", async () => {
       const session = makeSession("property", "PROPERTY", "Pusat Properti");
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(session);
 
       render(<AraRoute params={{ workspaceKey: "property" }} />);
 
       await waitFor(() => {
-        expect(screen.getByText("ARA belum terhubung.")).toBeInTheDocument();
+        expect(screen.getByText("ARA Core Connected · Mode deterministik")).toBeInTheDocument();
       });
       expect(
         screen.getByText(
-          "Integrasi ARA belum tersedia. Tidak ada percakapan atau jawaban yang dibuat secara simulasi.",
+          "Production Model Provider: Belum Terhubung · Klasifikasi maksimum: INTERNAL",
         ),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(
-          "ARA hanya dapat membaca data sesuai ruang kerja, hak akses, ruang lingkup, dan klasifikasi yang berlaku.",
+        await screen.findByText(
+          "Tanyakan lead Sales, proyek aktif, persetujuan, piutang, risiko Legal, atau incident IT. Ketersediaan mengikuti kewenangan Anda.",
         ),
       ).toBeInTheDocument();
     });
 
-    it("does not render fake chat inputs, assistant bubbles, or simulated responses", async () => {
+    it("renders a working composer without prepopulated assistant answers", async () => {
       const session = makeSession("property", "PROPERTY", "Pusat Properti");
       vi.spyOn(api, "sessionApiRequest").mockResolvedValue(session);
 
@@ -155,7 +157,7 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
       });
       expect(screen.queryByPlaceholderText(/Ketik pesan|Tanya apa saja/i)).not.toBeInTheDocument();
-      expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+      expect(screen.getByRole("textbox", { name: "Pesan untuk ARA" })).toBeInTheDocument();
       expect(screen.queryByText(/Halo! Ada yang bisa saya bantu/i)).not.toBeInTheDocument();
     });
   });
@@ -166,7 +168,7 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
         "finance.report.view",
         "restricted.access",
       ]);
-      const context = extractAraContext(session, "keuangan");
+      const context = extractAraContext(session, "keuangan", "RESTRICTED");
 
       expect(context).not.toBeNull();
       expect(context?.actor.actorId).toBe("actor_keuangan");
@@ -318,7 +320,7 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       });
       expect(screen.getByText("Ruang kerja aktif: Pusat Kendali")).toBeInTheDocument();
       expect(screen.getAllByText("Pusat Kendali").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText("Sangat Rahasia (Restricted)")).toBeInTheDocument();
+      expect(screen.getByText(/Klasifikasi maksimum: INTERNAL/)).toBeInTheDocument();
       // Executive navigation is rendered
       expect(screen.getByRole("link", { name: "Brief Eksekutif" })).toHaveAttribute(
         "href",
@@ -374,8 +376,8 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
       });
-      expect(screen.getByText("ARA belum terhubung.")).toBeInTheDocument();
-      expect(screen.getByText("Thread Terisolasi Berdasarkan Ruang Kerja")).toBeInTheDocument();
+      expect(screen.getByText("ARA Core Connected · Mode deterministik")).toBeInTheDocument();
+      expect(await screen.findByText("Belum ada percakapan.")).toBeInTheDocument();
       expect(screen.getByText("Ruang kerja aktif: Pusat Penjualan")).toBeInTheDocument();
 
       unmount();
@@ -390,8 +392,8 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
       });
       // Exact same core UI elements
-      expect(screen.getByText("ARA belum terhubung.")).toBeInTheDocument();
-      expect(screen.getByText("Thread Terisolasi Berdasarkan Ruang Kerja")).toBeInTheDocument();
+      expect(screen.getByText("ARA Core Connected · Mode deterministik")).toBeInTheDocument();
+      expect(await screen.findByText("Belum ada percakapan.")).toBeInTheDocument();
       // But distinct authoritative workspace context
       expect(screen.getByText("Ruang kerja aktif: Pusat Kendali")).toBeInTheDocument();
     });

@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import { resolveWorkspaceDomain } from "@/features/session";
 import * as api from "@/lib/api";
+import { mockAraBackend } from "./helpers/ara";
 
 // Universal navigation and features
 import { navigationForSession } from "@/app/navigation";
@@ -86,6 +87,7 @@ function createSession(
 describe("Final Architecture Consistency & Hygiene Guard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAraBackend();
   });
 
   it("rejects an unrecognized workspace domain instead of treating it as generic", () => {
@@ -376,7 +378,7 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
         await waitFor(() => {
           expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
         });
-        expect(screen.getByText("ARA belum terhubung.")).toBeInTheDocument();
+        expect(screen.getByText("ARA Core Connected · Mode deterministik")).toBeInTheDocument();
       },
     );
 

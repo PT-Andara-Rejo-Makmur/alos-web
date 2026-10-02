@@ -1,5 +1,7 @@
 /** Public facade for generated alos-contracts TypeScript exports. */
 export const CONTRACT_SOURCE = "alos-contracts/generated/typescript" as const;
+export type { AraAuthorityProjection, AraMessageProjection, AraMessageRequest, AraRunProjection,
+  AraThreadProjection, AraResponseProjection } from "../../../../alos-contracts/generated/typescript/ara";
 
 export type {
   SharedWorkMaterialAction,

@@ -30,6 +30,7 @@ export interface AraContext {
 export function extractAraContext(
   session: SessionProjection | null,
   requestedWorkspaceKey?: string | null,
+  maximumDataClassification: DataClassification = "INTERNAL",
 ): AraContext | null {
   if (!session?.authenticated || !session.principal || !("actor" in session.principal)) {
     return null;
@@ -56,13 +57,8 @@ export function extractAraContext(
     return null;
   }
 
-  // NEEDS CONTRACT — ARA Classification Ceiling.
-  // Until the Backend projects a canonical ceiling, only the existing exact grant is
-  // recognized. Roles, workspace type, wildcard permissions, and permission substrings
-  // must never be interpreted as classification authority.
-  const maxClassification: DataClassification = activeWs.permission_refs.includes("restricted.access")
-    ? "RESTRICTED"
-    : "INTERNAL";
+  // Display the Backend projection; session permissions never infer classification here.
+  const maxClassification = maximumDataClassification;
 
   const classificationLabel = maxClassification === "RESTRICTED"
     ? "Sangat Rahasia (Restricted)"

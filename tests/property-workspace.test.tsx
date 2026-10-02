@@ -25,6 +25,7 @@ import {
 } from "@/features/property";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
+import { mockAraBackend } from "./helpers/ara";
 
 const mockReplace = vi.fn();
 
@@ -65,7 +66,7 @@ function salesSession() {
 }
 
 describe("Property workspace", () => {
-  beforeEach(() => { vi.clearAllMocks(); vi.spyOn(api, "authenticatedApiRequest").mockRejectedValue(new api.ApiError(503, "Source failure", null)); });
+  beforeEach(() => { vi.clearAllMocks(); mockAraBackend(); vi.spyOn(api, "authenticatedApiRequest").mockRejectedValue(new api.ApiError(503, "Source failure", null)); });
   afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
   it("resolves lowercase Property metadata through canonical domain helper", () => {

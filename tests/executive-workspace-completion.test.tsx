@@ -383,6 +383,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     const accept = vi.spyOn(strategyApi, "acceptCascade").mockRejectedValue(new Error("stale authoritative preview"));
     render(<ExecutivePlanningPage />);
     fireEvent.click(await screen.findByRole("tab", { name: "Cascade" }));
+    await screen.findByLabelText("Kode Target Turunan *");
     for (const [label, value] of [
       ["Kode Target Turunan *", "COUNT-DERIVED"], ["Nama Target Turunan *", "Confirmed derived target"],
       ["Kode KPI Turunan *", "COUNT"], ["Scope Turunan *", "COMPANY"],
