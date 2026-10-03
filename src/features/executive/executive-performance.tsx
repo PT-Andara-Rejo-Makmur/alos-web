@@ -39,6 +39,7 @@ import {
 } from "./executive-model";
 import styles from "./executive.module.css";
 import { roleLabel, statusLabel } from "@/lib/presentation";
+import { ExecutiveAnalyticsPanel } from "@/features/analytics/business-analytics";
 
 export function ExecutivePerformancePage({ workspaceKey }: Readonly<{ workspaceKey?: string }> = {}) {
   return (
@@ -102,7 +103,10 @@ function PerformanceContent({ workspaceKey }: Readonly<{ workspaceKey: string }>
       {loading ? <LoadingState label="Memuat kinerja perusahaan" variant="table" /> : null}
 
       {!loading && tab === "company" ? (
-        <PerformanceTable base={base} targets={targets} />
+        <>
+          <ExecutiveAnalyticsPanel />
+          <PerformanceTable base={base} targets={targets} />
+        </>
       ) : null}
 
       {!loading && tab === "kpi" ? (

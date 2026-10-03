@@ -210,6 +210,6 @@ export type * from "../../../../alos-contracts/generated/typescript/it";
 export type * from "../../../../alos-contracts/generated/typescript/hr";
 export type * from "../../../../alos-contracts/generated/typescript/legal";
 export type * from "../../../../alos-contracts/generated/typescript/process";
-export type { BusinessMetric, BusinessSummary, BusinessPerformance, BusinessPerformanceAttentionItem, BusinessWorkQueue, BusinessNotification, BusinessNotificationOverview, BusinessRelationship, BusinessRelationshipOverview, MetricBindingRequest, MetricBindingProjection, MetricCalculationRequest } from "../../../../alos-contracts/generated/typescript/business";
+export type { AnalyticsGranularity, AnalyticsPeriod, AnalyticsPoint, AnalyticsSeries, AnalyticsBreakdownItem, AnalyticsBreakdown, AnalyticsComparisonItem, AnalyticsComparison, BusinessAnalyticsProjection, BusinessMetric, BusinessSummary, BusinessPerformance, BusinessPerformanceAttentionItem, BusinessWorkQueue, BusinessNotification, BusinessNotificationOverview, BusinessRelationship, BusinessRelationshipOverview, MetricBindingRequest, MetricBindingProjection, MetricCalculationRequest } from "../../../../alos-contracts/generated/typescript/business";
 export type * from "../../../../alos-contracts/generated/typescript/document";
 export type { BusinessProjectRecord, BusinessProjectRecordOverview } from "../../../../alos-contracts/generated/typescript/business";

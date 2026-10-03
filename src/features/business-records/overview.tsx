@@ -7,6 +7,7 @@ import type { SourceState } from "./resource";
 import { SourceMetadata, SourceStateView, sourceFailure } from "./record-panel";
 import styles from "@/features/property/property.module.css";
 import { BusinessSummaryPanel } from "./business-summary";
+import { BusinessAnalyticsPanel } from "@/features/analytics/business-analytics";
 import { RoleWorkSummary } from "./role-work-summary";
 import type { SessionProjection } from "@/features/session";
 
@@ -30,6 +31,7 @@ export function DomainOverview({ title, domain, read, labels, unavailable, sessi
     <SourceStateView state={state} />
     {session ? <RoleWorkSummary session={session} /> : null}
     {domain ? <BusinessSummaryPanel domain={domain} /> : null}
+    {domain ? <BusinessAnalyticsPanel domain={domain} /> : null}
     {rows.length ? <details><summary>Catatan Operasional</summary><Section title="Catatan Operasional"><DataTable caption={`Ringkasan ${title}`} rows={rows} getRowKey={(row) => row.key} columns={[
       { key: "label", header: "Sumber Rekaman", render: (row) => row.label },
       { key: "value", header: "Jumlah Tersimpan", render: (row) => row.value },

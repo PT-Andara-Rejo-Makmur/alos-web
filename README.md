@@ -39,6 +39,12 @@ Canonical contracts dan integrasi domain Backend lanjutan tetap menjadi pekerjaa
 `src/lib/contracts/` adalah facade contract frontend. Sumber contract canonical berasal dari
 `alos-contracts`; frontend tidak menggandakan schema atau menetapkan authority sendiri.
 
+## Business analytics
+
+Grafik analytics memakai Recharts karena library ini menyediakan chart React responsif dengan
+dukungan aksesibilitas yang sesuai stack Web saat ini. Komponen hanya memvisualisasikan projection
+analytics Backend; nilai bisnis tidak dihitung ulang dari daftar record di browser.
+
 ## Quality commands
 
 ```bash

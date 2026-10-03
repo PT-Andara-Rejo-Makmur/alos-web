@@ -9,6 +9,7 @@ import { SourceStateView, sourceFailure } from "./record-panel";
 import type { SourceState } from "./resource";
 import styles from "@/features/property/property.module.css";
 import { ClosingActual } from "./closing-actual";
+import { StrategyTargetCharts } from "@/features/analytics/business-analytics";
 
 export function StrategyPerformance({ domain }: Readonly<{ domain: string }>) {
   const [rows, setRows] = useState<readonly BusinessTargetDetail[]>([]);
@@ -36,5 +37,6 @@ export function StrategyPerformance({ domain }: Readonly<{ domain: string }>) {
       { key: "lifecycle", header: "Status", render: (row) => lifecycleLabel(row.target.lifecycle_state) },
       { key: "updated", header: "Pembaruan Sumber", render: (row) => readableValue(row.last_updated_at) },
     ]} /></Section> : null}
+    {state === "CONNECTED" && rows.length ? <Section title="Perbandingan Target, Aktual, dan Perkiraan" description="Nilai berasal dari observasi strategi yang telah dipilih untuk setiap target."><StrategyTargetCharts rows={rows} /></Section> : null}
   </div>;
 }
