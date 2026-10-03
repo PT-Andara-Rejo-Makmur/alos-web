@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Alert, DataTable, Metric, PageHeader, Section, Status } from "@/components/ui";
 import type { BusinessPerformance, BusinessTargetDetail } from "@/lib/contracts";
-import { businessMetricValue, domainLabels, roleLabel } from "@/lib/presentation";
+import { businessMetricValue, domainLabels, roleLabel, statusLabel } from "@/lib/presentation";
 import { ExecutiveLayout } from "./executive-layout";
 import { useExecutiveOverview } from "./executive-data";
 import { formatValue, performanceLabel, performanceVariant, periodLabel, valueForObservation } from "./executive-model";
@@ -43,7 +43,7 @@ function ExecutiveSummaryContent({ workspaceKey }: Readonly<{ workspaceKey: stri
       <ExecutiveSourceState status={workStatus} />
       {work ? <DataTable caption="Proyek perusahaan" rows={work.projects} getRowKey={row => row.project_id} columns={[
         { key: "name", header: "Proyek", render: row => row.name },
-        { key: "status", header: "Status", render: row => <Status label={row.status} /> },
+        { key: "status", header: "Status", render: row => <Status label={statusLabel(row.status)} /> },
         { key: "owner", header: "Penanggung Jawab", render: row => row.owner_name ?? "Belum ditugaskan" },
         { key: "updated", header: "Diperbarui", render: row => sourceDate(row.updated_at) },
       ]} rowAction={row => <Link href={`${base}/projects/${encodeURIComponent(row.project_id)}`}>Lihat Detail</Link>} /> : null}

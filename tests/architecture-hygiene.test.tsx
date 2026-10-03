@@ -308,7 +308,7 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Target & Kinerja" })).toBeInTheDocument();
       });
-      expect(screen.getByText("SALES & MARKETING")).toBeInTheDocument();
+      expect(screen.getByText("Sales & Marketing")).toBeInTheDocument();
     });
   });
 

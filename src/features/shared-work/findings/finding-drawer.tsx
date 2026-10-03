@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui";
+import { statusLabel } from "@/lib/presentation";
 
 import { QuickViewDrawer } from "../shared/drawers/quick-view-drawer";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
@@ -98,7 +99,7 @@ export function FindingDrawer({
         </dd>
 
         <dt className={drawerStyles.definitionTerm}>Sumber</dt>
-        <dd className={drawerStyles.definitionDetail}>{finding.sourceType}</dd>
+        <dd className={drawerStyles.definitionDetail}>{statusLabel(finding.sourceType)}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Kategori</dt>
         <dd className={drawerStyles.definitionDetail}>{finding.category ?? "—"}</dd>

@@ -1,5 +1,6 @@
 import { readCorrelationId, rememberCorrelationId } from "@/lib/correlation/store";
 import type { IntegrationDiagnostic } from "@/lib/contracts";
+import { userMessage } from "@/lib/presentation";
 
 import { requireBackendBaseUrl } from "./config";
 import { ApiError, ApiRequestError } from "./errors";
@@ -113,7 +114,7 @@ export function apiMessage(error: unknown): string {
     if (error.status === 422) return "Periksa kelengkapan isian dan pilihan referensi sebelum mencoba kembali.";
     if (error.status >= 500) return "Layanan belum dapat memproses permintaan. Silakan coba kembali.";
     if (/[_A-Z]{4,}/.test(error.detail) || /scope|permission|authority|canonical|runtime|provider|correlation|hash|tool_id|run_id|workspace_id|actor|fetch|network|url|api\//i.test(error.detail)) return "Permintaan belum dapat diproses. Periksa isian dan akses ruang kerja Anda.";
-    return error.detail;
+    return userMessage(error.detail, "Permintaan belum dapat diproses. Periksa isian dan akses ruang kerja Anda.");
   }
   return error instanceof Error && /^(Sumber|Hubungan|Daftar|Berkas|Pilih|Data|Periksa|Nilai|Nama|Tanggal|Koneksi|Versi|Dokumen|Permintaan|Layanan|Anda)\b/.test(error.message)
     && !/fetch|network|TypeError|JSON|contract|backend|reference|api\/|url/i.test(error.message) && !/[_A-Z]{4,}/.test(error.message)

@@ -9,6 +9,7 @@ import { Alert, Button, PageHeader, Tabs, type DataTableColumn, type TabItem } f
 import type { SessionProjection } from "@/features/session";
 import { hasExecutiveContext } from "@/features/executive";
 import { ApiError, apiMessage, sessionApiRequest } from "@/lib/api";
+import { statusLabel } from "@/lib/presentation";
 
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { WorkErrorState } from "../shared/errors/work-error-state";
@@ -316,23 +317,11 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
           onPriorityChange={setPriorityFilter}
           onSearchChange={setSearch}
           onStatusChange={setStatusFilter}
-          priorityOptions={[
-            { label: "Rendah", value: "LOW" },
-            { label: "Normal", value: "NORMAL" },
-            { label: "Tinggi", value: "HIGH" },
-            { label: "Kritis", value: "CRITICAL" },
-          ]}
+          priorityOptions={["LOW", "NORMAL", "HIGH", "CRITICAL"].map(value => ({ value, label: statusLabel(value) }))}
           priorityValue={priorityFilter}
           searchPlaceholder="Cari tugas…"
           searchValue={search}
-          statusOptions={[
-            { label: "Belum Dimulai", value: "OPEN" },
-            { label: "Dalam Proses", value: "IN_PROGRESS" },
-            { label: "Terhambat", value: "BLOCKED" },
-            { label: "Menunggu Review", value: "UNDER_REVIEW" },
-            { label: "Selesai", value: "COMPLETED" },
-            { label: "Dibatalkan", value: "CANCELLED" },
-          ]}
+          statusOptions={["OPEN", "IN_PROGRESS", "BLOCKED", "UNDER_REVIEW", "COMPLETED", "CANCELLED"].map(value => ({ value, label: statusLabel(value) }))}
           statusValue={statusFilter}
         />
 

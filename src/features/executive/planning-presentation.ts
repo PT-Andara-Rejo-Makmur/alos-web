@@ -1,5 +1,7 @@
+import { statusLabel } from "@/lib/presentation";
+
 export function materialityLabel(val: string): string {
-  return val === "MATERIAL" ? "Keputusan Strategis" : "Operasi Divisi";
+  return statusLabel(val);
 }
 
 export function assumptionCategoryLabel(cat: string): string {
@@ -12,7 +14,7 @@ export function assumptionCategoryLabel(cat: string): string {
     TEAM_CAPACITY: "Kapasitas Tim",
     CUSTOM: "Khusus",
   };
-  return map[cat] ?? cat;
+  return map[cat] ?? statusLabel(cat);
 }
 
 export function formatDate(value: string | undefined): string {

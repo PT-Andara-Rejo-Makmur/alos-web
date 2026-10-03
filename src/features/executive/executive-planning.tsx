@@ -5,6 +5,7 @@ import { Alert, Button, DataTable, LoadingState, PageHeader, Section, Status, Ta
 import type { SessionProjection } from "@/features/session";
 import type { BusinessTarget, PlanningAssumption, StrategicObjective, StrategyPlan } from "@/lib/contracts";
 import { strategyApi } from "@/modules/strategy";
+import { roleLabel, statusLabel } from "@/lib/presentation";
 import { ExecutiveVerificationDrawer } from "./executive-verification";
 import { ExecutiveLayout } from "./executive-layout";
 import { useExecutiveStrategyData } from "./executive-data";
@@ -223,7 +224,7 @@ function PlanSection({ title, plans, actionLabel, canCreate, onOpenForm, onChang
         columns={[
           { header: "Nama", key: "name", render: (plan) => plan.name },
           { header: "Periode", key: "period", render: (plan) => periodLabel(plan.period) },
-          { header: "Penanggung Jawab", key: "owner", render: (plan) => plan.owner_role_ref || "—" },
+          { header: "Penanggung Jawab", key: "owner", render: (plan) => roleLabel(plan.owner_role_ref) },
           { header: "Status", key: "status", render: (plan) => <Status label={lifecycleLabel(plan.lifecycle_state)} variant="neutral" /> },
           { header: "Dampak Keputusan", key: "materiality", render: (plan) => materialityLabel(plan.materiality) },
           { header: "Versi", key: "version", render: (plan) => `v${plan.version}` },
@@ -302,7 +303,7 @@ function ObjectivesSection({ plans, canCreate, onOpenForm }: ObjectivesSectionPr
           { header: "Nama Sasaran", key: "name", render: (item) => item.name },
           { header: "Rencana", key: "plan", render: () => selectedPlan?.name ?? "—" },
           { header: "Ruang Lingkup", key: "scope", render: (item) => scopeLabel(item.scope) },
-          { header: "Penanggung Jawab", key: "owner", render: (item) => item.owner_role_ref || "—" },
+          { header: "Penanggung Jawab", key: "owner", render: (item) => roleLabel(item.owner_role_ref) },
           { header: "Status", key: "status", render: (item) => <Status label={lifecycleLabel(item.lifecycle_state)} variant="neutral" /> },
         ]}
         getRowKey={(item) => `${item.objective_id}-${item.version}`}
@@ -337,7 +338,7 @@ function TargetsSection({ plans, targets, canCreate, onOpenForm }: TargetsSectio
             render: (target) => plans.find((p) => p.plan_id === target.plan_ref.id)?.name ?? "Rencana Terkait",
           },
           { header: "Ruang Lingkup", key: "scope", render: (target) => scopeLabel(target.scope) },
-          { header: "Penanggung Jawab", key: "owner", render: (target) => target.owner_role_ref || "—" },
+          { header: "Penanggung Jawab", key: "owner", render: (target) => roleLabel(target.owner_role_ref) },
           { header: "Status", key: "status", render: (target) => <Status label={lifecycleLabel(target.lifecycle_state)} variant="neutral" /> },
         ]}
         getRowKey={(target) => target.target_id}
@@ -370,7 +371,7 @@ function AssumptionsSection({ assumptions, canCreate, onOpenForm, canReview, onC
           { header: "Nama", key: "name", render: (item) => item.name },
           { header: "Kategori", key: "category", render: (item) => assumptionCategoryLabel(item.category) },
           { header: "Nilai", key: "value", render: (item) => item.value ?? "—" },
-          { header: "Satuan", key: "unit", render: (item) => item.unit },
+          { header: "Satuan", key: "unit", render: (item) => statusLabel(item.unit) },
           { header: "Ruang Lingkup", key: "scope", render: (item) => scopeLabel(item.scope) },
           { header: "Status", key: "status", render: (item) => <Status label={lifecycleLabel(item.lifecycle_state)} variant="neutral" /> },
           { header: "Verifikasi", key: "verification", render: (item) => verificationLabel(item.verification_state) },

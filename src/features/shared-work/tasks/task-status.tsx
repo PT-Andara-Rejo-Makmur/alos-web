@@ -1,4 +1,5 @@
 import { Status } from "@/components/ui";
+import { statusLabel } from "@/lib/presentation";
 
 import type { TaskPriorityPresentationValue, TaskStatusPresentationValue } from "./task-types";
 
@@ -7,19 +8,15 @@ export interface TaskStatusInfo {
   readonly variant: "neutral" | "info" | "success" | "warning" | "danger";
 }
 
-const statusMap: Record<string, TaskStatusInfo> = {
-  OPEN: { label: "Belum Dimulai", variant: "neutral" },
-  IN_PROGRESS: { label: "Dalam Proses", variant: "info" },
-  BLOCKED: { label: "Terhambat", variant: "danger" },
-  UNDER_REVIEW: { label: "Menunggu Review", variant: "warning" },
-  COMPLETED: { label: "Selesai", variant: "success" },
-  CANCELLED: { label: "Dibatalkan", variant: "neutral" },
+const statusVariants: Record<string, TaskStatusInfo["variant"]> = {
+  OPEN: "neutral", IN_PROGRESS: "info", BLOCKED: "danger",
+  UNDER_REVIEW: "warning", COMPLETED: "success", CANCELLED: "neutral",
 };
 
 export function getTaskStatusInfo(status: string | null | undefined): TaskStatusInfo {
   if (!status) return { label: "Belum Dinilai", variant: "neutral" };
   const normalized = status.trim().toUpperCase();
-  return statusMap[normalized] ?? { label: "Belum Dinilai", variant: "neutral" };
+  return { label: statusLabel(normalized), variant: statusVariants[normalized] ?? "neutral" };
 }
 
 export function TaskStatusBadge({
@@ -36,17 +33,14 @@ export interface TaskPriorityInfo {
   readonly variant: "neutral" | "info" | "warning" | "danger";
 }
 
-const priorityMap: Record<string, TaskPriorityInfo> = {
-  LOW: { label: "Rendah", variant: "neutral" },
-  NORMAL: { label: "Normal", variant: "info" },
-  HIGH: { label: "Tinggi", variant: "warning" },
-  CRITICAL: { label: "Kritis", variant: "danger" },
+const priorityVariants: Record<string, TaskPriorityInfo["variant"]> = {
+  LOW: "neutral", NORMAL: "info", HIGH: "warning", CRITICAL: "danger",
 };
 
 export function getTaskPriorityInfo(priority: string | null | undefined): TaskPriorityInfo {
   if (!priority) return { label: "—", variant: "neutral" };
   const normalized = priority.trim().toUpperCase();
-  return priorityMap[normalized] ?? { label: "—", variant: "neutral" };
+  return { label: statusLabel(normalized), variant: priorityVariants[normalized] ?? "neutral" };
 }
 
 export function TaskPriorityBadge({

@@ -364,13 +364,13 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
 
   describe("14, 15 & 16. Presentation Status & Priority Indonesian Mapping", () => {
     it("tidak membocorkan raw enum status dan memetakan ke Bahasa Indonesia", () => {
-      expect(getTaskStatusInfo("OPEN").label).toBe("Belum Dimulai");
-      expect(getTaskStatusInfo("IN_PROGRESS").label).toBe("Dalam Proses");
+      expect(getTaskStatusInfo("OPEN").label).toBe("Terbuka");
+      expect(getTaskStatusInfo("IN_PROGRESS").label).toBe("Sedang Dikerjakan");
       expect(getTaskStatusInfo("BLOCKED").label).toBe("Terhambat");
-      expect(getTaskStatusInfo("UNDER_REVIEW").label).toBe("Menunggu Review");
+      expect(getTaskStatusInfo("UNDER_REVIEW").label).toBe("Sedang Diperiksa");
       expect(getTaskStatusInfo("COMPLETED").label).toBe("Selesai");
       expect(getTaskStatusInfo("CANCELLED").label).toBe("Dibatalkan");
-      expect(getTaskStatusInfo("UNKNOWN_VAL").label).toBe("Belum Dinilai");
+      expect(getTaskStatusInfo("UNKNOWN_VAL").label).toBe("Status belum dikenali");
       expect(getTaskStatusInfo(null).label).toBe("Belum Dinilai");
     });
 
@@ -378,8 +378,8 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       expect(getTaskPriorityInfo("LOW").label).toBe("Rendah");
       expect(getTaskPriorityInfo("NORMAL").label).toBe("Normal");
       expect(getTaskPriorityInfo("HIGH").label).toBe("Tinggi");
-      expect(getTaskPriorityInfo("CRITICAL").label).toBe("Kritis");
-      expect(getTaskPriorityInfo("UNKNOWN_PRIORITY").label).toBe("—");
+      expect(getTaskPriorityInfo("CRITICAL").label).toBe("Mendesak");
+      expect(getTaskPriorityInfo("UNKNOWN_PRIORITY").label).toBe("Status belum dikenali");
       expect(getTaskPriorityInfo(null).label).toBe("—");
     });
   });

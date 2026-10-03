@@ -271,14 +271,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
           onStatusChange={setStatusFilter}
           searchPlaceholder="Cari proyek atau kode…"
           searchValue={search}
-          statusOptions={[
-            { label: "Direncanakan", value: "PLANNED" },
-            { label: "Berjalan", value: "ACTIVE" },
-            { label: "Ditahan", value: "ON_HOLD" },
-            { label: "Selesai", value: "COMPLETED" },
-            { label: "Dibatalkan", value: "CANCELLED" },
-            { label: "Diarsipkan", value: "ARCHIVED" },
-          ]}
+          statusOptions={["PLANNED", "ACTIVE", "ON_HOLD", "COMPLETED", "CANCELLED", "ARCHIVED"].map(value => ({ value, label: statusLabel(value) }))}
           statusValue={statusFilter}
         />
 

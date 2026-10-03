@@ -1,10 +1,6 @@
 import Link from "next/link";
 import { Status } from "@/components/ui";
-import { businessMetricValue, readableValue } from "@/lib/presentation";
-
-const employmentTypes: Record<string, string> = {
-  PERMANENT: "Tetap", CONTRACT: "Kontrak", INTERNSHIP: "Magang", FREELANCE: "Lepas",
-};
+import { businessMetricValue, readableValue, statusLabel } from "@/lib/presentation";
 import styles from "@/components/ui/work-surface.module.css";
 const fields = [
   ["certificate_number", "Nomor Sertifikat Pembayaran"], ["change_number", "Nomor Perubahan Pekerjaan"], ["contract_number", "Nomor Kontrak"],
@@ -26,7 +22,7 @@ export function ProcessPacket({ packet, workspaceKey }: Readonly<{ packet: Recor
     const value = packet[key] ?? employee?.[key];
     if (typeof value !== "string" && typeof value !== "number") return [];
     if (value === "") return [];
-    const display = key === "employment_type" ? employmentTypes[String(value)] ?? "Belum dikenali" : ["amount","amount_delta"].includes(key) ? businessMetricValue({value,unit:"AMOUNT",available:true,source:null,code:key,label}) : readableValue(value);
+    const display = key === "employment_type" ? statusLabel(String(value)) : ["amount","amount_delta"].includes(key) ? businessMetricValue({value,unit:"AMOUNT",available:true,source:null,code:key,label}) : readableValue(value);
     return [{ key, label, display }];
   });
   if (!facts.length && !document) return null;

@@ -132,7 +132,7 @@ export function ProjectDetailView({
         <dt className={drawerStyles.definitionTerm}>Tujuan</dt>
         <dd className={drawerStyles.definitionDetail}>{project.objective ?? "Belum dicatat"}</dd>
         <dt className={drawerStyles.definitionTerm}>Prioritas</dt>
-        <dd className={drawerStyles.definitionDetail}>{{ LOW: "Rendah", NORMAL: "Normal", HIGH: "Tinggi", CRITICAL: "Mendesak" }[project.priority ?? "NORMAL"]}</dd>
+        <dd className={drawerStyles.definitionDetail}>{statusLabel(project.priority ?? "NORMAL")}</dd>
         <dt className={drawerStyles.definitionTerm}>Penanggung Jawab</dt>
         <dd className={drawerStyles.definitionDetail}>{project.ownerName?.trim() || "Belum ditentukan"}</dd>
 

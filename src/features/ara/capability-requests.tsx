@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, FormField, Section } from "@/components/ui";
 import { apiMessage, authenticatedApiRequest } from "@/lib/api";
+import { statusLabel } from "@/lib/presentation";
 import type { CapabilityBusinessRequest, CapabilityBusinessRequestOverview } from "../../../../alos-contracts/generated/typescript/business";
 import { ProcessRequest } from "@/features/business-records/process-request";
 
@@ -63,7 +64,7 @@ function RequestCard({ row, canResolve, onChanged }: Readonly<{ row: CapabilityB
     finally { setBusy(false); }
   }
   return <article>
-    <h3>{row.need}</h3><p>Tujuan: {row.goal}</p><p>{stateLabels[row.resolution_state]}</p>
+    <h3>{row.need}</h3><p>Tujuan: {row.goal}</p><p>{stateLabels[row.resolution_state] ?? statusLabel(row.resolution_state)}</p>
     {row.business_context && <p>{row.business_context}</p>}
     <ProcessRequest domain="core" resource="capability_requests" identity={row.request_id} />
     {row.factory_result && <><p>{row.factory_result.decision === "REUSE" ? (row.governance.some(item => item.registry_state === "ACTIVE" && item.release_state === "ACTIVE") ? "Kemampuan sudah tersedia" : "Kemampuan yang sesuai ditemukan") : "Rancangan bantuan baru sedang disiapkan"}</p>

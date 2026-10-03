@@ -371,8 +371,8 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     await screen.findByLabelText("Kode Target Turunan *");
     for (const [label, value] of [
       ["Kode Target Turunan *", "COUNT-DERIVED"], ["Nama Target Turunan *", "Confirmed derived target"],
-      ["Kode KPI Turunan *", "COUNT"], ["Scope Turunan *", "COMPANY"],
-      ["Peran Owner Turunan *", "EXECUTIVE"], ["Satuan Turunan *", "COUNT"],
+      ["Kode KPI Turunan *", "COUNT"], ["Ruang Lingkup Turunan *", "COMPANY"],
+      ["Jabatan Penanggung Jawab *", "EXECUTIVE"], ["Satuan Turunan *", "COUNT"],
       ["Pengukuran Turunan *", "HIGHER_IS_BETTER"], ["Dampak Keputusan Turunan *", "MATERIAL"],
       ["Periode Turunan Mulai *", "2027-01-01"], ["Periode Turunan Selesai *", "2027-12-31"],
       ["Bukti Metadata Turunan", "evidence:reviewed-plan"],
@@ -395,7 +395,8 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     const verify = vi.spyOn(strategyApi, "verifyObservation").mockResolvedValue(mockTarget.observations[1]!);
     mockSearchParams = new URLSearchParams("target=tgt_revenue&version=1");
     render(<ExecutivePerformancePage />);
-    fireEvent.click(await screen.findByRole("button", { name: "Telaah ACTUAL obs_act_val" }));
+    fireEvent.click(await screen.findByRole("button", { name: /Telaah Aktual ·/ }));
+    expect(document.body.textContent).not.toMatch(/obs_act_val|SOURCE_LINKED|MANUAL_EVIDENCED|PENDING_VERIFICATION|DIVISION_LEAD/);
     const submit = screen.getByRole("button", { name: "Catat Keputusan" });
     expect(submit).toBeDisabled();
     fireEvent.change(screen.getByLabelText("Alasan Verifikasi *"), { target: { value: "Source evidence reviewed" } });
@@ -471,7 +472,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
 
     expect(await screen.findByRole("heading", { name: "Catat Aktual" })).toBeInTheDocument();
     expect(screen.getByText(/Pemeriksaan:/i)).toBeInTheDocument();
-    expect(screen.getAllByText("Menunggu Verifikasi").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Menunggu Pemeriksaan").length).toBeGreaterThan(0);
 
     // If manual without evidence, it must block
     fireEvent.change(screen.getByLabelText(/Nilai Aktual \*/), { target: { value: "1000000" } });
@@ -578,7 +579,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     const detailBtn = screen.getAllByRole("button", { name: "Lihat Detail" })[0];
     fireEvent.click(detailBtn);
 
-    expect(await screen.findByText("Informasi rinci arsitektur inisiatif strategis.")).toBeInTheDocument();
+    expect(await screen.findByText("Informasi pelaksanaan inisiatif strategis.")).toBeInTheDocument();
   });
 
   // 11. Review / Revisi functional tabs without overwriting active target

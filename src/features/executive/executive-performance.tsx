@@ -17,7 +17,7 @@ import {
   Tabs,
   type TabItem,
 } from "@/components/ui";
-import type { BusinessTarget, MetricObservation } from "@/lib/contracts";
+import type { BusinessTarget } from "@/lib/contracts";
 import { strategyApi } from "@/modules/strategy";
 
 import { ExecutiveVerificationDrawer } from "./executive-verification";
@@ -27,7 +27,9 @@ import {
   corporateTargets,
   formatValue,
   generateCanonicalId,
+  lifecycleLabel,
   observationFor,
+  observationKindLabel,
   performanceLabel,
   performanceVariant,
   periodLabel,
@@ -36,7 +38,7 @@ import {
   verificationLabel,
 } from "./executive-model";
 import styles from "./executive.module.css";
-import { roleLabel } from "@/lib/presentation";
+import { roleLabel, statusLabel } from "@/lib/presentation";
 
 export function ExecutivePerformancePage({ workspaceKey }: Readonly<{ workspaceKey?: string }> = {}) {
   return (
@@ -232,7 +234,7 @@ function TargetPerformanceDetail({
   const [transitionError, setTransitionError] = useState<string | null>(null);
   async function transition(action: "submit" | "approve" | "activate") {
     try { await strategyApi.transitionTarget(target.target_id, action); onChanged(); }
-    catch { setTransitionError("Transisi target ditolak. Periksa lifecycle dan observation TARGET terverifikasi."); }
+    catch { setTransitionError("Perubahan status target ditolak. Periksa status dan hasil pemeriksaan nilai target."); }
   }
 
   return (
@@ -266,14 +268,14 @@ function TargetPerformanceDetail({
       {transitionError ? <Alert title="Perhatian" message={transitionError} variant="warning" /> : null}
       {actions.includes("RECORD_TARGET") ? <Button onClick={() => setRecordingMode("TARGET")}>Catat Nilai Target</Button> : null}
       {(["SUBMIT", "APPROVE", "ACTIVATE"] as const).filter((action) => actions.includes(action)).map((action) => <Button key={action} onClick={() => void transition(action.toLowerCase() as "submit" | "approve" | "activate")}>{action === "SUBMIT" ? "Ajukan Review Target" : action === "APPROVE" ? "Setujui Target" : "Aktifkan Target"}</Button>)}
-      {observations.filter((item) => ["UNVERIFIED", "PENDING_VERIFICATION"].includes(item.verification_state) && !observations.some((other) => other.supersedes_observation_id === item.observation_id) && actions.includes(item.kind === "TARGET" || item.kind === "ASSUMPTION" ? "VERIFY_PLANNING" : "VERIFY_MONITORING")).map((item) => <Button key={item.observation_id} onClick={() => setVerificationId(item.observation_id)}>Telaah {item.kind} {item.observation_id}</Button>)}
+      {observations.filter((item) => ["UNVERIFIED", "PENDING_VERIFICATION"].includes(item.verification_state) && !observations.some((other) => other.supersedes_observation_id === item.observation_id) && actions.includes(item.kind === "TARGET" || item.kind === "ASSUMPTION" ? "VERIFY_PLANNING" : "VERIFY_MONITORING")).map((item) => <Button key={item.observation_id} onClick={() => setVerificationId(item.observation_id)}>Telaah {observationKindLabel(item.kind)} · {formatDate(item.observed_at)}</Button>)}
       {verificationId ? <ExecutiveVerificationDrawer onSave={(payload) => strategyApi.verifyObservation(target.target_id, verificationId, payload, target.version)} onClose={() => { setVerificationId(null); onChanged(); }} /> : null}
       {/* Target Performance Overview Grid */}
       <div className={styles.targetDetailGrid}>
         <div className={styles.candidateCard}>
           <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Target Nilai</span>
           <strong style={{ fontSize: "20px" }}>{valueForObservation(targetObs, formatValue)}</strong>
-          <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>Satuan: {target.unit}</span>
+          <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>Satuan: {statusLabel(target.unit)}</span>
         </div>
 
         <div className={styles.candidateCard}>
@@ -335,11 +337,11 @@ function TargetPerformanceDetail({
               key: "value",
               render: (obs) => (obs.value === null || obs.value === undefined ? "—" : formatValue(obs.value, obs.unit)),
             },
-            { header: "Satuan", key: "unit", render: (obs) => obs.unit },
+            { header: "Satuan", key: "unit", render: (obs) => statusLabel(obs.unit) },
             {
               header: "Dasar Angka",
               key: "mode",
-              render: (obs) => (obs.source_mode === "SOURCE_LINKED" ? "Diperbarui dari sumber perusahaan" : "Diisi dengan bukti"),
+              render: (obs) => statusLabel(obs.source_mode),
             },
             {
               header: "Tanggal Pengamatan",
@@ -504,7 +506,7 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
 
           <div className={styles.formField}>
             <label htmlFor="obs-unit">Satuan (Unit)</label>
-            <input className={styles.formInput} disabled id="obs-unit" value={target.unit} />
+            <input className={styles.formInput} disabled id="obs-unit" value={statusLabel(target.unit)} />
           </div>
 
           <div className={styles.formField}>
@@ -539,7 +541,7 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
 
           <div className={`${styles.formField} ${styles.formFullWidth}`}>
             <div className={styles.briefNotice}>
-              Pemeriksaan: <strong>Menunggu Verifikasi</strong>. Data tidak dapat langsung diubah menjadi Terverifikasi tanpa proses telaah berwenang.
+              Pemeriksaan: <strong>{verificationLabel("PENDING_VERIFICATION")}</strong>. Nilai perlu diperiksa oleh pihak yang berwenang.
             </div>
           </div>
         </div>
@@ -681,28 +683,6 @@ function DivisionPerformance({ base }: Readonly<{ base: string }>) {
       />
     </Section>
   );
-}
-
-function lifecycleLabel(state: string): string {
-  const map: Record<string, string> = {
-    DRAFT: "Draf",
-    UNDER_REVIEW: "Dalam Peninjauan",
-    APPROVED: "Disetujui",
-    ACTIVE: "Aktif",
-    SUPERSEDED: "Digantikan",
-    ARCHIVED: "Diarsipkan",
-  };
-  return map[state] ?? "Belum Dinilai";
-}
-
-function observationKindLabel(kind: MetricObservation["kind"]): string {
-  switch (kind) {
-    case "TARGET": return "Target";
-    case "ACTUAL": return "Aktual";
-    case "FORECAST": return "Perkiraan";
-    case "ASSUMPTION": return "Asumsi";
-    default: return kind;
-  }
 }
 
 function formatDate(value: string | undefined): string {

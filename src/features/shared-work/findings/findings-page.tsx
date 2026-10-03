@@ -9,6 +9,7 @@ import { Button, PageHeader, Tabs, type DataTableColumn, type TabItem } from "@/
 import type { SessionProjection } from "@/features/session";
 import { hasExecutiveContext } from "@/features/executive";
 import { ApiError, sessionApiRequest } from "@/lib/api";
+import { statusLabel } from "@/lib/presentation";
 
 import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { WorkErrorState } from "../shared/errors/work-error-state";
@@ -193,7 +194,7 @@ export function FindingsPage({ workspaceKey, embed }: FindingsPageProps) {
       {
         header: "Sumber",
         key: "source_type",
-        render: (f) => f.sourceType,
+        render: (f) => statusLabel(f.sourceType),
       },
       {
         header: "Proyek",

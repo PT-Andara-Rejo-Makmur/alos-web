@@ -5,7 +5,7 @@ import Link from "next/link";
 import { EmptyState, PageHeader, Section, Status } from "@/components/ui";
 import type { BusinessWorkQueue } from "@/lib/contracts";
 import { statusLabel, roleLabel } from "@/lib/presentation";
-import { processNames, processTitle } from "./process-presentation";
+import { processTypeLabel, processTitle } from "./process-presentation";
 import styles from "@/components/ui/work-surface.module.css";
 
 const filters = ["Semua", "Perlu Diperiksa", "Perlu Keputusan", "Perlu Diperbaiki", "Untuk Diketahui", "Terlambat"] as const;
@@ -17,7 +17,7 @@ export function ProcessInbox({ queue, workspaceKey }: Readonly<{ queue: Business
   const base = `/workspace/${encodeURIComponent(workspaceKey)}`;
   const rows = [
     ...queue.processes.map(item => { const step = item.steps.find(value => value.can_act); return {
-      key: `process-${item.process_id}`, title: processTitle(item), category: processNames[item.business_type],
+      key: `process-${item.process_id}`, title: processTitle(item), category: processTypeLabel(item.business_type),
       status: item.status === "RETURNED" ? "Perlu Diperbaiki" : step ? statusLabel(step.kind) : statusLabel(item.status),
       context: item.responsible_workspace_name ?? "Penanggung jawab pengajuan", description: item.next_action ?? "Ikuti perkembangan pengajuan.",
       due: item.due_at, href: `${base}/processes/${encodeURIComponent(item.process_id)}`, action: step ? step.kind === "DECISION" ? "Tinjau Keputusan" : "Periksa" : item.can_resubmit ? "Perbaiki" : "Lihat Pengajuan",

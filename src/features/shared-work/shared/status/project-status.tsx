@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { CheckCircle2, Clock, AlertCircle, PlayCircle, PauseCircle, Archive } from "lucide-react";
 
 import { Status, type StatusVariant } from "@/components/ui";
+import { statusLabel } from "@/lib/presentation";
 
 import type { CanonicalProjectStatus } from "../types";
 
@@ -11,39 +12,32 @@ interface ProjectStatusBadgeProps {
 
 interface StatusConfig {
   readonly icon: ReactNode;
-  readonly label: string;
   readonly variant: StatusVariant;
 }
 
 const statusMap: Record<string, StatusConfig> = {
   PLANNED: {
     icon: <Clock aria-hidden="true" size={13} strokeWidth={2} />,
-    label: "Direncanakan",
     variant: "info",
   },
   ACTIVE: {
     icon: <PlayCircle aria-hidden="true" size={13} strokeWidth={2} />,
-    label: "Berjalan",
     variant: "success",
   },
   ON_HOLD: {
     icon: <PauseCircle aria-hidden="true" size={13} strokeWidth={2} />,
-    label: "Ditahan",
     variant: "warning",
   },
   COMPLETED: {
     icon: <CheckCircle2 aria-hidden="true" size={13} strokeWidth={2} />,
-    label: "Selesai",
     variant: "success",
   },
   CANCELLED: {
     icon: <AlertCircle aria-hidden="true" size={13} strokeWidth={2} />,
-    label: "Dibatalkan",
     variant: "danger",
   },
   ARCHIVED: {
     icon: <Archive aria-hidden="true" size={13} strokeWidth={2} />,
-    label: "Diarsipkan",
     variant: "neutral",
   },
 };
@@ -57,8 +51,8 @@ export function ProjectStatusBadge({ status }: ProjectStatusBadgeProps) {
   const config = statusMap[normalized];
 
   if (!config) {
-    return <Status label={status} variant="neutral" />;
+    return <Status label={statusLabel(normalized)} variant="neutral" />;
   }
 
-  return <Status icon={config.icon} label={config.label} variant={config.variant} />;
+  return <Status icon={config.icon} label={statusLabel(normalized)} variant={config.variant} />;
 }

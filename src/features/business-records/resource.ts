@@ -1,5 +1,6 @@
 import type { ExecutiveSourceStatus, SalesCustomerListProjection } from "@/lib/contracts";
 import type { recordApi } from "./record-api";
+import { readableValue, roleLabel, severityLabel, statusLabel } from "@/lib/presentation";
 
 export type Field = Readonly<{
   name: string;
@@ -46,3 +47,13 @@ export function defineResource<C extends object, U extends object, P extends obj
 }
 
 export type SourceState = "loading" | ExecutiveSourceStatus["status"];
+
+/** Use field metadata for enums; uppercase names and business codes remain free text. */
+export function recordFieldValue(field: Field, value: unknown): string {
+  if (typeof value !== "string" || !value) return readableValue(value);
+  if (field.optionLabels?.[value]) return field.optionLabels[value];
+  if (/(^|_)(severity|risk|risk_level)$/.test(field.name)) return severityLabel(value);
+  if (/(^|_)role(_ref)?$/.test(field.name)) return roleLabel(value);
+  if (field.options || /(^|_)(status|state|priority|risk|kind|decision|classification|business_type)$/.test(field.name)) return statusLabel(value);
+  return field.type === "date" || field.type === "datetime-local" ? readableValue(value) : value;
+}

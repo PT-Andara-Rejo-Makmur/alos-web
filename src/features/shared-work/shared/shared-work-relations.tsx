@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui";
-import { activityLabel } from "@/lib/presentation";
+import { activityLabel, statusLabel } from "@/lib/presentation";
 import type { SessionProjection } from "@/features/session";
 import { apiMessage, authenticatedApiRequest } from "@/lib/api";
 import type {
@@ -282,7 +282,7 @@ export function SharedWorkRelationsPanel(props: Props & { readonly workspaceKey?
         ? `/workspace/${props.workspaceKey}/${relationPaths[item.entity_type]}/${item.entity_id}`
         : `/workspace/${relationPaths[item.entity_type]}/${item.entity_id}`}>
         {item.title}
-      </Link> · {item.status}
+      </Link> · {statusLabel(item.status)}
     </li>)}</ul> : <p>Belum ada relasi.</p>}
     {canLink ? <form onSubmit={link}>
       <label htmlFor={`relation-type-${props.entityId}`}>Jenis relasi</label>
@@ -294,7 +294,7 @@ export function SharedWorkRelationsPanel(props: Props & { readonly workspaceKey?
         <option value="">Pilih objek</option>
         {available.map((item) => {
           const id = "task_id" in item ? item.task_id : item.approval_id;
-          return <option key={id} value={id}>{"task_id" in item ? item.title : item.subject_title ?? item.approval_id}</option>;
+          return <option key={id} value={id}>{"task_id" in item ? item.title : item.subject_title ?? item.reason ?? "Pengajuan keputusan"}</option>;
         })}
       </select>
       <Button disabled={!targetId || busy} type="submit">Hubungkan</Button>

@@ -16,11 +16,11 @@ it("requests an action-scoped approval and keeps business execution separate", a
   const request = vi.spyOn(api, "authenticatedApiRequest").mockImplementation((_path, options) => Promise.resolve(options?.method === "POST" ? { ...approval, status: "PENDING" } : []));
   const transition = vi.fn();
   render(<MaterialActions actions={[action]} identity="booking_1" resource={{ ...salesResources.bookings, transition }} canRequest onSaved={vi.fn()} />);
-  fireEvent.click(await screen.findByRole("button", { name: "Minta Persetujuan CONFIRMED" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Minta Persetujuan Dikonfirmasi" }));
   expect(await screen.findByText(/Menunggu Persetujuan/)).toBeInTheDocument();
   expect(request).toHaveBeenCalledWith("/api/v1/approvals", { method: "POST", body: { subject_type: "SALES_BOOKING", subject_id: "booking_1", requested_action: "CONFIRM_BOOKING" } });
   expect(transition).not.toHaveBeenCalled();
-  expect(screen.queryByRole("button", { name: "Eksekusi CONFIRMED" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Jalankan Tindakan Dikonfirmasi" })).not.toBeInTheDocument();
 });
 
 it("executes only after an explicit click and sends the approved reference", async () => {
@@ -30,7 +30,7 @@ it("executes only after an explicit click and sends the approved reference", asy
   render(<MaterialActions actions={[action]} identity="booking_1" resource={{ ...salesResources.bookings, transition }} canRequest onSaved={saved} />);
   expect(await screen.findByText(/Disetujui — Siap Dieksekusi/)).toBeInTheDocument();
   expect(transition).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole("button", { name: "Eksekusi CONFIRMED" }));
+  fireEvent.click(screen.getByRole("button", { name: "Jalankan Tindakan Dikonfirmasi" }));
   await waitFor(() => expect(saved).toHaveBeenCalledWith({ status: "CONFIRMED" }));
   expect(transition).toHaveBeenCalledWith("booking_1", "CONFIRMED", "approval_1");
 });
@@ -40,7 +40,7 @@ it.each(["PENDING", "RETURNED", "REJECTED", "HELD"] as const)("never executes %s
   const transition = vi.fn();
   render(<MaterialActions actions={[action]} identity="booking_1" resource={{ ...salesResources.bookings, transition }} canRequest onSaved={vi.fn()} />);
   await waitFor(() => expect(screen.queryByText("Memuat persetujuan…")).not.toBeInTheDocument());
-  expect(screen.queryByRole("button", { name: "Eksekusi CONFIRMED" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Jalankan Tindakan Dikonfirmasi" })).not.toBeInTheDocument();
   expect(transition).not.toHaveBeenCalled();
 });
 
@@ -55,7 +55,7 @@ it("reports execution failure without optimistic success", async () => {
   vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue([approval]);
   const saved = vi.fn();
   render(<MaterialActions actions={[action]} identity="booking_1" resource={{ ...salesResources.bookings, transition: vi.fn().mockRejectedValue(new Error("stale approval")) }} canRequest onSaved={saved} />);
-  fireEvent.click(await screen.findByRole("button", { name: "Eksekusi CONFIRMED" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Jalankan Tindakan Dikonfirmasi" }));
   expect(await screen.findByText("Persetujuan belum dapat diproses")).toBeInTheDocument();
   expect(saved).not.toHaveBeenCalled();
 });

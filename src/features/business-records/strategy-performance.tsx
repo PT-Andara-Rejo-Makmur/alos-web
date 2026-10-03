@@ -1,10 +1,10 @@
 "use client";
-import { roleLabel } from "@/lib/presentation";
+import { domainLabels, readableValue, roleLabel } from "@/lib/presentation";
 import { useEffect, useState } from "react";
 import { DataTable, PageHeader, Section } from "@/components/ui";
 import type { BusinessTargetDetail } from "@/lib/contracts";
 import { strategyApi } from "@/modules/strategy";
-import { performanceLabel, periodLabel, valueForObservation } from "@/features/executive/executive-model";
+import { lifecycleLabel, performanceLabel, periodLabel, valueForObservation, verificationLabel } from "@/features/executive/executive-model";
 import { SourceStateView, sourceFailure } from "./record-panel";
 import type { SourceState } from "./resource";
 import styles from "@/features/property/property.module.css";
@@ -13,6 +13,7 @@ import { ClosingActual } from "./closing-actual";
 export function StrategyPerformance({ domain }: Readonly<{ domain: string }>) {
   const [rows, setRows] = useState<readonly BusinessTargetDetail[]>([]);
   const [state, setState] = useState<SourceState>("loading");
+  const domainName = domainLabels[domain] ?? Object.values(domainLabels).find((label) => label === domain) ?? "Kinerja Divisi";
   useEffect(() => {
     let current = true; const controller = new AbortController();
     void strategyApi.listTargetDetails(controller.signal)
@@ -20,7 +21,7 @@ export function StrategyPerformance({ domain }: Readonly<{ domain: string }>) {
       .catch((error: unknown) => { if (current) { setRows([]); setState(sourceFailure(error)); } });
     return () => { current = false; controller.abort(); };
   }, []);
-  return <div className={styles.page}><PageHeader title="Target & Kinerja" eyebrow={domain.toUpperCase()} description="Target, aktual, perkiraan, dan kinerja berasal dari catatan strategi perusahaan." />
+  return <div className={styles.page}><PageHeader title="Target & Kinerja" eyebrow={domainName} description="Target, aktual, perkiraan, dan kinerja berasal dari catatan strategi perusahaan." />
     <SourceStateView state={state} />
     {domain === "sales" && state === "CONNECTED" && <ClosingActual rows={rows} onSaved={async () => setRows(await strategyApi.listTargetDetails())} />}
     {state === "CONNECTED" ? <Section title="Target Strategi"><DataTable caption={`Target dan Kinerja ${domain}`} rows={rows} getRowKey={(row) => `${row.target.target_id}-${row.target.version}`} columns={[
@@ -30,10 +31,10 @@ export function StrategyPerformance({ domain }: Readonly<{ domain: string }>) {
       { key: "actual", header: "Aktual", render: (row) => valueForObservation(row.selected_observations?.actual ?? null) },
       { key: "forecast", header: "Perkiraan", render: (row) => valueForObservation(row.selected_observations?.forecast ?? null) },
       { key: "performance", header: "Kinerja", render: (row) => performanceLabel(row.performance_state) },
-      { key: "verification", header: "Verifikasi", render: (row) => row.selected_observations?.actual?.verification_state ?? "—" },
+      { key: "verification", header: "Pemeriksaan", render: (row) => verificationLabel(row.selected_observations?.actual?.verification_state) },
       { key: "owner", header: "Penanggung Jawab", render: (row) => roleLabel(row.target.owner_role_ref) },
-      { key: "lifecycle", header: "Lifecycle", render: (row) => row.target.lifecycle_state },
-      { key: "updated", header: "Pembaruan Sumber", render: (row) => row.last_updated_at ?? "Tidak diketahui" },
+      { key: "lifecycle", header: "Status", render: (row) => lifecycleLabel(row.target.lifecycle_state) },
+      { key: "updated", header: "Pembaruan Sumber", render: (row) => readableValue(row.last_updated_at) },
     ]} /></Section> : null}
   </div>;
 }

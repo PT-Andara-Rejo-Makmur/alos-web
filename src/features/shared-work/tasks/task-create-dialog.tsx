@@ -5,6 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Button, Dialog, EntitySelect, FormField, FormSection } from "@/components/ui";
 import type { SharedWorkTaskPriority } from "@/lib/contracts";
 import { apiMessage } from "@/lib/api";
+import { statusLabel } from "@/lib/presentation";
 
 import { createTask } from "./task-model";
 import { fetchProjects } from "../projects/project-model";
@@ -88,10 +89,7 @@ export function TaskCreateDialog({ onClose, onCreated, open }: TaskCreateDialogP
         </FormField></FormSection>
 <FormSection title="Prioritas dan Jadwal"><FormField label="Prioritas">
           <select onChange={(event) => setPriority(event.target.value as SharedWorkTaskPriority)} value={priority}>
-            <option value="LOW">Rendah</option>
-            <option value="NORMAL">Normal</option>
-            <option value="HIGH">Tinggi</option>
-            <option value="CRITICAL">Kritis</option>
+            {(["LOW", "NORMAL", "HIGH", "CRITICAL"] as const).map(value => <option key={value} value={value}>{statusLabel(value)}</option>)}
           </select>
         </FormField>
 <FormField label="Tanggal Mulai">

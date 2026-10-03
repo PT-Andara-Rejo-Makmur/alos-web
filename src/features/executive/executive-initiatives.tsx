@@ -5,6 +5,8 @@ import { useState } from "react";
 import { Button, DataTable, Drawer, EmptyState, PageHeader, Section, Status } from "@/components/ui";
 
 import { ExecutiveLayout } from "./executive-layout";
+import { roleLabel } from "@/lib/presentation";
+import { lifecycleLabel } from "./executive-model";
 import styles from "./executive.module.css";
 
 export interface StrategicInitiative {
@@ -55,7 +57,7 @@ function InitiativesContent({
             columns={[
               { header: "Nama Inisiatif", key: "name", render: (item) => item.name },
               { header: "Target Terkait", key: "target", render: (item) => item.relatedTargetName },
-              { header: "Penanggung Jawab", key: "owner", render: (item) => item.ownerRole },
+              { header: "Penanggung Jawab", key: "owner", render: (item) => roleLabel(item.ownerRole) },
               {
                 header: "Status",
                 key: "status",
@@ -87,7 +89,7 @@ function InitiativesContent({
           />
         ) : (
           <EmptyState
-            description="Data inisiatif strategis belum terhubung. Inisiatif akan tampil setelah modul pelaksanaan dan kontrak integrasi aktif."
+            description="Inisiatif akan tampil setelah data pelaksanaan tersedia."
             title="Belum ada inisiatif yang dapat ditampilkan."
           />
         )}
@@ -97,8 +99,7 @@ function InitiativesContent({
         <div className={styles.readinessRow}>
           <Status label="Belum Tersedia" variant="neutral" />
           <p>
-            Struktur arsitektur inisiatif telah diselaraskan dengan kebutuhan strategi.
-            Data pelaksanaan rinci akan tersinkronisasi otomatis dari modul kerja universal saat integrasi data aktif.
+            Rincian pelaksanaan akan tampil setelah data pekerjaan tersedia.
           </p>
         </div>
       </Section>
@@ -106,7 +107,7 @@ function InitiativesContent({
       {/* Detail Drawer */}
       {selectedInitiative ? (
         <Drawer
-          description="Informasi rinci arsitektur inisiatif strategis."
+          description="Informasi pelaksanaan inisiatif strategis."
           onClose={() => setSelectedInitiative(null)}
           open
           title={selectedInitiative.name}
@@ -130,10 +131,10 @@ function InitiativesContent({
             </div>
             <div className={styles.sourceDetail}>
               <dt>Penanggung Jawab</dt>
-              <dd>{selectedInitiative.ownerRole}</dd>
+              <dd>{roleLabel(selectedInitiative.ownerRole)}</dd>
             </div>
             <div className={styles.sourceDetail}>
-              <dt>Siklus Hidup</dt>
+              <dt>Status</dt>
               <dd>
                 <Status
                   label={lifecycleLabel(selectedInitiative.lifecycleState)}
@@ -143,11 +144,11 @@ function InitiativesContent({
             </div>
             <div className={styles.sourceDetail}>
               <dt>Sumber Rujukan</dt>
-              <dd>{selectedInitiative.sourceRef ?? "—"}</dd>
+              <dd>{selectedInitiative.sourceRef ? "Rujukan tersedia" : "Belum ditambahkan"}</dd>
             </div>
             <div className={styles.sourceDetail}>
               <dt>Bukti Pendukung</dt>
-              <dd>{selectedInitiative.evidenceRef ?? "—"}</dd>
+              <dd>{selectedInitiative.evidenceRef ? "Bukti terlampir" : "Belum ditambahkan"}</dd>
             </div>
           </div>
           <div className={styles.formActions}>
@@ -157,16 +158,4 @@ function InitiativesContent({
       ) : null}
     </div>
   );
-}
-
-function lifecycleLabel(state: string): string {
-  const map: Record<string, string> = {
-    DRAFT: "Draf",
-    UNDER_REVIEW: "Dalam Peninjauan",
-    APPROVED: "Disetujui",
-    ACTIVE: "Aktif",
-    SUPERSEDED: "Digantikan",
-    ARCHIVED: "Diarsipkan",
-  };
-  return map[state] ?? state;
 }

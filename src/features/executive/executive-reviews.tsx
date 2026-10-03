@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { Alert, Button, DataTable, EmptyState, LoadingState, PageHeader, Section, Status, Tabs, type TabItem } from "@/components/ui";
 import type { BusinessTarget } from "@/lib/contracts";
 import { strategyApi } from "@/modules/strategy";
+import { roleLabel } from "@/lib/presentation";
 
 import { ExecutiveLayout } from "./executive-layout";
 import { useExecutiveStrategyData } from "./executive-data";
@@ -150,7 +151,7 @@ function ReviewsContent({
                 render: (r) => (r.findingsCount > 0 ? `${r.findingsCount} Perhatian` : "Belum Tersedia"),
               },
               { header: "Komentar Review", key: "comment", render: (r) => r.reviewComment },
-              { header: "Penanggung Jawab", key: "owner", render: (r) => r.owner || "—" },
+              { header: "Penanggung Jawab", key: "owner", render: (r) => roleLabel(r.owner) },
               {
                 header: "Bukti",
                 key: "evidence",

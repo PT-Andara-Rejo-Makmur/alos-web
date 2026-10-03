@@ -83,7 +83,7 @@ describe("business presentation", () => {
     expect(readableValue("THEPARK")).toBe("THEPARK");
     expect(statusLabel("UNDER_REVIEW")).toBe("Sedang Diperiksa");
     expect(statusLabel("RECORDED_ISSUES")).toBe("Ada Masalah Tercatat");
-    expect(statusLabel("UNKNOWN_INTERNAL_STATE")).toBe("Belum Tersedia");
+    expect(statusLabel("UNKNOWN_INTERNAL_STATE")).toBe("Status belum dikenali");
   });
   it("rejects malformed operational projections without substituting zeros", () => {
     expect(isBusinessPerformance(performanceFixture)).toBe(true);

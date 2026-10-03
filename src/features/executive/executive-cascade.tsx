@@ -5,8 +5,9 @@ import { Alert, Button, Section, Status } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
 import type { BusinessTarget, BusinessTargetCreateRequest, CascadePreview, CascadePreviewRequest, CascadeRule, BusinessUnit, StrategyMeasurementType, PlanningAssumption, StrategicObjective, StrategyBusinessScope as BusinessScope } from "@/lib/contracts";
 import { strategyApi } from "@/modules/strategy";
-import { activeExecutiveWorkspaceId, ExecutiveWorkspacePicker } from "./executive-form-fields";
+import { activeExecutiveWorkspaceId, ExecutiveRolePicker, ExecutiveWorkspacePicker } from "./executive-form-fields";
 import { generateCanonicalId } from "./executive-model";
+import { statusLabel, userMessage } from "@/lib/presentation";
 import styles from "./executive.module.css";
 
 export interface CascadeSectionProps {
@@ -171,7 +172,7 @@ export function CascadeSection({ targets, assumptions, canCascade = false, sessi
   return (
     <Section description="Penurunan target korporasi ke unit turunan melalui perhitungan terarah dan tata kelola resmi." title="Cascade Target">
       {errorMsg ? <Alert message={errorMsg} title="Perhatian" variant="warning" /> : null}
-      {accepted ? <Alert message="Cascade diterima oleh Backend; target turunan dan observation tersimpan." title="Tersimpan" variant="success" /> : null}
+      {accepted ? <Alert message="Penurunan target diterima; target turunan dan nilai pengamatan tersimpan." title="Tersimpan" variant="success" /> : null}
 
       <div className={styles.cascadeFlow}>
         <div className={styles.cascadeStep}>
@@ -244,7 +245,7 @@ export function CascadeSection({ targets, assumptions, canCascade = false, sessi
               <select className={styles.formSelect} id="cas-asm" onChange={(e) => setSelectedAssumptionId(e.target.value)} value={selectedAssumptionId}>
                 <option value="">Tanpa Asumsi Tambahan</option>
                 {assumptions.map((a) => (
-                  <option key={a.assumption_id} value={a.assumption_id}>{a.name} ({a.value ?? "—"} {a.unit})</option>
+                  <option key={a.assumption_id} value={a.assumption_id}>{a.name} ({a.value ?? "—"} {statusLabel(a.unit)})</option>
                 ))}
               </select>
             </div>
@@ -252,13 +253,13 @@ export function CascadeSection({ targets, assumptions, canCascade = false, sessi
             <div className={styles.formField}><label htmlFor="cas-code">Kode Target Turunan *</label><input id="cas-code" className={styles.formInput} value={code} onChange={(e) => setCode(e.target.value)} /></div>
             <div className={styles.formField}><label htmlFor="cas-name">Nama Target Turunan *</label><input id="cas-name" className={styles.formInput} value={name} onChange={(e) => setName(e.target.value)} /></div>
             <div className={styles.formField}><label htmlFor="cas-metric">Kode KPI Turunan *</label><input id="cas-metric" className={styles.formInput} value={metricCode} onChange={(e) => setMetricCode(e.target.value)} /></div>
-            <div className={styles.formField}><label>Plan Turunan</label><span>{selectedTarget ? `${selectedTarget.plan_ref.id} v${selectedTarget.plan_ref.version}` : "Belum tersedia"}</span></div>
+            <div className={styles.formField}><label>Rencana Turunan</label><span>{selectedTarget ? `Rencana untuk ${selectedTarget.name} · Versi ${selectedTarget.plan_ref.version}` : "Belum tersedia"}</span></div>
             <div className={styles.formField}><label htmlFor="cas-objective">Sasaran Turunan</label><select id="cas-objective" className={styles.formSelect} value={objectiveId} onChange={(e) => setObjectiveId(e.target.value)}><option value="">Tanpa sasaran</option>{objectives.map((item) => <option key={item.objective_id} value={item.objective_id}>{item.name}</option>)}</select></div>
-            <div className={styles.formField}><label htmlFor="cas-scope">Scope Turunan *</label><select id="cas-scope" className={styles.formSelect} value={scope} onChange={(e) => setScope(e.target.value as BusinessScope["type"])}><option value="">Pilih scope</option><option value="COMPANY">Korporasi</option><option value="DIVISION">Divisi</option></select></div>
+            <div className={styles.formField}><label htmlFor="cas-scope">Ruang Lingkup Turunan *</label><select id="cas-scope" className={styles.formSelect} value={scope} onChange={(e) => setScope(e.target.value as BusinessScope["type"])}><option value="">Pilih ruang lingkup</option><option value="COMPANY">Korporasi</option><option value="DIVISION">Divisi</option></select></div>
             <div className={styles.formField}><ExecutiveWorkspacePicker id="cas-workspace" onChange={setOwnerWorkspace} session={session} value={ownerWorkspace} /></div>
-            <div className={styles.formField}><label htmlFor="cas-role">Peran Owner Turunan *</label><input id="cas-role" className={styles.formInput} value={ownerRole} onChange={(e) => setOwnerRole(e.target.value)} /></div>
-            <div className={styles.formField}><label htmlFor="cas-unit">Satuan Turunan *</label><select id="cas-unit" className={styles.formSelect} value={unit} onChange={(e) => setUnit(e.target.value as BusinessUnit)}><option value="">Pilih satuan</option>{(["IDR", "COUNT", "PERCENT", "RATIO", "MINUTE", "HOUR", "DAY", "SCORE", "UNIT", "BOOLEAN"] as const).map((value) => <option key={value} value={value}>{value}</option>)}</select></div>
-            <div className={styles.formField}><label htmlFor="cas-measurement">Pengukuran Turunan *</label><select id="cas-measurement" className={styles.formSelect} value={measurement} onChange={(e) => setMeasurement(e.target.value as StrategyMeasurementType)}><option value="">Pilih pengukuran</option>{(["HIGHER_IS_BETTER", "LOWER_IS_BETTER", "RANGE", "EXACT", "PERCENTAGE", "RATIO", "BINARY", "MILESTONE", "CUMULATIVE"] as const).map((value) => <option key={value} value={value}>{value}</option>)}</select></div>
+            <div className={styles.formField}><ExecutiveRolePicker id="cas-role" session={session} workspaceId={ownerWorkspace} value={ownerRole} onChange={setOwnerRole} /></div>
+            <div className={styles.formField}><label htmlFor="cas-unit">Satuan Turunan *</label><select id="cas-unit" className={styles.formSelect} value={unit} onChange={(e) => setUnit(e.target.value as BusinessUnit)}><option value="">Pilih satuan</option>{(["IDR", "COUNT", "PERCENT", "RATIO", "MINUTE", "HOUR", "DAY", "SCORE", "UNIT", "BOOLEAN"] as const).map((value) => <option key={value} value={value}>{statusLabel(value)}</option>)}</select></div>
+            <div className={styles.formField}><label htmlFor="cas-measurement">Pengukuran Turunan *</label><select id="cas-measurement" className={styles.formSelect} value={measurement} onChange={(e) => setMeasurement(e.target.value as StrategyMeasurementType)}><option value="">Pilih pengukuran</option>{(["HIGHER_IS_BETTER", "LOWER_IS_BETTER", "RANGE", "EXACT", "PERCENTAGE", "RATIO", "BINARY", "MILESTONE", "CUMULATIVE"] as const).map((value) => <option key={value} value={value}>{statusLabel(value)}</option>)}</select></div>
             <div className={styles.formField}><label htmlFor="cas-materiality">Dampak Keputusan Turunan *</label><select id="cas-materiality" className={styles.formSelect} value={materiality} onChange={(e) => setMateriality(e.target.value as BusinessTargetCreateRequest["materiality"])}><option value="">Pilih dampak keputusan</option><option value="MATERIAL">Keputusan Strategis</option><option value="NON_MATERIAL">Operasi Divisi</option></select></div>
             <div className={styles.formField}><label htmlFor="cas-start">Periode Turunan Mulai *</label><input id="cas-start" type="date" className={styles.formInput} value={startsAt} onChange={(e) => setStartsAt(e.target.value)} /></div>
             <div className={styles.formField}><label htmlFor="cas-end">Periode Turunan Selesai *</label><input id="cas-end" type="date" className={styles.formInput} value={endsAt} onChange={(e) => setEndsAt(e.target.value)} /></div>
@@ -297,7 +298,7 @@ export function CascadeSection({ targets, assumptions, canCascade = false, sessi
               {previewData.blocking_conditions && previewData.blocking_conditions.length > 0 ? (
                 <div style={{ margin: "var(--alos-space-2) 0" }}>
                   <Alert
-                    message={previewData.blocking_conditions.join("; ")}
+                    message={previewData.blocking_conditions.map(item => userMessage(item, "Periksa kelengkapan target, sumber, dan bukti sebelum melanjutkan.")).join("; ")}
                     title="Kondisi Penghalang"
                     variant="warning"
                   />
@@ -310,7 +311,7 @@ export function CascadeSection({ targets, assumptions, canCascade = false, sessi
                   <ul className={styles.briefCompactList}>
                     {previewData.constraint_results.map((c) => (
                       <li className={styles.briefListItem} key={c.constraint_id}>
-                        <span>{c.message}</span>
+                        <span>{userMessage(c.message, "Periksa nilai target terhadap batas yang ditetapkan.")}</span>
                         <Status
                           label={c.result === "PASS" ? "Memenuhi" : c.result === "FAIL" ? "Tidak Memenuhi" : "Belum Dinilai"}
                           variant={c.result === "PASS" ? "success" : "danger"}

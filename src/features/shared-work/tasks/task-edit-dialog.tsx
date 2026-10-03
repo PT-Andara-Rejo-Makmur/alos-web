@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 
 import { Button, Dialog, FormField } from "@/components/ui";
 import { apiMessage } from "@/lib/api";
+import { statusLabel } from "@/lib/presentation";
 import type { SharedWorkTaskPriority, SharedWorkTaskUpdateRequest } from "@/lib/contracts";
 
 import { fetchProjects } from "../projects/project-model";
@@ -89,10 +90,7 @@ export function TaskEditDialog({ task, open, onClose, onSaved }: TaskEditDialogP
         </FormField>
         <FormField label="Prioritas">
           <select onChange={(event) => setPriority(event.target.value as SharedWorkTaskPriority)} value={priority}>
-            <option value="LOW">Rendah</option>
-            <option value="NORMAL">Normal</option>
-            <option value="HIGH">Tinggi</option>
-            <option value="CRITICAL">Kritis</option>
+            {(["LOW", "NORMAL", "HIGH", "CRITICAL"] as const).map(value => <option key={value} value={value}>{statusLabel(value)}</option>)}
           </select>
         </FormField>
         <FormField label="Proyek">

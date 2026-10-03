@@ -1,4 +1,5 @@
 import { resolveWorkspaceDomain, type SessionProjection } from "@/features/session";
+import { statusLabel } from "@/lib/presentation";
 import type {
   BusinessTarget,
   MetricObservation,
@@ -35,7 +36,7 @@ export function scopeLabel(scope: BusinessScope | null | undefined): string {
     case "COMPANY": return "Korporasi";
     case "DIVISION": return "Divisi";
     case "PROJECT": return "Proyek";
-    default: return "Belum Dinilai";
+    default: return scope?.type ? statusLabel(scope.type) : "Belum Dinilai";
   }
 }
 
@@ -79,7 +80,7 @@ export function performanceLabel(state: BusinessTarget["performance_state"]): st
     case "AT_RISK": return "Perlu Perhatian";
     case "OFF_TRACK": return "Tidak Sesuai Target";
     case "ACHIEVED": return "Tercapai";
-    default: return "Belum Dinilai";
+    default: return state ? statusLabel(state) : "Belum Dinilai";
   }
 }
 
@@ -94,25 +95,15 @@ export function performanceVariant(state: BusinessTarget["performance_state"]): 
 }
 
 export function lifecycleLabel(state: string | null | undefined): string {
-  switch (state) {
-    case "DRAFT": return "Draf";
-    case "UNDER_REVIEW": return "Dalam Peninjauan";
-    case "APPROVED": return "Disetujui";
-    case "ACTIVE": return "Aktif";
-    case "SUPERSEDED": return "Digantikan";
-    case "ARCHIVED": return "Diarsipkan";
-    default: return "Belum Dinilai";
-  }
+  return state === "DRAFT" ? "Draf" : state ? statusLabel(state) : "Belum Dinilai";
 }
 
 export function verificationLabel(state: StrategyVerificationState | null | undefined): string {
-  switch (state) {
-    case "VERIFIED": return "Terverifikasi";
-    case "PENDING_VERIFICATION": return "Menunggu Verifikasi";
-    case "CONFLICT": return "Perlu Klarifikasi";
-    case "REJECTED": return "Ditolak";
-    default: return "Belum Diverifikasi";
-  }
+  return state ? statusLabel(state) : "Belum Diperiksa";
+}
+
+export function observationKindLabel(kind: MetricObservation["kind"]): string {
+  return statusLabel(kind);
 }
 
 export function periodLabel(period: StrategyPlan["period"] | BusinessTarget["period"]): string {

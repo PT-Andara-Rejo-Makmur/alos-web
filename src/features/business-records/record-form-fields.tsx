@@ -1,8 +1,7 @@
 "use client";
 
 import { EntitySelect, FormField, FormSection } from "@/components/ui";
-import { statusLabel } from "@/lib/presentation";
-import type { Field } from "./resource";
+import { recordFieldValue, type Field } from "./resource";
 
 export function RecordFormFields({ fields, mode, values, options, change, busy, loading, relationErrors }: Readonly<{
   fields: readonly Field[]; mode: "create" | "update"; values: Readonly<Record<string, string>>;
@@ -23,7 +22,7 @@ export function RecordFormFields({ fields, mode, values, options, change, busy, 
       const required = field.required || (mode === "update" && !field.nullable);
       const id = `record-${field.name}`;
       const disabled = busy || !!(field.relation && (loading || relationErrors.includes(field.name) || (field.relation.dependsOn && !values[field.relation.dependsOn])));
-      const choices = field.relation ? options[field.name] ?? [] : field.options?.map(value => ({ value, label: field.optionLabels?.[value] ?? statusLabel(value) })) ?? [];
+      const choices = field.relation ? options[field.name] ?? [] : field.options?.map(value => ({ value, label: recordFieldValue(field, value) })) ?? [];
       return <FormField key={field.name} label={field.label} htmlFor={id} required={required} description={field.type === "decimal" ? "Gunakan titik untuk angka desimal, misalnya 1250000.50." : undefined}>
         {field.type === "boolean" ? <select id={id} value={values[field.name] || "false"} disabled={busy} onChange={event => change(field.name, event.target.value)}><option value="false">Tidak</option><option value="true">Ya</option></select>
           : field.relation?.multiple ? <select id={id} multiple value={JSON.parse(values[field.name] || "[]") as string[]} required={required} disabled={disabled} onChange={event => change(field.name, JSON.stringify(Array.from(event.target.selectedOptions, option => option.value).filter(Boolean)))}>{choices.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select>

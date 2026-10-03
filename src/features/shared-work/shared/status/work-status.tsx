@@ -1,4 +1,4 @@
-import { statusLabel } from "@/lib/presentation";
+import { severityLabel, statusLabel } from "@/lib/presentation";
 import { Status, type StatusVariant } from "@/components/ui";
 
 import type {
@@ -34,18 +34,9 @@ export function FindingSeverityBadge({
 }) {
   if (!severity) return <Status label="—" variant="neutral" />;
 
-  switch (severity.toUpperCase()) {
-    case "LOW":
-      return <Status label="Rendah" variant="neutral" />;
-    case "MEDIUM":
-      return <Status label="Sedang" variant="info" />;
-    case "HIGH":
-      return <Status label="Tinggi" variant="warning" />;
-    case "CRITICAL":
-      return <Status label="Kritis" variant="danger" />;
-    default:
-      return <Status label={statusLabel(severity)} variant="neutral" />;
-  }
+  const normalized = severity.toUpperCase();
+  const variants: Record<string, StatusVariant> = { LOW: "neutral", MEDIUM: "info", HIGH: "warning", CRITICAL: "danger" };
+  return <Status label={severityLabel(normalized)} variant={variants[normalized] ?? "neutral"} />;
 }
 
 export function RiskBadge({

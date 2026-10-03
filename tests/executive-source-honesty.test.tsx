@@ -171,7 +171,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     expect(await screen.findByRole("heading", { name: "Inisiatif Strategis" })).toBeInTheDocument();
     expect(screen.queryByText("Akselerasi Penjualan Unit Residensial")).not.toBeInTheDocument();
     expect(screen.getByText("Belum ada inisiatif yang dapat ditampilkan.")).toBeInTheDocument();
-    expect(screen.getByText(/Data inisiatif strategis belum terhubung/)).toBeInTheDocument();
+    expect(screen.getByText("Inisiatif akan tampil setelah data pelaksanaan tersedia.")).toBeInTheDocument();
   });
 
   // 2. Extraction without source produces no fake candidates
@@ -478,7 +478,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
   it("Scenario 19b: Scope labels never expose raw enum values", () => {
     expect(scopeLabel({ label: null, ref: null, type: "COMPANY" })).toBe("Korporasi");
     expect(scopeLabel({ label: null, ref: null, type: "DIVISION" })).toBe("Divisi");
-    expect(scopeLabel({ label: null, ref: null, type: "SYSTEM" })).toBe("Belum Dinilai");
+    expect(scopeLabel({ label: null, ref: null, type: "SYSTEM" })).toBe("Sistem");
     expect(scopeLabel({ label: "COMPANY", ref: null, type: "COMPANY" })).toBe("Korporasi");
     expect(scopeLabel(null)).toBe("Belum Dinilai");
   });

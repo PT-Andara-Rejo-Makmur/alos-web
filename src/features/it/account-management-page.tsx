@@ -8,6 +8,7 @@ import { AppShell } from "@/components/app-shell/app-shell";
 import { Button, DataTable, Dialog as UiDialog, Drawer, EmptyState, FormField, LoadingState, Metric, PageHeader, Status, Tabs, Toolbar, type DataTableColumn } from "@/components/ui";
 import { resolveWorkspaceDomain, type SessionProjection } from "@/features/session";
 import { ApiError, sessionApiRequest } from "@/lib/api";
+import { statusLabel } from "@/lib/presentation";
 import type { AuthorizationRole, IdentityAccountProjection, ProvisioningCandidateProjection, WorkspaceProjection } from "@/lib/contracts";
 
 import { addMembership, changeAccountState, listActorIdentityHistory, listActorSessions, listAssignableRoles, listIdentityAccounts, listIdentityWorkspaces, listProvisioningCandidates, provisionAccount, resendActivation, revokeActorSession, revokeMembership, updateMembership } from "./account-management-api";
@@ -201,7 +202,7 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
     { header: "ID Karyawan", key: "employee-id", render: (candidate) => candidate.employee_number ?? candidate.employee_id },
     { header: "Jabatan", key: "position", render: (candidate) => candidate.position_title ?? "—" },
     { header: "Divisi", key: "department", render: (candidate) => candidate.department_code ?? "—" },
-    { header: "Status Kepegawaian", key: "employment", render: (candidate) => candidate.employment_status },
+    { header: "Status Kepegawaian", key: "employment", render: (candidate) => candidate.employment_status ? statusLabel(candidate.employment_status) : "Belum tersedia" },
     { header: "Email HR", key: "employee-email", render: (candidate) => candidate.email ?? "—" },
   ];
 
@@ -261,11 +262,11 @@ function AccountDetailDrawer({ account, canManageMemberships, formWorkspaces, on
         <DetailItem label="Jabatan" value={account.position_title ?? "—"} />
         <DetailItem label="Divisi" value={account.department_code ?? "—"} />
         <DetailItem label="Email Akun" value={account.email || "—"} />
-        <DetailItem label="Status Akun" value={account.administrative_state} />
-        <DetailItem label="Status Aktivasi" value={account.activation_state} />
+        <DetailItem label="Status Akun" value={statusLabel(account.administrative_state)} />
+        <DetailItem label="Status Aktivasi" value={statusLabel(account.activation_state)} />
         <DetailItem label="Pengiriman Email" value={account.email_delivered ? "Terkirim" : "Gagal / Belum"} />
         <DetailItem label="Workspace Utama" value={workspaceLabel(formWorkspaces.find((item) => item.workspace_id === account.primary_workspace_id))} />
-        <DetailItem label="Status Kepegawaian" value={account.employment_status ?? "—"} />
+        <DetailItem label="Status Kepegawaian" value={account.employment_status ? statusLabel(account.employment_status) : "Belum tersedia"} />
         <DetailItem label="Login Terakhir" value={account.last_login_at ? new Date(account.last_login_at).toLocaleString("id-ID") : "—"} />
         <DetailItem label="Tanggal Dibuat" value={account.created_at ? new Date(account.created_at).toLocaleDateString("id-ID") : "—"} />
       </div>

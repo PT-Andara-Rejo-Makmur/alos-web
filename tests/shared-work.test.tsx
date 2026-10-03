@@ -291,7 +291,7 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
       });
 
       expect(screen.getByText("PRJ-PRP-001")).toBeInTheDocument();
-      expect(screen.getAllByText("Berjalan").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("Aktif").length).toBeGreaterThanOrEqual(1);
       expect(screen.queryByText("45%")).not.toBeInTheDocument();
       expect(request).toHaveBeenCalledWith("/api/v1/projects", expect.any(Object));
 

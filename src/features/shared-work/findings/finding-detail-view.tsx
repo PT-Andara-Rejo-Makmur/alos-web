@@ -9,6 +9,7 @@ import { Alert, Button, type TabItem } from "@/components/ui";
 
 import type { SessionProjection } from "@/features/session";
 import { apiMessage } from "@/lib/api";
+import { statusLabel } from "@/lib/presentation";
 
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
 import { SharedWorkActivityPanel, SharedWorkCommentsPanel, SharedWorkEvidencePanel } from "../shared/shared-work-relations";
@@ -118,7 +119,7 @@ export function FindingDetailView({
         </dd>
 
         <dt className={drawerStyles.definitionTerm}>Sumber</dt>
-        <dd className={drawerStyles.definitionDetail}>{finding.sourceType}</dd>
+        <dd className={drawerStyles.definitionDetail}>{statusLabel(finding.sourceType)}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Kategori</dt>
         <dd className={drawerStyles.definitionDetail}>{finding.category ?? "—"}</dd>

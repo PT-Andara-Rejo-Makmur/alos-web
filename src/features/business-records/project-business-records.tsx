@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Alert, DataTable } from "@/components/ui";
-import { readableValue } from "@/lib/presentation";
+import { statusLabel } from "@/lib/presentation";
 import { apiMessage, authenticatedApiRequest } from "@/lib/api";
 import type { BusinessProjectRecordOverview } from "@/lib/contracts";
 
@@ -22,6 +22,6 @@ export function ProjectBusinessRecords({ projectId, resourceFilter }: Readonly<{
   if (!items.length) return <p>{resourceFilter ? "Belum ada milestone yang dapat dibaca dalam ruang kerja aktif." : "Belum ada catatan bisnis terkait yang dapat dibaca dalam ruang kerja aktif."}</p>;
   return <DataTable rows={items} getRowKey={row => `${row.domain}:${row.resource}:${row.record_id}`} columns={[
     { key: "label", header: "Catatan Bisnis", render: row => row.label },
-    { key: "status", header: "Status", render: row => readableValue(row.status) },
+    { key: "status", header: "Status", render: row => row.status ? statusLabel(row.status) : "Belum tersedia" },
   ]} />;
 }

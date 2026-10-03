@@ -51,17 +51,72 @@ const statuses: Readonly<Record<string, string>> = {
   MATCHED: "Sudah Dicocokkan", UNMATCHED: "Belum Dicocokkan", REVIEWED: "Sudah Diperiksa", MITIGATING: "Sedang Ditangani",
   ENROLLED: "Terdaftar", INVESTIGATING: "Sedang Ditelusuri", REMEDIATING: "Sedang Diperbaiki",
   Lead: "Prospek", Qualified: "Memenuhi Kriteria", Survey: "Survei", Booking: "Booking", Akad: "Akad", Closing: "Closing",
+  MATERIAL: "Keputusan Strategis", NON_MATERIAL: "Operasi Divisi",
+  SOURCE_LINKED: "Terhubung ke Data", MANUAL_EVIDENCED: "Diisi Manual dengan Bukti",
+  HIGHER_IS_BETTER: "Makin Tinggi Makin Baik", LOWER_IS_BETTER: "Makin Rendah Makin Baik",
+  RANGE: "Rentang Nilai", EXACT: "Nilai Tepat", PERCENTAGE: "Persentase", BINARY: "Ya atau Tidak",
+  MILESTONE: "Tonggak Pekerjaan", CUMULATIVE: "Akumulasi",
+  TARGET: "Target", ACTUAL: "Aktual", FORECAST: "Perkiraan", ASSUMPTION: "Asumsi",
+  MINUTE: "Menit", HOUR: "Jam", DAY: "Hari", BOOLEAN: "Ya atau Tidak", AMOUNT: "Nilai Uang",
+  ANNUAL: "Tahunan", QUARTERLY: "Triwulan", MONTHLY: "Bulanan", CUSTOM: "Khusus",
+  CONFLICT: "Perlu Klarifikasi", NOT_EVALUATED: "Belum Dinilai", PREVIEW: "Pratinjau",
+  SP3K: "SP3K", SPK: "SPK",
+  MANUAL: "Dicatat Manual", SYSTEM: "Sistem", ARA: "ARA", AUDIT: "Audit", USER_REPORT: "Laporan Pengguna",
+  SUCCESS: "Berhasil", TIMEOUT: "Waktu Tunggu Berakhir", TIMED_OUT: "Waktu Tunggu Berakhir", CANCEL_REQUESTED: "Pembatalan Diminta",
+  WIN_OPPORTUNITY: "Menangkan Peluang", CONFIRM_BOOKING: "Konfirmasi Booking", COMPLETE_CLOSING: "Selesaikan Closing",
+  ACTIVATE_PRICING: "Aktifkan Harga", RESERVE_UNIT: "Pesan Unit", SELL_UNIT: "Jual Unit",
+  APPROVE_CHANGE_ORDER: "Setujui Perubahan Pekerjaan", APPROVE_PAYMENT_CERTIFICATE: "Setujui Sertifikat Pembayaran",
+  APPROVE_BUDGET: "Setujui Anggaran", ACTIVATE_BUDGET: "Aktifkan Anggaran", CLOSE_BUDGET: "Tutup Anggaran",
+  AUTHORIZE_PAYABLE: "Izinkan Pembayaran Utang", INCOMPLETE: "Belum Lengkap", ACCEPTED: "Diterima",
+  AUTHORIZED: "Diizinkan", SUSPENDED: "Dinonaktifkan Sementara", PROPOSED: "Diusulkan", NEEDS_INFORMATION: "Perlu Informasi",
+  BLOCKED_BY_EVIDENCE: "Bukti Belum Memadai", NOT_RUN: "Belum Dijalankan", PASS_WITH_FINDINGS: "Lulus dengan Temuan",
+  REVISION_RECOMMENDED: "Perlu Perbaikan", RISK_FOUND: "Risiko Ditemukan",
+  DAILY: "Harian", WEEKLY: "Mingguan", DIVISION: "Divisi", PROPERTY_UNIT: "Unit Properti", CHANNEL: "Kanal",
+  CAMPAIGN: "Kampanye", TEAM: "Tim", ROLE: "Jabatan", PROCESS: "Proses",
+  ASSIGNED: "Ditugaskan",
+  ENABLED: "Aktif", DISABLED: "Dinonaktifkan", ACTIVATED: "Aktif", REVOKED: "Dicabut",
 };
+
+const missingLabels = new Set<string>();
+
+function reportMissingLabel(value: string): void {
+  if (process.env.NODE_ENV !== "production" && !missingLabels.has(value)) {
+    missingLabels.add(value);
+    console.warn(`[presentation] Label belum tersedia untuk enum: ${value}`);
+  }
+}
 
 /** Labels are presentation only; API values and permitted transitions remain unchanged. */
 export function statusLabel(value: string): string {
-  return statuses[value] ?? (/^[A-Z][A-Z0-9_]+$/.test(value) ? "Belum Tersedia" : value);
+  if (statuses[value]) return statuses[value];
+  if (/^[A-Z][A-Z0-9_]+$/.test(value)) {
+    reportMissingLabel(value);
+    return "Status belum dikenali";
+  }
+  return value;
+}
+
+/** Severity describes impact, whereas priority describes urgency. */
+export function severityLabel(value: string): string {
+  return value === "CRITICAL" ? "Kritis" : statusLabel(value);
+}
+
+/** Keep diagnostic messages in their source objects, outside ordinary business copy. */
+export function userMessage(value: string, fallback: string): string {
+  const code = /\b[A-Z][A-Z0-9]*_[A-Z0-9_]+\b/;
+  const diagnostic = /\b(?:actor_id|workspace_id|process_id|task_id|source_id|evidence_id|correlation|correlation_id|run_id|tool_id|content_hash|scope_refs|canonical|runtime|provider)\b|\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b|\b(?:sales|finance|property|hr|legal|it|shared_work|strategy|core)\.[a-z0-9_]+\.[a-z0-9_.]+\b/i;
+  return code.test(value) || diagnostic.test(value) || /^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/.test(value) ? fallback : value;
 }
 
 export function roleLabel(value: string | readonly string[]): string {
   const roles = typeof value === "string" ? [value] : value;
   const labels: Readonly<Record<string, string>> = { EXECUTIVE: "Direktur", DIVISION_LEAD: "Kepala Divisi", DIVISION_MEMBER: "Anggota Divisi", IT_ADMIN: "Administrator IT" };
-  return roles.map(role => labels[role] ?? "Penanggung Jawab").filter((role, index, rows) => rows.indexOf(role) === index).join(" · ") || "Peran belum tersedia";
+  return roles.filter(Boolean).map(role => {
+    if (labels[role]) return labels[role];
+    if (!/^[A-Z][A-Z0-9_]+$/.test(role) && !/[_.:]/.test(role)) return role;
+    reportMissingLabel(role);
+    return "Peran belum dikenali";
+  }).filter((role, index, rows) => rows.indexOf(role) === index).join(" · ") || "Peran belum tersedia";
 }
 
 export const domainLabels: Readonly<Record<string, string>> = { sales: "Sales & Marketing", property: "Property & Teknik", finance: "Finance & Pajak", legal: "Legal", hr: "HR & GA", it: "IT & Teknologi" };

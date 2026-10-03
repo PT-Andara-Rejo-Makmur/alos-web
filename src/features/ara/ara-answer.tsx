@@ -1,5 +1,5 @@
 import type { AraResponseProjection } from "@/lib/contracts";
-import { domainLabels, statusLabel } from "@/lib/presentation";
+import { domainLabels, statusLabel, userMessage } from "@/lib/presentation";
 import { ReviewedTask } from "./reviewed-task";
 import styles from "./ara.module.css";
 
@@ -9,7 +9,7 @@ const sourceDomains: Readonly<Record<string, string>> = { ...domainLabels, share
 export function AraAnswer({ response, threadId, runId }: Readonly<{ response: AraResponseProjection; threadId: string; runId: string }>) {
   const groups = Object.entries(Object.groupBy(response.sources, source => source.domain.toLowerCase()));
   return <>
-    <strong>{responseLabels[response.response_type]}</strong>
+    <strong>{responseLabels[response.response_type] ?? statusLabel(response.response_type)}</strong>
     <p className={styles.answerText}>{response.answer}</p>
     {response.research_result ? <section><h3>Temuan Utama</h3><ul>{response.research_result.findings.map(finding => <li key={finding.finding_id}>{finding.statement}</li>)}</ul></section> : null}
     {response.action_proposal?.kind === "TASK" ? <ReviewedTask proposal={response.action_proposal} threadId={threadId} runId={runId} /> : response.action_proposal ? <aside className={styles.proposal}><strong>ARA menyarankan tindakan</strong><p>{response.action_proposal.summary}</p><small>Saran belum dijalankan. Tinjau melalui proses perusahaan yang sesuai.</small></aside> : null}
@@ -18,6 +18,6 @@ export function AraAnswer({ response, threadId, runId }: Readonly<{ response: Ar
     {response.delegation_result ? <details><summary>Hasil Pembacaan Informasi</summary><p>{statusLabel(response.delegation_result.status)}</p><p>Informasi dibaca sesuai akses ruang kerja Anda.</p></details> : null}
     {groups.length ? <details className={styles.sources} open><summary>Sumber yang digunakan</summary><ul>{groups.map(([domain, sources]) => <li key={domain}><strong>{sourceDomains[domain] ?? "Informasi Perusahaan"}</strong><span>{sources?.length ?? 0} sumber yang dapat diakses</span><small>{sources?.every(source => source.freshness === "CURRENT") ? "Dibaca dari catatan saat pertanyaan diproses" : "Periksa tanggal pembaruan sumber sebelum mengambil keputusan"}</small></li>)}</ul></details> : null}
     {response.failed_sources.length ? <p role="alert">Sebagian sumber belum dapat dibaca. Jawaban menggunakan informasi yang berhasil diakses.</p> : null}
-    {response.limitations.length ? <details><summary>Hal yang Perlu Diperhatikan</summary><ul>{response.limitations.map(item => <li key={item}>{/tool_id|run_id|correlation|content_hash|provider|runtime|canonical|scope_refs/i.test(item) ? "Sebagian informasi atau kemampuan belum tersedia. Periksa sumber pendukung sebelum mengambil tindakan." : item}</li>)}</ul></details> : null}
+    {response.limitations.length ? <details><summary>Hal yang Perlu Diperhatikan</summary><ul>{response.limitations.map(item => <li key={item}>{userMessage(item, "Sebagian informasi atau kemampuan belum tersedia. Periksa sumber pendukung sebelum mengambil tindakan.")}</li>)}</ul></details> : null}
   </>;
 }

@@ -2,6 +2,7 @@
 
 import { PageHeader, Section } from "@/components/ui";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Tabs, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
@@ -13,6 +14,7 @@ import { propertyApi } from "../api";
 import type { PropertyUnitProjection } from "@/lib/contracts";
 import { SourceStateView, sourceFailure } from "@/features/business-records/record-panel";
 import type { SourceState } from "@/features/business-records/resource";
+import { readableValue, statusLabel } from "@/lib/presentation";
 
 const tabs: readonly TabItem[] = [
   { id: "summary", label: "Ringkasan" }, { id: "progress", label: "Progres" }, { id: "milestone", label: "Milestone" },
@@ -44,10 +46,10 @@ function PropertyUnitDetail({ session, unitId }: Readonly<{ session: SessionProj
   const activeKey = session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_key : null;
   const base = activeKey ? `/workspace/${encodeURIComponent(activeKey)}` : "/workspace";
   return <div className={styles.page}>
-    <PageHeader description="Detail unit Property setelah memeriksa ruang kerja aktif." eyebrow="PROPERTY & TEKNIK" metadata={`Workspace aktif: ${activeKey ?? "—"}`} title="Detail Unit" />
-    <PropertySourceNote>Unit dibaca dari canonical Property API. Kesiapan teknis dan keputusan final Sales tidak disimpulkan dari status Unit.</PropertySourceNote>
+    <PageHeader description="Informasi unit dalam ruang kerja Anda." eyebrow="PROPERTY & TEKNIK" metadata={session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_name : undefined} title="Detail Unit" />
+    <PropertySourceNote>Kesiapan teknis dan keputusan penjualan mengikuti pemeriksaan pada proses terkait.</PropertySourceNote>
     <SourceStateView state={state} />
-    {unit ? <Section title="Rekaman Unit"><dl className={styles.detailList}><dt>Kode Unit</dt><dd>{unit.unit_code}</dd><dt>Nama Unit</dt><dd>{unit.unit_name ?? "—"}</dd><dt>Status Unit</dt><dd>{unit.status}</dd><dt>Luas Tanah</dt><dd>{unit.area_land ?? "—"}</dd><dt>Luas Bangunan</dt><dd>{unit.area_building ?? "—"}</dd><dt>Proyek Shared Work</dt><dd>{unit.project_id ?? "—"}</dd><dt>Pembaruan Sumber</dt><dd>{unit.updated_at}</dd></dl></Section> : null}
+    {unit ? <Section title="Rekaman Unit"><dl className={styles.detailList}><dt>Kode Unit</dt><dd>{unit.unit_code}</dd><dt>Nama Unit</dt><dd>{unit.unit_name ?? "—"}</dd><dt>Status Unit</dt><dd>{statusLabel(unit.status)}</dd><dt>Luas Tanah</dt><dd>{unit.area_land ?? "—"}</dd><dt>Luas Bangunan</dt><dd>{unit.area_building ?? "—"}</dd><dt>Proyek Terkait</dt><dd>{unit.project_id ? <Link href={`${base}/projects/${encodeURIComponent(unit.project_id)}`}>Buka proyek terkait</Link> : "Belum ditentukan"}</dd><dt>Pembaruan Sumber</dt><dd>{readableValue(unit.updated_at)}</dd></dl></Section> : null}
     <Tabs ariaLabel="Navigasi detail unit" items={tabs} onValueChange={setTab} value={tab} />
     {tab === "summary" ? <><Section title="Status Teknis"><PropertyUnavailableState description="Status teknis unit belum tersedia." /></Section><Section title="Kesiapan Teknis"><PropertyUnavailableState description="Kesiapan teknis belum dinilai." title="Belum Dinilai" /></Section><Section title="Status Komersial"><PropertyUnavailableState description="Status komersial berasal dari proses Sales dan hanya dapat dilihat dari halaman ini." /></Section><Section title="Serah Terima"><PropertyUnavailableState description="Kesiapan serah terima belum tersedia." /></Section></> : <Section title={tabs.find((item) => item.id === tab)?.label ?? "Ringkasan"}><PropertyUnavailableState description="Data detail unit belum terhubung." /></Section>}
     <div className={styles.actionBar}><Button onClick={() => router.push(`${base}/documents`)} variant="secondary">Buka Dokumen</Button><Button onClick={() => router.push(`${base}/findings`)} variant="secondary">Buka Temuan</Button><Button onClick={() => setHandoverOpen(true)} variant="primary">Siapkan Kesiapan Serah Terima</Button></div>

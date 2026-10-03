@@ -8,6 +8,7 @@ import { Alert, Button, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
 import type { SharedWorkApprovalDecision } from "@/lib/contracts";
 import { apiMessage } from "@/lib/api";
+import { statusLabel } from "@/lib/presentation";
 
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
 import { SharedWorkActivityPanel, SharedWorkCommentsPanel, SharedWorkEvidencePanel, SharedWorkRelationsPanel } from "../shared/shared-work-relations";
@@ -108,7 +109,7 @@ export function ApprovalDetailView({
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
         <ApprovalSubjectBadge subjectType={approval.subjectType} />
         <ApprovalStatusBadge status={approval.status} />
-        {approval.requestedAction ? <span>{approval.requestedAction.replaceAll("_", " ")} · {approval.consumedAt ? "Sudah dieksekusi" : "Eksekusi terpisah di rekaman bisnis"}</span> : null}
+        {approval.requestedAction ? <span>{statusLabel(approval.requestedAction)} · {approval.consumedAt ? "Sudah dijalankan" : "Tindakan dijalankan dari catatan bisnis terkait"}</span> : null}
       </div>
 
       <dl className={drawerStyles.definitionList}>

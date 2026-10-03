@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Button, Drawer, EmptyState, LoadingState, Status } from "@/components/ui";
 import type { ExecutiveConnectionStatus, ExecutiveOverviewProjection } from "@/lib/contracts";
+import { statusLabel } from "@/lib/presentation";
 
 import styles from "./executive.module.css";
 
@@ -13,7 +14,8 @@ export function connectionLabel(status: ExecutiveConnectionStatus | "loading") {
     case "CONNECTED": return { label: "Terhubung", variant: "success" as const };
     case "CONNECTED_EMPTY": return { label: "Terhubung · Belum ada data", variant: "neutral" as const };
     case "ERROR": return { label: "Gagal Memuat", variant: "danger" as const };
-    default: return { label: "Belum Terhubung", variant: "neutral" as const };
+    case "UNAVAILABLE": return { label: "Belum Terhubung", variant: "neutral" as const };
+    default: return { label: statusLabel(status), variant: "neutral" as const };
   }
 }
 
@@ -28,14 +30,15 @@ export function ExecutiveSourceState({ status, emptyTitle = "Belum ada data." }:
   if (status === "loading") return <LoadingState label="Memuat informasi perusahaan…" variant="section" />;
   if (status === "CONNECTED_EMPTY") return <EmptyState title={emptyTitle} description="Sumber berhasil dibaca dan belum memiliki data dalam ruang kerja Anda." />;
   if (status === "ERROR") return <EmptyState title="Gagal Memuat" description="Sumber belum dapat dibaca. Data dan jumlah belum dapat ditampilkan." />;
-  if (status === "UNAVAILABLE") return <EmptyState title="Belum Terhubung" description="Kapabilitas sumber untuk proyeksi ini belum tersedia." />;
+  if (status === "UNAVAILABLE") return <EmptyState title="Belum Terhubung" description="Sumber informasi ini belum tersedia." />;
+  if (status !== "CONNECTED") return <EmptyState title={statusLabel(status)} description="Sumber informasi belum dapat dikenali." />;
   return null;
 }
 
 const domainNames: Record<string, string> = { SALES: "Sales & Marketing", FINANCE: "Finance & Pajak", PROPERTY: "Property & Teknik", LEGAL: "Legal", HR: "HR/GA", IT: "IT" };
 
 export function executiveDomainLabel(domain: string): string {
-  return domainNames[domain] ?? domain;
+  return domainNames[domain] ?? statusLabel(domain);
 }
 
 export function ExecutiveSourceStatus({ overview, loading, error }: Readonly<{
@@ -55,7 +58,7 @@ export function ExecutiveSourceStatus({ overview, loading, error }: Readonly<{
       {sources.map((source) => <span className={styles.sourceItem} key={source.domain}><span>{source.domain}</span><Status {...connectionLabel(source.status)} /></span>)}
       <Button onClick={() => setOpen(true)} size="sm" variant="ghost">Lihat Status Data</Button>
     </div>
-    <Drawer description="Status, authority, dan waktu berasal dari proyeksi Backend." onClose={() => setOpen(false)} open={open} title="Status Data">
+    <Drawer description="Ketersediaan, sumber catatan resmi, dan waktu pembaruan data." onClose={() => setOpen(false)} open={open} title="Status Data">
       <dl className={styles.sourceDetails}>
         {sources.map((source) => <div className={styles.sourceDetail} key={source.domain}>
           <dt>{source.domain}</dt><dd><Status {...connectionLabel(source.status)} /></dd>

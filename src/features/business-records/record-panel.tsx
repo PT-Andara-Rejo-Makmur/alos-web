@@ -10,7 +10,7 @@ import { BusinessRecordForm } from "./business-record-form";
 import { BusinessRecordContext } from "./record-context";
 import { MaterialActions } from "./material-actions";
 import { BusinessRecordActions } from "./business-record-actions";
-import type { Field, Resource, SourceState } from "./resource";
+import { recordFieldValue, type Field, type Resource, type SourceState } from "./resource";
 import styles from "@/features/property/property.module.css";
 
 export const sourceLabels: Record<SourceState, string> = {
@@ -40,7 +40,7 @@ function permission(session: SessionProjection, domain: string): boolean {
 }
 
 export function SourceMetadata({ source }: Readonly<{ source: ExecutiveSourceStatus }>) {
-  return <p className={styles.sourceNote}><Status label={sourceLabels[source.status]} variant={source.status === "ERROR" ? "danger" : "neutral"} />
+  return <p className={styles.sourceNote}><Status label={sourceLabels[source.status] ?? statusLabel(source.status)} variant={source.status === "ERROR" ? "danger" : "neutral"} />
     <span>Data perusahaan · {source.authoritative ? "Dari catatan resmi" : "Perlu pemeriksaan sumber"} · Diperbarui {source.last_updated_at ? new Date(source.last_updated_at).toLocaleString("id-ID") : "belum diketahui"}</span></p>;
 }
 
@@ -107,7 +107,7 @@ function ScopedRecordPanel({ resource, session, renderSummary }: PanelProps) {
       <SourceStateView state={state} />
       {state === "CONNECTED" || state === "CONNECTED_EMPTY" ? <>
         {renderSummary?.(rows)}
-        <DataTable caption={`Daftar ${resource.title}`} columns={columns.map((field) => ({ key: field.name, header: field.label, render: (row: object) => display(view(row)[field.name]) }))}
+        <DataTable caption={`Daftar ${resource.title}`} columns={columns.map((field) => ({ key: field.name, header: field.label, render: (row: object) => recordFieldValue(field, view(row)[field.name]) }))}
           rows={filtered} getRowKey={(row) => String(view(row)[resource.identifier])}
           rowAction={(row) => <Button size="sm" variant="secondary" onClick={() => { setSelected(row); setFeedback(null); setMutationError(null); setDecisionReason(""); }}>Lihat detail</Button>}
           emptyState={state === "CONNECTED_EMPTY" ? <span>Belum ada rekaman.</span> : <span>Tidak ada rekaman cocok pada halaman ini.</span>} />
@@ -119,7 +119,7 @@ function ScopedRecordPanel({ resource, session, renderSummary }: PanelProps) {
       {mutationError ? <Alert title="Perubahan belum tersimpan" message={mutationError} variant="danger" /> : null}
     </div>
     <Drawer title={`Detail ${resource.title}`} open={selected !== null && form === null} onClose={() => setSelected(null)}>
-      {detail ? <div className={styles.page}><dl className={styles.detailList}>{resource.columns.filter(field => !field.name.endsWith("_id") && !field.name.endsWith("_ref") && field.name in detail).map(field => <Fragment key={field.name}><dt>{field.label}</dt><dd>{display(detail[field.name])}</dd></Fragment>)}</dl>
+      {detail ? <div className={styles.page}><dl className={styles.detailList}>{resource.columns.filter(field => !field.name.endsWith("_id") && !field.name.endsWith("_ref") && field.name in detail).map(field => <Fragment key={field.name}><dt>{field.label}</dt><dd>{recordFieldValue(field, detail[field.name])}</dd></Fragment>)}</dl>
         <BusinessRecordContext key={String(detail[resource.identifier])} resource={resource} identity={String(detail[resource.identifier])} record={detail} />
         {writable && !resource.immutable && resource.updateFields.length > 0 ? <Button variant="secondary" onClick={() => setForm("update")}>Ubah {resource.title}</Button> : null}
         {writable && resource.domain === "hr" && resource.key === "leave_requests" && actions.some(status => ["APPROVED", "REJECTED"].includes(status)) ? <FormField label="Alasan keputusan cuti" htmlFor="leave-decision-reason" required><textarea id="leave-decision-reason" value={decisionReason} onChange={event => setDecisionReason(event.target.value)} /></FormField> : null}
@@ -194,7 +194,7 @@ function RecordForm({ mode, resource, record, onClose, onSaved }: Readonly<{
       const items = await referenceRows(relation.path, controller.signal);
       return { name: relation.name, options: items.map((row) => {
         const value = String(referenceValue(row, relation.identifier!));
-        const label = display(referenceValue(row, relation.label!));
+        const label = readableValue(referenceValue(row, relation.label!));
         const internal = label === value && (relation.identifier!.endsWith("_id") || /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(value));
         const facts = view(row);
         const humanName = facts.name ?? facts.title ?? facts.full_name ?? facts.code ?? facts.employee_number ?? facts.contract_number;
@@ -252,4 +252,3 @@ function inputValue(field: Field, value: unknown): string {
 }
 
 function view(record: object): Readonly<Record<string, unknown>> { return record as Readonly<Record<string, unknown>>; }
-function display(value: unknown): string { return readableValue(value); }

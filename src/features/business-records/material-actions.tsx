@@ -5,6 +5,7 @@ import { Alert, Button, FormField } from "@/components/ui";
 import { apiMessage, authenticatedApiRequest, withQuery } from "@/lib/api";
 import type { SharedWorkApprovalProjection, SharedWorkApprovalRequest, SharedWorkMaterialActionProjection } from "@/lib/contracts";
 import type { Resource } from "./resource";
+import { statusLabel } from "@/lib/presentation";
 
 const statusLabels: Record<SharedWorkApprovalProjection["status"], string> = {
   PENDING: "Menunggu Persetujuan", APPROVED: "Disetujui — Siap Dieksekusi",
@@ -56,11 +57,11 @@ export function MaterialActions({ actions, identity, resource, canRequest, onSav
     {loading ? <p role="status">Memuat persetujuan…</p> : actions.map((action) => {
       const approval = approvals.find((item) => item.requested_action === action.requested_action);
       return <div key={action.requested_action}>
-        <p>{action.requested_action.replaceAll("_", " ")} · {approval?.consumed_at ? "Persetujuan sudah digunakan" : approval ? statusLabels[approval.status] : "Belum diminta"}</p>
-        {canRequest && (!approval || ["RETURNED", "REJECTED", "HELD"].includes(approval.status) || !!approval.consumed_at) ? <Button disabled={busy} onClick={() => void request(action)}>Minta Persetujuan {action.target_status}</Button> : null}
-        {canRequest && approval?.status === "APPROVED" && !approval.consumed_at ? <Button disabled={busy} variant="secondary" onClick={() => void request(action)}>Minta Persetujuan Baru {action.target_status}</Button> : null}
-        {approval?.status === "APPROVED" && !approval.consumed_at && action.execution_allowed ? <Button disabled={busy} onClick={() => void execute(action, approval)}>Eksekusi {action.target_status}</Button> : null}
-        {approval?.status === "APPROVED" && !action.execution_allowed ? <p>Eksekusi memerlukan kewenangan owner yang sesuai.</p> : null}
+        <p>{statusLabel(action.requested_action)} · {approval?.consumed_at ? "Persetujuan sudah digunakan" : approval ? statusLabels[approval.status] ?? statusLabel(approval.status) : "Belum diminta"}</p>
+        {canRequest && (!approval || ["RETURNED", "REJECTED", "HELD"].includes(approval.status) || !!approval.consumed_at) ? <Button disabled={busy} onClick={() => void request(action)}>Minta Persetujuan {statusLabel(action.target_status)}</Button> : null}
+        {canRequest && approval?.status === "APPROVED" && !approval.consumed_at ? <Button disabled={busy} variant="secondary" onClick={() => void request(action)}>Minta Persetujuan Baru {statusLabel(action.target_status)}</Button> : null}
+        {approval?.status === "APPROVED" && !approval.consumed_at && action.execution_allowed ? <Button disabled={busy} onClick={() => void execute(action, approval)}>Jalankan Tindakan {statusLabel(action.target_status)}</Button> : null}
+        {approval?.status === "APPROVED" && !action.execution_allowed ? <p>Tindakan memerlukan kewenangan penanggung jawab yang sesuai.</p> : null}
       </div>;
     })}
     {error ? <Alert title="Persetujuan belum dapat diproses" message={error} variant="danger" /> : null}
