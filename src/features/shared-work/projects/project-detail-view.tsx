@@ -21,6 +21,7 @@ import { ProjectEditDialog } from "./project-edit-dialog";
 import { archiveProject } from "./project-model";
 import type { WorkProject } from "./project-types";
 import styles from "./projects.module.css";
+import { ProjectBusinessRecords } from "@/features/business-records/project-business-records";
 
 interface ProjectDetailViewProps {
   readonly isConnected?: boolean;
@@ -126,6 +127,10 @@ export function ProjectDetailView({
       </div>
 
       <dl className={drawerStyles.definitionList} style={{ marginTop: "16px" }}>
+        <dt className={drawerStyles.definitionTerm}>Tujuan</dt>
+        <dd className={drawerStyles.definitionDetail}>{project.objective ?? "Belum dicatat"}</dd>
+        <dt className={drawerStyles.definitionTerm}>Prioritas</dt>
+        <dd className={drawerStyles.definitionDetail}>{{ LOW: "Rendah", NORMAL: "Normal", HIGH: "Tinggi", CRITICAL: "Mendesak" }[project.priority ?? "NORMAL"]}</dd>
         <dt className={drawerStyles.definitionTerm}>Pemilik</dt>
         <dd className={drawerStyles.definitionDetail}>{project.ownerName ?? "—"}</dd>
 
@@ -194,6 +199,7 @@ export function ProjectDetailView({
       label: "Tugas",
       content: relationContent("TASK"),
     },
+    { id: "business", label: "Catatan Bisnis", content: <ProjectBusinessRecords projectId={project.id} /> },
     {
       id: "documents",
       label: "Dokumen",

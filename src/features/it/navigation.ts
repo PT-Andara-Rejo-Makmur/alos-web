@@ -48,6 +48,7 @@ export function itNavigation(workspaceKey: string): readonly AppNavigationSectio
     ] },
     { label: "KINERJA", items: [{ href: `${base}/performance`, icon: BarChart3, label: "Target & Kinerja" }] },
     { label: "PEKERJAAN", items: [
+      { href: `${base}/processes`, icon: CheckSquare, label: "Perlu Tindakan" },
       { href: `${base}/projects`, icon: Briefcase, label: "Proyek" },
       { href: `${base}/tasks`, icon: CheckSquare, label: "Tugas" },
       { href: `${base}/approvals`, icon: FileCheck2, label: "Persetujuan" },

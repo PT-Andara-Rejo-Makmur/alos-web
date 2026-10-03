@@ -21,7 +21,8 @@ describe("HR / GA master freeze matrix", () => {
   it("retains HR and GA menus with honest unavailable capability labels", () => {
     const pages = read("src/features/hr/hr-pages.tsx");
     const navigation = read("src/features/hr/navigation.ts");
-    for (const label of ["Kompensasi & Benefit", "GA & Fasilitas", "Offer"]) expect(pages).toContain(label);
+    for (const label of ["Kompensasi & Benefit", "GA & Fasilitas", "Masa Percobaan"]) expect(pages).toContain(label);
+    expect(pages).not.toContain('unavailable: ["Offer"');
     expect(navigation).toContain('label: "GA & Fasilitas"');
   });
 
@@ -76,7 +77,7 @@ describe("HR / GA master freeze matrix", () => {
     expect(decisions).toContain("tidak boleh menimpa data yang lebih baru");
     expect(forms).toContain("Referensi belum dapat dimuat");
     expect(forms).toContain("Perubahan belum tersimpan");
-    expect(forms).toContain("relationErrors.length > 0");
+    expect(forms).toContain("disabled={busy || loading || unresolved || blockedReferences}");
   });
 
   it("keeps universal work and assistant routes reusable", () => {

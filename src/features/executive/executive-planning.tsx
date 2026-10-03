@@ -24,7 +24,6 @@ import type {
   CascadeRule,
   BusinessUnit,
   PlanningAssumptionCreateRequest,
-  StrategyVerificationState,
   StrategyMeasurementType,
   PlanningAssumption,
   StrategicObjective,
@@ -250,7 +249,7 @@ function PlanSection({ title, plans, actionLabel, canCreate, onOpenForm, onChang
           { header: "Periode", key: "period", render: (plan) => periodLabel(plan.period) },
           { header: "Penanggung Jawab", key: "owner", render: (plan) => plan.owner_role_ref || "—" },
           { header: "Status", key: "status", render: (plan) => <Status label={lifecycleLabel(plan.lifecycle_state)} variant="neutral" /> },
-          { header: "Tingkat Kepentingan", key: "materiality", render: (plan) => materialityLabel(plan.materiality) },
+          { header: "Dampak Keputusan", key: "materiality", render: (plan) => materialityLabel(plan.materiality) },
           { header: "Versi", key: "version", render: (plan) => `v${plan.version}` },
           { header: "Pembaruan", key: "updated", render: (plan) => formatDate(plan.updated_at) },
         ]}
@@ -395,7 +394,7 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose, session 
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="plan-granularity">Granularitas *</label>
+            <label htmlFor="plan-granularity">Frekuensi Pengukuran *</label>
             <select className={styles.formSelect} id="plan-granularity" onChange={(e) => setGranularity(e.target.value)} value={granularity}>
               <option value="ANNUAL">Tahunan</option>
               <option value="QUARTERLY">Triwulan</option>
@@ -418,7 +417,7 @@ function PlanFormDrawer({ planType, strategicPlans, canSubmit, onClose, session 
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="plan-materiality">Tingkat Kepentingan *</label>
+            <label htmlFor="plan-materiality">Dampak Keputusan *</label>
             <select className={styles.formSelect} id="plan-materiality" onChange={(e) => setMateriality(e.target.value as "MATERIAL")} value={materiality}>
               <option value="MATERIAL">Material (Strategis)</option>
               <option value="NON_MATERIAL">Non-Material (Operasional)</option>
@@ -910,7 +909,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="tgt-metric">Kode Metrik *</label>
+              <label htmlFor="tgt-metric">Kode Indikator *</label>
               <input className={styles.formInput} id="tgt-metric" onChange={(e) => setMetricCode(e.target.value)} required value={metricCode} />
             </div>
 
@@ -953,10 +952,10 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="tgt-materiality">Tingkat Kepentingan *</label>
+              <label htmlFor="tgt-materiality">Dampak Keputusan *</label>
               <select className={styles.formSelect} id="tgt-materiality" onChange={(e) => setMateriality(e.target.value as "MATERIAL")} value={materiality}>
-                <option value="MATERIAL">Material</option>
-                <option value="NON_MATERIAL">Non-Material</option>
+                <option value="MATERIAL">Keputusan Strategis</option>
+                <option value="NON_MATERIAL">Operasi Divisi</option>
               </select>
             </div>
 
@@ -1018,7 +1017,7 @@ function TargetFormDrawer({ plans, canSubmitCompany, canSubmitDivision, onClose,
             </div>
 
             <div className={`${styles.formField} ${styles.formFullWidth}`}>
-              <label htmlFor="tgt-source-mode">Mode Sumber *</label>
+              <label htmlFor="tgt-source-mode">Dasar Angka *</label>
               <select className={styles.formSelect} id="tgt-source-mode" onChange={(e) => setSourceMode(e.target.value as "SOURCE_LINKED")} value={sourceMode}>
                 <option disabled value="SOURCE_LINKED">Sumber resmi eksternal belum tersedia</option>
                 <option value="MANUAL_EVIDENCED">Diisi Manual dengan Bukti</option>
@@ -1111,7 +1110,7 @@ function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSub
   const [sourceMode, setSourceMode] = useState<"MANUAL_EVIDENCED" | "SOURCE_LINKED">("MANUAL_EVIDENCED");
   const [sourceRef, setSourceRef] = useState("");
   const [evidenceRef, setEvidenceRef] = useState("");
-  const [verificationState, setVerificationState] = useState<StrategyVerificationState>("UNVERIFIED");
+  const verificationState = "PENDING_VERIFICATION" as const;
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -1227,7 +1226,7 @@ function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSub
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="asm-granularity">Granularitas *</label>
+            <label htmlFor="asm-granularity">Frekuensi Pengukuran *</label>
             <select className={styles.formSelect} id="asm-granularity" onChange={(e) => setGranularity(e.target.value)} value={granularity}>
               <option value="ANNUAL">Tahunan</option>
               <option value="QUARTERLY">Triwulan</option>
@@ -1237,7 +1236,7 @@ function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSub
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="asm-source-mode">Mode Sumber *</label>
+            <label htmlFor="asm-source-mode">Dasar Angka *</label>
             <select className={styles.formSelect} id="asm-source-mode" onChange={(e) => setSourceMode(e.target.value as "MANUAL_EVIDENCED")} value={sourceMode}>
               <option value="MANUAL_EVIDENCED">Diisi Manual dengan Bukti</option>
               <option disabled value="SOURCE_LINKED">Sumber resmi eksternal belum tersedia</option>
@@ -1245,11 +1244,7 @@ function AssumptionFormDrawer({ canSubmit, onClose, session }: Readonly<{ canSub
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="asm-verify">Status Verifikasi *</label>
-            <select className={styles.formSelect} id="asm-verify" onChange={(e) => setVerificationState(e.target.value as StrategyVerificationState)} value={verificationState}>
-              <option value="UNVERIFIED">Belum Diverifikasi</option>
-              <option value="PENDING_VERIFICATION">Menunggu Verifikasi</option>
-            </select>
+            <p>Asumsi akan menunggu pemeriksaan setelah disimpan.</p>
           </div>
 
           <div className={styles.formField}>
@@ -1556,7 +1551,7 @@ function CascadeSection({ targets, assumptions, canCascade = false, session, onC
             <div className={styles.formField}><label htmlFor="cas-role">Peran Owner Turunan *</label><input id="cas-role" className={styles.formInput} value={ownerRole} onChange={(e) => setOwnerRole(e.target.value)} /></div>
             <div className={styles.formField}><label htmlFor="cas-unit">Satuan Turunan *</label><select id="cas-unit" className={styles.formSelect} value={unit} onChange={(e) => setUnit(e.target.value as BusinessUnit)}><option value="">Pilih satuan</option>{(["IDR", "COUNT", "PERCENT", "RATIO", "MINUTE", "HOUR", "DAY", "SCORE", "UNIT", "BOOLEAN"] as const).map((value) => <option key={value} value={value}>{value}</option>)}</select></div>
             <div className={styles.formField}><label htmlFor="cas-measurement">Pengukuran Turunan *</label><select id="cas-measurement" className={styles.formSelect} value={measurement} onChange={(e) => setMeasurement(e.target.value as StrategyMeasurementType)}><option value="">Pilih pengukuran</option>{(["HIGHER_IS_BETTER", "LOWER_IS_BETTER", "RANGE", "EXACT", "PERCENTAGE", "RATIO", "BINARY", "MILESTONE", "CUMULATIVE"] as const).map((value) => <option key={value} value={value}>{value}</option>)}</select></div>
-            <div className={styles.formField}><label htmlFor="cas-materiality">Materiality Turunan *</label><select id="cas-materiality" className={styles.formSelect} value={materiality} onChange={(e) => setMateriality(e.target.value as BusinessTargetCreateRequest["materiality"])}><option value="">Pilih materiality</option><option value="MATERIAL">Material</option><option value="NON_MATERIAL">Non Material</option></select></div>
+            <div className={styles.formField}><label htmlFor="cas-materiality">Dampak Keputusan Turunan *</label><select id="cas-materiality" className={styles.formSelect} value={materiality} onChange={(e) => setMateriality(e.target.value as BusinessTargetCreateRequest["materiality"])}><option value="">Pilih dampak keputusan</option><option value="MATERIAL">Keputusan Strategis</option><option value="NON_MATERIAL">Operasi Divisi</option></select></div>
             <div className={styles.formField}><label htmlFor="cas-start">Periode Turunan Mulai *</label><input id="cas-start" type="date" className={styles.formInput} value={startsAt} onChange={(e) => setStartsAt(e.target.value)} /></div>
             <div className={styles.formField}><label htmlFor="cas-end">Periode Turunan Selesai *</label><input id="cas-end" type="date" className={styles.formInput} value={endsAt} onChange={(e) => setEndsAt(e.target.value)} /></div>
             <div className={styles.formField}><label htmlFor="cas-evidence">Bukti Metadata Turunan</label><input id="cas-evidence" className={styles.formInput} value={evidence} onChange={(e) => setEvidence(e.target.value)} /></div>
@@ -1867,7 +1862,7 @@ function verificationLabel(state: string | undefined): string {
 }
 
 function materialityLabel(val: string): string {
-  return val === "MATERIAL" ? "Material" : "Non-Material";
+  return val === "MATERIAL" ? "Keputusan Strategis" : "Operasi Divisi";
 }
 
 function assumptionCategoryLabel(cat: string): string {

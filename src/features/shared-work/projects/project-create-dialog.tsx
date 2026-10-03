@@ -19,6 +19,8 @@ export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateD
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [objective, setObjective] = useState("");
+  const [priority, setPriority] = useState<"LOW" | "NORMAL" | "HIGH" | "CRITICAL">("NORMAL");
   const [startDate, setStartDate] = useState("");
   const [targetEndDate, setTargetEndDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -33,6 +35,8 @@ export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateD
       const created = await createProject({
         code: code.trim(),
         name: name.trim(),
+        objective: objective.trim(),
+        priority,
         ...(description.trim() ? { description: description.trim() } : {}),
         ...(startDate ? { start_date: startDate } : {}),
         ...(targetEndDate ? { target_end_date: targetEndDate } : {}),
@@ -41,6 +45,8 @@ export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateD
       setCode("");
       setName("");
       setDescription("");
+      setObjective("");
+      setPriority("NORMAL");
       setStartDate("");
       setTargetEndDate("");
       onClose();
@@ -62,6 +68,14 @@ export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateD
         </FormField>
         <FormField label="Deskripsi">
           <textarea onChange={(event) => setDescription(event.target.value)} value={description} />
+        </FormField>
+        <FormField label="Tujuan Proyek" required>
+          <textarea required maxLength={4000} onChange={event => setObjective(event.target.value)} value={objective} />
+        </FormField>
+        <FormField label="Prioritas">
+          <select value={priority} onChange={event => setPriority(event.target.value as typeof priority)}>
+            <option value="LOW">Rendah</option><option value="NORMAL">Normal</option><option value="HIGH">Tinggi</option><option value="CRITICAL">Mendesak</option>
+          </select>
         </FormField>
         <FormField label="Tanggal Mulai">
           <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />

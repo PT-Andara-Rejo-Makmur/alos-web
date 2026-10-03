@@ -4,6 +4,7 @@ import { ItLayout } from "../it-layout";
 import { ItCanonicalPage } from "../canonical-page";
 import { AccountManagementPage } from "../account-management-page";
 import { itResources } from "../resources";
+import { CapabilityRequests } from "@/features/ara/capability-requests";
 export type ItModule = "services" | "systems" | "infrastructure" | "alos-genesis" | "integrations" | "access" | "security" | "changes" | "assets" | "support";
 const modules = {
   "services": { title: "Layanan & Insiden", resources: [itResources.incidents, itResources.service_monitors], unavailable: ["Live Monitoring", "SLA", "Problem / Root Cause"] },
@@ -16,6 +17,7 @@ const modules = {
 };
 export function ItModulePage({ module, workspaceKey }: Readonly<{ module: ItModule; workspaceKey?: string }>) {
   if (module === "access") return <AccountManagementPage workspaceKey={workspaceKey ?? ""} />;
+  if (module === "alos-genesis") return <ItLayout workspaceKey={workspaceKey}>{() => <CapabilityRequests />}</ItLayout>;
   if (module === "assets" || module === "support") return <ItLayout workspaceKey={workspaceKey}>{() => <div><PageHeader title={module === "assets" ? "Aset IT" : "Dukungan & Permintaan"} /><Section title="Sumber Data"><EmptyState title="Belum Tersedia" description="Belum ada persistence canonical untuk capability ini." /></Section></div>}</ItLayout>;
   return <ItCanonicalPage {...modules[module]} workspaceKey={workspaceKey} description="Inventaris dan hasil operasional tercatat dalam workspace aktif. Rekaman ini tidak menjalankan connector, infrastruktur, atau keputusan produksi." />;
 }

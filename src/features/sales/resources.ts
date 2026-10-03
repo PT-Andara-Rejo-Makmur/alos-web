@@ -233,6 +233,7 @@ export const salesResources = {
     }, salesApi.site_visits),
     bookings: defineResource({
         "key": "bookings", "domain": "sales", "title": "Booking", "identifier": "booking_id", "createFields": [
+      {"name": "opportunity_id", "label": "Peluang Penjualan", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/sales/opportunities", "identifier": "opportunity_id", "label": "name"}},
             {
                 "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
@@ -254,6 +255,7 @@ export const salesResources = {
                 "name": "booking_date", "label": "Tanggal Booking", "required": false, "nullable": false, "type": "date"
             }
         ], "columns": [
+      {"name": "opportunity_id", "label": "Peluang Penjualan", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/sales/opportunities", "identifier": "opportunity_id", "label": "name"}},
             {
                 "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"

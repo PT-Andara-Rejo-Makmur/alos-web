@@ -4,15 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import type { AraAuthorityProjection, AraMessageProjection, AraResponseProjection, AraThreadProjection } from "@/lib/contracts";
 import { ApiError } from "@/lib/api";
 import { araApi } from "./api";
+import { ReviewedTask } from "./reviewed-task";
+import { CapabilityRequests } from "./capability-requests";
 import styles from "./ara.module.css";
 
 const labels = { ANSWER: "Jawaban", NEEDS_INFO: "Perlu informasi", DENIED: "Kewenangan ditolak", NEEDS_REVIEW: "Perlu tinjauan manusia", FAILED: "Gagal" } as const;
 
-function Answer({ response }: { readonly response: AraResponseProjection }) {
+function Answer({ response, threadId, runId }: { readonly response: AraResponseProjection; readonly threadId: string; readonly runId: string }) {
   return <>
     <strong>{labels[response.response_type]}</strong>
     <p className={styles.answerText}>{response.answer}</p>
-    {response.action_proposal && <aside className={styles.proposal}>
+    {response.action_proposal?.kind === "TASK" ? <ReviewedTask proposal={response.action_proposal} threadId={threadId} runId={runId} /> : response.action_proposal && <aside className={styles.proposal}>
       <strong>Usulan tindakan · Belum dijalankan</strong><p>{response.action_proposal.summary}</p>
     </aside>}
     {response.review_package && <details className={styles.sources}><summary>Paket tinjauan · Rekomendasi AI bersifat advisory</summary>
@@ -44,6 +46,7 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [progressLabel, setProgressLabel] = useState("Mengirim pertanyaan…");
   const [error, setError] = useState<string | null>(null);
   const [activeRun, setActiveRun] = useState<{ threadId: string; runId: string } | null>(null);
   const pendingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -78,6 +81,14 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
       if (latest?.role === "USER" && latest.run_id) {
         setActiveRun({ threadId, runId: latest.run_id });
         setMessages(rows!);
+        const progress = await araApi.progress(threadId, latest.run_id).catch(() => null);
+        if (epoch.current === current && pendingTimer.current !== null) {
+          const kind = progress?.events.at(-1)?.kind;
+          const labels = { UNDERSTANDING: "Memahami pertanyaan…", RETRIEVING: "Membaca informasi yang dapat diakses…",
+            ANALYZING: "Menganalisis informasi…", PREPARING: "Menyiapkan jawaban…",
+            WAITING_FOR_REVIEW: "Usulan menunggu pemeriksaan Anda", COMPLETED: "Jawaban siap", FAILED: "Pemrosesan belum berhasil" };
+          if (kind) setProgressLabel(labels[kind]);
+        }
       }
       trackRun(threadId, current);
     }, 500);
@@ -105,6 +116,7 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
     if (!draft.trim() || sending || draft.length > 4000) return;
     const current = epoch.current;
     setSending(true); setError(null);
+    setProgressLabel("Mengirim pertanyaan…");
     let threadId = selected;
     try {
       if (!threadId) {
@@ -140,6 +152,7 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
       <p>Ruang kerja aktif: {workspaceName}</p>
       <p>Production Model Provider: {authority.production_provider_connected ? "Terhubung" : "Belum Terhubung"} · Klasifikasi maksimum: {authority.maximum_data_classification}</p></div>
       <button type="button" disabled={sending || loading} onClick={() => void create()}>Percakapan baru</button></header>
+    <CapabilityRequests />
     <div className={styles.chatLayout}>
       <nav aria-label="Riwayat percakapan" className={styles.threadList}>
         {threads.map(thread => <button key={thread.thread_id} aria-current={selected === thread.thread_id} type="button"
@@ -151,10 +164,10 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
           {!messages.length && !loading && <div className={styles.emptyChat}><h2>Baca data ruang kerja Anda</h2><p>Tanyakan lead Sales, proyek aktif, persetujuan, piutang, risiko Legal, atau incident IT. Ketersediaan mengikuti kewenangan Anda.</p></div>}
           {messages.map(message => <article key={message.message_id} className={message.role === "USER" ? styles.userMessage : styles.assistantMessage}>
             <small>{message.role === "USER" ? "Anda" : "ARA"}</small>
-            {message.response ? <Answer response={message.response} /> : <p className={styles.answerText}>{message.content}</p>}
+            {message.response ? <Answer response={message.response} threadId={message.thread_id} runId={message.run_id} /> : <p className={styles.answerText}>{message.content}</p>}
             <small>Run: {message.run_id} · Referensi: {message.correlation_id}</small>
           </article>)}
-          {(loading || sending) && <p role="status">{sending ? "Membaca data dan memeriksa sumber…" : "Memuat percakapan…"}</p>}
+          {(loading || sending) && <p role="status">{sending ? progressLabel : "Memuat percakapan…"}</p>}
         </div>
         {error && <p role="alert" className={styles.chatError}>{error}</p>}
         {sending && activeRun && <button type="button" onClick={() => void cancelRun()}>Batalkan run</button>}

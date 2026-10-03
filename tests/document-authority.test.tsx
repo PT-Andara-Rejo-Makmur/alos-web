@@ -112,7 +112,7 @@ describe("authoritative document metadata", () => {
     expect(screen.getByText("Belum ada versi dokumen yang tercatat.")).toBeInTheDocument();
     expect(screen.queryByText("v1.0")).not.toBeInTheDocument();
     expect(screen.queryByText(/canonical-initial-version/)).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Tambah Versi" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tambah Versi dari Sumber" })).not.toBeInTheDocument();
   });
 
   it("creates an immutable version from a verified scoped source selector", async () => {
@@ -129,7 +129,7 @@ describe("authoritative document metadata", () => {
       session={session(["document.version"])}
     />);
     fireEvent.click(screen.getByRole("tab", { name: "Versi" }));
-    fireEvent.click(screen.getByRole("button", { name: "Tambah Versi" }));
+    fireEvent.click(screen.getByRole("button", { name: "Tambah Versi dari Sumber" }));
     expect(await screen.findByRole("option", { name: "Verified source · 1" })).toBeInTheDocument();
     fireEvent.change(screen.getByRole("textbox", { name: "Versi" }), { target: { value: "1.0" } });
     fireEvent.change(screen.getByRole("combobox", { name: "Sumber Terverifikasi" }), { target: { value: "0" } });

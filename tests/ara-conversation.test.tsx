@@ -48,7 +48,7 @@ describe("ARA conversation", () => {
     await waitFor(() => expect(screen.getByRole("textbox")).toBeEnabled());
     fireEvent.change(screen.getByRole("textbox"), {target: {value: "Lead Sales"}});
     fireEvent.click(screen.getByRole("button", {name: "Kirim pesan"}));
-    expect(await screen.findByRole("status")).toHaveTextContent("Membaca data dan memeriksa sumber");
+    expect(await screen.findByRole("status")).toHaveTextContent("Mengirim pertanyaan");
     reject(new ApiError(503, "unavailable", "corr_test"));
     expect(await screen.findByRole("alert")).toHaveTextContent("Layanan ARA belum tersedia");
     expect(screen.queryByText("Data canonical")).not.toBeInTheDocument();

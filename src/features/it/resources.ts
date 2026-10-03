@@ -1078,6 +1078,9 @@ export const itResources = {
     "title": "Catatan Rilis",
     "identifier": "it_release_id",
     "createFields": [
+      {"name": "ci_run_id", "label": "Hasil CI", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/it/ci-runs", "identifier": "ci_run_id", "label": "ci_run_id"}},
+      {"name": "deployment_reference", "label": "Bukti Deployment", "required": false, "nullable": true, "type": "text"},
+      {"name": "verification_notes", "label": "Hasil Verifikasi", "required": false, "nullable": true, "type": "text"},
       {
         "name": "repository_id",
         "label": "Referensi Repository",
@@ -1111,6 +1114,9 @@ export const itResources = {
       }
     ],
     "updateFields": [
+      {"name": "ci_run_id", "label": "Hasil CI", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/it/ci-runs", "identifier": "ci_run_id", "label": "ci_run_id"}},
+      {"name": "deployment_reference", "label": "Bukti Deployment", "required": false, "nullable": true, "type": "text"},
+      {"name": "verification_notes", "label": "Hasil Verifikasi", "required": false, "nullable": true, "type": "text"},
       {
         "name": "version",
         "label": "Versi",
@@ -1120,6 +1126,9 @@ export const itResources = {
       }
     ],
     "columns": [
+      {"name": "ci_run_id", "label": "Hasil CI", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/it/ci-runs", "identifier": "ci_run_id", "label": "ci_run_id"}},
+      {"name": "deployment_reference", "label": "Bukti Deployment", "required": false, "nullable": true, "type": "text"},
+      {"name": "verification_notes", "label": "Hasil Verifikasi", "required": false, "nullable": true, "type": "text"},
       {
         "name": "tenant_id",
         "label": "Tenant",

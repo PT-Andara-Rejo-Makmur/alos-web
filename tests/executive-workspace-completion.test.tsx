@@ -207,11 +207,11 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(screen.getByLabelText("Nama Renstra *")).toBeInTheDocument();
     expect(screen.getByLabelText("Tanggal Mulai *")).toBeInTheDocument();
     expect(screen.getByLabelText("Tanggal Selesai *")).toBeInTheDocument();
-    expect(screen.getByLabelText("Granularitas *")).toBeInTheDocument();
+    expect(screen.getByLabelText("Frekuensi Pengukuran *")).toBeInTheDocument();
     expect(screen.getByLabelText("Ruang Lingkup *")).toBeInTheDocument();
     expect(screen.getByLabelText("Ruang Kerja Penanggung Jawab *")).toBeInTheDocument();
     expect(screen.getByLabelText("Peran / Jabatan Penanggung Jawab *")).toBeInTheDocument();
-    expect(screen.getByLabelText("Tingkat Kepentingan *")).toBeInTheDocument();
+    expect(screen.getByLabelText("Dampak Keputusan *")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Simpan Draf" })).toBeInTheDocument();
   });
 
@@ -271,7 +271,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(screen.queryByText(/ID Bukti Dokumen/i)).not.toBeInTheDocument();
 
     // Fill metadata Step 1
-    fireEvent.change(screen.getByLabelText("Kode Metrik *"), { target: { value: "METRIC_COUNT" } });
+    fireEvent.change(screen.getByLabelText("Kode Indikator *"), { target: { value: "METRIC_COUNT" } });
     fireEvent.change(screen.getByLabelText("Kode Target *"), { target: { value: "TGT-NEW-01" } });
     fireEvent.change(screen.getByLabelText("Nama Target *"), { target: { value: "Target Baru" } });
     fireEvent.change(screen.getByLabelText("Ruang Kerja Penanggung Jawab *"), { target: { value: "workspace_exec" } });
@@ -388,7 +388,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
       ["Kode Target Turunan *", "COUNT-DERIVED"], ["Nama Target Turunan *", "Confirmed derived target"],
       ["Kode KPI Turunan *", "COUNT"], ["Scope Turunan *", "COMPANY"],
       ["Peran Owner Turunan *", "EXECUTIVE"], ["Satuan Turunan *", "COUNT"],
-      ["Pengukuran Turunan *", "HIGHER_IS_BETTER"], ["Materiality Turunan *", "MATERIAL"],
+      ["Pengukuran Turunan *", "HIGHER_IS_BETTER"], ["Dampak Keputusan Turunan *", "MATERIAL"],
       ["Periode Turunan Mulai *", "2027-01-01"], ["Periode Turunan Selesai *", "2027-12-31"],
       ["Bukti Metadata Turunan", "evidence:reviewed-plan"],
     ]) fireEvent.change(screen.getByLabelText(label!), { target: { value } });
@@ -485,7 +485,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     fireEvent.click(catatAktualBtn);
 
     expect(await screen.findByRole("heading", { name: "Catat Aktual" })).toBeInTheDocument();
-    expect(screen.getByText(/Status Verifikasi Awal:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pemeriksaan:/i)).toBeInTheDocument();
     expect(screen.getAllByText("Menunggu Verifikasi").length).toBeGreaterThan(0);
 
     // If manual without evidence, it must block
@@ -528,7 +528,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Catatan Tambahan/)).not.toBeInTheDocument();
     fireEvent.change(value, { target: { value: input } });
-    fireEvent.change(screen.getByLabelText("Bukti Pendukung (Evidence) *"), { target: { value: "evidence:boolean-observation" } });
+    fireEvent.change(screen.getByLabelText("Bukti Pendukung *"), { target: { value: "evidence:boolean-observation" } });
     fireEvent.click(screen.getByRole("button", { name: `Simpan ${label}` }));
     await waitFor(() => expect(create).toHaveBeenCalledTimes(1));
     const payload = create.mock.calls[0][1];
@@ -549,7 +549,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     mockSearchParams = new URLSearchParams("target=tgt_revenue");
     render(<ExecutivePerformancePage />);
     fireEvent.click(await screen.findByRole("button", { name: "Catat Aktual" }));
-    fireEvent.change(screen.getByLabelText("Bukti Pendukung (Evidence) *"), { target: { value: "evidence:boolean" } });
+    fireEvent.change(screen.getByLabelText("Bukti Pendukung *"), { target: { value: "evidence:boolean" } });
     fireEvent.submit(screen.getByRole("button", { name: "Simpan Aktual" }).closest("form")!);
     expect(await screen.findByText("Nilai pengamatan wajib diisi.")).toBeInTheDocument();
     expect(create).not.toHaveBeenCalled();
@@ -566,7 +566,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     expect(value).toHaveAttribute("step", "any");
     expect(screen.queryByLabelText(/Catatan Tambahan/)).not.toBeInTheDocument();
     fireEvent.change(value, { target: { value: "12.5" } });
-    fireEvent.change(screen.getByLabelText("Bukti Pendukung (Evidence) *"), { target: { value: "evidence:numeric" } });
+    fireEvent.change(screen.getByLabelText("Bukti Pendukung *"), { target: { value: "evidence:numeric" } });
     fireEvent.click(screen.getByRole("button", { name: "Simpan Aktual" }));
     await waitFor(() => expect(create).toHaveBeenCalledTimes(1));
     expect(create.mock.calls[0][1]).toMatchObject({ kind: "ACTUAL", unit: "IDR", value: 12.5 });

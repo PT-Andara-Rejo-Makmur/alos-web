@@ -19,6 +19,8 @@ export function projectFromProjection(project: SharedWorkProjectProjection): Wor
     code: project.code,
     name: project.name,
     description: project.description ?? null,
+    objective: project.objective ?? null,
+    priority: project.priority ?? "NORMAL",
     status: project.status,
     ownerActorId: project.owner_actor_id ?? null,
     ownerName: project.owner_name ?? null,

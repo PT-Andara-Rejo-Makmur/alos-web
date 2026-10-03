@@ -374,106 +374,400 @@ export const propertyResources = {
         ], "immutable": false
     }, propertyApi.safety_incidents),
     change_orders: defineResource({
-        "key": "change_orders", "domain": "property", "title": "Change Order", "identifier": "change_order_id", "createFields": [
-            {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": false, "type": "text", "relation": {
-                    "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
-                }
-            },
-            {
-                "name": "change_number", "label": "Nomor Perubahan", "required": true, "nullable": false, "type": "text"
-            },
-            {
-                "name": "description", "label": "Deskripsi", "required": true, "nullable": false, "type": "text"
-            },
-            {
-                "name": "amount_delta", "label": "Perubahan Nominal Tercatat", "required": false, "nullable": true, "type": "decimal"
-            }
-        ], "updateFields": [
-            {
-                "name": "change_number", "label": "Nomor Perubahan", "required": false, "nullable": false, "type": "text"
-            },
-            {
-                "name": "description", "label": "Deskripsi", "required": false, "nullable": false, "type": "text"
-            },
-            {
-                "name": "amount_delta", "label": "Perubahan Nominal Tercatat", "required": false, "nullable": true, "type": "decimal"
-            }
-        ], "columns": [
-            {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": false, "type": "text", "relation": {
-                    "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
-                }
-            },
-            {
-                "name": "change_number", "label": "Nomor Perubahan", "required": true, "nullable": false, "type": "text"
-            },
-            {
-                "name": "description", "label": "Deskripsi", "required": true, "nullable": false, "type": "text"
-            },
-            {
-                "name": "amount_delta", "label": "Perubahan Nominal Tercatat", "required": true, "nullable": true, "type": "decimal"
-            },
-            {
-                "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
-            },
-            {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
-            },
-            {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
-            }
-        ], "immutable": false
-    }, propertyApi.change_orders),
+  "key": "change_orders",
+  "domain": "property",
+  "title": "Change Order",
+  "identifier": "change_order_id",
+  "createFields": [
+    {
+      "name": "project_id",
+      "label": "Proyek Shared Work",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/projects",
+        "identifier": "project_id",
+        "label": "name",
+        "array": true
+      }
+    },
+    {
+      "name": "change_number",
+      "label": "Nomor Perubahan",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "description",
+      "label": "Deskripsi",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "amount_delta",
+      "label": "Perubahan Nominal Tercatat",
+      "required": false,
+      "nullable": true,
+      "type": "decimal"
+    },
+    {
+      "name": "schedule_impact_days",
+      "label": "Dampak jadwal (hari)",
+      "required": false,
+      "nullable": true,
+      "type": "integer"
+    },
+    {
+      "name": "contract_change_required",
+      "label": "Memerlukan perubahan kontrak",
+      "required": false,
+      "nullable": false,
+      "type": "boolean"
+    },
+    {
+      "name": "related_contract_id",
+      "label": "Kontrak terkait",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "title"
+      }
+    },
+    {
+      "name": "document_id",
+      "label": "Dokumen pendukung",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/documents",
+        "identifier": "document_id",
+        "label": "title",
+        "array": true
+      }
+    }
+  ],
+  "updateFields": [
+    {
+      "name": "change_number",
+      "label": "Nomor Perubahan",
+      "required": false,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "description",
+      "label": "Deskripsi",
+      "required": false,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "amount_delta",
+      "label": "Perubahan Nominal Tercatat",
+      "required": false,
+      "nullable": true,
+      "type": "decimal"
+    },
+    {
+      "name": "schedule_impact_days",
+      "label": "Dampak jadwal (hari)",
+      "required": false,
+      "nullable": true,
+      "type": "integer"
+    },
+    {
+      "name": "contract_change_required",
+      "label": "Memerlukan perubahan kontrak",
+      "required": false,
+      "nullable": false,
+      "type": "boolean"
+    },
+    {
+      "name": "related_contract_id",
+      "label": "Kontrak terkait",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "title"
+      }
+    },
+    {
+      "name": "document_id",
+      "label": "Dokumen pendukung",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/documents",
+        "identifier": "document_id",
+        "label": "title",
+        "array": true
+      }
+    }
+  ],
+  "columns": [
+    {
+      "name": "project_id",
+      "label": "Proyek Shared Work",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/projects",
+        "identifier": "project_id",
+        "label": "name",
+        "array": true
+      }
+    },
+    {
+      "name": "change_number",
+      "label": "Nomor Perubahan",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "description",
+      "label": "Deskripsi",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "amount_delta",
+      "label": "Perubahan Nominal Tercatat",
+      "required": true,
+      "nullable": true,
+      "type": "decimal"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "created_at",
+      "label": "Dicatat Pada",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "updated_at",
+      "label": "Pembaruan Sumber",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "schedule_impact_days",
+      "label": "Dampak jadwal (hari)",
+      "required": false,
+      "nullable": true,
+      "type": "integer"
+    },
+    {
+      "name": "contract_change_required",
+      "label": "Memerlukan perubahan kontrak",
+      "required": false,
+      "nullable": false,
+      "type": "boolean"
+    },
+    {
+      "name": "related_contract_id",
+      "label": "Kontrak terkait",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/legal/contracts",
+        "identifier": "contract_id",
+        "label": "title"
+      }
+    },
+    {
+      "name": "document_id",
+      "label": "Dokumen pendukung",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/documents",
+        "identifier": "document_id",
+        "label": "title",
+        "array": true
+      }
+    }
+  ],
+  "immutable": false
+}, propertyApi.change_orders),
     payment_certificates: defineResource({
-        "key": "payment_certificates", "domain": "property", "title": "Payment Certificate", "identifier": "payment_certificate_id", "createFields": [
-            {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": false, "type": "text", "relation": {
-                    "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
-                }
-            },
-            {
-                "name": "certificate_number", "label": "Nomor Sertifikat", "required": true, "nullable": false, "type": "text"
-            },
-            {
-                "name": "period", "label": "Periode (YYYY-MM)", "required": false, "nullable": true, "type": "text"
-            },
-            {
-                "name": "amount", "label": "Nominal Tercatat", "required": false, "nullable": true, "type": "decimal"
-            }
-        ], "updateFields": [
-            {
-                "name": "certificate_number", "label": "Nomor Sertifikat", "required": false, "nullable": false, "type": "text"
-            },
-            {
-                "name": "period", "label": "Periode (YYYY-MM)", "required": false, "nullable": true, "type": "text"
-            }
-        ], "columns": [
-            {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": false, "type": "text", "relation": {
-                    "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
-                }
-            },
-            {
-                "name": "certificate_number", "label": "Nomor Sertifikat", "required": true, "nullable": false, "type": "text"
-            },
-            {
-                "name": "period", "label": "Periode (YYYY-MM)", "required": true, "nullable": true, "type": "text"
-            },
-            {
-                "name": "amount", "label": "Nominal Tercatat", "required": true, "nullable": true, "type": "decimal"
-            },
-            {
-                "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
-            },
-            {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
-            },
-            {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
-            }
-        ], "immutable": false
-    }, propertyApi.payment_certificates),
+  "key": "payment_certificates",
+  "domain": "property",
+  "title": "Payment Certificate",
+  "identifier": "payment_certificate_id",
+  "createFields": [
+      {"name": "document_id", "label": "Dokumen Pendukung", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/documents", "identifier": "document_id", "label": "title"}},
+    {
+      "name": "project_id",
+      "label": "Proyek Shared Work",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/projects",
+        "identifier": "project_id",
+        "label": "name",
+        "array": true
+      }
+    },
+    {
+      "name": "certificate_number",
+      "label": "Nomor Sertifikat",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "period",
+      "label": "Periode (YYYY-MM)",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "amount",
+      "label": "Nominal Tercatat",
+      "required": false,
+      "nullable": true,
+      "type": "decimal"
+    },
+    {
+      "name": "construction_update_id",
+      "label": "Bukti kemajuan pekerjaan",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/property/construction-updates",
+        "identifier": "construction_update_id",
+        "label": "summary"
+      }
+    }
+  ],
+  "updateFields": [
+      {"name": "document_id", "label": "Dokumen Pendukung", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/documents", "identifier": "document_id", "label": "title"}},
+    {
+      "name": "certificate_number",
+      "label": "Nomor Sertifikat",
+      "required": false,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "period",
+      "label": "Periode (YYYY-MM)",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "construction_update_id",
+      "label": "Bukti kemajuan pekerjaan",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/property/construction-updates",
+        "identifier": "construction_update_id",
+        "label": "summary"
+      }
+    }
+  ],
+  "columns": [
+      {"name": "document_id", "label": "Dokumen Pendukung", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/documents", "identifier": "document_id", "label": "title"}},
+    {
+      "name": "project_id",
+      "label": "Proyek Shared Work",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/projects",
+        "identifier": "project_id",
+        "label": "name",
+        "array": true
+      }
+    },
+    {
+      "name": "certificate_number",
+      "label": "Nomor Sertifikat",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "period",
+      "label": "Periode (YYYY-MM)",
+      "required": true,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "amount",
+      "label": "Nominal Tercatat",
+      "required": true,
+      "nullable": true,
+      "type": "decimal"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "created_at",
+      "label": "Dicatat Pada",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "updated_at",
+      "label": "Pembaruan Sumber",
+      "required": true,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "construction_update_id",
+      "label": "Bukti kemajuan pekerjaan",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/property/construction-updates",
+        "identifier": "construction_update_id",
+        "label": "summary"
+      }
+    }
+  ],
+  "immutable": false
+}, propertyApi.payment_certificates),
     project_handovers: defineResource({
         "key": "project_handovers", "domain": "property", "title": "Serah Terima", "identifier": "handover_id", "createFields": [
             {

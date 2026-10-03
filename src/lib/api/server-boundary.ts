@@ -73,10 +73,39 @@ async function forward(
   if (authorization) headers.set("Authorization", authorization);
   const hasBody = request.method !== "GET" && request.method !== "HEAD";
   try {
+    const maximumBytes = /\/documents\/[^/]+\/uploads(?:\?|$)/.test(path) ? 25_000_000 : 2_000_000;
+    const declared = Number(request.headers.get("content-length"));
+    if (declared > maximumBytes) {
+      return structuredError(413, "REQUEST_TOO_LARGE", "Ukuran permintaan melebihi batas.", id);
+    }
+    let body: ArrayBuffer | undefined;
+    if (hasBody && request.body) {
+      const reader = request.body.getReader();
+      const chunks: Uint8Array[] = [];
+      let size = 0;
+      try {
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          size += value.byteLength;
+          if (size > maximumBytes) {
+            await reader.cancel();
+            return structuredError(413, "REQUEST_TOO_LARGE", "Ukuran permintaan melebihi batas.", id);
+          }
+          chunks.push(value);
+        }
+      } finally {
+        reader.releaseLock();
+      }
+      const bytes = new Uint8Array(size);
+      let offset = 0;
+      for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+      body = bytes.buffer;
+    }
     return await fetch(`${backendBaseUrl()}${path}`, {
       method: request.method,
       headers,
-      body: hasBody ? await request.arrayBuffer() : undefined,
+      body,
       cache: "no-store",
       redirect: "manual",
     });

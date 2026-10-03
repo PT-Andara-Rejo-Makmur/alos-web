@@ -57,9 +57,9 @@ describe("Finance & Pajak workspace", () => {
     expect(hasFinanceContext(financeSession("sales-key", "SALES"))).toBe(false);
   });
 
-  it("builds the exact 15-menu Finance sidebar with encoded workspace key", () => {
+  it("builds the exact 16-menu Finance sidebar with encoded workspace key", () => {
     const sections = financeNavigation("finance & ops");
-    expect(sections.flatMap((section) => section.items.map((item) => item.label))).toHaveLength(15);
+    expect(sections.flatMap((section) => section.items.map((item) => item.label))).toHaveLength(16);
     expect(sections.flatMap((section) => section.items.map((item) => item.href))).toContain("/workspace/finance%20%26%20ops/summary");
     expect(sections.flatMap((section) => section.items.map((item) => item.href)).some((href) => href.startsWith("/workspace/finance/"))).toBe(false);
     expect(sections.flatMap((section) => section.items.map((item) => item.href)).filter((href) => href.endsWith("/projects"))).toHaveLength(1);

@@ -1,7 +1,7 @@
 /** Public facade for generated alos-contracts TypeScript exports. */
 export const CONTRACT_SOURCE = "alos-contracts/generated/typescript" as const;
 export type { AraAuthorityProjection, AraMessageProjection, AraMessageRequest, AraRunProjection,
-  AraThreadProjection, AraResponseProjection } from "../../../../alos-contracts/generated/typescript/ara";
+  AraThreadProjection, AraResponseProjection, AraProgressProjection, AraActionProposalProjection, AraTaskExecutionReceipt } from "../../../../alos-contracts/generated/typescript/ara";
 
 export type {
   SharedWorkMaterialAction,
@@ -209,3 +209,7 @@ export type * from "../../../../alos-contracts/generated/typescript/finance";
 export type * from "../../../../alos-contracts/generated/typescript/it";
 export type * from "../../../../alos-contracts/generated/typescript/hr";
 export type * from "../../../../alos-contracts/generated/typescript/legal";
+export type * from "../../../../alos-contracts/generated/typescript/process";
+export type { BusinessMetric, BusinessSummary, BusinessPerformance, BusinessPerformanceAttentionItem, BusinessWorkQueue, BusinessNotification, BusinessNotificationOverview, BusinessRelationship, BusinessRelationshipOverview, MetricBindingRequest, MetricBindingProjection, MetricCalculationRequest } from "../../../../alos-contracts/generated/typescript/business";
+export type * from "../../../../alos-contracts/generated/typescript/document";
+export type { BusinessProjectRecord, BusinessProjectRecordOverview } from "../../../../alos-contracts/generated/typescript/business";

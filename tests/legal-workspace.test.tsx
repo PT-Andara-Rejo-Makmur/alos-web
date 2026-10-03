@@ -19,6 +19,7 @@ import * as api from "@/lib/api";
 const mockReplace = vi.fn();
 
 vi.mock("next/navigation", () => ({
+  useParams: () => ({ workspaceKey: "kepatuhan-utama" }),
   usePathname: () => "/workspace/kepatuhan-utama/summary",
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: mockReplace }),
 }));
@@ -57,12 +58,12 @@ describe("Legal workspace", () => {
     expect(resolveWorkspaceDomain(session, "legal-lain")).toMatchObject({ valid: false, failureReason: "key_mismatch" });
   });
 
-  it("builds the exact 16-menu Legal sidebar without a static Legal authority", () => {
+  it("builds the exact 17-menu Legal sidebar without a static Legal authority", () => {
     const sections = legalNavigation("legal & compliance");
     const hrefs = sections.flatMap((section) => section.items.map((item) => item.href));
     expect(sections.flatMap((section) => section.items.map((item) => item.label))).toEqual([
       "Ringkasan", "Risiko & Kepatuhan", "Kontrak & Perjanjian", "Review Legal", "Perizinan", "Legalitas Proyek & Aset",
-      "Sengketa & Klaim", "Kewajiban & Tenggat", "Target & Kinerja", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA",
+      "Sengketa & Klaim", "Kewajiban & Tenggat", "Target & Kinerja", "Perlu Tindakan", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA",
     ]);
     expect(hrefs).toContain("/workspace/legal%20%26%20compliance/summary");
     expect(hrefs.some((href) => href.startsWith("/workspace/legal/"))).toBe(false);

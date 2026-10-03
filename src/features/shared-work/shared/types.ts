@@ -39,6 +39,8 @@ export type CanonicalFindingStatus = SharedWorkFindingStatus;
 
 /** Universal Project projection from Backend */
 export interface WorkProject {
+  readonly objective?: string | null;
+  readonly priority?: "LOW" | "NORMAL" | "HIGH" | "CRITICAL";
   readonly id: string;
   readonly code: string;
   readonly name: string;

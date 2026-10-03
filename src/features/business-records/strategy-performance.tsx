@@ -7,6 +7,7 @@ import { performanceLabel, periodLabel, valueForObservation } from "@/features/e
 import { SourceStateView, sourceFailure } from "./record-panel";
 import type { SourceState } from "./resource";
 import styles from "@/features/property/property.module.css";
+import { ClosingActual } from "./closing-actual";
 
 export function StrategyPerformance({ domain }: Readonly<{ domain: string }>) {
   const [rows, setRows] = useState<readonly BusinessTargetDetail[]>([]);
@@ -18,8 +19,9 @@ export function StrategyPerformance({ domain }: Readonly<{ domain: string }>) {
       .catch((error: unknown) => { if (current) { setRows([]); setState(sourceFailure(error)); } });
     return () => { current = false; controller.abort(); };
   }, []);
-  return <div className={styles.page}><PageHeader title="Target & Kinerja" eyebrow={domain.toUpperCase()} description={`Target, actual, forecast, verification, dan performance ${domain} berasal dari projection Strategy Backend.`} />
+  return <div className={styles.page}><PageHeader title="Target & Kinerja" eyebrow={domain.toUpperCase()} description="Target, aktual, perkiraan, dan kinerja berasal dari catatan strategi perusahaan." />
     <SourceStateView state={state} />
+    {domain === "sales" && state === "CONNECTED" && <ClosingActual rows={rows} onSaved={async () => setRows(await strategyApi.listTargetDetails())} />}
     {state === "CONNECTED" ? <Section title="Target Strategi"><DataTable caption={`Target dan Kinerja ${domain}`} rows={rows} getRowKey={(row) => `${row.target.target_id}-${row.target.version}`} columns={[
       { key: "name", header: "Target", render: (row) => row.target.name },
       { key: "period", header: "Periode", render: (row) => periodLabel(row.target.period) },

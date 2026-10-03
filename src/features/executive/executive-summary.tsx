@@ -10,6 +10,7 @@ import { useExecutiveOverview } from "./executive-data";
 import { formatValue, lifecycleLabel, performanceLabel, performanceVariant, periodLabel, valueForObservation, verificationLabel } from "./executive-model";
 import { connectionLabel, ExecutiveSourceState, ExecutiveSourceStatus, sourceDate } from "./executive-source-status";
 import { ExecutiveWorkSections } from "./executive-work-sections";
+import { BusinessPerformancePanel, useBusinessPerformance } from "./business-performance";
 import styles from "./executive.module.css";
 
 const domains = [["Sales & Marketing", "SALES", "sales"], ["Property & Teknik", "PROPERTY", "property"], ["Finance & Pajak", "FINANCE", "finance"], ["Legal", "LEGAL", "legal"], ["HR/GA", "HR", "hr"], ["IT", "IT", "it"]] as const;
@@ -21,6 +22,8 @@ export function ExecutiveSummaryPage({ workspaceKey }: Readonly<{ workspaceKey?:
 function ExecutiveSummaryContent({ workspaceKey }: Readonly<{ workspaceKey: string }>) {
   const base = `/workspace/${encodeURIComponent(workspaceKey)}`;
   const { data, error, loading, sessionExpired } = useExecutiveOverview(workspaceKey);
+  const business = useBusinessPerformance(workspaceKey);
+  const closing = business.data?.domains.find(item => item.domain === "sales")?.metrics.find(item => item.code === "closings");
   const strategyStatus = data?.strategy.status ?? (loading ? "loading" : "ERROR");
   const workStatus = data?.shared_work.status ?? (loading ? "loading" : "ERROR");
   const strategy = strategyStatus === "CONNECTED" || strategyStatus === "CONNECTED_EMPTY" ? data?.strategy_data : null;
@@ -36,7 +39,7 @@ function ExecutiveSummaryContent({ workspaceKey }: Readonly<{ workspaceKey: stri
     <ExecutiveSourceStatus overview={data} loading={loading} error={error} />
 
     <Section bordered title="Ringkasan Utama"><div className={styles.metricsStrip}>
-      {[["Pendapatan", "SALES"], ["Penjualan / Closing", "SALES"], ["Kas & Likuiditas", "FINANCE"], ["Progres Proyek", "PROPERTY"]].map(([label, domain]) => <Metric key={label} label={label} supportingText={["CONNECTED", "CONNECTED_EMPTY"].includes(domainStatus(domain)) ? "Sumber terhubung; metrik belum tersedia." : connectionLabel(domainStatus(domain)).label} value="—" />)}
+      {[["Pendapatan", "SALES"], ["Penjualan / Closing", "SALES"], ["Kas & Likuiditas", "FINANCE"], ["Progres Proyek", "PROPERTY"]].map(([label, domain]) => <Metric key={label} label={label} supportingText={label === "Penjualan / Closing" && closing?.available ? "Closing selesai dari catatan Sales." : ["CONNECTED", "CONNECTED_EMPTY"].includes(domainStatus(domain)) ? "Sumber metrik belum tersedia." : connectionLabel(domainStatus(domain)).label} value={label === "Penjualan / Closing" && closing?.available && closing.value !== null ? String(closing.value) : "—"} />)}
       <Metric label="Keputusan Menunggu" supportingText={connectionLabel(workStatus).label} value={work ? String(work.counts.pending_approvals) : "—"} />
       <Metric label="Temuan Aktif" supportingText={connectionLabel(workStatus).label} value={work ? String(work.counts.active_findings) : "—"} />
     </div></Section>
@@ -63,7 +66,8 @@ function ExecutiveSummaryContent({ workspaceKey }: Readonly<{ workspaceKey: stri
         { header: "Update sumber", key: "updated", render: (row: typeof domains[number]) => sourceDate(data?.domains.find((item) => item.domain === row[1])?.last_verified_at) },
       ]} getRowKey={(row) => row[1]} rowAction={(row) => <Link className={styles.detailLink} href={`${base}/divisions/${row[2]}`}>Lihat Detail</Link>} rows={domains} />
     </Section>
-    <Section title="Analisis GENESIS"><div className={styles.readinessRow}><Status label="Belum Terhubung" variant="neutral" /><p>Analisis advisory belum terhubung.</p></div></Section>
+    <BusinessPerformancePanel workspaceKey={workspaceKey} data={business.data} error={business.error} />
+    <Section title="Analisis GENESIS"><Link href={`${base}/ara`}>Tanya ARA berdasarkan kewenangan ruang kerja</Link></Section>
   </div>;
 }
 

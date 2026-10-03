@@ -7,7 +7,7 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({ get: cookieGet }),
 }));
 
-import { GET as proxyGet } from "@/app/api/backend/[...path]/route";
+import { GET as proxyGet, POST as proxyPost } from "@/app/api/backend/[...path]/route";
 import { POST as login } from "@/app/api/session/login/route";
 import { authenticatedApiRequest } from "@/lib/api";
 
@@ -25,6 +25,36 @@ afterEach(() => {
 });
 
 describe("same-origin Backend session boundary", () => {
+  it("rejects oversized upload streams before forwarding to Backend", async () => {
+    cookieGet.mockReturnValue({ value: "backend-secret-token" });
+    const backendFetch = vi.fn();
+    vi.stubGlobal("fetch", backendFetch);
+    const body = new ReadableStream<Uint8Array>({ start(controller) {
+      controller.enqueue(new Uint8Array(13_000_000));
+      controller.enqueue(new Uint8Array(13_000_000));
+      controller.close();
+    } });
+    const response = await proxyPost(new NextRequest("http://web.test/api/backend/api/v1/documents/document/uploads", {
+      method: "POST", headers: { "content-type": "text/plain" }, body, duplex: "half",
+    } as ConstructorParameters<typeof NextRequest>[1]), { params: Promise.resolve({ path: ["api", "v1", "documents", "document", "uploads"] }) });
+    expect(response.status).toBe(413);
+    expect(backendFetch).not.toHaveBeenCalled();
+  });
+
+  it("preserves upload bytes and MIME while holding authentication on the server", async () => {
+    cookieGet.mockReturnValue({ value: "backend-secret-token" });
+    const backendFetch = vi.fn().mockResolvedValue(new Response("{}", { status: 201 }));
+    vi.stubGlobal("fetch", backendFetch);
+    const bytes = new TextEncoder().encode("Dokumen operasional\nBukti pemeriksaan");
+    const response = await proxyPost(new NextRequest("http://web.test/api/backend/api/v1/documents/document/uploads?filename=bukti.txt&version=1", {
+      method: "POST", headers: { "content-type": "text/plain" }, body: bytes,
+    }), { params: Promise.resolve({ path: ["api", "v1", "documents", "document", "uploads"] }) });
+    expect(response.status).toBe(201);
+    const options = backendFetch.mock.calls[0]?.[1] as RequestInit;
+    expect(Array.from(new Uint8Array(options.body as ArrayBuffer))).toEqual(Array.from(bytes));
+    expect(new Headers(options.headers).get("content-type")).toBe("text/plain");
+    expect(new Headers(options.headers).get("authorization")).toBe("Bearer backend-secret-token");
+  });
   it("stores the Backend token only in an HttpOnly cookie", async () => {
     const backendFetch = vi.fn().mockResolvedValue(
       new Response(

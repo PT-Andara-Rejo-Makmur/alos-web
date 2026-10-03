@@ -5,6 +5,7 @@ import { PageHeader, Section } from "@/components/ui";
 import { authenticatedApiRequest } from "@/lib/api";
 import { SourceStateView, sourceFailure } from "./record-panel";
 import type { Resource, SourceState } from "./resource";
+import { ProcessRequest } from "./process-request";
 
 export function RecordDetail({ resource, recordId }: Readonly<{ resource: Resource; recordId?: string }>) {
   const [record, setRecord] = useState<Record<string, unknown> | null>(null);
@@ -20,6 +21,7 @@ export function RecordDetail({ resource, recordId }: Readonly<{ resource: Resour
   }, [resource, recordId]);
   return <div><PageHeader title={`Detail ${resource.title}`} description="Identitas pada URL tetap diperiksa terhadap scope aktif oleh Backend." />
     <SourceStateView state={recordId ? state : "UNAVAILABLE"} />
+    {record && recordId && state === "CONNECTED" ? <ProcessRequest domain={resource.domain} resource={resource.key} identity={recordId} /> : null}
     {record && state === "CONNECTED" ? <Section title="Rekaman Tersimpan"><dl>{Object.entries(record).filter(([key]) => !["tenant_id", "organization_id", "workspace_id", "allowed_transitions"].includes(key)).map(([key, value]) => <Fragment key={key}><dt>{resource.columns.find((column) => column.name === key)?.label ?? key}</dt><dd>{value == null ? "—" : String(value)}</dd></Fragment>)}</dl></Section> : null}
   </div>;
 }

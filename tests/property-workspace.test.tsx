@@ -30,6 +30,7 @@ import { mockAraBackend } from "./helpers/ara";
 const mockReplace = vi.fn();
 
 vi.mock("next/navigation", () => ({
+  useParams: () => ({ workspaceKey: "proyek-utama" }),
   usePathname: () => "/workspace/proyek-utama/summary",
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: mockReplace }),
 }));
@@ -74,12 +75,12 @@ describe("Property workspace", () => {
     expect(hasPropertyContext(salesSession())).toBe(false);
   });
 
-  it("builds the exact 17-item Property sidebar with the actual workspace key", () => {
+  it("builds the exact 18-item Property sidebar with the actual workspace key", () => {
     const sections = navigationForSession(false, "proyek-utama", false, propertySession());
     expect(sections.map((section) => section.label)).toEqual(["PUSAT PROYEK", "PELAKSANAAN", "SUMBER DAYA", "KINERJA", "PEKERJAAN", "ARA"]);
     expect(sections.flatMap((section) => section.items.map((item) => item.label))).toEqual([
       "Ringkasan", "Portofolio Proyek", "Progres & Jadwal", "Pekerjaan & Milestone", "Unit & Kesiapan", "Inspeksi & Kualitas",
-      "Kontraktor", "Anggaran & RAB", "Material & Pengadaan", "Target & Kinerja", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA",
+      "Kontraktor", "Anggaran & RAB", "Material & Pengadaan", "Target & Kinerja", "Perlu Tindakan", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA",
     ]);
     expect(sections.flatMap((section) => section.items).every((item) => item.href.startsWith("/workspace/proyek-utama/"))).toBe(true);
   });

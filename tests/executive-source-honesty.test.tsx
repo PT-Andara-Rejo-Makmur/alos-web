@@ -398,7 +398,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
   });
 
   // 17. Assumption form has period fields
-  it("Scenario 17: Assumption form includes Periode Mulai, Periode Selesai, and Granularitas", async () => {
+  it("Scenario 17: Assumption form includes Periode Mulai, Periode Selesai, and Frekuensi Pengukuran", async () => {
     render(<ExecutivePlanningPage />);
 
     const asmTab = await screen.findByRole("tab", { name: "Asumsi" });
@@ -409,7 +409,9 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
 
     expect(screen.getByLabelText("Periode Mulai *")).toBeInTheDocument();
     expect(screen.getByLabelText("Periode Selesai *")).toBeInTheDocument();
-    expect(screen.getByLabelText("Granularitas *")).toBeInTheDocument();
+    expect(screen.getByLabelText("Frekuensi Pengukuran *")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Status Verifikasi *")).not.toBeInTheDocument();
+    expect(screen.getByText("Asumsi akan menunggu pemeriksaan setelah disimpan.")).toBeInTheDocument();
   });
 
   // 18. Cascade does not send hidden ratio 0.5

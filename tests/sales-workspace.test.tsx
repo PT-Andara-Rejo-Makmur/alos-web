@@ -137,7 +137,7 @@ describe("Sales workspace", () => {
     expect(sections.flatMap((section) => section.items.map((item) => item.label))).toEqual([
       "Ringkasan", "Pipeline Penjualan", "Prospek & Lead", "Aktivitas & Tindak Lanjut",
       "Booking & Closing", "KPR & Akad", "Kampanye & Saluran", "Target & Kinerja",
-      "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA",
+      "Perlu Tindakan", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA",
     ]);
     expect(sections.flatMap((section) => section.items).map((item) => item.href)).toContain(
       "/workspace/penjualan-utama/kpr",
@@ -199,7 +199,7 @@ describe("Sales workspace", () => {
 
     render(<Page workspaceKey="penjualan-utama" />);
 
-    expect(await screen.findByRole("heading", { name: title })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: title, level: 1 })).toBeInTheDocument();
     await waitFor(() => expect(screen.queryAllByText("Belum Terhubung").length + screen.queryAllByText("Gagal Memuat").length).toBeGreaterThan(0));
     expect(screen.queryByText("Belum ada data")).not.toBeInTheDocument();
     expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
@@ -395,7 +395,7 @@ describe("Sales workspace", () => {
         render(<RouteComponent params={{ workspaceKey: "penjualan-utama" }} />);
 
         await waitFor(() => {
-          expect(screen.getByRole("heading", { name: expectedHeading })).toBeInTheDocument();
+          expect(screen.getByRole("heading", { name: expectedHeading, level: 1 })).toBeInTheDocument();
         });
         expect(
           screen.queryByRole("heading", { name: "Anda tidak memiliki akses ke halaman ini." }),

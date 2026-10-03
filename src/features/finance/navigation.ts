@@ -46,6 +46,7 @@ export function financeNavigation(workspaceKey: string): readonly AppNavigationS
     {
       label: "PEKERJAAN",
       items: [
+        { href: `${base}/processes`, icon: CheckSquare, label: "Perlu Tindakan" },
         { href: `${base}/projects`, icon: BriefcaseBusiness, label: "Proyek" },
         { href: `${base}/tasks`, icon: CheckSquare, label: "Tugas" },
         { href: `${base}/approvals`, icon: FileCheck2, label: "Persetujuan" },

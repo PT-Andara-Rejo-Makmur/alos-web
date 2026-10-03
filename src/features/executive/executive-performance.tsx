@@ -336,7 +336,7 @@ function TargetPerformanceDetail({
             },
             { header: "Satuan", key: "unit", render: (obs) => obs.unit },
             {
-              header: "Mode Sumber",
+              header: "Dasar Angka",
               key: "mode",
               render: (obs) => (obs.source_mode === "SOURCE_LINKED" ? "Tertaut Sumber" : "Manual Berbukti"),
             },
@@ -517,16 +517,16 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
           </div>
 
           <div className={`${styles.formField} ${styles.formFullWidth}`}>
-            <label htmlFor="obs-mode">Mode Sumber *</label>
+            <label htmlFor="obs-mode">Dasar Angka *</label>
             <select className={styles.formSelect} id="obs-mode" onChange={(e) => setSourceMode(e.target.value as "MANUAL_EVIDENCED")} value={sourceMode}>
-              <option value="MANUAL_EVIDENCED">Manual dengan Bukti (Evidence Wajib)</option>
+              <option value="MANUAL_EVIDENCED">Diisi Manual dengan Bukti</option>
               <option disabled value="SOURCE_LINKED">Sumber resmi eksternal belum tersedia</option>
             </select>
           </div>
 
           {sourceMode === "MANUAL_EVIDENCED" ? (
             <div className={`${styles.formField} ${styles.formFullWidth}`}>
-              <label htmlFor="obs-ev">Bukti Pendukung (Evidence) *</label>
+              <label htmlFor="obs-ev">Bukti Pendukung *</label>
               <input className={styles.formInput} id="obs-ev" onChange={(e) => setEvidenceRef(e.target.value)} placeholder="Nomor arsip, nomor dokumen, atau tautan referensi" required value={evidenceRef} />
             </div>
           ) : (
@@ -538,7 +538,7 @@ function ObservationDrawer({ mode, target, canSubmit, onClose }: ObservationDraw
 
           <div className={`${styles.formField} ${styles.formFullWidth}`}>
             <div className={styles.briefNotice}>
-              Status Verifikasi Awal: <strong>Menunggu Verifikasi</strong>. Data tidak dapat langsung diubah menjadi Terverifikasi tanpa proses telaah berwenang.
+              Pemeriksaan: <strong>Menunggu Verifikasi</strong>. Data tidak dapat langsung diubah menjadi Terverifikasi tanpa proses telaah berwenang.
             </div>
           </div>
         </div>

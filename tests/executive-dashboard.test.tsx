@@ -159,7 +159,7 @@ describe("Executive Workspace", () => {
       expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
     }
     expect(await screen.findByText("Sasaran Perusahaan")).toBeInTheDocument();
-    expect(screen.getByText("Perlu Perhatian")).toBeInTheDocument();
+    expect(screen.getAllByText("Perlu Perhatian").length).toBeGreaterThan(0);
     expect(screen.queryByText("Sasaran Divisi")).not.toBeInTheDocument();
     expect(screen.getAllByText("—").length).toBeGreaterThan(1);
     expect(screen.queryByText("0")).not.toBeInTheDocument();

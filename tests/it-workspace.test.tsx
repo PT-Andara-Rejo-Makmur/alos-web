@@ -37,9 +37,9 @@ describe("IT frontend master matrix", () => {
     expect(activeItWorkspaceKey(itSession)).toBe("it-utama");
   });
 
-  it("keeps the exact 20-item master sidebar with encoded workspace identity", () => {
+  it("keeps the exact 21-item master sidebar with encoded workspace identity", () => {
     const sections = itNavigation("it utama");
-    expect(sections.flatMap((section) => section.items)).toHaveLength(20);
+    expect(sections.flatMap((section) => section.items)).toHaveLength(21);
     expect(sections.map((section) => section.label)).toEqual(["PUSAT IT", "PLATFORM & SISTEM", "AKSES & IDENTITAS", "PERUBAHAN", "OPERASIONAL", "KINERJA", "PEKERJAAN", "ARA"]);
     expect(sections.flatMap((section) => section.items).every((item) => item.href.startsWith("/workspace/it%20utama/"))).toBe(true);
   });

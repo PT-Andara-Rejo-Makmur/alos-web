@@ -17,20 +17,21 @@ interface ContractErrorProjection {
 async function requestJson<T>(url: string, options: ApiRequestOptions): Promise<T> {
   const body = options.body;
   const isFormData = body instanceof FormData;
+  const isBinary = body instanceof Blob;
   const isSerializedBody = typeof body === "string";
   const response = await fetch(url, {
     ...options,
     body:
       body === undefined
         ? undefined
-        : isFormData || isSerializedBody
+        : isFormData || isSerializedBody || isBinary
           ? body
           : JSON.stringify(body),
     cache: options.cache ?? "no-store",
     credentials: options.credentials ?? "same-origin",
     headers: {
       Accept: "application/json",
-      ...(body === undefined || isFormData ? {} : { "Content-Type": "application/json" }),
+      ...(body === undefined || isFormData || isBinary ? {} : { "Content-Type": "application/json" }),
       ...options.headers,
     },
   });

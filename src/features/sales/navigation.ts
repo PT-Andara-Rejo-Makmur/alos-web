@@ -25,6 +25,7 @@ export function salesNavigation(workspaceKey: string): readonly AppNavigationSec
     { href: `${base}/performance`, icon: Target, label: "Target & Kinerja" },
   ] },
   { label: "PEKERJAAN", items: [
+    { href: `${base}/processes`, icon: CheckSquare, label: "Perlu Tindakan" },
     { href: `${base}/projects`, icon: Briefcase, label: "Proyek" },
     { href: `${base}/tasks`, icon: CheckSquare, label: "Tugas" },
     { href: `${base}/approvals`, icon: FileCheck2, label: "Persetujuan" },

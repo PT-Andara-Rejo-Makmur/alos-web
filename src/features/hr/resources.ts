@@ -1185,6 +1185,7 @@ export const hrResources = {
       }
     ],
     "columns": [
+      {"name": "decision_reason", "label": "Alasan Keputusan", "required": false, "nullable": true, "type": "text"},
       {
         "name": "tenant_id",
         "label": "Tenant",
@@ -1302,6 +1303,9 @@ export const hrResources = {
     "title": "Rekrutmen",
     "identifier": "recruitment_id",
     "createFields": [
+      {"name": "headcount", "label": "Jumlah Kebutuhan", "required": false, "nullable": true, "type": "integer"},
+      {"name": "reason", "label": "Alasan Kebutuhan", "required": false, "nullable": true, "type": "text"},
+      {"name": "requesting_workspace_id", "label": "Divisi Pengaju", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/workspaces", "identifier": "workspace.workspace_id", "label": "workspace.workspace_name"}},
       {
         "name": "position_title",
         "label": "Posisi",
@@ -1332,6 +1336,9 @@ export const hrResources = {
       }
     ],
     "updateFields": [
+      {"name": "headcount", "label": "Jumlah Kebutuhan", "required": false, "nullable": true, "type": "integer"},
+      {"name": "reason", "label": "Alasan Kebutuhan", "required": false, "nullable": true, "type": "text"},
+      {"name": "requesting_workspace_id", "label": "Divisi Pengaju", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/workspaces", "identifier": "workspace.workspace_id", "label": "workspace.workspace_name"}},
       {
         "name": "position_title",
         "label": "Posisi",
@@ -1355,6 +1362,9 @@ export const hrResources = {
       }
     ],
     "columns": [
+      {"name": "headcount", "label": "Jumlah Kebutuhan", "required": false, "nullable": true, "type": "integer"},
+      {"name": "reason", "label": "Alasan Kebutuhan", "required": false, "nullable": true, "type": "text"},
+      {"name": "requesting_workspace_id", "label": "Divisi Pengaju", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/workspaces", "identifier": "workspace.workspace_id", "label": "workspace.workspace_name"}},
       {
         "name": "tenant_id",
         "label": "Tenant",
@@ -1525,6 +1535,7 @@ export const hrResources = {
       }
     ],
     "columns": [
+      {"name": "employee_id", "label": "Karyawan Hasil Penerimaan", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/hr/employees", "identifier": "employee_id", "label": "full_name"}},
       {
         "name": "tenant_id",
         "label": "Tenant",
@@ -1763,145 +1774,181 @@ export const hrResources = {
     "immutable": false
   }, hrApi.interviews),
   onboardings: defineResource({
-    "key": "onboardings",
-    "domain": "hr",
-    "title": "Onboarding",
-    "identifier": "onboarding_id",
-    "createFields": [
-      {
-        "name": "employee_id",
-        "label": "Referensi Karyawan",
-        "required": true,
-        "nullable": false,
-        "type": "text",
-        "relation": {
-          "path": "/api/v1/hr/employees",
-          "identifier": "employee_id",
-          "label": "full_name"
-        }
-      },
-      {
-        "name": "start_date",
-        "label": "Tanggal Mulai",
-        "required": true,
-        "nullable": false,
-        "type": "date"
-      },
-      {
-        "name": "target_completion_date",
-        "label": "Target Selesai",
-        "required": false,
-        "nullable": true,
-        "type": "date"
+  "key": "onboardings",
+  "domain": "hr",
+  "title": "Onboarding",
+  "identifier": "onboarding_id",
+  "createFields": [
+    {
+      "name": "employee_id",
+      "label": "Referensi Karyawan",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/employees",
+        "identifier": "employee_id",
+        "label": "full_name"
       }
-    ],
-    "updateFields": [
-      {
-        "name": "start_date",
-        "label": "Tanggal Mulai",
-        "required": true,
-        "nullable": false,
-        "type": "date"
-      },
-      {
-        "name": "target_completion_date",
-        "label": "Target Selesai",
-        "required": false,
-        "nullable": true,
-        "type": "date"
+    },
+    {
+      "name": "start_date",
+      "label": "Tanggal Mulai",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "target_completion_date",
+      "label": "Target Selesai",
+      "required": false,
+      "nullable": true,
+      "type": "date"
+    },
+    {
+      "name": "facility_request_id",
+      "label": "Kesiapan fasilitas kerja",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/facility-requests",
+        "identifier": "facility_request_id",
+        "label": "title"
       }
-    ],
-    "columns": [
-      {
-        "name": "tenant_id",
-        "label": "Tenant",
-        "required": false,
-        "nullable": false,
-        "type": "text"
-      },
-      {
-        "name": "organization_id",
-        "label": "Organisasi",
-        "required": false,
-        "nullable": false,
-        "type": "text"
-      },
-      {
-        "name": "workspace_id",
-        "label": "Workspace",
-        "required": false,
-        "nullable": false,
-        "type": "text"
-      },
-      {
-        "name": "onboarding_id",
-        "label": "Referensi Onboarding",
-        "required": false,
-        "nullable": false,
-        "type": "text",
-        "relation": {
-          "path": "/api/v1/hr/onboardings",
-          "identifier": "onboarding_id",
-          "label": "onboarding_id"
-        }
-      },
-      {
-        "name": "employee_id",
-        "label": "Referensi Karyawan",
-        "required": true,
-        "nullable": false,
-        "type": "text",
-        "relation": {
-          "path": "/api/v1/hr/employees",
-          "identifier": "employee_id",
-          "label": "full_name"
-        }
-      },
-      {
-        "name": "start_date",
-        "label": "Tanggal Mulai",
-        "required": true,
-        "nullable": false,
-        "type": "date"
-      },
-      {
-        "name": "target_completion_date",
-        "label": "Target Selesai",
-        "required": false,
-        "nullable": true,
-        "type": "date"
-      },
-      {
-        "name": "status",
-        "label": "Status",
-        "required": false,
-        "nullable": false,
-        "type": "text"
-      },
-      {
-        "name": "owner_actor_id",
-        "label": "Penulis Rekaman",
-        "required": false,
-        "nullable": true,
-        "type": "text"
-      },
-      {
-        "name": "created_at",
-        "label": "Dibuat",
-        "required": false,
-        "nullable": false,
-        "type": "datetime-local"
-      },
-      {
-        "name": "updated_at",
-        "label": "Diperbarui",
-        "required": false,
-        "nullable": false,
-        "type": "datetime-local"
+    }
+  ],
+  "updateFields": [
+    {
+      "name": "start_date",
+      "label": "Tanggal Mulai",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "target_completion_date",
+      "label": "Target Selesai",
+      "required": false,
+      "nullable": true,
+      "type": "date"
+    },
+    {
+      "name": "facility_request_id",
+      "label": "Kesiapan fasilitas kerja",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/facility-requests",
+        "identifier": "facility_request_id",
+        "label": "title"
       }
-    ],
-    "immutable": false
-  }, hrApi.onboardings),
+    }
+  ],
+  "columns": [
+    {
+      "name": "tenant_id",
+      "label": "Tenant",
+      "required": false,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "organization_id",
+      "label": "Organisasi",
+      "required": false,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "workspace_id",
+      "label": "Workspace",
+      "required": false,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "onboarding_id",
+      "label": "Referensi Onboarding",
+      "required": false,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/onboardings",
+        "identifier": "onboarding_id",
+        "label": "onboarding_id"
+      }
+    },
+    {
+      "name": "employee_id",
+      "label": "Referensi Karyawan",
+      "required": true,
+      "nullable": false,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/employees",
+        "identifier": "employee_id",
+        "label": "full_name"
+      }
+    },
+    {
+      "name": "start_date",
+      "label": "Tanggal Mulai",
+      "required": true,
+      "nullable": false,
+      "type": "date"
+    },
+    {
+      "name": "target_completion_date",
+      "label": "Target Selesai",
+      "required": false,
+      "nullable": true,
+      "type": "date"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "required": false,
+      "nullable": false,
+      "type": "text"
+    },
+    {
+      "name": "owner_actor_id",
+      "label": "Penulis Rekaman",
+      "required": false,
+      "nullable": true,
+      "type": "text"
+    },
+    {
+      "name": "created_at",
+      "label": "Dibuat",
+      "required": false,
+      "nullable": false,
+      "type": "datetime-local"
+    },
+    {
+      "name": "updated_at",
+      "label": "Diperbarui",
+      "required": false,
+      "nullable": false,
+      "type": "datetime-local"
+    },
+    {
+      "name": "facility_request_id",
+      "label": "Kesiapan fasilitas kerja",
+      "required": false,
+      "nullable": true,
+      "type": "text",
+      "relation": {
+        "path": "/api/v1/hr/facility-requests",
+        "identifier": "facility_request_id",
+        "label": "title"
+      }
+    }
+  ],
+  "immutable": false
+}, hrApi.onboardings),
   performance_reviews: defineResource({
     "key": "performance_reviews",
     "domain": "hr",
@@ -2740,6 +2787,7 @@ export const hrResources = {
     "title": "Kontrak Kerja",
     "identifier": "employment_contract_id",
     "createFields": [
+      { "name": "legal_review_required", "label": "Perlu Pemeriksaan Legal", "required": false, "nullable": false, "type": "boolean" },
       {
         "name": "employee_id",
         "label": "Referensi Karyawan",
@@ -2794,6 +2842,8 @@ export const hrResources = {
       }
     ],
     "updateFields": [
+      { "name": "document_id", "label": "Dokumen Pendukung", "required": false, "nullable": true, "type": "text", "relation": { "path": "/api/v1/documents", "identifier": "document_id", "label": "title" } },
+      { "name": "legal_review_required", "label": "Perlu Pemeriksaan Legal", "required": false, "nullable": false, "type": "boolean" },
       {
         "name": "contract_number",
         "label": "Nomor Kontrak",
@@ -2824,6 +2874,7 @@ export const hrResources = {
       }
     ],
     "columns": [
+      {"name": "legal_review_required", "label": "Perlu Pemeriksaan Legal", "required": false, "nullable": false, "type": "boolean"},
       {
         "name": "tenant_id",
         "label": "Tenant",

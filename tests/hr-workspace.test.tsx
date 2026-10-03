@@ -20,7 +20,7 @@ import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
 
 const mockReplace = vi.fn();
-vi.mock("next/navigation", () => ({ usePathname: () => "/workspace/sdm-utama/summary", useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: mockReplace }) }));
+vi.mock("next/navigation", () => ({ useParams: () => ({ workspaceKey: "sdm-utama" }), usePathname: () => "/workspace/sdm-utama/summary", useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: mockReplace }) }));
 
 function hrSession(workspaceKey = "sdm-utama", divisionCode = "HR") {
   const principal: AuthenticatedPrincipalProjection = {
@@ -57,7 +57,7 @@ describe("HR / GA workspace", () => {
   it("builds the combined HR & GA menu with encoded actual workspace key", () => {
     const navigation = hrNavigation("sdm & utama", hasGaScope(hrSession("sdm & utama", "HR")));
     const labels = navigation.flatMap((section) => section.items.map((item) => item.label));
-    expect(labels).toHaveLength(19);
+    expect(labels).toHaveLength(20);
     expect(labels).toContain("GA & Fasilitas");
     expect(navigation.flatMap((section) => section.items.map((item) => item.href))).toContain("/workspace/sdm%20%26%20utama/summary");
     expect(navigation.flatMap((section) => section.items.map((item) => item.href)).some((href) => href.startsWith("/workspace/hr/"))).toBe(false);
@@ -130,13 +130,13 @@ describe("HR / GA workspace", () => {
     expect(screen.queryByText("Compliant")).not.toBeInTheDocument();
   });
 
-  it("reads recruitment, candidate and interview records while hiring stays unavailable", async () => {
+  it("reads recruitment, candidate and interview records without inventing final decisions", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession());
     render(<RecruitmentRoute {...params({ workspaceKey: "sdm-utama" })} />);
     (await screen.findByRole("tab", { name: "Kandidat" })).click();
     await waitFor(() => expect(api.authenticatedApiRequest).toHaveBeenCalledWith("/api/v1/hr/candidates?limit=100&offset=0", expect.any(Object)));
     expect(screen.getByRole("tab", { name: "Interview" })).toBeInTheDocument();
-    expect(screen.getByText("Keputusan Hiring atau Rejection Final")).toBeInTheDocument();
+    expect(screen.queryByText("Keputusan Hiring atau Rejection Final")).not.toBeInTheDocument();
     cleanup();
     vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ candidate_id: "candidate-1", full_name: "Recorded candidate" } as never);
     render(<CandidateDetailRoute {...params({ workspaceKey: "sdm-utama", candidateId: "candidate-1" })} />);
@@ -169,7 +169,8 @@ describe("HR / GA workspace", () => {
     const source = readFileSync(resolve("src/features/hr/hr-pages.tsx"), "utf8");
     expect(source).toContain("Kompensasi & Benefit");
     expect(source).toContain("GA & Fasilitas");
-    expect(source).toContain("Workflow Offboarding");
+    expect(source).toContain("Perubahan & Offboarding");
+    expect(source).not.toContain('unavailable: ["Workflow Offboarding"');
     expect(source).toContain("Revokasi Akses dari HR");
     const protectedFields = ["actor_id", "approved_by", "approved_at", "owner_actor_id", "reviewer_actor_id"];
     for (const resource of Object.values(hrResources)) for (const field of resource.createFields) expect(protectedFields).not.toContain(field.name);

@@ -42,6 +42,7 @@ export function hrNavigation(workspaceKey: string, includeGa: boolean): readonly
   sections.push(
     { label: "KINERJA", items: [{ href: `${base}/performance`, icon: BarChart3, label: "Target & Kinerja" }] },
     { label: "PEKERJAAN", items: [
+      { href: `${base}/processes`, icon: CheckSquare, label: "Perlu Tindakan" },
       { href: `${base}/projects`, icon: BriefcaseBusiness, label: "Proyek" },
       { href: `${base}/tasks`, icon: CheckSquare, label: "Tugas" },
       { href: `${base}/approvals`, icon: FileCheck2, label: "Persetujuan" },

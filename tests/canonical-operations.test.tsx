@@ -17,7 +17,8 @@ describe.each(["legal", "hr", "it"] as const)("canonical %s operations", (domain
       $defs: Record<string, { properties?: Record<string, unknown>; required?: readonly string[] }>;
     };
     for (const resource of Object.values(resources[domain])) {
-      const projection = Object.entries(schema.$defs).find(([name, value]) => name.endsWith("Projection") && !name.endsWith("ListProjection") && value.properties?.[resource.identifier]);
+      const projection = Object.entries(schema.$defs).find(([name, value]) => name.endsWith("Projection") && !name.endsWith("ListProjection") && value.properties?.[resource.identifier]
+        && !schema.$defs[`${name.replace(/Projection$/, "")}CreateRequest`]?.properties?.[resource.identifier]);
       expect(projection).toBeDefined();
       const name = projection![0].replace(/Projection$/, "");
       expect(resource.createFields.map((field) => field.name).sort()).toEqual(Object.keys(schema.$defs[`${name}CreateRequest`].properties!).sort());

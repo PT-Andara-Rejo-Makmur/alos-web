@@ -192,11 +192,11 @@ describe("IT account management authority boundary", () => {
     expect(await within(detailDialog).findByText("Belum ada perubahan identitas yang tercatat.")).toBeInTheDocument();
   });
 
-  it("keeps the exact 20-item IT sidebar and encodes the actual workspace key", () => {
+  it("keeps the exact 21-item IT sidebar and encodes the actual workspace key", () => {
     const sections = itNavigation("it/utama");
     const labels = sections.flatMap((section) => section.items.map((item) => item.label));
-    expect(labels).toHaveLength(20);
-    expect(labels).toEqual(["Ringkasan", "Layanan & Insiden", "Sistem & Aplikasi", "Infrastruktur & Lingkungan", "ALOS & GENESIS", "Integrasi & Connector", "Akun Karyawan", "Akses & Identitas", "Keamanan & Kepatuhan", "Perubahan & Rilis", "Aset IT", "Dukungan & Permintaan", "Target & Kinerja", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA"]);
+    expect(labels).toHaveLength(21);
+    expect(labels).toEqual(["Ringkasan", "Layanan & Insiden", "Sistem & Aplikasi", "Infrastruktur & Lingkungan", "ALOS & GENESIS", "Integrasi & Connector", "Akun Karyawan", "Akses & Identitas", "Keamanan & Kepatuhan", "Perubahan & Rilis", "Aset IT", "Dukungan & Permintaan", "Target & Kinerja", "Perlu Tindakan", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA"]);
     expect(sections[0].items[0].href).toBe("/workspace/it%2Futama/summary");
   });
 

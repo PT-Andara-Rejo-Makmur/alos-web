@@ -8,5 +8,5 @@ const labels = Object.fromEntries(Object.values(financeResources).map((resource)
 const unavailable = ["Kas Tersedia", "Arus Kas Final", "Anggaran vs Realisasi", "Kepatuhan Pajak Resmi"];
 
 export function FinanceSummaryPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) {
-  return <FinanceLayout workspaceKey={workspaceKey}>{(session) => <DomainOverview key={session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_id : "unknown"} title="Finance & Pajak" labels={labels} unavailable={unavailable} read={financeApi.overview} />}</FinanceLayout>;
+  return <FinanceLayout workspaceKey={workspaceKey}>{(session) => <DomainOverview domain="finance" key={session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_id : "unknown"} title="Finance & Pajak" labels={labels} unavailable={unavailable} read={financeApi.overview} />}</FinanceLayout>;
 }

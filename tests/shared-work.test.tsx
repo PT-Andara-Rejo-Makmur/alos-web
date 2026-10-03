@@ -261,6 +261,7 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
       fireEvent.click(await screen.findByRole("button", { name: "Tambah Proyek" }));
       fireEvent.change(screen.getByRole("textbox", { name: /Kode Proyek/ }), { target: { value: "PRJ-PRP-001" } });
       fireEvent.change(screen.getByRole("textbox", { name: /Nama Proyek/ }), { target: { value: "The Park Cluster Residence" } });
+      fireEvent.change(screen.getByRole("textbox", { name: /Tujuan Proyek/ }), { target: { value: "Menyelesaikan kesiapan unit cluster" } });
       fireEvent.change(screen.getByLabelText("Tanggal Mulai"), { target: { value: "2026-10-01" } });
       fireEvent.change(screen.getByLabelText("Target Selesai"), { target: { value: "2026-12-31" } });
       fireEvent.click(screen.getByRole("button", { name: "Simpan Proyek" }));
@@ -268,6 +269,7 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
         method: "POST",
         body: {
           code: "PRJ-PRP-001", name: "The Park Cluster Residence",
+          objective: "Menyelesaikan kesiapan unit cluster", priority: "NORMAL",
           start_date: "2026-10-01", target_end_date: "2026-12-31",
         },
       }));

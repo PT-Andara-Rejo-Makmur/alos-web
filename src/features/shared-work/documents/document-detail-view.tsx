@@ -17,6 +17,7 @@ import { DataClassificationBadge } from "../shared/status/work-status";
 import { approveDocument, retireDocument, reviewDocument } from "./document-model";
 import { DocumentStatusBadge } from "./document-status";
 import { DocumentVersionDialog } from "./document-version-dialog";
+import { DocumentFileUpload } from "./document-upload";
 import type { WorkDocument } from "./document-types";
 import styles from "./documents.module.css";
 
@@ -315,7 +316,7 @@ export function DocumentDetailView({
             ) : <p>Belum ada versi dokumen yang tercatat.</p>}
           </div>
           {doc.status === "DRAFT" && hasVersionPerm ? (
-            <Button onClick={() => setVersionOpen(true)} variant="secondary">Tambah Versi</Button>
+            <div><DocumentFileUpload documentId={doc.id} /><Button onClick={() => setVersionOpen(true)} variant="secondary">Tambah Versi dari Sumber</Button></div>
           ) : null}
         </div>
       ),

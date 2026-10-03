@@ -6,10 +6,12 @@ export type Field = Readonly<{
   label: string;
   required: boolean;
   nullable: boolean;
-  type: "text" | "date" | "datetime-local" | "integer" | "decimal";
+  type: "text" | "date" | "datetime-local" | "integer" | "decimal" | "boolean";
+  optionLabels?: Readonly<Record<string, string>>;
   options?: readonly string[];
   relation?: Readonly<{
     path: string; identifier: string; label: string; array?: boolean;
+    multiple?: boolean;
     dependsOn?: string;
     variants?: Readonly<Record<string, Readonly<{ path: string; identifier: string; label: string }>>>;
   }>;
@@ -28,7 +30,7 @@ export type Resource = Readonly<{
   list: (signal?: AbortSignal, offset?: number) => Promise<Pick<SalesCustomerListProjection, "source" | "total"> & { readonly items: readonly object[] }>;
   create: (values: object) => Promise<object>;
   update: (identity: string, values: object) => Promise<object>;
-  transition: (identity: string, status: string, approvalId?: string) => Promise<object>;
+  transition: (identity: string, status: string, approvalId?: string, decisionReason?: string) => Promise<object>;
   pipeline?: (identity: string, stage: string) => Promise<object>;
 }>;
 
@@ -40,7 +42,7 @@ export function defineResource<C extends object, U extends object, P extends obj
 ): Resource {
   return { ...metadata, list: api.list, create: (values) => api.create(values as C),
     update: (identity, values) => api.update(identity, values as U),
-    transition: (identity, status, approvalId) => api.transition(identity, { status, ...(approvalId ? { approval_id: approvalId } : {}) } as T) };
+    transition: (identity, status, approvalId, decisionReason) => api.transition(identity, { status, ...(approvalId ? { approval_id: approvalId } : {}), ...(decisionReason ? { decision_reason: decisionReason } : {}) } as T) };
 }
 
 export type SourceState = "loading" | ExecutiveSourceStatus["status"];

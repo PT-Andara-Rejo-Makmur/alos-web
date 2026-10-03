@@ -6,10 +6,12 @@ import type { SalesOverview, MarketingOverview, PropertyOverview, FinanceOvervie
 import type { SourceState } from "./resource";
 import { SourceMetadata, SourceStateView, sourceFailure } from "./record-panel";
 import styles from "@/features/property/property.module.css";
+import { BusinessSummaryPanel } from "./business-summary";
 
 type Overview = SalesOverview | MarketingOverview | PropertyOverview | FinanceOverview | LegalOverview | HrOverview | ItOverview;
 
-export function DomainOverview({ title, read, labels, unavailable }: Readonly<{
+export function DomainOverview({ title, domain, read, labels, unavailable }: Readonly<{
+  domain?: "sales" | "property" | "finance" | "legal" | "hr" | "it";
   title: string; read: (signal?: AbortSignal) => Promise<Overview>; labels: Readonly<Record<string, string>>; unavailable: readonly string[];
 }>) {
   const [data, setData] = useState<Overview | null>(null);
@@ -24,6 +26,7 @@ export function DomainOverview({ title, read, labels, unavailable }: Readonly<{
   return <div className={styles.page}><PageHeader title={title} description="Ringkasan rekaman authoritative dalam scope aktif. Rekaman internal tidak menyatakan keputusan final lintas domain." />
     {data ? <SourceMetadata source={data.source} /> : null}
     <SourceStateView state={state} />
+    {domain ? <BusinessSummaryPanel domain={domain} /> : null}
     {rows.length ? <Section title="Rekaman Operasional"><DataTable caption={`Ringkasan ${title}`} rows={rows} getRowKey={(row) => row.key} columns={[
       { key: "label", header: "Sumber Rekaman", render: (row) => row.label },
       { key: "value", header: "Jumlah Tersimpan", render: (row) => row.value },
