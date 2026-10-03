@@ -1,0 +1,147 @@
+{
+  "recordedAt": "2026-10-03T06:17:43.633Z",
+  "branch": "development",
+  "baseCommit": "1a383ce469146350ffb0e81a90863d2f2ecb95b4",
+  "checks": [
+    {
+      "name": "Full lint",
+      "command": "node node_modules/eslint/bin/eslint.js . --max-warnings=0",
+      "exitCode": 0,
+      "evidence": "../.codex/validation/web-experience-full-lint.log"
+    },
+    {
+      "name": "Full typecheck",
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "exitCode": 0,
+      "evidence": "../.codex/validation/web-experience-full-typecheck.log"
+    },
+    {
+      "name": "Full Vitest",
+      "command": "node node_modules/vitest/vitest.mjs run --pool=threads --maxWorkers=4 --reporter=json --outputFile=../.codex/validation/web-experience-full-tests.json",
+      "exitCode": 0,
+      "passed": 549,
+      "failed": 0,
+      "files": 42,
+      "evidence": "../.codex/validation/web-experience-full-tests.json"
+    },
+    {
+      "name": "Production build",
+      "command": "node node_modules/next/dist/bin/next build",
+      "exitCode": 0,
+      "evidence": "../.codex/validation/web-experience-production-build.log"
+    },
+    {
+      "name": "Patch whitespace",
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "browser": [
+    {
+      "name": "browser-experience",
+      "mode": "Canonical API fixtures, no live Backend/provider",
+      "checks": 72,
+      "widths": [
+        1440,
+        1280,
+        1024,
+        768,
+        430,
+        390
+      ],
+      "axeChecks": 20,
+      "failures": 0,
+      "pageErrors": 0,
+      "evidence": "../.codex/validation/browser-experience/results.json"
+    },
+    {
+      "name": "browser-business-journeys",
+      "mode": "Canonical API fixtures, no live Backend/provider",
+      "checks": 180,
+      "widths": [
+        1440,
+        1280,
+        1024,
+        768,
+        430,
+        390
+      ],
+      "axeChecks": 60,
+      "failures": 0,
+      "pageErrors": 0,
+      "evidence": "../.codex/validation/browser-business-journeys/results.json"
+    },
+    {
+      "name": "browser-critical-journeys",
+      "mode": "Canonical API fixtures, no live Backend/provider",
+      "checks": 8,
+      "widths": [
+        1440,
+        390
+      ],
+      "axeChecks": 8,
+      "failures": 0,
+      "pageErrors": 0,
+      "evidence": "../.codex/validation/browser-critical-journeys/results.json"
+    },
+    {
+      "name": "browser-production-journeys",
+      "mode": "Production build with canonical API fixtures, no live Backend/provider",
+      "checks": 8,
+      "widths": [
+        1440,
+        390
+      ],
+      "axeChecks": 8,
+      "failures": 0,
+      "pageErrors": 0,
+      "evidence": "../.codex/validation/browser-production-journeys/results.json"
+    }
+  ],
+  "totalBrowserChecks": 268,
+  "resourceMetadata": [
+    {
+      "domain": "sales",
+      "file": "src/features/sales/resources.ts",
+      "canonicalMetadataUnchanged": true
+    },
+    {
+      "domain": "property",
+      "file": "src/features/property/resources.ts",
+      "canonicalMetadataUnchanged": true
+    },
+    {
+      "domain": "finance",
+      "file": "src/features/finance/resources.ts",
+      "canonicalMetadataUnchanged": true
+    },
+    {
+      "domain": "legal",
+      "file": "src/features/legal/resources.ts",
+      "canonicalMetadataUnchanged": true
+    },
+    {
+      "domain": "hr",
+      "file": "src/features/hr/resources.ts",
+      "canonicalMetadataUnchanged": true
+    },
+    {
+      "domain": "it",
+      "file": "src/features/it/resources.ts",
+      "canonicalMetadataUnchanged": true
+    }
+  ],
+  "cssUndefinedTokens": [],
+  "canonicalStatusLabelsMissing": [],
+  "unchangedRepositories": [
+    "alos-backend",
+    "alos-contracts",
+    "genesis-ai",
+    "alos-infra"
+  ],
+  "limitations": [
+    "Browser responses use canonical fixtures; live Backend transactions and AI provider responses were not exercised.",
+    "Axe checks and keyboard tests cover the inspected surfaces and are not a complete accessibility certification.",
+    "No production deployment was performed."
+  ]
+}
