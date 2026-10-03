@@ -272,6 +272,7 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
         body: {
           code: "PRJ-PRP-001", name: "The Park Cluster Residence",
           objective: "Menyelesaikan kesiapan unit cluster", priority: "NORMAL",
+          owner_actor_id: "actor_rani",
           start_date: "2026-10-01", target_end_date: "2026-12-31",
         },
       }));

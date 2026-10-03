@@ -128,6 +128,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
   const canCreate = useMemo(() => canCreateProject(session), [session]);
   const activeWorkspace = session?.principal && "actor" in session.principal
     ? session.principal.active_workspace?.workspace : null;
+  const currentActor = session?.principal && "actor" in session.principal ? session.principal.actor : null;
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
@@ -319,12 +320,13 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
           workspaceKey={effectiveWorkspaceKey}
         />
         <ProjectCreateDialog
-          key={activeWorkspace?.workspace_id}
+          key={`${activeWorkspace?.workspace_id ?? ""}:${currentActor?.actor_id ?? ""}`}
           onClose={() => setCreateOpen(false)}
           onCreated={(created) => setProjects((current) => [created, ...current])}
           open={createOpen}
           workspaceId={activeWorkspace?.workspace_id ?? null}
           workspaceName={activeWorkspace?.workspace_name ?? null}
+          creator={currentActor?.active ? { actorId: currentActor.actor_id, name: currentActor.display_name } : null}
         />
       </div>
   );

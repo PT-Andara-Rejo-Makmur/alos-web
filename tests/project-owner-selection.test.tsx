@@ -6,6 +6,7 @@ import { ProjectDetailView } from "@/features/shared-work/projects/project-detai
 import { ProjectDrawer } from "@/features/shared-work/projects/project-drawer";
 import { ProjectEditDialog } from "@/features/shared-work/projects/project-edit-dialog";
 import { projectFromProjection } from "@/features/shared-work/projects/project-model";
+import type { ProjectOwnerSelection } from "@/features/shared-work/projects/project-owner-field";
 import { ProjectsPage } from "@/features/shared-work/projects/projects-page";
 import type { SessionProjection } from "@/features/session";
 import * as api from "@/lib/api";
@@ -21,10 +22,11 @@ const raniId = "a30fda88-132e-4c19-a16a-95c1414e828d";
 const dimasId = "b49da85c-12e4-43e2-8a49-d867eaed0b29";
 const legacyId = "ce25e5fd-b81e-4986-927c-3601c1a5e3d1";
 const realAuthenticatedRequest = api.authenticatedApiRequest;
+const creator: ProjectOwnerSelection = { actorId: raniId, name: "Rani Andara" };
 const members: readonly SharedWorkWorkspaceMemberProjection[] = [
-  { actor_id: raniId, display_name: "Rani Andara", position_title: "Manajer Teknik", workspace_id: workspaceId, role_refs: [], active: true, task_assignable: true, finding_assignable: false },
+  { actor_id: raniId, display_name: "Rani Andara", position_title: "Manajer Teknik", workspace_id: workspaceId, role_refs: [], active: true, project_assignable: true, task_assignable: true, finding_assignable: false },
   // Task/finding assignment flags are not Project assignment authority.
-  { actor_id: dimasId, display_name: "Dimas Pratama", workspace_id: workspaceId, role_refs: [], active: true, task_assignable: false, finding_assignable: false },
+  { actor_id: dimasId, display_name: "Dimas Pratama", workspace_id: workspaceId, role_refs: [], active: true, project_assignable: true, task_assignable: false, finding_assignable: false },
 ];
 const projection: SharedWorkProjectProjection = {
   project_id: "project_park", tenant_id: "tenant_andara", organization_id: "org_andara",
@@ -53,9 +55,9 @@ function mockRequests(directory: readonly SharedWorkWorkspaceMemberProjection[] 
   });
 }
 
-function renderCreate() {
+function renderCreate(currentCreator: ProjectOwnerSelection | null = creator) {
   const onCreated = vi.fn();
-  const view = render(<ProjectCreateDialog open onClose={vi.fn()} onCreated={onCreated} workspaceId={workspaceId} workspaceName="Property & Teknik" />);
+  const view = render(<ProjectCreateDialog open onClose={vi.fn()} onCreated={onCreated} workspaceId={workspaceId} workspaceName="Property & Teknik" creator={currentCreator} />);
   fireEvent.change(screen.getByRole("textbox", { name: /Kode Proyek/ }), { target: { value: "PRJ-001" } });
   fireEvent.change(screen.getByRole("textbox", { name: /Nama Proyek/ }), { target: { value: "Kesiapan Cluster" } });
   fireEvent.change(screen.getByRole("textbox", { name: /Tujuan Proyek/ }), { target: { value: "Menyiapkan unit cluster" } });
@@ -82,23 +84,64 @@ afterEach(() => {
 });
 
 describe("Project workspace owner selection", () => {
-  it("creates without owner_actor_id when the optional selection is empty", async () => {
+  it("defaults to the authoritative creator and sends the same PIC shown in review", async () => {
     const request = mockRequests();
     const { onCreated } = renderCreate();
     await screen.findByRole("option", { name: "Dimas Pratama" });
-    expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toHaveValue("");
+    expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toHaveValue(raniId);
+    expect(screen.getByRole("option", { name: "Rani Andara · Manajer Teknik · Anda" })).toBeInTheDocument();
     submitCreate();
+    expect(screen.getByText("Rani Andara", { selector: "dd" })).toBeVisible();
     await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects", {
-      method: "POST", body: { code: "PRJ-001", name: "Kesiapan Cluster", objective: "Menyiapkan unit cluster", priority: "NORMAL" },
+      method: "POST", body: { code: "PRJ-001", name: "Kesiapan Cluster", objective: "Menyiapkan unit cluster", priority: "NORMAL", owner_actor_id: raniId },
     }));
     await waitFor(() => expect(onCreated).toHaveBeenCalledWith(projectFromProjection(projection)));
+  });
+
+  it("shows a loading state while keeping the authoritative creator visible", async () => {
+    let resolveMembers!: (value: readonly SharedWorkWorkspaceMemberProjection[]) => void;
+    const pending = new Promise<readonly SharedWorkWorkspaceMemberProjection[]>(resolve => { resolveMembers = resolve; });
+    const request = vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path) => (path === "/api/v1/workspace-members" ? await pending : projection) as never);
+    const { onCreated } = renderCreate();
+    expect(screen.getByText("Memuat daftar penanggung jawab…")).toBeVisible();
+    expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toBeDisabled();
+    expect(screen.getByRole("option", { name: "Rani Andara · Anda" })).toBeInTheDocument();
+    submitCreate();
+    expect(screen.getByText("Rani Andara", { selector: "dd" })).toBeVisible();
+    await waitFor(() => expect(onCreated).toHaveBeenCalled());
+    expect(request).toHaveBeenCalledWith("/api/v1/projects", expect.objectContaining({ method: "POST", body: expect.objectContaining({ owner_actor_id: raniId }) }));
+    resolveMembers(members);
+    await waitFor(() => expect(screen.queryByText("Memuat daftar penanggung jawab…")).not.toBeInTheDocument());
+  });
+
+  it("keeps the creator-only default separate from replacement eligibility", async () => {
+    const request = mockRequests([{ ...members[0], project_assignable: false }, members[1]]);
+    renderCreate();
+    await screen.findByRole("option", { name: "Dimas Pratama" });
+    expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toHaveValue(raniId);
+    expect(screen.getByRole("option", { name: "Rani Andara · Anda" })).toBeInTheDocument();
+    submitCreate();
+    await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects", expect.objectContaining({ method: "POST", body: expect.objectContaining({ owner_actor_id: raniId }) })));
+  });
+
+  it("restores the creator default when an override is cleared", async () => {
+    const request = mockRequests();
+    renderCreate();
+    await screen.findByRole("option", { name: "Dimas Pratama" });
+    const select = screen.getByRole("combobox", { name: "Penanggung Jawab" });
+    fireEvent.change(select, { target: { value: dimasId } });
+    fireEvent.change(select, { target: { value: "" } });
+    expect(select).toHaveValue(raniId);
+    submitCreate();
+    expect(screen.getByText("Rani Andara", { selector: "dd" })).toBeVisible();
+    await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects", expect.objectContaining({ method: "POST", body: expect.objectContaining({ owner_actor_id: raniId }) })));
   });
 
   it("uses human labels and sends the selected canonical actor_id during creation", async () => {
     const request = mockRequests();
     const { container } = renderCreate();
     await screen.findByRole("option", { name: "Dimas Pratama" });
-    expect(screen.getByRole("option", { name: "Rani Andara · Manajer Teknik" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Rani Andara · Manajer Teknik · Anda" })).toBeInTheDocument();
     expect(screen.getByText("Property & Teknik")).toBeInTheDocument();
     fireEvent.change(screen.getByRole("combobox", { name: "Penanggung Jawab" }), { target: { value: dimasId } });
     fireEvent.click(screen.getByRole("button", { name: "Lanjut" }));
@@ -129,16 +172,20 @@ describe("Project workspace owner selection", () => {
     expect(JSON.parse(options.body)).toEqual({ code: "PRJ-001", name: "Kesiapan Cluster", objective: "Menyiapkan unit cluster", priority: "NORMAL", owner_actor_id: dimasId });
   });
 
-  it("shows only active members of the session workspace, without using task/finding flags", async () => {
+  it("offers only active project-assignable members in the session workspace", async () => {
     const request = mockRequests([
       ...members,
       { ...members[0], actor_id: legacyId, display_name: "Anggota Nonaktif", active: false },
       { ...members[0], actor_id: "remote_actor", display_name: "Anggota Keuangan", workspace_id: "workspace_finance" },
+      { ...members[0], actor_id: "task_only", display_name: "Petugas Tugas", project_assignable: false, task_assignable: true, finding_assignable: true },
+      { ...members[0], actor_id: "older_projection", display_name: "Anggota tanpa flag", project_assignable: undefined },
     ]);
     renderCreate();
     await screen.findByRole("option", { name: "Dimas Pratama" });
     expect(screen.queryByRole("option", { name: "Anggota Nonaktif" })).not.toBeInTheDocument();
     expect(screen.queryByRole("option", { name: "Anggota Keuangan" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Petugas Tugas" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Anggota tanpa flag" })).not.toBeInTheDocument();
     expect(request).toHaveBeenCalledExactlyOnceWith("/api/v1/workspace-members");
   });
 
@@ -148,7 +195,9 @@ describe("Project workspace owner selection", () => {
     const search = await screen.findByRole("searchbox", { name: "Cari Penanggung Jawab" });
     fireEvent.change(search, { target: { value: "dimas" } });
     expect(screen.getByRole("option", { name: "Dimas Pratama" })).toBeInTheDocument();
-    expect(screen.queryByRole("option", { name: "Rani Andara · Manajer Teknik" })).not.toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toHaveValue(raniId);
+    expect(screen.getByRole("option", { name: "Rani Andara · Manajer Teknik · Anda" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Anggota 0" })).not.toBeInTheDocument();
   });
 
   it("disables the picker while loading and permits unrelated edits without losing the owner", async () => {
@@ -167,13 +216,14 @@ describe("Project workspace owner selection", () => {
     await screen.findByRole("option", { name: "Dimas Pratama" });
   });
 
-  it("handles an empty directory and still supports optional creation", async () => {
+  it("handles an empty directory without losing the authoritative creator default", async () => {
     const request = mockRequests([]);
     renderCreate();
-    await screen.findByText("Belum ada anggota aktif yang tersedia di ruang kerja ini.");
+    await screen.findByText("Belum ada anggota lain yang dapat dipilih. Penanggung jawab bawaan adalah pembuat proyek.");
     expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toHaveValue(raniId);
     submitCreate();
-    await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects", expect.objectContaining({ method: "POST", body: expect.not.objectContaining({ owner_actor_id: expect.anything() }) })));
+    await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects", expect.objectContaining({ method: "POST", body: expect.objectContaining({ owner_actor_id: raniId }) })));
   });
 
   it("shows a recoverable member error without crashing or sending a fake owner", async () => {
@@ -191,9 +241,9 @@ describe("Project workspace owner selection", () => {
     fireEvent.click(screen.getByRole("button", { name: "Coba lagi" }));
     await screen.findByRole("option", { name: "Dimas Pratama" });
     expect(screen.queryByText("Daftar penanggung jawab belum dapat dimuat. Coba lagi.")).not.toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toHaveValue("");
+    expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toHaveValue(raniId);
     submitCreate();
-    await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects", expect.objectContaining({ method: "POST", body: expect.not.objectContaining({ owner_actor_id: expect.anything() }) })));
+    await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects", expect.objectContaining({ method: "POST", body: expect.objectContaining({ owner_actor_id: raniId }) })));
   });
 
   it("preserves the current owner when the member API fails during an edit", async () => {
@@ -212,14 +262,30 @@ describe("Project workspace owner selection", () => {
     expect(request).toHaveBeenCalledWith("/api/v1/projects/project_park", { method: "PATCH", body: { name: projection.name, description: null, start_date: null, target_end_date: null } });
   });
 
-  it("allows optional creation while the member directory remains unavailable", async () => {
+  it("explains and submits the creator default when the member directory fails", async () => {
     const request = vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path) => {
       if (path === "/api/v1/workspace-members") throw new api.ApiError(503, "MEMBER_DIRECTORY_FAILED", null);
       return projection as never;
     });
     const { onCreated } = renderCreate();
     await screen.findByText("Daftar penanggung jawab belum dapat dimuat. Coba lagi.");
+    expect(screen.getByText("Jika melanjutkan tanpa memilih pengganti, pembuat proyek tetap menjadi penanggung jawab.")).toBeVisible();
+    expect(screen.getByRole("option", { name: "Rani Andara · Anda" })).toBeInTheDocument();
     submitCreate();
+    await waitFor(() => expect(onCreated).toHaveBeenCalled());
+    expect(request).toHaveBeenCalledWith("/api/v1/projects", { method: "POST", body: { code: "PRJ-001", name: "Kesiapan Cluster", objective: "Menyiapkan unit cluster", priority: "NORMAL", owner_actor_id: raniId } });
+  });
+
+  it("truthfully describes the creator fallback when authoritative actor data is unavailable", async () => {
+    const request = vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path) => {
+      if (path === "/api/v1/workspace-members") throw new Error("fetch failed");
+      return projection as never;
+    });
+    const { onCreated } = renderCreate(null);
+    await screen.findByText("Daftar penanggung jawab belum dapat dimuat. Coba lagi.");
+    expect(screen.getByRole("option", { name: "Pembuat proyek (Anda)" })).toBeInTheDocument();
+    submitCreate();
+    expect(screen.getByText("Pembuat proyek (Anda)", { selector: "dd" })).toBeVisible();
     await waitFor(() => expect(onCreated).toHaveBeenCalled());
     expect(request).toHaveBeenCalledWith("/api/v1/projects", { method: "POST", body: { code: "PRJ-001", name: "Kesiapan Cluster", objective: "Menyiapkan unit cluster", priority: "NORMAL" } });
   });
@@ -248,11 +314,26 @@ describe("Project workspace owner selection", () => {
     expect(screen.getByText("Dimas Pratama", { selector: "dd" })).toBeInTheDocument();
   });
 
+  it("filters replacement owners during edit without clearing an ineligible current owner", async () => {
+    const request = mockRequests([
+      { ...members[0], project_assignable: false }, members[1],
+      { ...members[1], actor_id: "task_only", display_name: "Petugas Tugas", project_assignable: false, task_assignable: true },
+    ]);
+    renderEdit();
+    await screen.findByText(/Penanggung jawab tersimpan tidak ada dalam daftar anggota yang dapat dipilih/);
+    expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toHaveValue(raniId);
+    expect(screen.getByRole("option", { name: "Rani Andara" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Petugas Tugas" })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByRole("combobox", { name: "Penanggung Jawab" }), { target: { value: dimasId } });
+    fireEvent.click(screen.getByRole("button", { name: "Simpan Perubahan" }));
+    await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects/project_park", expect.objectContaining({ method: "PATCH", body: expect.objectContaining({ owner_actor_id: dimasId }) })));
+  });
+
   it("preserves an inactive legacy owner absent from the directory without exposing its ID", async () => {
     const current = { ...projection, owner_actor_id: legacyId, owner_name: "Sari Wulandari" };
     const request = mockRequests(members, current);
     const { container, onSaved } = renderEdit(current);
-    await screen.findByText(/Penanggung jawab tersimpan tidak tersedia dalam daftar anggota aktif/);
+    await screen.findByText(/Penanggung jawab tersimpan tidak ada dalam daftar anggota yang dapat dipilih/);
     expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toHaveValue(legacyId);
     expect(screen.getByRole("option", { name: "Sari Wulandari" })).toBeInTheDocument();
     expect(container.textContent).not.toContain(legacyId);
@@ -265,7 +346,7 @@ describe("Project workspace owner selection", () => {
     const current = { ...projection, owner_actor_id: legacyId, owner_name: null };
     const request = mockRequests(members, current);
     const { container, onSaved } = renderEdit(current);
-    await screen.findByText(/Penanggung jawab tersimpan tidak tersedia dalam daftar anggota aktif/);
+    await screen.findByText(/Penanggung jawab tersimpan tidak ada dalam daftar anggota yang dapat dipilih/);
     expect(screen.getByRole("combobox", { name: "Penanggung Jawab" })).toHaveValue(legacyId);
     expect(container.textContent).not.toContain(legacyId);
     fireEvent.click(screen.getByRole("button", { name: "Simpan Perubahan" }));
