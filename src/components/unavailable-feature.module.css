@@ -1,0 +1,4 @@
+.page { display: grid; gap: var(--alos-space-5); }
+.backLink { align-items: center; background: var(--alos-primary); border-radius: var(--alos-radius-button); color: white; display: inline-flex; font-size: 13px; font-weight: 600; min-height: 40px; padding: 0 var(--alos-space-4); text-decoration: none; }
+.backLink:hover { background: var(--alos-primary-hover); }
+.backLink:focus-visible { outline: 3px solid var(--alos-focus-ring); outline-offset: 2px; }

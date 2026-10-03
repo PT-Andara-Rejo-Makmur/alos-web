@@ -44,8 +44,8 @@ function FinanceDataContent<Row>({ description, eyebrow, session, tabs, title }:
   const tabItems: readonly TabItem[] = tabs.map((tab) => ({ id: tab.id, label: tab.label }));
   const state = currentTab.state ?? "unavailable";
   return <div className={styles.page}>
-    <PageHeader description={currentTab.description || description} eyebrow={eyebrow} metadata={`Workspace aktif: ${activeWorkspace?.workspace_name ?? "—"}`} title={currentTab.title} />
-    <div className={styles.contextBar}><ContextItem label="Periode" value="—" /><ContextItem label="Workspace" value={activeWorkspace?.workspace_name ?? "—"} /><ContextItem label="Status data" value="Belum Terhubung" /><ContextItem label="Pembaruan Terverifikasi Terakhir" value="—" /></div>
+    <PageHeader description={currentTab.description || description} eyebrow={eyebrow} metadata={`Ruang Kerja: ${activeWorkspace?.workspace_name ?? "—"}`} title={currentTab.title} />
+    <div className={styles.contextBar}><ContextItem label="Periode" value="—" /><ContextItem label="Ruang Kerja" value={activeWorkspace?.workspace_name ?? "—"} /><ContextItem label="Status data" value="Belum Terhubung" /><ContextItem label="Pembaruan Terverifikasi Terakhir" value="—" /></div>
     <FinanceSourceStrip onStatus={() => setStatusOpen(true)} />
     <Tabs ariaLabel={`Navigasi ${title}`} items={tabItems} onValueChange={setActiveTab} value={currentTab.id} />
     {currentTab.children}

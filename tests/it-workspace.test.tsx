@@ -37,10 +37,10 @@ describe("IT frontend master matrix", () => {
     expect(activeItWorkspaceKey(itSession)).toBe("it-utama");
   });
 
-  it("keeps the exact 21-item master sidebar with encoded workspace identity", () => {
+  it("keeps the usable IT sidebar with encoded workspace identity", () => {
     const sections = itNavigation("it utama");
-    expect(sections.flatMap((section) => section.items)).toHaveLength(21);
-    expect(sections.map((section) => section.label)).toEqual(["PUSAT IT", "PLATFORM & SISTEM", "AKSES & IDENTITAS", "PERUBAHAN", "OPERASIONAL", "KINERJA", "PEKERJAAN", "ARA"]);
+    expect(sections.flatMap((section) => section.items)).toHaveLength(19);
+    expect(sections.map((section) => section.label)).toEqual(["PUSAT IT", "PLATFORM & SISTEM", "AKSES & IDENTITAS", "PERUBAHAN", "KINERJA", "PEKERJAAN", "ARA"]);
     expect(sections.flatMap((section) => section.items).every((item) => item.href.startsWith("/workspace/it%20utama/"))).toBe(true);
   });
 
@@ -116,8 +116,9 @@ describe("IT frontend master matrix", () => {
     expect(account).toContain("+ Tambah Workspace");
     expect(account).toContain("Edit Akses");
     expect(account).toContain("Cabut Akses");
-    expect(account).toContain("Reset Akses belum tersedia");
-    expect(account).toContain("Kirim Ulang Aktivasi belum tersedia");
+    expect(account).not.toContain("Reset Akses belum tersedia");
+    expect(account).not.toContain("Kirim Ulang Aktivasi belum tersedia");
+    expect(account).not.toContain("Edit Akun belum tersedia");
     expect(account).toContain("Aktifkan Kembali");
     expect(account).not.toContain("setAccountActive(");
     expect(account).not.toContain("revokeAccountMembership(");

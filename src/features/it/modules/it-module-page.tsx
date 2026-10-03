@@ -1,5 +1,5 @@
 "use client";
-import { EmptyState, PageHeader, Section } from "@/components/ui";
+import { UnavailableFeature } from "@/components/unavailable-feature";
 import { ItLayout } from "../it-layout";
 import { ItCanonicalPage } from "../canonical-page";
 import { AccountManagementPage } from "../account-management-page";
@@ -18,6 +18,9 @@ const modules = {
 export function ItModulePage({ module, workspaceKey }: Readonly<{ module: ItModule; workspaceKey?: string }>) {
   if (module === "access") return <AccountManagementPage workspaceKey={workspaceKey ?? ""} />;
   if (module === "alos-genesis") return <ItLayout workspaceKey={workspaceKey}>{session => <TechnologyControl key={session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_id : "unknown"} session={session} />}</ItLayout>;
-  if (module === "assets" || module === "support") return <ItLayout workspaceKey={workspaceKey}>{() => <div><PageHeader title={module === "assets" ? "Aset IT" : "Dukungan & Permintaan"} /><Section title="Sumber Data"><EmptyState title="Belum Tersedia" description="Pantau sistem, pemeriksaan, dan layanan teknologi perusahaan." /></Section></div>}</ItLayout>;
-  return <ItCanonicalPage {...modules[module]} workspaceKey={workspaceKey} description="Inventaris dan hasil operasional tercatat dalam workspace aktif. Rekaman ini tidak menjalankan connector, infrastruktur, atau keputusan produksi." />;
+  if (module === "assets" || module === "support") {
+    const feature = module === "assets" ? "Aset IT" : "Dukungan & Permintaan";
+    return <ItLayout workspaceKey={workspaceKey}>{() => <UnavailableFeature feature={feature} backHref={workspaceKey ? `/workspace/${encodeURIComponent(workspaceKey)}/summary` : "/workspace"} backLabel="Kembali ke Ringkasan IT" />}</ItLayout>;
+  }
+  return <ItCanonicalPage {...modules[module]} workspaceKey={workspaceKey} description="Inventaris dan hasil operasional tercatat dalam ruang kerja aktif. Rekaman ini tidak menjalankan connector, infrastruktur, atau keputusan produksi." />;
 }

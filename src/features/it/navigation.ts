@@ -4,7 +4,6 @@ import {
   Boxes,
   Briefcase,
   CheckSquare,
-  CircleHelp,
   FileCheck2,
   FileText,
   Gauge,
@@ -12,7 +11,6 @@ import {
   Link2,
   MessageCircleQuestion,
   MonitorCog,
-  Package,
   Rocket,
   ServerCog,
   ShieldCheck,
@@ -42,10 +40,6 @@ export function itNavigation(workspaceKey: string): readonly AppNavigationSectio
       { href: `${base}/security`, icon: ShieldCheck, label: "Keamanan & Kepatuhan" },
     ] },
     { label: "PERUBAHAN", items: [{ href: `${base}/changes`, icon: Rocket, label: "Perubahan & Rilis" }] },
-    { label: "OPERASIONAL", items: [
-      { href: `${base}/assets`, icon: Package, label: "Aset IT" },
-      { href: `${base}/support`, icon: CircleHelp, label: "Dukungan & Permintaan" },
-    ] },
     { label: "KINERJA", items: [{ href: `${base}/performance`, icon: BarChart3, label: "Target & Kinerja" }] },
     { label: "PEKERJAAN", items: [
       { href: `${base}/processes`, icon: CheckSquare, label: "Perlu Tindakan" },

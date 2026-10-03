@@ -105,7 +105,7 @@ describe("Finance & Pajak workspace", () => {
     expect(await screen.findByRole("heading", { name: "Anggaran", level: 1 })).toBeInTheDocument();
   });
 
-  it("keeps the shared budget route authoritative across Finance and Property", async () => {
+  it("keeps Finance budget authoritative and gives Property budget an honest unavailable route", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(financeSession());
     render(<BudgetRoute params={{ workspaceKey: "finance-utama" }} />);
     expect(await screen.findByRole("heading", { name: "Anggaran", level: 1 })).toBeInTheDocument();
@@ -114,7 +114,11 @@ describe("Finance & Pajak workspace", () => {
     vi.clearAllMocks();
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
     render(<BudgetRoute params={{ workspaceKey: "property-utama" }} />);
-    expect(await screen.findByRole("heading", { name: "Anggaran & RAB", level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Fitur belum tersedia" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Anggaran & RAB", level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Kembali ke Ringkasan Property" })).toHaveAttribute("href", "/workspace/property-utama/summary");
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
 
     cleanup();
     vi.clearAllMocks();

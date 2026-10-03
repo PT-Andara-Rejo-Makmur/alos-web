@@ -217,10 +217,12 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
   const emptyTitle = "Belum ada data";
   const emptyDescription = accountTab === "Belum Memiliki Akun" ? "Tidak ada karyawan yang memenuhi syarat provisioning." : "Belum ada akun yang sesuai dengan tampilan saat ini.";
   const manageMemberships = canManageMemberships(session);
+  const canProvisionAccount = candidates.length > 0 && workspaces.length > 0
+    && assignableRoleOptions.some((option) => roles.includes(option.value));
 
   return <AppShell navigationSections={navigationForItWorkspace(actualWorkspaceKey)} session={session}>
     <div className={styles.page}>
-      <PageHeader actions={<Button iconBefore={<Plus size={16} />} onClick={() => setCreateOpen(true)} variant="primary">Daftarkan Akun</Button>} description="Daftarkan dan kelola akun sistem berdasarkan data tenaga kerja yang telah tersedia." eyebrow="AKSES & IDENTITAS" metadata={`Ruang kerja aktif: ${activeWorkspaceName}`} title="Akun Karyawan" />
+      <PageHeader actions={canProvisionAccount ? <Button iconBefore={<Plus size={16} />} onClick={() => setCreateOpen(true)} variant="primary">Daftarkan Akun</Button> : undefined} description="Daftarkan dan kelola akun sistem berdasarkan data tenaga kerja yang telah tersedia." eyebrow="AKSES & IDENTITAS" metadata={`Ruang Kerja: ${activeWorkspaceName}`} title="Akun Karyawan" />
       <section aria-label="Ringkasan akun" className={styles.summaryGrid}>
         <Metric label="Belum Memiliki Akun" status="Kandidat HR" value={candidates.length} />
         <Metric label="Menunggu Aktivasi" status="Identity" value={accounts.filter((account) => account.activation_state === "PENDING").length} />
@@ -238,7 +240,7 @@ export function AccountManagementPage({ workspaceKey }: Readonly<{ workspaceKey:
         <label className={styles.filterGroup}><span className={styles.filterLabel}>Status Kepegawaian</span><select aria-label="Status Kepegawaian" className={styles.toolbarSelect} onChange={(event) => setEmploymentFilter(event.target.value)} value={employmentFilter}><option value="">Semua status kepegawaian</option>{employmentOptions.map((state) => <option key={state} value={state}>{state}</option>)}</select></label>
       </div>} search={<div className={styles.toolbarSearch}><Users aria-hidden="true" size={16} /><input aria-label="Cari akun" onChange={(event) => setSearch(event.target.value)} placeholder="Cari nama, ID karyawan, email, atau role…" type="search" value={search} /></div>} />
       {resendNotice ? <div style={{ padding: "0.75rem 1rem", marginBottom: "1rem", background: "var(--color-surface-subtle, #f4f4f5)", borderRadius: "6px", fontSize: "0.875rem" }} role="status">{resendNotice}</div> : null}
-      {accountTab === "Belum Memiliki Akun" ? <DataTable caption="Karyawan yang belum memiliki akun" columns={candidateColumns} emptyState={<EmptyState icon={<UserRound size={24} />} title={emptyTitle} description={emptyDescription} />} getRowKey={(candidate) => candidate.employee_id} loading={false} rowAction={() => <Button onClick={() => setCreateOpen(true)} size="sm" variant="ghost">Daftarkan Akun</Button>} rows={filteredCandidates} /> : <DataTable caption={`Daftar akun karyawan — ${accountTab}`} columns={columns} emptyState={<EmptyState icon={<UserRound size={24} />} title={emptyTitle} description={emptyDescription} />} getRowKey={(account) => account.actor_id} loading={false} rowAction={(account) => <div style={{ display: "flex", gap: "0.5rem" }}><Button onClick={() => setSelectedAccount(account)} size="sm" variant="ghost">Lihat Detail</Button>{account.activation_state === "PENDING" ? <Button disabled={resendBusyId === account.actor_id} onClick={() => void handleResendActivation(account.actor_id)} size="sm" variant="ghost">{resendBusyId === account.actor_id ? "Mengirim…" : "Kirim Ulang"}</Button> : null}</div>} rows={filteredAccounts} />}
+      {accountTab === "Belum Memiliki Akun" ? <DataTable caption="Karyawan yang belum memiliki akun" columns={candidateColumns} emptyState={<EmptyState icon={<UserRound size={24} />} title={emptyTitle} description={emptyDescription} />} getRowKey={(candidate) => candidate.employee_id} loading={false} rowAction={canProvisionAccount ? () => <Button onClick={() => setCreateOpen(true)} size="sm" variant="ghost">Daftarkan Akun</Button> : undefined} rows={filteredCandidates} /> : <DataTable caption={`Daftar akun karyawan — ${accountTab}`} columns={columns} emptyState={<EmptyState icon={<UserRound size={24} />} title={emptyTitle} description={emptyDescription} />} getRowKey={(account) => account.actor_id} rowAction={(account) => <div style={{ display: "flex", gap: "0.5rem" }}><Button onClick={() => setSelectedAccount(account)} size="sm" variant="ghost">Lihat Detail</Button>{account.activation_state === "PENDING" ? <Button disabled={resendBusyId === account.actor_id} onClick={() => void handleResendActivation(account.actor_id)} size="sm" variant="ghost">{resendBusyId === account.actor_id ? "Mengirim…" : "Kirim Ulang"}</Button> : null}</div>} rows={filteredAccounts} />}
     </div>
     <AccountDetailDrawer account={selectedAccount} canManageMemberships={manageMemberships} formWorkspaces={workspaces} key={selectedAccount?.actor_id ?? "empty-account"} onGovernance={(action, account) => { setGovernanceAction(action); setGovernanceAccount(account); }} onMembership={(action, account, workspace) => { setMembershipAction(action); setMembershipAccount(account); setMembershipWorkspace(workspace ?? null); }} onResendActivation={handleResendActivation} resendBusy={Boolean(resendBusyId && selectedAccount && resendBusyId === selectedAccount.actor_id)} onClose={() => setSelectedAccount(null)} open={Boolean(selectedAccount)} />
     <AccountReadinessDialog candidates={candidates} formRoles={roles} formWorkspaces={workspaces} onClose={() => setCreateOpen(false)} onCreated={() => { setCreateOpen(false); void loadData(); }} open={createOpen} />
@@ -251,6 +253,7 @@ function AccountDetailDrawer({ account, canManageMemberships, formWorkspaces, on
   const [activeTab, setActiveTab] = useState("Ringkasan");
   if (!account) return null;
   const memberships = account.workspace_access;
+  const hasAdditionalWorkspace = formWorkspaces.some((workspace) => !memberships.some((access) => access.workspace.workspace_id === workspace.workspace_id));
   const tabs = ["Ringkasan", "Workspace & Akses", "Sesi", "Riwayat"];
   return <Drawer description="Informasi akun, akses, sesi, dan riwayat mengikuti sumber identitas resmi." footer={<Button onClick={onClose} variant="secondary">Tutup</Button>} onClose={onClose} open={open} title="Detail Akun Karyawan">
     <Tabs ariaLabel="Detail akun karyawan" items={tabs.map((label) => ({ id: label, label }))} onValueChange={setActiveTab} value={activeTab} />
@@ -271,20 +274,16 @@ function AccountDetailDrawer({ account, canManageMemberships, formWorkspaces, on
         <DetailItem label="Tanggal Dibuat" value={account.created_at ? new Date(account.created_at).toLocaleDateString("id-ID") : "—"} />
       </div>
       <div className={styles.actions}>
-        <Button disabled variant="secondary">Edit Akun belum tersedia</Button>
         {account.activation_state === "PENDING" ? (
           <Button disabled={resendBusy} onClick={() => void onResendActivation(account.actor_id)} variant="secondary">
             {resendBusy ? "Mengirim ulang…" : "Kirim Ulang Aktivasi"}
           </Button>
-        ) : (
-          <Button disabled variant="secondary">Kirim Ulang Aktivasi belum tersedia</Button>
-        )}
-        <Button disabled variant="secondary">Reset Akses belum tersedia</Button>
+        ) : null}
         {account.active ? <Button onClick={() => onGovernance("suspend", account)} variant="secondary">Tangguhkan Akun</Button> : <Button onClick={() => onGovernance("activate", account)} variant="secondary">Aktifkan Kembali</Button>}
       </div>
     </div> : null}
     {activeTab === "Workspace & Akses" ? <div className={styles.detailSection}>
-      <div className={styles.membershipHeader}><h3>Workspace & Akses</h3>{canManageMemberships ? <Button onClick={() => onMembership("add", account)} size="sm" variant="secondary">+ Tambah Workspace</Button> : <Button disabled size="sm" variant="secondary">Tambah Workspace belum tersedia</Button>}</div>
+      <div className={styles.membershipHeader}><h3>Workspace & Akses</h3>{canManageMemberships && hasAdditionalWorkspace ? <Button onClick={() => onMembership("add", account)} size="sm" variant="secondary">+ Tambah Workspace</Button> : null}</div>
       {memberships.length ? memberships.map((access) => <div className={styles.membership} key={access.workspace.workspace_id}>
         <div className={styles.membershipHeader}><div className={styles.membershipTitle}>{workspaceLabel(access.workspace)}</div><Status label={access.active ? "Aktif" : "Nonaktif"} variant={access.active ? "success" : "neutral"} /></div>
         <div className={styles.stack}>{access.role_refs.length ? access.role_refs.map((role) => <span className={styles.tag} key={role}>{identityRoleLabel(role)}</span>) : "Belum Dinilai"}</div>
@@ -292,7 +291,7 @@ function AccountDetailDrawer({ account, canManageMemberships, formWorkspaces, on
         {access.role_refs.length > 1 ? <p className={styles.formHint}>Lebih dari satu role tersimpan pada membership ini; tidak dipilih atau digabungkan oleh antarmuka.</p> : null}
         {canManageMemberships ? <div className={styles.actions}><Button onClick={() => onMembership("edit", account, access.workspace)} size="sm" variant="ghost">Edit Akses</Button><Button onClick={() => onMembership("revoke", account, access.workspace)} size="sm" variant="ghost">Cabut Akses</Button></div> : null}
       </div>) : <ItSourceStateView description="Akun belum memiliki akses ruang kerja dari sumber yang tersedia." state="connected-empty" title="Akses" />}
-      {formWorkspaces.length === 0 ? <p className={styles.formHint}>Pilihan ruang kerja belum tersedia.</p> : null}
+      {canManageMemberships && !hasAdditionalWorkspace ? <p className={styles.formHint}>{formWorkspaces.length ? "Akun ini sudah memiliki akses ke semua ruang kerja yang tersedia." : "Pilihan ruang kerja belum tersedia."}</p> : null}
     </div> : null}
     {activeTab === "Sesi" ? <SessionAdminSection actorId={account.actor_id} workspaces={formWorkspaces} /> : null}
     {activeTab === "Riwayat" ? <IdentityHistorySection actorId={account.actor_id} /> : null}
@@ -325,7 +324,7 @@ function SessionAdminSection({ actorId, workspaces }: Readonly<{ actorId: string
     {error ? <p role="alert" className={styles.formHint}>{error}</p> : null}
     {sessions.length ? sessions.map((session) => <div className={styles.membership} key={session.session_id}>
       <div className={styles.membershipHeader}><strong>{session.session_id}</strong><Status label={session.revoked ? "Dicabut" : session.expired ? "Kedaluwarsa" : "Aktif"} variant={session.revoked || session.expired ? "neutral" : "success"} /></div>
-      <div className={styles.detailGrid}><DetailItem label="Dibuat" value={new Date(session.issued_at).toLocaleString("id-ID")} /><DetailItem label="Berakhir" value={new Date(session.expires_at).toLocaleString("id-ID")} /><DetailItem label="Workspace Aktif" value={workspaceLabel(workspaces.find((item) => item.workspace_id === session.active_workspace_id))} /><DetailItem label="Aktivitas Terakhir" value={session.last_activity_at ? new Date(session.last_activity_at).toLocaleString("id-ID") : "—"} /></div>
+      <div className={styles.detailGrid}><DetailItem label="Dibuat" value={new Date(session.issued_at).toLocaleString("id-ID")} /><DetailItem label="Berakhir" value={new Date(session.expires_at).toLocaleString("id-ID")} /><DetailItem label="Ruang Kerja" value={workspaceLabel(workspaces.find((item) => item.workspace_id === session.active_workspace_id))} /><DetailItem label="Aktivitas Terakhir" value={session.last_activity_at ? new Date(session.last_activity_at).toLocaleString("id-ID") : "—"} /></div>
       {!session.revoked && !session.expired ? <Button disabled={busyId === session.session_id} onClick={() => void revoke(session.session_id)} size="sm" variant="ghost">{busyId === session.session_id ? "Mencabut…" : "Cabut Sesi"}</Button> : null}
     </div>) : <ItSourceStateView description="Akun ini belum memiliki sesi autentikasi." state="connected-empty" title="Sesi" />}
   </div>;

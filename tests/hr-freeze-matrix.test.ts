@@ -7,7 +7,9 @@ const read = (path: string) => readFileSync(resolve(path), "utf8");
 describe("HR / GA master freeze matrix", () => {
   it("keeps unknown HR values source-honest", () => {
     const source = read("src/features/hr/hr-pages.tsx");
-    expect(source).toContain("Belum Tersedia");
+    expect(source).toContain("<UnavailableFeature");
+    expect(source).toContain('feature="Kompensasi & Benefit"');
+    expect(read("src/components/unavailable-feature.tsx")).toContain("Fitur belum tersedia");
     expect(read("src/features/business-records/overview.tsx")).toContain('value="Belum tersedia"');
     expect(source).not.toContain("Rp0");
     expect(source).not.toContain("Tidak Ada Kasus");

@@ -10,10 +10,7 @@ import {
   Hammer,
   LayoutDashboard,
   MessageCircleQuestion,
-  Package,
-  ReceiptText,
   Target,
-  UsersRound,
 } from "lucide-react";
 
 import type { AppNavigationSection } from "@/components/app-shell/app-shell";
@@ -37,14 +34,6 @@ export function propertyNavigation(workspaceKey: string): readonly AppNavigation
         { href: `${base}/execution`, icon: Hammer, label: "Pekerjaan & Milestone" },
         { href: `${base}/units`, icon: LayoutDashboard, label: "Unit & Kesiapan" },
         { href: `${base}/quality`, icon: ClipboardCheck, label: "Inspeksi & Kualitas" },
-      ],
-    },
-    {
-      label: "SUMBER DAYA",
-      items: [
-        { href: `${base}/contractors`, icon: UsersRound, label: "Kontraktor" },
-        { href: `${base}/budget`, icon: ReceiptText, label: "Anggaran & RAB" },
-        { href: `${base}/materials`, icon: Package, label: "Material & Pengadaan" },
       ],
     },
     {

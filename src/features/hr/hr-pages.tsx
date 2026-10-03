@@ -1,5 +1,5 @@
 "use client";
-import { EmptyState, PageHeader, Section } from "@/components/ui";
+import { UnavailableFeature } from "@/components/unavailable-feature";
 import { HrLayout } from "./hr-layout";
 import { HrCanonicalPage } from "./canonical-page";
 import { hrResources } from "./resources";
@@ -18,7 +18,7 @@ const modules = {
   offboarding: { title: "Perubahan & Offboarding", resources: [hrResources.employees], unavailable: [] },
 };
 export function HrModulePage({ module, workspaceKey }: Readonly<{ module: keyof typeof modules | "compensation" | "ga"; workspaceKey?: string }>) {
-  if (module === "compensation") return <HrLayout workspaceKey={workspaceKey}>{() => <div><PageHeader title={"Kompensasi & Benefit"} /><Section title="Sumber Data"><EmptyState title="Belum Tersedia" description="Kelola kebutuhan karyawan dan tindak lanjut layanan perusahaan." /></Section></div>}</HrLayout>;
+  if (module === "compensation") return <HrLayout workspaceKey={workspaceKey}>{() => <UnavailableFeature feature="Kompensasi & Benefit" backHref={workspaceKey ? `/workspace/${encodeURIComponent(workspaceKey)}/summary` : "/workspace"} backLabel="Kembali ke Ringkasan HR & GA" />}</HrLayout>;
   const config = modules[module];
   return <HrCanonicalPage {...config} workspaceKey={workspaceKey} description="Kelola kebutuhan karyawan, kesiapan kerja, dan tindak lanjut layanan perusahaan." />;
 }

@@ -15,6 +15,7 @@ import { hrResources } from "@/features/hr/resources";
 import { hasGaScope, hasHrContext, activeHrWorkspaceKey } from "@/features/hr/hr-model";
 import { HrSourceStateView } from "@/features/hr/shared/hr-ui";
 import { hrNavigation } from "@/features/hr/navigation";
+import { HrModulePage } from "@/features/hr/hr-pages";
 import { resolveWorkspaceDomain } from "@/features/session";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
@@ -57,13 +58,24 @@ describe("HR / GA workspace", () => {
   it("builds the combined HR & GA menu with encoded actual workspace key", () => {
     const navigation = hrNavigation("sdm & utama", hasGaScope(hrSession("sdm & utama", "HR")));
     const labels = navigation.flatMap((section) => section.items.map((item) => item.label));
-    expect(labels).toHaveLength(20);
+    expect(labels).toHaveLength(19);
     expect(labels).toContain("GA & Fasilitas");
+    expect(labels).not.toContain("Kompensasi & Benefit");
     expect(navigation.flatMap((section) => section.items.map((item) => item.href))).toContain("/workspace/sdm%20%26%20utama/summary");
     expect(navigation.flatMap((section) => section.items.map((item) => item.href)).some((href) => href.startsWith("/workspace/hr/"))).toBe(false);
     expect(navigation.map((section) => section.label)).not.toContain("GA");
     expect(navigation.find((section) => section.label === "OPERASIONAL SDM")?.items.map((item) => item.label)).toContain("GA & Fasilitas");
-    expect(labels).toContain("Kompensasi & Benefit");
+  });
+
+  it("shows an honest unavailable state on the Compensation deep link", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession());
+    render(<HrModulePage module="compensation" workspaceKey="sdm-utama" />);
+    expect(await screen.findByRole("heading", { name: "Fitur belum tersedia" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Kompensasi & Benefit", level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Kembali ke Ringkasan HR & GA" })).toHaveAttribute("href", "/workspace/sdm-utama/summary");
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.queryByRole("form")).not.toBeInTheDocument();
   });
 
   it("reads canonical HR overview using the actual workspace key", async () => {

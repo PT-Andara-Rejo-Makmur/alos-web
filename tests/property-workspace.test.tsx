@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { navigationForSession } from "@/app/navigation";
@@ -75,12 +75,12 @@ describe("Property workspace", () => {
     expect(hasPropertyContext(salesSession())).toBe(false);
   });
 
-  it("builds the exact 18-item Property sidebar with the actual workspace key", () => {
+  it("builds the usable Property sidebar with the actual workspace key", () => {
     const sections = navigationForSession(false, "proyek-utama", false, propertySession());
-    expect(sections.map((section) => section.label)).toEqual(["PUSAT PROYEK", "PELAKSANAAN", "SUMBER DAYA", "KINERJA", "PEKERJAAN", "ARA"]);
+    expect(sections.map((section) => section.label)).toEqual(["PUSAT PROYEK", "PELAKSANAAN", "KINERJA", "PEKERJAAN", "ARA"]);
     expect(sections.flatMap((section) => section.items.map((item) => item.label))).toEqual([
       "Ringkasan", "Portofolio Proyek", "Progres & Jadwal", "Pekerjaan & Milestone", "Unit & Kesiapan", "Inspeksi & Kualitas",
-      "Kontraktor", "Anggaran & RAB", "Material & Pengadaan", "Target & Kinerja", "Perlu Tindakan", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA",
+      "Target & Kinerja", "Perlu Tindakan", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA",
     ]);
     expect(sections.flatMap((section) => section.items).every((item) => item.href.startsWith("/workspace/proyek-utama/"))).toBe(true);
   });
@@ -108,8 +108,7 @@ describe("Property workspace", () => {
 
   it.each([
     ["Portofolio Proyek", PropertyPortfolioPage], ["Progres & Jadwal", PropertyProgressPage], ["Pekerjaan & Milestone", PropertyExecutionPage],
-    ["Unit & Kesiapan", PropertyUnitsPage], ["Inspeksi & Kualitas", PropertyQualityPage], ["Kontraktor", PropertyContractorsPage],
-    ["Anggaran & RAB", PropertyBudgetPage], ["Material & Pengadaan", PropertyMaterialsPage], ["Target & Kinerja", PropertyPerformancePage],
+    ["Unit & Kesiapan", PropertyUnitsPage], ["Inspeksi & Kualitas", PropertyQualityPage], ["Target & Kinerja", PropertyPerformancePage],
   ])("%s renders inside one AppShell with source-unavailable state", async (title, Page) => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
     render(<Page workspaceKey="proyek-utama" />);
@@ -117,6 +116,22 @@ describe("Property workspace", () => {
     await waitFor(() => expect(screen.queryAllByText("Belum Terhubung").length + screen.queryAllByText("Gagal Memuat").length).toBeGreaterThan(0));
     expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
     expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
+  });
+
+  it.each([
+    ["Kontraktor", PropertyContractorsPage],
+    ["Anggaran & RAB", PropertyBudgetPage],
+    ["Material & Pengadaan", PropertyMaterialsPage],
+  ])("%s deep link is honest and has no fake controls", async (feature, Page) => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
+    render(<Page workspaceKey="proyek-utama" />);
+    expect(await screen.findByRole("heading", { name: "Fitur belum tersedia" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: feature, level: 3 })).toBeInTheDocument();
+    expect(screen.getByText("Fungsi ini belum menjadi bagian dari sistem operasional ALOS saat ini.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Kembali ke Ringkasan Property" })).toHaveAttribute("href", "/workspace/proyek-utama/summary");
+    expect(screen.queryByRole("button", { name: /Tambah|Buat|Ajukan|Simpan|Ambil dari Dokumen/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
   });
 
   it("keeps universal Shared Work Project and ARA reusable for Property", async () => {
@@ -140,13 +155,12 @@ describe("Property workspace", () => {
     expect(screen.queryByText(/Rp\s*0|0%|Tepat Waktu|Available|Aman/)).not.toBeInTheDocument();
   });
 
-  it("keeps Property forms unavailable and extraction candidates non-authoritative", async () => {
+  it("does not expose the Property materials placeholder form", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
     render(<PropertyMaterialsPage workspaceKey="proyek-utama" />);
-    expect(await screen.findByRole("heading", { name: "Material & Pengadaan" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Ajukan Permintaan Material" }));
-    expect(screen.getByRole("button", { name: "Simpan Permintaan" })).toBeDisabled();
-    expect(screen.queryByText("Rekaman tersimpan.")).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Fitur belum tersedia" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Ajukan|Simpan/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
 });
 
   it("summary exposes the complete source status strip and readiness drawer", async () => {
@@ -172,19 +186,21 @@ describe("Property workspace", () => {
     expect(screen.getByRole("tab", { name: "Pembaruan Konstruksi" })).toBeInTheDocument();
 });
 
-  it("keeps Unit and Contractor detail information separated with final tabs", async () => {
+  it("keeps Unit detail functional and presents Contractor detail as unavailable", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
     render(<PropertyUnitDetailPage unitId="unit-1" workspaceKey="proyek-utama" />);
     expect(await screen.findByRole("heading", { name: "Detail Unit" })).toBeInTheDocument();
     for (const label of ["Ringkasan", "Progres", "Milestone", "Inspeksi", "Dokumen", "Temuan", "Booking / Sales", "Serah Terima", "Aktivitas"]) expect(screen.getByRole("tab", { name: label })).toBeInTheDocument();
     expect(screen.getByText("Status Komersial")).toBeInTheDocument();
     expect(screen.queryByLabelText(/Booking Status/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Siapkan Kesiapan Serah Terima" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Simpan Kesiapan" })).not.toBeInTheDocument();
     cleanup();
 
     render(<PropertyContractorDetailPage contractorId="contractor-1" workspaceKey="proyek-utama" />);
-    expect(await screen.findByRole("heading", { name: "Detail Kontraktor" })).toBeInTheDocument();
-    for (const label of ["Ringkasan", "Pekerjaan", "Progres", "Dokumen", "Inspeksi", "Temuan", "Opname", "Riwayat"]) expect(screen.getByRole("tab", { name: label })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /Paid|Approve Contract/i })).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Fitur belum tersedia" })).toBeInTheDocument();
+    expect(screen.queryByText("contractor-1")).not.toBeInTheDocument();
+    expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
   });
 
   it("quality flow points to Shared Work and keeps failed inspection actions unavailable", async () => {

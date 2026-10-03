@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { AccountManagementPage, hasItAccountManagementAccess, itNavigation } from "@/features/it";
+import { AccountManagementPage, hasItAccountManagementAccess, ItModulePage, itNavigation } from "@/features/it";
 import type { SessionProjection } from "@/features/session";
 import type { AuthenticatedPrincipalProjection, IdentityAccountProjection } from "@/lib/contracts";
 import * as api from "@/lib/api";
@@ -167,6 +167,7 @@ describe("IT account management authority boundary", () => {
     expect(screen.queryByRole("tab", { name: "Role" })).not.toBeInTheDocument();
     expect(screen.queryByRole("tab", { name: "Riwayat Akses" })).not.toBeInTheDocument();
     expect(screen.queryByRole("tab", { name: "Aktivitas Administratif" })).not.toBeInTheDocument();
+    expect(within(screen.getByRole("dialog", { name: "Detail Akun Karyawan" })).queryByRole("button", { name: /Edit Akun|Reset Akses/ })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("tab", { name: "Sesi" }));
     expect(await screen.findByText("Sesi")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("tab", { name: "Workspace & Akses" }));
@@ -174,12 +175,8 @@ describe("IT account management authority boundary", () => {
     expect(within(detailDialog).getByText("Finance & Pajak")).toBeInTheDocument();
     expect(within(detailDialog).getByText("Anggota Divisi")).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: "Edit Akses" })).toHaveLength(2);
-    fireEvent.click(screen.getAllByRole("button", { name: "+ Tambah Workspace" })[0]);
-    const addWorkspaceDialog = screen.getByRole("dialog", { name: "Tambah Workspace" });
-    expect(addWorkspaceDialog).toBeInTheDocument();
-    fireEvent.change(within(addWorkspaceDialog).getByRole("combobox", { name: "Role" }), { target: { value: "DIVISION_MEMBER" } });
-    expect(within(addWorkspaceDialog).getByRole("button", { name: "Tambah Workspace" })).toBeEnabled();
-    fireEvent.click(within(addWorkspaceDialog).getByRole("button", { name: "Tutup" }));
+    expect(within(detailDialog).queryByRole("button", { name: "+ Tambah Workspace" })).not.toBeInTheDocument();
+    expect(within(detailDialog).getByText("Akun ini sudah memiliki akses ke semua ruang kerja yang tersedia.")).toBeInTheDocument();
     fireEvent.click(screen.getAllByRole("button", { name: "Cabut Akses" })[0]);
     const membershipDialog = screen.getByRole("dialog", { name: "Cabut Akses" });
     expect(membershipDialog.querySelector("#membership-reason")).toHaveAttribute("required");
@@ -192,12 +189,41 @@ describe("IT account management authority boundary", () => {
     expect(await within(detailDialog).findByText("Belum ada perubahan identitas yang tercatat.")).toBeInTheDocument();
   });
 
-  it("keeps the exact 21-item IT sidebar and encodes the actual workspace key", () => {
+  it("hides account provisioning when no authoritative candidate or assignment options exist", async () => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(session);
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path) => {
+      if (path === "/api/v1/identity/accounts") return [] as never;
+      if (path === "/api/v1/identity/workspaces" || path === "/api/v1/identity/assignable-roles" || path === "/api/v1/identity/provisioning-candidates") return [] as never;
+      return undefined as never;
+    });
+
+    render(<AccountManagementPage workspaceKey="it-operations" />);
+
+    await screen.findByRole("heading", { name: "Akun Karyawan" });
+    expect(screen.queryByRole("button", { name: "Daftarkan Akun" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Belum Memiliki Akun" }));
+    expect(screen.queryByRole("button", { name: "Daftarkan Akun" })).not.toBeInTheDocument();
+  });
+
+  it("shows only usable IT menu entries and keeps integration and release capability", () => {
     const sections = itNavigation("it/utama");
     const labels = sections.flatMap((section) => section.items.map((item) => item.label));
-    expect(labels).toHaveLength(21);
-    expect(labels).toEqual(["Ringkasan", "Layanan & Insiden", "Sistem & Aplikasi", "Infrastruktur & Lingkungan", "ALOS & GENESIS", "Integrasi & Connector", "Akun Karyawan", "Akses & Identitas", "Keamanan & Kepatuhan", "Perubahan & Rilis", "Aset IT", "Dukungan & Permintaan", "Target & Kinerja", "Perlu Tindakan", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA"]);
+    expect(labels).toHaveLength(19);
+    expect(labels).not.toContain("Aset IT");
+    expect(labels).not.toContain("Dukungan & Permintaan");
+    expect(labels).toEqual(["Ringkasan", "Layanan & Insiden", "Sistem & Aplikasi", "Infrastruktur & Lingkungan", "ALOS & GENESIS", "Integrasi & Connector", "Akun Karyawan", "Akses & Identitas", "Keamanan & Kepatuhan", "Perubahan & Rilis", "Target & Kinerja", "Perlu Tindakan", "Proyek", "Tugas", "Persetujuan", "Dokumen", "Laporan", "Temuan", "Tanya ARA"]);
     expect(sections[0].items[0].href).toBe("/workspace/it%2Futama/summary");
+  });
+
+  it.each([["assets", "Aset IT"], ["support", "Dukungan & Permintaan"]] as const)("shows a clean unavailable deep link for IT %s", async (module, title) => {
+    vi.spyOn(api, "sessionApiRequest").mockResolvedValue(session);
+    render(<ItModulePage module={module} workspaceKey="it-operations" />);
+    expect(await screen.findByRole("heading", { name: "Fitur belum tersedia" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: title, level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Kembali ke Ringkasan IT" })).toHaveAttribute("href", "/workspace/it-operations/summary");
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("form")).not.toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 
   it.each(["add", "edit", "revoke"] as const)("refreshes the selected account after governed membership %s", async (action) => {

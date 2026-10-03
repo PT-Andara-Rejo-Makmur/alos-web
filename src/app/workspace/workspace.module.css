@@ -95,11 +95,18 @@
   }
 }
 
-.chooser { display: grid; gap: var(--alos-space-6); }
-.chooserHeader { position: relative; isolation: isolate; overflow: hidden; min-height: 220px; border-radius: var(--alos-radius-panel); display: flex; align-items: end; color: white; }
+.chooserPage { background: var(--alos-app-background); color: var(--alos-text-primary); min-height: 100vh; padding: 0 var(--alos-space-6) var(--alos-space-10); }
+.chooserTopbar { align-items: center; border-bottom: 1px solid var(--alos-border); display: flex; justify-content: space-between; margin: 0 auto; max-width: 1120px; min-height: 76px; }
+.chooserBrand { align-items: center; display: flex; gap: var(--alos-space-3); }
+.chooserBrand div { display: grid; gap: 2px; }
+.chooserBrand strong { color: var(--alos-primary-dark); font-size: 15px; letter-spacing: .08em; }
+.chooserBrand span, .chooserProfile { color: var(--alos-text-secondary); font-size: 13px; }
+.chooserProfileGroup { align-items: center; display: flex; gap: var(--alos-space-4); }
+.chooser { display: grid; gap: var(--alos-space-6); margin: var(--alos-space-8) auto 0; max-width: 1040px; }
+.chooserHeader { position: relative; isolation: isolate; overflow: hidden; min-height: 176px; border-radius: var(--alos-radius-panel); display: flex; align-items: end; color: white; }
 .chooserHeader > img { object-fit: cover; z-index: -2; }
 .chooserHeader::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(18,60,50,.92), rgba(18,60,50,.4)); }
-.chooserHeader > div { padding: var(--alos-space-8); }
+.chooserHeader > div { padding: var(--alos-space-6) var(--alos-space-8); }
 .chooserHeader h1 { font-size: 28px; font-weight: 500; margin: var(--alos-space-2) 0; }
 .chooserHeader p { font-size: 11px; letter-spacing: .12em; color: #e3cfaa; margin: 0; }
 .chooserHeader span { color: #e3eae5; }
@@ -110,7 +117,7 @@
 .workspaceChoice strong { display: block; font-size: 17px; margin-bottom: var(--alos-space-2); }
 .workspaceChoice small { display: block; color: var(--alos-text-secondary); margin-top: var(--alos-space-3); }
 .workspaceRole { color: var(--alos-primary); font-size: 12px; }
-@media (max-width: 639px) { .workspaceGrid { grid-template-columns: 1fr; } .chooserHeader { min-height: 170px; } .chooserHeader > div { padding: var(--alos-space-5); } .workspaceChoice { padding: var(--alos-space-5); } }
+@media (max-width: 639px) { .chooserPage { padding: 0 var(--alos-space-4) var(--alos-space-8); } .chooserTopbar { min-height: 64px; } .workspaceGrid { grid-template-columns: 1fr; } .chooser { margin-top: var(--alos-space-6); } .chooserHeader { min-height: 150px; } .chooserHeader > div { padding: var(--alos-space-5); } .workspaceChoice { padding: var(--alos-space-5); } }
 
 @media (max-width: 639px) {
   .landing {
