@@ -7,6 +7,7 @@ import { apiMessage, authenticatedApiRequest } from "@/lib/api";
 import type { BusinessWorkQueue, BusinessProcessProjection, BusinessProcessActionRequest } from "@/lib/contracts";
 import { SharedWorkDetailRoute } from "../shared/detail-route";
 import { ProcessResults } from "./process-results";
+import { ProcessPacket } from "./process-packet";
 
 const fetchQueue = async () => ({ connected: true, data: await authenticatedApiRequest<BusinessWorkQueue>("/api/v1/business/work-queue") });
 const labels: Record<string, string> = { READY: "Siap diperiksa", IN_PROGRESS: "Sedang ditangani", RETURNED: "Perlu diperbaiki", COMPLETED: "Selesai", PENDING: "Menunggu", CANCELLED: "Dibatalkan", SKIPPED: "Tidak diperlukan",
@@ -47,10 +48,11 @@ export function ProcessItem({ initial, workspaceKey }: Readonly<{ initial: Busin
       setReason("");
     } catch (caught) { setError(apiMessage(caught)); } finally { setBusy(false); }
   }
-  const subject = process.packet.certificate_number ?? process.packet.change_number ?? process.packet.contract_number ?? process.packet.employee_number ?? "Pengajuan bisnis";
+  const subject = process.packet.certificate_number ?? process.packet.change_number ?? process.packet.contract_number ?? process.packet.position_title ?? process.packet.employee_number ?? "Pengajuan bisnis";
   return <Section title={String(subject)}>
     <p>{labels[process.status]} · {step ? labels[step.kind] : "Pemeriksaan tersimpan"}</p>
     <p>{process.next_action ?? "Tidak ada tindakan berikutnya"}</p>
+    <ProcessPacket packet={process.packet} />
     {process.responsible_workspace_name ? <p>Ditangani: {process.responsible_workspace_name} · {labels[process.responsible_role ?? ""] ?? "Penanggung jawab pengajuan"}</p> : null}
     {step ? <p>Bertindak sebagai: {labels[step.role]} · {step.reason}</p> : null}
     {process.due_at ? <p>Tenggat: {new Date(process.due_at).toLocaleString("id-ID")}{Date.parse(process.due_at) < observedAt ? " · Terlambat" : ""}</p> : null}

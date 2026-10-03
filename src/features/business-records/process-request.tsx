@@ -9,7 +9,7 @@ import type { BusinessProcessProjection, BusinessProcessType } from "@/lib/contr
 
 const types: Record<string, BusinessProcessType> = { "property/change_orders": "CHANGE_ORDER",
   "property/payment_certificates": "PAYMENT_CERTIFICATE", "sales/bookings": "BOOKING",
-  "hr/onboardings": "ONBOARDING", "hr/employees": "OFFBOARDING", "hr/employment_contracts": "EMPLOYMENT_CONTRACT", "core/capability_requests": "CAPABILITY_REQUEST" };
+  "hr/onboardings": "ONBOARDING", "hr/employees": "OFFBOARDING", "hr/recruitments": "RECRUITMENT", "hr/employment_contracts": "EMPLOYMENT_CONTRACT", "core/capability_requests": "CAPABILITY_REQUEST" };
 
 export function ProcessRequest({ domain, resource, identity }: Readonly<{ domain: string; resource: string; identity: string }>) {
   const kind = types[`${domain}/${resource}`];
