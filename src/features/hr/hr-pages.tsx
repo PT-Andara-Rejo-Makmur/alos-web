@@ -14,13 +14,13 @@ const modules = {
   employees: { title: "Karyawan", resources: [hrResources.employees], unavailable: ["Penyediaan Akun dari HR", "Revokasi Akses dari HR"] },
   attendance: { title: "Kehadiran & Cuti", resources: [hrResources.attendances, hrResources.leave_requests], unavailable: ["Koreksi Kehadiran", "Saldo Cuti", "Lembur"] },
   peoplePerformance: { title: "Kinerja & Pengembangan", resources: [hrResources.performance_reviews, hrResources.trainings, hrResources.training_enrollments, hrResources.successions, hrResources.succession_candidates], unavailable: ["Penilaian Otomatis"] },
-  compliance: { title: "Dokumen & Kepatuhan", resources: [hrResources.employment_contracts, hrResources.personnel_files, hrResources.grievances], unavailable: ["Signing Kontrak Kerja Final", "Kepatuhan Regulasi Otomatis"] },
+  compliance: { title: "Dokumen & Kepatuhan", resources: [hrResources.employment_contracts, hrResources.personnel_files, hrResources.grievances], unavailable: ["Penandatanganan Digital Kontrak Kerja", "Kepatuhan Regulasi Otomatis"] },
   offboarding: { title: "Perubahan & Offboarding", resources: [hrResources.employees], unavailable: [] },
 };
 export function HrModulePage({ module, workspaceKey }: Readonly<{ module: keyof typeof modules | "compensation" | "ga"; workspaceKey?: string }>) {
-  if (module === "compensation") return <HrLayout workspaceKey={workspaceKey}>{() => <div><PageHeader title={"Kompensasi & Benefit"} /><Section title="Sumber Data"><EmptyState title="Belum Tersedia" description="Belum ada persistence canonical untuk capability ini. —" /></Section></div>}</HrLayout>;
+  if (module === "compensation") return <HrLayout workspaceKey={workspaceKey}>{() => <div><PageHeader title={"Kompensasi & Benefit"} /><Section title="Sumber Data"><EmptyState title="Belum Tersedia" description="Kelola kebutuhan karyawan dan tindak lanjut layanan perusahaan." /></Section></div>}</HrLayout>;
   const config = modules[module];
-  return <HrCanonicalPage {...config} workspaceKey={workspaceKey} description="Rekaman operasional HR dalam workspace aktif. Data karyawan, akun dan akses mempunyai kewenangan terpisah." />;
+  return <HrCanonicalPage {...config} workspaceKey={workspaceKey} description="Kelola kebutuhan karyawan, kesiapan kerja, dan tindak lanjut layanan perusahaan." />;
 }
 export const HrSummaryPage = HrCanonicalSummary;
 export function HrPerformancePage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) {

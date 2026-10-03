@@ -260,7 +260,7 @@ describe("Sales workspace", () => {
     expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
     expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
     expect(screen.getAllByRole("button", { name: "Buka navigasi" })).toHaveLength(1);
-    expect(screen.getAllByRole("button", { name: "Pilih workspace" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "Pilih ruang kerja" })).toHaveLength(1);
 
     // Source honesty: unavailable message present, empty state absent
     await waitFor(() => expect(screen.getByText("Data Dokumen Belum Terhubung")).toBeInTheDocument());
@@ -298,7 +298,7 @@ describe("Sales workspace", () => {
       expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
       expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
       expect(screen.getAllByRole("button", { name: "Buka navigasi" })).toHaveLength(1);
-      expect(screen.getAllByRole("button", { name: "Pilih workspace" })).toHaveLength(1);
+      expect(screen.getAllByRole("button", { name: "Pilih ruang kerja" })).toHaveLength(1);
     },
   );
 

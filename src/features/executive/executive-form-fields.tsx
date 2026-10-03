@@ -1,6 +1,8 @@
 "use client";
 
 import type { SessionProjection } from "@/features/session";
+import { EntitySelect } from "@/components/ui";
+import { roleLabel } from "@/lib/presentation";
 
 import styles from "./executive.module.css";
 
@@ -79,4 +81,11 @@ export function ExecutiveWorkspacePicker({
       ) : null}
     </>
   );
+}
+
+export function ExecutiveRolePicker({ id, session, workspaceId, value, onChange }: Readonly<{id:string;session:SessionProjection;workspaceId:string;value:string;onChange:(value:string)=>void}>) {
+  const principal=session.principal && "actor" in session.principal ? session.principal : null;
+  const access=[...(principal?.active_workspace ? [principal.active_workspace] : []), ...(principal?.workspace_access ?? [])].find(item=>item.active && item.workspace.active && item.workspace.workspace_id===workspaceId);
+  const options=(access?.role_refs ?? []).map(role=>({value:role,label:roleLabel(role)}));
+  return <><label htmlFor={id}>Jabatan Penanggung Jawab *</label><EntitySelect id={id} label="jabatan penanggung jawab" required value={value} options={options} onChange={onChange} emptyLabel="Pilih jabatan" />{!options.length ? <p role="status">Pilihan jabatan belum tersedia untuk ruang kerja ini.</p> : null}</>;
 }

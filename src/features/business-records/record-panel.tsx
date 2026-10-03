@@ -1,10 +1,13 @@
 "use client";
 
-import { Fragment, useEffect, useState, type FormEvent } from "react";
+import { Fragment, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Alert, Button, DataTable, Drawer, EmptyState, FormField, LoadingState, Section, Status } from "@/components/ui";
-import { ApiRequestError, authenticatedApiRequest } from "@/lib/api";
+import { ApiRequestError, apiMessage, authenticatedApiRequest } from "@/lib/api";
+import { readableValue, statusLabel } from "@/lib/presentation";
 import type { SessionProjection } from "@/features/session";
 import type { ExecutiveSourceStatus, SharedWorkMaterialActionProjection } from "@/lib/contracts";
+import { BusinessRecordForm } from "./business-record-form";
+import { BusinessRecordContext } from "./record-context";
 import { MaterialActions } from "./material-actions";
 import { BusinessRecordActions } from "./business-record-actions";
 import type { Field, Resource, SourceState } from "./resource";
@@ -20,18 +23,14 @@ export function sourceFailure(error: unknown): SourceState {
 }
 
 function mutationFailure(error: unknown): string {
-  if (!(error instanceof ApiRequestError)) return "Permintaan belum tersimpan. Periksa koneksi lalu coba kembali.";
-  const semantics = error.status === 401 ? "Sesi berakhir" : error.status === 403 ? "Akses ditolak"
-    : error.status === 404 ? "Rekaman atau referensi tidak ditemukan" : error.status === 409 ? "Konflik data atau lifecycle"
-      : error.status === 422 ? "Input tidak valid" : error.status >= 500 ? "Layanan belum dapat memproses permintaan" : "Permintaan ditolak";
-  return `${semantics} (${error.status}). ${error.detail}${error.correlationId ? ` Referensi: ${error.correlationId}` : ""}`;
+  return apiMessage(error);
 }
 
 export function SourceStateView({ state }: Readonly<{ state: SourceState }>) {
-  if (state === "loading") return <LoadingState label="Memuat data authoritative…" variant="section" />;
+  if (state === "loading") return <LoadingState label="Memuat data perusahaan…" variant="section" />;
   if (state === "ERROR") return <Alert title="Gagal Memuat" message="Data belum dapat dibaca. Tidak ada nilai pengganti yang ditampilkan." variant="danger" />;
-  if (state === "UNAVAILABLE") return <EmptyState title="Belum Tersedia" description="Capability atau canonical contract belum tersedia." />;
-  if (state === "CONNECTED_EMPTY") return <EmptyState title="Belum ada data" description="Sumber berhasil dibaca; belum ada rekaman dalam scope aktif." />;
+  if (state === "UNAVAILABLE") return <EmptyState title="Belum Tersedia" description="Informasi ini belum dapat ditampilkan. Coba kembali atau hubungi penanggung jawab sistem." />;
+  if (state === "CONNECTED_EMPTY") return <EmptyState title="Belum ada data" description="Tambahkan data pertama atau tunggu pengajuan yang menjadi tanggung jawab ruang kerja Anda." />;
   return null;
 }
 
@@ -42,15 +41,17 @@ function permission(session: SessionProjection, domain: string): boolean {
 
 export function SourceMetadata({ source }: Readonly<{ source: ExecutiveSourceStatus }>) {
   return <p className={styles.sourceNote}><Status label={sourceLabels[source.status]} variant={source.status === "ERROR" ? "danger" : "neutral"} />
-    <span>Sumber: {source.source} · {source.authoritative ? "Authoritative" : "Belum authoritative"} · Pembaruan sumber: {source.last_updated_at ? new Date(source.last_updated_at).toLocaleString("id-ID") : "Tidak diketahui"}</span></p>;
+    <span>Data perusahaan · {source.authoritative ? "Dari catatan resmi" : "Perlu pemeriksaan sumber"} · Diperbarui {source.last_updated_at ? new Date(source.last_updated_at).toLocaleString("id-ID") : "belum diketahui"}</span></p>;
 }
 
-export function RecordPanel({ resource, session }: Readonly<{ resource: Resource; session: SessionProjection }>) {
+type PanelProps = Readonly<{ resource: Resource; session: SessionProjection; renderSummary?: (rows: readonly object[]) => ReactNode }>;
+
+export function RecordPanel({ resource, session, renderSummary }: PanelProps) {
   const principal = session.principal && "actor" in session.principal ? session.principal : null;
-  return <ScopedRecordPanel key={`${principal?.actor.actor_id}-${principal?.active_workspace?.workspace.workspace_id}-${resource.domain}-${resource.key}`} resource={resource} session={session} />;
+  return <ScopedRecordPanel key={`${principal?.actor.actor_id}-${principal?.active_workspace?.workspace.workspace_id}-${resource.domain}-${resource.key}`} resource={resource} session={session} renderSummary={renderSummary} />;
 }
 
-function ScopedRecordPanel({ resource, session }: Readonly<{ resource: Resource; session: SessionProjection }>) {
+function ScopedRecordPanel({ resource, session, renderSummary }: PanelProps) {
   const [state, setState] = useState<SourceState>("loading");
   const [source, setSource] = useState<ExecutiveSourceStatus | null>(null);
   const [rows, setRows] = useState<readonly object[]>([]);
@@ -96,7 +97,7 @@ function ScopedRecordPanel({ resource, session }: Readonly<{ resource: Resource;
   const active = session.principal && "actor" in session.principal ? session.principal.active_workspace : null;
   const canRequest = !!active && active.permission_refs.some((value) => value === "approval.request" || value === "work.write");
 
-  return <Section title={resource.title} description="Rekaman canonical dalam workspace aktif. Nominal ditampilkan persis dari sumber.">
+  return <Section title={resource.title} description="Kelola informasi dan tindak lanjut dalam ruang kerja Anda.">
     <div className={styles.page}>
       {source ? <SourceMetadata source={source} /> : null}
       <div className={styles.actionBar}>
@@ -105,11 +106,12 @@ function ScopedRecordPanel({ resource, session }: Readonly<{ resource: Resource;
       </div>
       <SourceStateView state={state} />
       {state === "CONNECTED" || state === "CONNECTED_EMPTY" ? <>
+        {renderSummary?.(rows)}
         <DataTable caption={`Daftar ${resource.title}`} columns={columns.map((field) => ({ key: field.name, header: field.label, render: (row: object) => display(view(row)[field.name]) }))}
           rows={filtered} getRowKey={(row) => String(view(row)[resource.identifier])}
           rowAction={(row) => <Button size="sm" variant="secondary" onClick={() => { setSelected(row); setFeedback(null); setMutationError(null); setDecisionReason(""); }}>Lihat detail</Button>}
           emptyState={state === "CONNECTED_EMPTY" ? <span>Belum ada rekaman.</span> : <span>Tidak ada rekaman cocok pada halaman ini.</span>} />
-        <div className={styles.actionBar}><span>{total} rekaman tersimpan dalam scope aktif</span>
+        <div className={styles.actionBar}><span>{total} catatan dalam ruang kerja ini</span>
           <Button disabled={offset === 0} size="sm" variant="ghost" onClick={() => { setState("loading"); setOffset((value) => Math.max(0, value - 100)); }}>Sebelumnya</Button>
           <Button disabled={offset + 100 >= total} size="sm" variant="ghost" onClick={() => { setState("loading"); setOffset((value) => value + 100); }}>Berikutnya</Button></div>
       </> : null}
@@ -117,11 +119,12 @@ function ScopedRecordPanel({ resource, session }: Readonly<{ resource: Resource;
       {mutationError ? <Alert title="Perubahan belum tersimpan" message={mutationError} variant="danger" /> : null}
     </div>
     <Drawer title={`Detail ${resource.title}`} open={selected !== null && form === null} onClose={() => setSelected(null)}>
-      {detail ? <div className={styles.page}><dl className={styles.detailList}>{Object.entries(detail).filter(([key]) => !["allowed_transitions", "allowed_pipeline_stages", "material_actions", "tenant_id", "organization_id", "workspace_id"].includes(key)).map(([key, value]) => <Fragment key={key}><dt>{resource.columns.find((field) => field.name === key)?.label ?? (key === resource.identifier ? "ID Rekaman" : key)}</dt><dd>{display(value)}</dd></Fragment>)}</dl>
-        {writable && !resource.immutable && resource.updateFields.length > 0 ? <Button variant="secondary" onClick={() => setForm("update")}>Edit {resource.title}</Button> : null}
+      {detail ? <div className={styles.page}><dl className={styles.detailList}>{resource.columns.filter(field => !field.name.endsWith("_id") && !field.name.endsWith("_ref") && field.name in detail).map(field => <Fragment key={field.name}><dt>{field.label}</dt><dd>{display(detail[field.name])}</dd></Fragment>)}</dl>
+        <BusinessRecordContext key={String(detail[resource.identifier])} resource={resource} identity={String(detail[resource.identifier])} record={detail} />
+        {writable && !resource.immutable && resource.updateFields.length > 0 ? <Button variant="secondary" onClick={() => setForm("update")}>Ubah {resource.title}</Button> : null}
         {writable && resource.domain === "hr" && resource.key === "leave_requests" && actions.some(status => ["APPROVED", "REJECTED"].includes(status)) ? <FormField label="Alasan keputusan cuti" htmlFor="leave-decision-reason" required><textarea id="leave-decision-reason" value={decisionReason} onChange={event => setDecisionReason(event.target.value)} /></FormField> : null}
-        {writable ? <div className={styles.actionBar}>{actions.map((status) => <Button disabled={busy || (resource.domain === "hr" && resource.key === "leave_requests" && ["APPROVED", "REJECTED"].includes(status) && !decisionReason.trim())} key={status} onClick={() => void transition(status)} variant="secondary">{status}</Button>)}</div> : null}
-        {writable && resource.pipeline ? <div className={styles.actionBar}>{pipelineActions.map((stage) => <Button disabled={busy} key={stage} onClick={() => void transition(stage, true)} variant="secondary">Lanjut ke {stage}</Button>)}</div> : null}
+        {writable ? <div className={styles.actionBar}>{actions.map((status) => <Button disabled={busy || (resource.domain === "hr" && resource.key === "leave_requests" && ["APPROVED", "REJECTED"].includes(status) && !decisionReason.trim())} key={status} onClick={() => void transition(status)} variant="secondary">{statusLabel(status)}</Button>)}</div> : null}
+        {writable && resource.pipeline ? <div className={styles.actionBar}>{pipelineActions.map((choice) => <Button disabled={busy} key={choice} onClick={() => void transition(choice, true)} variant="secondary">Lanjut ke {statusLabel(choice)}</Button>)}</div> : null}
         {writable && materialActions.length ? <MaterialActions key={String(detail[resource.identifier])} actions={materialActions} identity={String(detail[resource.identifier])} resource={resource} canRequest={canRequest}
           onSaved={(row) => { setSelected(row); setFeedback("Tindakan material tersimpan."); setRevision((value) => value + 1); }} /> : null}
         {writable ? <BusinessRecordActions resource={resource} record={detail} canHire={!!active?.role_refs.includes("DIVISION_LEAD")} onSaved={row => { setSelected(row); setRevision(value => value + 1); }} /> : null}
@@ -192,7 +195,10 @@ function RecordForm({ mode, resource, record, onClose, onSaved }: Readonly<{
       return { name: relation.name, options: items.map((row) => {
         const value = String(referenceValue(row, relation.identifier!));
         const label = display(referenceValue(row, relation.label!));
-        return { value, label: label === value ? label : `${label} · ${value}` };
+        const internal = label === value && (relation.identifier!.endsWith("_id") || /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(value));
+        const facts = view(row);
+        const humanName = facts.name ?? facts.title ?? facts.full_name ?? facts.code ?? facts.employee_number ?? facts.contract_number;
+        return { value, label: internal ? (typeof humanName === "string" && humanName !== value ? humanName : `Catatan ${facts.created_at ? new Date(String(facts.created_at)).toLocaleDateString("id-ID") : "tanpa nama"}${facts.status ? ` · ${statusLabel(String(facts.status))}` : ""}`) : label };
       }) };
     })).then((results) => {
       if (!current) return;
@@ -225,24 +231,12 @@ function RecordForm({ mode, resource, record, onClose, onSaved }: Readonly<{
     finally { setBusy(false); }
   }
 
-  return <Drawer title={`${mode === "create" ? "Tambah" : "Edit"} ${resource.title}`} open onClose={onClose}>
-    <form className={styles.page} onSubmit={(event) => void submit(event)}>
-      {loading ? <LoadingState label="Memuat referensi canonical…" variant="section" /> : null}
-      {relationErrors.length ? <Alert title="Referensi belum dapat dimuat" message={blockedReferences ? "Penyimpanan diblokir agar referensi wajib atau tersimpan tidak hilang." : "Referensi tambahan belum tersedia. Pengajuan dapat disimpan tanpa memilih referensi tersebut."} variant={blockedReferences ? "danger" : "warning"} /> : null}
-      {fields.map((field) => {
-        const required = field.required || (mode === "update" && !field.nullable);
-        return <FormField key={field.name} label={field.label} htmlFor={`record-${field.name}`} required={required}
-          description={field.type === "decimal" ? "Masukkan angka desimal dengan titik, maksimal dua digit pecahan. Nilai tidak dibulatkan oleh Web." : undefined}>
-          {field.type === "boolean" ? <select id={`record-${field.name}`} value={values[field.name] ?? "false"} disabled={busy} onChange={event => change(field.name, event.target.value)}><option value="false">Tidak</option><option value="true">Ya</option></select> : field.relation || field.options ? <select id={`record-${field.name}`} multiple={field.relation?.multiple} value={field.relation?.multiple ? JSON.parse(values[field.name] || "[]") as string[] : values[field.name] ?? ""} required={required} disabled={loading || relationErrors.includes(field.name) || busy || !!(field.relation?.dependsOn && !values[field.relation.dependsOn])} onChange={(event) => change(field.name, field.relation?.multiple ? JSON.stringify(Array.from(event.target.selectedOptions, option => option.value).filter(Boolean)) : event.target.value)}>
-            <option value="">Pilih {field.label}</option>
-            {(field.relation ? options[field.name] ?? [] : field.options!.map((value) => ({ value, label: field.optionLabels?.[value] ?? value }))).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-          </select> : <input id={`record-${field.name}`} type={field.type === "integer" ? "number" : field.type === "decimal" ? "text" : field.type} inputMode={field.type === "decimal" ? "decimal" : undefined}
-            required={required} value={values[field.name] ?? ""} disabled={busy} onChange={(event) => change(field.name, event.target.value)} />}
-        </FormField>;
-      })}
+  return <Drawer title={`${mode === "create" ? "Tambah" : "Ubah"} ${resource.title}`} open onClose={onClose}>
+    <BusinessRecordForm resource={resource} fields={fields} mode={mode} values={values} options={options} change={change} busy={busy} loading={loading} relationErrors={relationErrors} onSubmit={event => void submit(event)} onCancel={onClose} disabled={busy || loading || unresolved || blockedReferences} feedback={<>
+      {loading ? <LoadingState label="Memuat pilihan terkait…" variant="section" /> : null}
+      {relationErrors.length ? <Alert title="Pilihan terkait belum dapat dimuat" message={blockedReferences ? "Lengkapi pilihan yang diperlukan sebelum menyimpan." : "Pilihan tambahan belum tersedia. Anda dapat menyimpan tanpa pilihan tersebut."} variant={blockedReferences ? "danger" : "warning"} /> : null}
       {error ? <Alert title="Perubahan belum tersimpan" message={error} variant="danger" /> : null}
-      <div className={styles.actionBar}><Button type="button" variant="ghost" disabled={busy} onClick={onClose}>Batal</Button><Button type="submit" variant="primary" disabled={busy || loading || unresolved || blockedReferences}>{busy ? "Menyimpan…" : "Simpan"}</Button></div>
-    </form>
+    </>} />
   </Drawer>;
 }
 
@@ -258,4 +252,4 @@ function inputValue(field: Field, value: unknown): string {
 }
 
 function view(record: object): Readonly<Record<string, unknown>> { return record as Readonly<Record<string, unknown>>; }
-function display(value: unknown): string { return value === null || value === undefined ? "—" : typeof value === "boolean" ? (value ? "Ya" : "Tidak") : String(value); }
+function display(value: unknown): string { return readableValue(value); }

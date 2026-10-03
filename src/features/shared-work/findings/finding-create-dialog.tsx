@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Dialog, FormField } from "@/components/ui";
+import { Button, Dialog, FormField, FormSection } from "@/components/ui";
 import { apiMessage } from "@/lib/api";
 import type { SharedWorkFindingSeverity } from "@/lib/contracts";
 import { fetchProjects } from "../projects/project-model";
@@ -83,7 +83,7 @@ export function FindingCreateDialog({ onClose, onCreated, open }: FindingCreateD
   return (
     <Dialog onClose={onClose} open={open} title="Tambah Temuan">
       <form className={styles.createForm} onSubmit={submit}>
-        <FormField label="Judul Temuan" required>
+<FormSection title="Masalah"><FormField label="Judul Temuan" required>
           <input
             maxLength={200}
             onChange={(event) => setTitle(event.target.value)}
@@ -92,7 +92,7 @@ export function FindingCreateDialog({ onClose, onCreated, open }: FindingCreateD
             value={title}
           />
         </FormField>
-        <FormField label="Deskripsi">
+<FormField label="Deskripsi">
           <textarea
             maxLength={2000}
             onChange={(event) => setDescription(event.target.value)}
@@ -101,31 +101,30 @@ export function FindingCreateDialog({ onClose, onCreated, open }: FindingCreateD
             value={description}
           />
         </FormField>
-        <FormField label="Tingkat Keparahan (Severity)" required>
+<FormField label="Tingkat Risiko" required>
           <select
             onChange={(event) => setSeverity(event.target.value as SharedWorkFindingSeverity)}
             value={severity}
           >
-            <option value="LOW">LOW</option>
-            <option value="MEDIUM">MEDIUM</option>
-            <option value="HIGH">HIGH</option>
-            <option value="CRITICAL">CRITICAL</option>
+            <option value="LOW">Rendah</option>
+            <option value="MEDIUM">Sedang</option>
+            <option value="HIGH">Tinggi</option>
+            <option value="CRITICAL">Kritis</option>
           </select>
         </FormField>
-        <FormField label="Kategori"><input onChange={(event) => setCategory(event.target.value)} value={category} /></FormField>
-        <FormField label="Proyek"><select onChange={(event) => { setProjectId(event.target.value); setCorrectiveTaskId(""); }} value={projectId}>
+<FormField label="Kategori"><input onChange={(event) => setCategory(event.target.value)} value={category} /></FormField></FormSection>
+<FormSection title="Dampak dan Penyebab"><FormField label="Dampak"><textarea onChange={(event) => setImpact(event.target.value)} value={impact} /></FormField>
+<FormField label="Akar Masalah"><textarea onChange={(event) => setRootCause(event.target.value)} value={rootCause} /></FormField></FormSection>
+<FormSection title="Tindakan Korektif"><FormField label="Proyek"><select onChange={(event) => { setProjectId(event.target.value); setCorrectiveTaskId(""); }} value={projectId}>
           <option value="">Tanpa proyek</option>
           {projects.map((project) => <option key={project.id} value={project.id}>{project.code} — {project.name}</option>)}
         </select></FormField>
-        <FormField label="Batas Waktu"><input onChange={(event) => setDueDate(event.target.value)} type="date" value={dueDate} /></FormField>
-        <FormField label="Dampak"><textarea onChange={(event) => setImpact(event.target.value)} value={impact} /></FormField>
-        <FormField label="Akar Masalah"><textarea onChange={(event) => setRootCause(event.target.value)} value={rootCause} /></FormField>
-        <FormField label="Tugas Tindak Lanjut"><select onChange={(event) => setCorrectiveTaskId(event.target.value)} value={correctiveTaskId}>
+<FormField label="Batas Waktu"><input onChange={(event) => setDueDate(event.target.value)} type="date" value={dueDate} /></FormField>
+<FormField label="Tugas Tindak Lanjut"><select onChange={(event) => setCorrectiveTaskId(event.target.value)} value={correctiveTaskId}>
           <option value="">Tanpa tugas</option>
           {tasks.filter((task) => !projectId || task.projectId === projectId).map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
-        </select></FormField>
-        {error ? <p role="alert">{error}</p> : null}
-        <div className={styles.createActions}>
+        </select></FormField></FormSection>{error ? <p role="alert">{error}</p> : null}
+<div className={styles.createActions}>
           <Button disabled={submitting} onClick={onClose} variant="secondary">
             Batal
           </Button>
@@ -133,7 +132,7 @@ export function FindingCreateDialog({ onClose, onCreated, open }: FindingCreateD
             Simpan Temuan
           </Button>
         </div>
-      </form>
+</form>
     </Dialog>
   );
 }

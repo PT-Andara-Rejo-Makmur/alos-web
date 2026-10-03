@@ -220,7 +220,7 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
       await waitFor(() => {
         expect(screen.getByText("Anda tidak memiliki akses ke halaman ini.")).toBeInTheDocument();
       });
-      expect(screen.queryByText("Target & Kinerja Perusahaan")).not.toBeInTheDocument();
+      expect(screen.queryByText("Target Perusahaan")).not.toBeInTheDocument();
     });
 
     it("Sales feature fails closed when requested workspaceKey does not match active workspace", async () => {
@@ -255,7 +255,7 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
       render(<SummaryRoute params={{ workspaceKey: "pusat-kendali" }} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Target & Kinerja Perusahaan")).toBeInTheDocument();
+        expect(screen.getByText("Target Perusahaan")).toBeInTheDocument();
       });
       // Does not render Sales Summary page header
       expect(screen.queryByText("Ringkasan target, pipeline, aktivitas, dan hasil penjualan.")).not.toBeInTheDocument();
@@ -270,7 +270,7 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Sales & Marketing" })).toBeInTheDocument();
       });
-      expect(screen.queryByText("Target & Kinerja Perusahaan")).not.toBeInTheDocument();
+      expect(screen.queryByText("Target Perusahaan")).not.toBeInTheDocument();
     });
 
     it("Property /summary resolves to Property Summary and does not enter Sales Summary", async () => {
@@ -283,7 +283,7 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
         expect(screen.getByRole("heading", { name: "Ringkasan Property" })).toBeInTheDocument();
       });
       expect(screen.queryByText("Ringkasan target, pipeline, aktivitas, dan hasil penjualan.")).not.toBeInTheDocument();
-      expect(screen.queryByText("Target & Kinerja Perusahaan")).not.toBeInTheDocument();
+      expect(screen.queryByText("Target Perusahaan")).not.toBeInTheDocument();
     });
 
     it("/performance for Executive session resolves to Executive Performance", async () => {
@@ -378,7 +378,8 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
         await waitFor(() => {
           expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
         });
-        expect(screen.getByText("ARA Core Connected · Mode deterministik")).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
+        expect(screen.queryByText(/Mode deterministik/)).not.toBeInTheDocument();
       },
     );
 
@@ -431,7 +432,7 @@ describe("Final Architecture Consistency & Hygiene Guard", () => {
         expect(screen.getAllByLabelText("Navigasi utama")).toHaveLength(1);
         expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
         expect(screen.getAllByRole("button", { name: "Buka navigasi" })).toHaveLength(1);
-        expect(screen.getAllByRole("button", { name: "Pilih workspace" })).toHaveLength(1);
+        expect(screen.getAllByRole("button", { name: "Pilih ruang kerja" })).toHaveLength(1);
       },
     );
   });

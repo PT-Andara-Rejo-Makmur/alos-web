@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Dialog, FormField } from "@/components/ui";
+import { Button, Dialog, EntitySelect, FormField, FormSection } from "@/components/ui";
 import { apiMessage } from "@/lib/api";
 import { fetchProjects } from "../projects/project-model";
 import type { WorkProject } from "../projects/project-types";
@@ -19,6 +19,7 @@ interface ReportCreateDialogProps {
 
 export function ReportCreateDialog({ onClose, onCreated, open }: ReportCreateDialogProps) {
   const [title, setTitle] = useState("");
+  const [customType, setCustomType] = useState("");
   const [reportType, setReportType] = useState("FINANCIAL");
   const [description, setDescription] = useState("");
   const [periodStart, setPeriodStart] = useState("");
@@ -45,7 +46,7 @@ export function ReportCreateDialog({ onClose, onCreated, open }: ReportCreateDia
     try {
       const response = await createReportResult({
         title: title.trim(),
-        report_type: reportType.trim(),
+        report_type: reportType === "CUSTOM" ? customType.trim() : reportType,
         description: description.trim() || null,
         period_start: periodStart || null,
         period_end: periodEnd || null,
@@ -71,7 +72,7 @@ export function ReportCreateDialog({ onClose, onCreated, open }: ReportCreateDia
   return (
     <Dialog onClose={onClose} open={open} title="Tambah Laporan">
       <form className={styles.createForm} onSubmit={submit}>
-        <FormField label="Nama Laporan" required>
+<FormSection title="Laporan"><FormField label="Nama Laporan" required>
           <input
             maxLength={200}
             onChange={(event) => setTitle(event.target.value)}
@@ -80,25 +81,15 @@ export function ReportCreateDialog({ onClose, onCreated, open }: ReportCreateDia
             value={title}
           />
         </FormField>
-        <FormField label="Deskripsi"><textarea onChange={(event) => setDescription(event.target.value)} value={description} /></FormField>
-        <FormField label="Periode Mulai"><input onChange={(event) => setPeriodStart(event.target.value)} type="date" value={periodStart} /></FormField>
-        <FormField label="Periode Selesai"><input min={periodStart || undefined} onChange={(event) => setPeriodEnd(event.target.value)} type="date" value={periodEnd} /></FormField>
-        <FormField label="Lingkup"><input onChange={(event) => setScope(event.target.value)} value={scope} /></FormField>
-        <FormField label="Proyek"><select onChange={(event) => setProjectId(event.target.value)} value={projectId}>
-          <option value="">Tanpa proyek</option>
-          {projects.map((project) => <option key={project.id} value={project.id}>{project.code} — {project.name}</option>)}
-        </select></FormField>
-        <FormField label="Jenis Laporan" required>
-          <input
-            maxLength={50}
-            onChange={(event) => setReportType(event.target.value)}
-            placeholder="Contoh: FINANCIAL, OPERATIONAL, AUDIT"
-            required
-            value={reportType}
-          />
-        </FormField>
-        {error ? <p role="alert">{error}</p> : null}
-        <div className={styles.createActions}>
+<FormField label="Deskripsi"><textarea onChange={(event) => setDescription(event.target.value)} value={description} /></FormField>
+<FormField label="Jenis Laporan" required>
+          <select onChange={event => setReportType(event.target.value)} value={reportType} required><option value="FINANCIAL">Keuangan</option><option value="OPERATIONAL">Operasional</option><option value="PROGRESS">Kemajuan Pekerjaan</option><option value="CUSTOM">Lainnya</option></select>
+        </FormField>{reportType === "CUSTOM" ? <FormField label="Jenis Laporan Lainnya" required><input maxLength={50} required value={customType} onChange={event => setCustomType(event.target.value)} /></FormField> : null}</FormSection>
+<FormSection title="Periode"><FormField label="Periode Mulai"><input onChange={(event) => setPeriodStart(event.target.value)} type="date" value={periodStart} /></FormField>
+<FormField label="Periode Selesai"><input min={periodStart || undefined} onChange={(event) => setPeriodEnd(event.target.value)} type="date" value={periodEnd} /></FormField></FormSection>
+<FormSection title="Pekerjaan Terkait"><FormField label="Lingkup"><input onChange={(event) => setScope(event.target.value)} value={scope} /></FormField>
+<FormField label="Proyek"><EntitySelect label="Proyek" value={projectId} options={projects.map(project => ({value:project.id,label:project.code + " — " + project.name}))} emptyLabel="Tanpa proyek" onChange={setProjectId} /></FormField></FormSection>{error ? <p role="alert">{error}</p> : null}
+<div className={styles.createActions}>
           <Button disabled={submitting} onClick={onClose} variant="secondary">
             Batal
           </Button>
@@ -106,7 +97,7 @@ export function ReportCreateDialog({ onClose, onCreated, open }: ReportCreateDia
             Simpan Laporan
           </Button>
         </div>
-      </form>
+</form>
     </Dialog>
   );
 }

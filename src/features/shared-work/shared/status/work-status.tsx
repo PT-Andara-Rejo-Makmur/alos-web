@@ -1,3 +1,4 @@
+import { statusLabel } from "@/lib/presentation";
 import { Status, type StatusVariant } from "@/components/ui";
 
 import type {
@@ -22,7 +23,7 @@ export function DataClassificationBadge({
     case "RESTRICTED":
       return <Status label="Sangat Terbatas" variant="danger" />;
     default:
-      return <Status label={classification} variant="neutral" />;
+      return <Status label={statusLabel(classification)} variant="neutral" />;
   }
 }
 
@@ -43,7 +44,7 @@ export function FindingSeverityBadge({
     case "CRITICAL":
       return <Status label="Kritis" variant="danger" />;
     default:
-      return <Status label={severity} variant="neutral" />;
+      return <Status label={statusLabel(severity)} variant="neutral" />;
   }
 }
 
@@ -61,5 +62,5 @@ export function RiskBadge({
     KRITIS: "danger",
   };
 
-  return <Status label={level} variant={variantMap[level] ?? "neutral"} />;
+  return <Status label={statusLabel(level)} variant={variantMap[level] ?? "neutral"} />;
 }

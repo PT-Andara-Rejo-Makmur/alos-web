@@ -190,7 +190,7 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
         render: (d) => d.category,
       },
       {
-        header: "Workspace",
+        header: "Ruang Kerja",
         key: "workspace",
         render: (d) => d.workspaceName ?? "—",
       },
@@ -255,7 +255,7 @@ export function DocumentsPage({ workspaceKey, embed }: DocumentsPageProps) {
   const innerContent = (
     <div className={styles.pageContainer}>
       <PageHeader
-        actions={hasWorkPermission(session, "document.create") || hasWorkPermission(session, "work.write") ? <Button onClick={() => setCreateOpen(true)}>Tambah Metadata</Button> : undefined}
+        actions={hasWorkPermission(session, "document.create") || hasWorkPermission(session, "work.write") ? <Button onClick={() => setCreateOpen(true)}>Tambah Dokumen</Button> : undefined}
         description="Kelola dokumen kerja sesuai akses dan konteks bisnis Anda."
         eyebrow="PEKERJAAN"
         title="Dokumen"

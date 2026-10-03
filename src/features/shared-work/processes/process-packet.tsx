@@ -1,7 +1,13 @@
+import Link from "next/link";
+import { Status } from "@/components/ui";
+import { businessMetricValue, readableValue } from "@/lib/presentation";
+
 const employmentTypes: Record<string, string> = {
   PERMANENT: "Tetap", CONTRACT: "Kontrak", INTERNSHIP: "Magang", FREELANCE: "Lepas",
 };
+import styles from "@/components/ui/work-surface.module.css";
 const fields = [
+  ["certificate_number", "Nomor Sertifikat Pembayaran"], ["change_number", "Nomor Perubahan Pekerjaan"], ["contract_number", "Nomor Kontrak"],
   ["position_title", "Posisi yang dibutuhkan"], ["department_code", "Divisi"],
   ["employment_type", "Jenis hubungan kerja"], ["headcount", "Jumlah tenaga kerja"],
   ["reason", "Dasar kebutuhan"], ["description", "Uraian pengajuan"],
@@ -13,16 +19,18 @@ const fields = [
   ["goal", "Tujuan"], ["business_context", "Konteks bisnis"],
 ] as const;
 
-export function ProcessPacket({ packet }: Readonly<{ packet: Record<string, unknown> }>) {
+export function ProcessPacket({ packet, workspaceKey }: Readonly<{ packet: Record<string, unknown>; workspaceKey?: string }>) {
+  const document=packet.document && typeof packet.document==="object" ? packet.document as Record<string,unknown> : null;
+  const employee=packet.employee && typeof packet.employee==="object" ? packet.employee as Record<string,unknown> : null;
   const facts = fields.flatMap(([key, label]) => {
-    const value = packet[key];
+    const value = packet[key] ?? employee?.[key];
     if (typeof value !== "string" && typeof value !== "number") return [];
     if (value === "") return [];
-    const display = key === "employment_type" ? employmentTypes[String(value)] ?? "Belum dikenali" : String(value);
+    const display = key === "employment_type" ? employmentTypes[String(value)] ?? "Belum dikenali" : ["amount","amount_delta"].includes(key) ? businessMetricValue({value,unit:"AMOUNT",available:true,source:null,code:key,label}) : readableValue(value);
     return [{ key, label, display }];
   });
-  if (!facts.length) return null;
-  return <dl aria-label="Informasi pengajuan">{facts.map(fact => <div key={fact.key}>
+  if (!facts.length && !document) return null;
+  return <><dl className={styles.facts} aria-label="Informasi pengajuan">{facts.map(fact => <div key={fact.key}>
     <dt>{fact.label}</dt><dd>{fact.display}</dd>
-  </div>)}</dl>;
+  </div>)}</dl>{document ? <section><h3>Dokumen Pendukung</h3><p>Versi {readableValue(document.current_version)} · <Status label={String(document.status ?? "")} /></p><p>Diperbarui {readableValue(document.updated_at)}</p>{workspaceKey && typeof document.document_id==="string" ? <Link href={`/workspace/${encodeURIComponent(workspaceKey)}/documents/${encodeURIComponent(document.document_id)}`}>Buka Dokumen →</Link> : null}</section> : null}</>;
 }

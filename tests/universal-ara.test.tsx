@@ -81,7 +81,7 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
       });
-      expect(screen.getByText("Ruang kerja aktif: Pusat Penjualan")).toBeInTheDocument();
+      expect(screen.getAllByText("Pusat Penjualan").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Pusat Penjualan").length).toBeGreaterThanOrEqual(1);
     });
 
@@ -94,7 +94,7 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
       });
-      expect(screen.getByText("Ruang kerja aktif: Pusat Properti")).toBeInTheDocument();
+      expect(screen.getAllByText("Pusat Properti").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Pusat Properti").length).toBeGreaterThanOrEqual(1);
     });
 
@@ -107,7 +107,7 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
       });
-      expect(screen.getByText("Ruang kerja aktif: Pusat Keuangan")).toBeInTheDocument();
+      expect(screen.getAllByText("Pusat Keuangan").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Pusat Keuangan").length).toBeGreaterThanOrEqual(1);
     });
 
@@ -120,7 +120,7 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
       });
-      expect(screen.getByText("Ruang kerja aktif: Operasional IT")).toBeInTheDocument();
+      expect(screen.getAllByText("Operasional IT").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Operasional IT").length).toBeGreaterThanOrEqual(1);
     });
   });
@@ -133,16 +133,14 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       render(<AraRoute params={{ workspaceKey: "property" }} />);
 
       await waitFor(() => {
-        expect(screen.getByText("ARA Core Connected · Mode deterministik")).toBeInTheDocument();
+        expect(screen.getByRole("heading", {name:"Tanya ARA"})).toBeInTheDocument();
       });
       expect(
-        screen.getByText(
-          "Production Model Provider: Belum Terhubung · Klasifikasi maksimum: INTERNAL",
-        ),
-      ).toBeInTheDocument();
+        screen.queryByText(/Production Model Provider|Klasifikasi maksimum/),
+      ).not.toBeInTheDocument();
       expect(
         await screen.findByText(
-          "Tanyakan lead Sales, proyek aktif, persetujuan, piutang, risiko Legal, atau incident IT. Ketersediaan mengikuti kewenangan Anda.",
+          "Apa yang perlu kita tangani hari ini?",
         ),
       ).toBeInTheDocument();
     });
@@ -318,9 +316,9 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
       });
-      expect(screen.getByText("Ruang kerja aktif: Pusat Kendali")).toBeInTheDocument();
+      expect(screen.getAllByText("Pusat Kendali").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Pusat Kendali").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText(/Klasifikasi maksimum: INTERNAL/)).toBeInTheDocument();
+      expect(screen.queryByText(/Klasifikasi maksimum: INTERNAL/)).not.toBeInTheDocument();
       // Executive navigation is rendered
       expect(screen.getByRole("link", { name: "Brief Eksekutif" })).toHaveAttribute(
         "href",
@@ -353,7 +351,7 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
       });
-      expect(screen.getByText("Ruang kerja aktif: Pusat Penjualan")).toBeInTheDocument();
+      expect(screen.getAllByText("Pusat Penjualan").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Pusat Penjualan").length).toBeGreaterThanOrEqual(1);
       // Sales navigation is rendered
       expect(screen.getByRole("link", { name: "Pipeline Penjualan" })).toHaveAttribute(
@@ -376,9 +374,9 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
       await waitFor(() => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
       });
-      expect(screen.getByText("ARA Core Connected · Mode deterministik")).toBeInTheDocument();
+      expect(screen.getByRole("heading", {name:"Tanya ARA"})).toBeInTheDocument();
       expect(await screen.findByText("Belum ada percakapan.")).toBeInTheDocument();
-      expect(screen.getByText("Ruang kerja aktif: Pusat Penjualan")).toBeInTheDocument();
+      expect(screen.getAllByText("Pusat Penjualan").length).toBeGreaterThan(0);
 
       unmount();
 
@@ -392,10 +390,10 @@ describe("Universal ARA (Asisten Ruang Kerja)", () => {
         expect(screen.getByRole("heading", { name: "Tanya ARA" })).toBeInTheDocument();
       });
       // Exact same core UI elements
-      expect(screen.getByText("ARA Core Connected · Mode deterministik")).toBeInTheDocument();
+      expect(screen.getByRole("heading", {name:"Tanya ARA"})).toBeInTheDocument();
       expect(await screen.findByText("Belum ada percakapan.")).toBeInTheDocument();
       // But distinct authoritative workspace context
-      expect(screen.getByText("Ruang kerja aktif: Pusat Kendali")).toBeInTheDocument();
+      expect(screen.getAllByText("Pusat Kendali").length).toBeGreaterThan(0);
     });
   });
 });

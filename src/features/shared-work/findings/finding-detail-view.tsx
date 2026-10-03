@@ -134,7 +134,7 @@ export function FindingDetailView({
           {finding.projectName ?? (finding.projectId ? "Proyek terkait" : "—")}
         </dd>
 
-        <dt className={drawerStyles.definitionTerm}>Workspace</dt>
+        <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
         <dd className={drawerStyles.definitionDetail}>{finding.workspaceName ?? "—"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Ditemukan</dt>

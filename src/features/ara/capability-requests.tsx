@@ -11,8 +11,8 @@ const stateLabels = { UNRESOLVED: "Perlu pemeriksaan kebutuhan", RESOLVING: "Sed
 
 export function CapabilityRequests() {
   const [open, setOpen] = useState(false);
-  return <Section title="Bantuan untuk kebutuhan bisnis">
-    <Button onClick={() => setOpen(value => !value)} variant="secondary">{open ? "Tutup permintaan bantuan" : "Ajukan bantuan ALOS"}</Button>
+  return <Section title="Minta Kemampuan Baru" description="Ceritakan pekerjaan yang ingin dibantu dan hasil yang Anda harapkan.">
+    <Button onClick={() => setOpen(value => !value)} variant="secondary">{open ? "Tutup permintaan bantuan" : "Minta bantuan baru"}</Button>
     {open && <RequestContent />}
   </Section>;
 }
@@ -43,7 +43,7 @@ function RequestContent() {
     {overview?.can_create && <form onSubmit={event => { event.preventDefault(); void create(); }}>
       <FormField label="Apa yang ingin dibantu ALOS?" required><textarea required maxLength={4000} value={need} onChange={event => setNeed(event.target.value)} /></FormField>
       <FormField label="Tujuan" required><textarea required maxLength={2000} value={goal} onChange={event => setGoal(event.target.value)} /></FormField>
-      <FormField label="Konteks bisnis tambahan"><textarea maxLength={2000} value={context} onChange={event => setContext(event.target.value)} /></FormField>
+      <FormField label="Konteks tambahan"><textarea maxLength={2000} value={context} onChange={event => setContext(event.target.value)} /></FormField>
       <Button type="submit" disabled={busy || !need.trim() || !goal.trim()}>Simpan kebutuhan</Button>
     </form>}
     {overview?.items.map(row => <RequestCard key={row.request_id} row={row} canResolve={overview.can_resolve} onChanged={reload} />)}
@@ -66,12 +66,12 @@ function RequestCard({ row, canResolve, onChanged }: Readonly<{ row: CapabilityB
     <h3>{row.need}</h3><p>Tujuan: {row.goal}</p><p>{stateLabels[row.resolution_state]}</p>
     {row.business_context && <p>{row.business_context}</p>}
     <ProcessRequest domain="core" resource="capability_requests" identity={row.request_id} />
-    {row.factory_result && <><p>{row.factory_result.decision === "REUSE" ? "Kapabilitas existing dapat digunakan" : "Draft bantuan baru telah disiapkan"}: {row.factory_result.reason}</p>
-      {row.governance.map(item => <p key={`${item.subject_id}-${item.version}`}>{item.registry_state === "ACTIVE" && item.release_state === "ACTIVE" ? "Aktif melalui release yang disetujui" : "Menunggu pemeriksaan, pengujian, dan release"}</p>)}</>}
-    {row.review_id && <p>Tinjauan AI tersimpan. Keputusan dan pengujian tetap mengikuti kewenangan perusahaan.</p>}
+    {row.factory_result && <><p>{row.factory_result.decision === "REUSE" ? (row.governance.some(item => item.registry_state === "ACTIVE" && item.release_state === "ACTIVE") ? "Kemampuan sudah tersedia" : "Kemampuan yang sesuai ditemukan") : "Rancangan bantuan baru sedang disiapkan"}</p>
+      {row.governance.map(item => <p key={`${item.subject_id}-${item.version}`}>{item.registry_state === "ACTIVE" && item.release_state === "ACTIVE" ? "Sudah siap digunakan melalui persetujuan perusahaan" : "Menunggu pemeriksaan, pengujian, dan persetujuan penggunaan"}</p>)}</>}
+    {row.review_id && <p>Hasil pemeriksaan tersimpan. Permintaan tetap mengikuti keputusan dan pengujian perusahaan.</p>}
     {canResolve && <><FormField label="Hasil pemeriksaan atau alasan"><textarea value={reason} maxLength={4000} onChange={event => setReason(event.target.value)} /></FormField>
       {row.resolution_state !== "RESOLVED" && <Button disabled={busy || !reason.trim() || row.resolution_state === "RESOLVING"} onClick={() => void command("resolve")}>Periksa dan analisis kebutuhan</Button>}
-      {row.factory_result?.agent_draft && <Button disabled={busy || !reason.trim()} onClick={() => void command("review")}>Minta tinjauan teknis</Button>}
+      {row.factory_result?.agent_draft && <Button disabled={busy || !reason.trim()} onClick={() => void command("review")}>Minta pemeriksaan teknis</Button>}
     </>}
     {error && <Alert message={error} variant="danger" />}
   </article>;

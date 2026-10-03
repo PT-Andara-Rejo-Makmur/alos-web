@@ -18,18 +18,18 @@
   background: var(--alos-primary-dark);
   color: white;
   display: flex;
-  flex: 0 0 248px;
+  flex: 0 0 232px;
   flex-direction: column;
   height: 100vh;
   height: 100dvh;
   position: sticky;
   top: 0;
   padding: var(--alos-space-6) var(--alos-space-4) var(--alos-space-4);
-  width: 248px;
+  width: 232px;
 }
 
 .sidebarHeader {
-  padding: 0 var(--alos-space-2) var(--alos-space-8);
+  padding: 0 var(--alos-space-2) var(--alos-space-5);
 }
 
 .sidebarHeaderRow {
@@ -91,7 +91,7 @@
 }
 
 .sectionLabel {
-  color: rgb(255 255 255 / 45%);
+  color: rgb(255 255 255 / 70%);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -199,6 +199,10 @@
   cursor: wait;
 }
 
+.pageContext { display:flex; gap:8px; align-items:center; color:var(--alos-text-muted); font-size:12px; margin-right:auto; min-width:0; }
+.pageContext strong { color:var(--alos-text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.switchError { position:absolute; top:100%; left:16px; right:16px; padding:8px 12px; margin:0; background:var(--alos-status-danger-background); color:var(--alos-status-danger-text); border:1px solid currentColor; border-radius:6px; z-index:40; }
+@media(max-width:1024px) { .pageContext { display:none; } }
 .topbar {
   align-items: center;
   background: var(--alos-surface);
@@ -376,7 +380,7 @@
 }
 
 .workspaceMenuError {
-  color: var(--alos-danger, #b42318);
+  color: var(--alos-status-danger-text);
   font-size: 12px;
   line-height: 18px;
   margin: var(--alos-space-2) var(--alos-space-3) var(--alos-space-1);
@@ -648,6 +652,12 @@
     padding: 28px 16px;
   }
 }
+
+.actionInbox { margin-bottom: var(--alos-space-2); border: 1px solid rgb(220 202 154 / 32%); background: rgb(255 255 255 / 5%); color: #f0e6cf; }
+.actionInbox.navigationItemActive { background: rgb(255 255 255 / 15%); color: white; border-color: #b5a16f; }
+.content { max-width: var(--alos-content-width); margin: 0 auto; width: 100%; }
+.sidebar :focus-visible { outline-color: #dbc38d; }
+.workspaceMenu, .profileMenu { max-height: min(65dvh, 460px); overflow-y: auto; }
 
 @media (max-width: 639px) {
   .topbar {

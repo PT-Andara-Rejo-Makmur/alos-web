@@ -1,280 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-
-import {
-  DataTable,
-  EmptyState,
-  LoadingState,
-  PageHeader,
-  Section,
-  Status,
-  Tabs,
-  type TabItem,
-} from "@/components/ui";
+import { Alert, EmptyState, LoadingState, Metric, PageHeader, Section } from "@/components/ui";
+import { businessMetricValue, domainLabels } from "@/lib/presentation";
 import { ExecutiveLayout } from "./executive-layout";
-import { useExecutiveStrategyData } from "./executive-data";
-import {
-  formatValue,
-  observationFor,
-  performanceLabel,
-  performanceVariant,
-  valueForObservation,
-  verificationLabel,
-} from "./executive-model";
+import { useBusinessPerformance } from "./business-performance";
+import { ExecutiveDivisionOverview, ExecutiveTargetTable } from "./executive-summary";
 import styles from "./executive.module.css";
+import workStyles from "@/components/ui/work-surface.module.css";
 
-const divisionRows = [
-  ["Sales & Marketing", "sales"],
-  ["Property & Teknik", "property"],
-  ["Finance & Pajak", "finance"],
-  ["Legal", "legal"],
-  ["HR/GA", "hr"],
-  ["IT", "it"],
-] as const;
-
-function DivisionSharedWorkReadiness({ divisionName, label }: Readonly<{ divisionName: string; label: string }>) {
-  return (
-    <Section title={label}>
-      <div className={styles.readinessRow}>
-        <Status label="Belum Terhubung" variant="neutral" />
-        <p>
-          Data {label} {divisionName} belum terhubung ke tampilan Executive. Data lintas ruang kerja akan tampil setelah sumber resmi tersedia.
-        </p>
-      </div>
-    </Section>
-  );
+export function ExecutiveDivisionsPage({ workspaceKey }: Readonly<{workspaceKey?:string}> = {}) {
+  return <ExecutiveLayout workspaceKey={workspaceKey}>{(_session,key)=><DivisionsContent key={key} workspaceKey={key} />}</ExecutiveLayout>;
 }
-
-export function ExecutiveDivisionsPage({ workspaceKey }: Readonly<{ workspaceKey?: string }> = {}) {
-  return (
-    <ExecutiveLayout workspaceKey={workspaceKey}>
-      {(_session, activeKey) => {
-        const base = `/workspace/${encodeURIComponent(activeKey)}`;
-        return (
-          <div className={styles.page}>
-            <PageHeader
-              description="Pantau kesiapan data, capaian target, serta keterkaitan pekerjaan tiap divisi sesuai ruang lingkup yang berwenang."
-              eyebrow="ORGANISASI"
-              title="Divisi"
-            />
-            <Section title="Status Divisi">
-              <DataTable
-                caption="Daftar divisi"
-                columns={[
-                  { header: "Divisi", key: "name", render: (row: readonly string[]) => row[0] },
-                  { header: "Penanggung Jawab", key: "owner", render: () => "—" },
-                  { header: "Target Utama", key: "target", render: () => "—" },
-                  { header: "Kinerja", key: "performance", render: () => "—" },
-                  { header: "Proyek Aktif", key: "projects", render: () => "—" },
-                  { header: "Tugas Terlambat", key: "tasks", render: () => "—" },
-                  { header: "Temuan", key: "findings", render: () => "—" },
-                  { header: "Persetujuan", key: "approvals", render: () => "—" },
-                  {
-                    header: "Status Data",
-                    key: "status",
-                    render: () => <Status label="Belum Terhubung" variant="neutral" />,
-                  },
-                ]}
-                getRowKey={(row) => row[1]}
-                rowAction={(row) => (
-                  <Link className={styles.detailLink} href={`${base}/divisions/${row[1]}`}>
-                    Lihat Detail
-                  </Link>
-                )}
-                rows={divisionRows}
-              />
-            </Section>
-          </div>
-        );
-      }}
-    </ExecutiveLayout>
-  );
+function DivisionsContent({workspaceKey}:Readonly<{workspaceKey:string}>) {
+  const business=useBusinessPerformance(workspaceKey);
+  return <div className={styles.page}><PageHeader title="Kondisi Divisi" description="Indikator operasional dan hal yang perlu diperhatikan di setiap divisi." />{business.error ? <Alert variant="warning" message={business.error} /> : null}<ExecutiveDivisionOverview data={business.data} base={`/workspace/${encodeURIComponent(workspaceKey)}`} /></div>;
 }
-
-export function ExecutiveDivisionDetailPage({
-  divisionKey,
-  workspaceKey,
-}: Readonly<{ divisionKey: string; workspaceKey?: string }>) {
-  const division = divisionRows.find((row) => row[1] === divisionKey);
-  const [activeTab, setActiveTab] = useState("summary");
-  const { data, error, loading, sessionExpired } = useExecutiveStrategyData();
-
-  const tabs: readonly TabItem[] = useMemo(() => [
-    { id: "summary", label: "Ringkasan" },
-    { id: "performance", label: "Kinerja" },
-    { id: "projects", label: "Proyek" },
-    { id: "tasks", label: "Tugas" },
-    { id: "approvals", label: "Persetujuan" },
-    { id: "findings", label: "Temuan" },
-    { id: "reports", label: "Laporan" },
-  ], []);
-
-  // Filter strategy targets for this division if any exist (FAIL-CLOSED: scope.ref must strictly match)
-  const divisionTargets = useMemo(() => {
-    if (!data) return [];
-    return data.targets.filter(
-      (t) => t.scope.type === "DIVISION" && Boolean(t.scope.ref) && t.scope.ref === divisionKey,
-    );
-  }, [data, divisionKey]);
-
-  // Authoritative division owner is not inferred from target; defaults strictly to "—"
-  const divisionOwner = "—";
-
-  return (
-    <ExecutiveLayout workspaceKey={workspaceKey}>
-      {(_session, activeKey) => {
-        const base = `/workspace/${encodeURIComponent(activeKey)}`;
-        return (
-          <div className={styles.page}>
-            <div style={{ marginBottom: "var(--alos-space-2)" }}>
-              <Link className={styles.detailLink} href={`${base}/divisions`}>
-                ← Kembali ke Daftar Divisi
-              </Link>
-            </div>
-
-            <PageHeader
-              description="Kinerja dan pekerjaan divisi ditampilkan terintegrasi sesuai ruang lingkup yang berwenang."
-              eyebrow="ORGANISASI"
-              metadata={`Unit Organisasi: ${division?.[0] ?? "Divisi"}`}
-              title={division?.[0] ?? "Detail Divisi"}
-            />
-
-            {!division ? (
-              <EmptyState
-                action={<Link className={styles.detailLink} href={`${base}/divisions`}>Kembali ke Divisi</Link>}
-                description="Divisi yang diminta tidak tersedia pada ruang kerja ini."
-                title="Divisi tidak ditemukan."
-              />
-            ) : (
-            <>
-              <Tabs
-                ariaLabel="Detail navigasi divisi"
-                items={tabs}
-                onValueChange={setActiveTab}
-                value={activeTab}
-              />
-
-              {/* Tab 1: Ringkasan */}
-              {activeTab === "summary" ? (
-                <div className={styles.cascadeFlow}>
-                  <Section title="Ringkasan Operasional Divisi">
-                    <div className={styles.targetDetailGrid}>
-                      <div className={styles.candidateCard}>
-                        <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Target Khusus</span>
-                        <strong style={{ fontSize: "20px" }}>{loading || error || !data ? "—" : divisionTargets.length}</strong>
-                        <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>Sasaran teralokasi</span>
-                      </div>
-                      <div className={styles.candidateCard}>
-                        <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Status Sinkronisasi</span>
-                        <Status label="Belum Terhubung" variant="neutral" />
-                        <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>Kanal kerja divisi</span>
-                      </div>
-                      <div className={styles.candidateCard}>
-                        <span style={{ fontSize: "12px", color: "var(--alos-text-muted)" }}>Penanggung Jawab</span>
-                        <strong style={{ fontSize: "14px" }}>{divisionOwner}</strong>
-                        <span style={{ fontSize: "11px", color: "var(--alos-text-secondary)" }}>
-                          {divisionOwner !== "—" ? `Peran: ${divisionOwner}` : "Belum ditentukan"}
-                        </span>
-                      </div>
-                    </div>
-                  </Section>
-
-                  <Section title="Status Alokasi Data">
-                    <div className={styles.readinessRow}>
-                      <Status label="Belum Terhubung" variant="neutral" />
-                      <p>
-                        Data operasional divisi {division[0]} belum terhubung.
-                        Gunakan tab di atas untuk melihat status kesiapan Proyek, Tugas, Persetujuan, Temuan, dan Laporan divisi.
-                      </p>
-                    </div>
-                  </Section>
-                </div>
-              ) : null}
-
-              {/* Tab 2: Kinerja */}
-              {activeTab === "performance" ? (
-                <Section
-                  description="Proyeksi kinerja dan pencapaian target yang dialokasikan khusus untuk divisi ini."
-                  title={`Kinerja ${division[0]}`}
-                >
-                  {loading ? (
-                    <LoadingState label={`Memuat kinerja ${division[0]}`} variant="table" />
-                  ) : error || sessionExpired || !data ? (
-                    <div className={styles.readinessRow}>
-                      <Status label="Belum Terhubung" variant="neutral" />
-                      <p>Kinerja belum dapat disimpulkan karena data strategi belum tersedia.</p>
-                    </div>
-                  ) : divisionTargets.length > 0 ? (
-                    <DataTable
-                      caption={`Kinerja ${division[0]}`}
-                      columns={[
-                        { header: "Sasaran", key: "name", render: (t) => t.name },
-                        {
-                          header: "Target",
-                          key: "target",
-                          render: (t) => valueForObservation(observationFor(t, "TARGET"), formatValue),
-                        },
-                        {
-                          header: "Aktual",
-                          key: "actual",
-                          render: (t) => valueForObservation(observationFor(t, "ACTUAL"), formatValue),
-                        },
-                        {
-                          header: "Perkiraan",
-                          key: "forecast",
-                          render: (t) => valueForObservation(observationFor(t, "FORECAST"), formatValue),
-                        },
-                        {
-                          header: "Status",
-                          key: "status",
-                          render: (t) => (
-                            <Status
-                              label={performanceLabel(t.performance_state)}
-                              variant={performanceVariant(t.performance_state)}
-                            />
-                          ),
-                        },
-                        {
-                          header: "Verifikasi",
-                          key: "verification",
-                          render: (t) => verificationLabel(observationFor(t, "ACTUAL")?.verification_state),
-                        },
-                      ]}
-                      getRowKey={(t) => t.target_id}
-                      rows={divisionTargets}
-                    />
-                  ) : (
-                    <div className={styles.readinessRow}>
-                      <Status label="Belum ada data" variant="neutral" />
-                      <p>Belum ada data target yang dialokasikan khusus untuk divisi ini.</p>
-                    </div>
-                  )}
-                </Section>
-              ) : null}
-
-              {/* Tab 3–7: Shared Work lintas ruang kerja tetap readiness-only sampai projection resmi tersedia. */}
-              {activeTab === "projects" ? (
-                <DivisionSharedWorkReadiness divisionName={division[0]} label="Proyek" />
-              ) : null}
-              {activeTab === "tasks" ? (
-                <DivisionSharedWorkReadiness divisionName={division[0]} label="Tugas" />
-              ) : null}
-              {activeTab === "approvals" ? (
-                <DivisionSharedWorkReadiness divisionName={division[0]} label="Persetujuan" />
-              ) : null}
-              {activeTab === "findings" ? (
-                <DivisionSharedWorkReadiness divisionName={division[0]} label="Temuan" />
-              ) : null}
-              {activeTab === "reports" ? (
-                <DivisionSharedWorkReadiness divisionName={division[0]} label="Laporan" />
-              ) : null}
-            </>
-          )}
-        </div>
-        );
-      }}
-    </ExecutiveLayout>
-  );
+export function ExecutiveDivisionDetailPage({divisionKey,workspaceKey}:Readonly<{divisionKey:string;workspaceKey?:string}>) {
+  return <ExecutiveLayout workspaceKey={workspaceKey}>{(_session,key)=><DivisionContent key={`${key}-${divisionKey}`} workspaceKey={key} divisionKey={divisionKey} />}</ExecutiveLayout>;
+}
+function DivisionContent({divisionKey,workspaceKey}:Readonly<{divisionKey:string;workspaceKey:string}>) {
+  const business=useBusinessPerformance(workspaceKey);
+  const base=`/workspace/${encodeURIComponent(workspaceKey)}`;
+  const summary=business.data?.domains.find(item=>item.domain===divisionKey);
+  // Scope references must match; never infer division ownership from a target name.
+  const targets=business.data?.target_details.filter(item=>item.target.scope.type==="DIVISION" && Boolean(item.target.scope.ref) && item.target.scope.ref===divisionKey) ?? [];
+  const attention=business.data?.attention.filter(item=>item.domain===divisionKey) ?? [];
+  return <div className={styles.page}><Link href={`${base}/divisions`}>← Kembali ke Divisi</Link><PageHeader title={domainLabels[divisionKey] ?? "Detail Divisi"} description="Kondisi operasional, perhatian utama, dan target divisi." />
+    {!(divisionKey in domainLabels) ? <EmptyState title="Divisi tidak ditemukan" description="Pilih divisi yang tersedia pada daftar perusahaan." /> : <>
+      {business.error ? <Alert variant="warning" message={business.error} /> : null}
+      <Section title="Indikator Operasional">{summary ? <div className={workStyles.metricStrip}>{summary.metrics.map(metric=><Metric key={metric.code} label={metric.label} value={businessMetricValue(metric)} />)}</div> : <p>Belum tersedia</p>}</Section>
+      <Section title="Perlu Perhatian">{business.data ? attention.length ? <ul>{attention.map(item=><li key={item.code}>{item.label} · <strong>{businessMetricValue(item)}</strong></li>)}</ul> : <p>Tidak ada perhatian tambahan dari indikator yang tersedia.</p> : <p>Belum tersedia</p>}<Link href={`${base}/processes`}>Lihat Pengajuan Keputusan →</Link></Section>
+      <Section title="Kinerja Divisi">{business.data ? <><ExecutiveTargetTable targets={targets} base={base} />{!targets.length ? <p>Belum ada target yang dialokasikan khusus untuk divisi ini.</p> : null}</> : business.error ? <p>Kinerja belum dapat disimpulkan karena data bisnis belum tersedia.</p> : <LoadingState label={`Memuat kinerja ${domainLabels[divisionKey]}`} />}</Section>
+      <Section title="Pekerjaan Divisi"><p>Rincian tugas, proyek, dan penanggung jawab divisi belum tersedia dalam ringkasan perusahaan. Gunakan pengajuan yang ditampilkan pada Perlu Tindakan.</p></Section>
+    </>}
+  </div>;
 }

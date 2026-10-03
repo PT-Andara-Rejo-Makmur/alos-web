@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Dialog, FormField } from "@/components/ui";
+import { Button, Dialog, EntitySelect, FormField, FormSection } from "@/components/ui";
 import { apiMessage } from "@/lib/api";
 import type { SharedWorkApprovalSubjectType } from "@/lib/contracts";
 
@@ -81,31 +81,27 @@ export function ApprovalCreateDialog({ open, onClose, onCreated }: Props) {
   return (
     <Dialog onClose={onClose} open={open} title="Ajukan Persetujuan">
       <form className={styles.createForm} onSubmit={submit}>
-        <FormField label="Jenis Objek" required>
+<FormSection title="Pengajuan"><FormField label="Jenis Objek" required>
           <select onChange={(event) => { setSubjectType(event.target.value as SharedWorkApprovalSubjectType); setSubjectId(""); }} value={subjectType}>
             <option value="PROJECT">Proyek</option>
             <option value="TASK">Tugas</option>
           </select>
         </FormField>
-        <FormField label="Objek" required>
-          <select onChange={(event) => setSubjectId(event.target.value)} required value={subjectId}>
-            <option value="">Pilih objek</option>
-            {choices.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}
-          </select>
-        </FormField>
-        {!connected ? <p>Daftar objek belum terhubung.</p> : null}
-        <FormField label="Alasan Permintaan">
-          <textarea onChange={(event) => setReason(event.target.value)} value={reason} />
-        </FormField>
-        <FormField label="Nilai Materialitas">
+<FormField label="Objek" required>
+          <EntitySelect label="Pengajuan" value={subjectId} required options={choices.map(choice => ({value:choice.id,label:choice.label}))} emptyLabel="Pilih pengajuan" onChange={setSubjectId} />
+        </FormField></FormSection>
+<FormSection title="Dasar Keputusan"><FormField label="Nilai Pengajuan">
           <input min="0" onChange={(event) => setMaterialityValue(event.target.value)} step="0.01" type="number" value={materialityValue} />
-        </FormField>
-        {error ? <p role="alert">{error}</p> : null}
-        <div className={styles.drawerFooterActions}>
+        </FormField></FormSection>
+<FormSection title="Informasi Tambahan"><FormField label="Alasan Permintaan">
+          <textarea onChange={(event) => setReason(event.target.value)} value={reason} />
+        </FormField></FormSection>{!connected ? <p>Daftar objek belum terhubung.</p> : null}
+{error ? <p role="alert">{error}</p> : null}
+<div className={styles.drawerFooterActions}>
           <Button onClick={onClose} variant="secondary">Batal</Button>
           <Button disabled={!connected || loading} loading={loading} type="submit">Ajukan</Button>
         </div>
-      </form>
+</form>
     </Dialog>
   );
 }

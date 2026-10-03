@@ -29,8 +29,8 @@
 .briefHeader { align-items: center; display: flex; justify-content: space-between; }
 .briefHeader h2, .briefHeader h3 { font-size: 15px; font-weight: 600; line-height: 22px; margin: 0; }
 .briefCompactList { display: flex; flex-direction: column; gap: var(--alos-space-2); list-style: none; margin: 0; padding: 0; }
-.briefListItem { align-items: center; border-radius: var(--alos-radius-sm, 4px); display: flex; font-size: 13px; justify-content: space-between; padding: var(--alos-space-2); }
-.briefListItem:hover { background: var(--alos-surface-hover); }
+.briefListItem { align-items: center; border-radius: var(--alos-radius-input); display: flex; font-size: 13px; justify-content: space-between; padding: var(--alos-space-2); }
+.briefListItem:hover { background: var(--alos-table-row-hover); }
 .briefTimeline { border-left: 2px solid var(--alos-border); display: flex; flex-direction: column; gap: var(--alos-space-3); margin-left: var(--alos-space-2); padding-left: var(--alos-space-3); }
 .briefTimelineItem { display: flex; flex-direction: column; gap: var(--alos-space-1); position: relative; }
 .briefTimelineItem::before { background: var(--alos-primary); border-radius: 50%; content: ""; height: 8px; left: calc(-1 * var(--alos-space-3) - 5px); position: absolute; top: 5px; width: 8px; }
@@ -62,3 +62,5 @@
 @media (max-width: 1023px) { .domainGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .extractionSplit { grid-template-columns: 1fr; } .targetDetailGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 639px) { .page { gap: var(--alos-space-5); } .metricsStrip, .domainGrid, .twoColumn, .briefGrid, .formGrid, .targetDetailGrid { grid-template-columns: 1fr; } .sourceStrip { align-items: flex-start; flex-direction: column; } .sourceDetail { grid-template-columns: 1fr; gap: var(--alos-space-1); } }
 
+
+.accessButton { display: inline-flex; justify-content: center; align-items: center; padding: var(--alos-space-3) var(--alos-space-4); border: 1px solid var(--alos-primary); border-radius: var(--alos-radius-button); color: var(--alos-primary-dark); }

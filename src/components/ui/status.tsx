@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { statusLabel } from "@/lib/presentation";
 
 import styles from "./ui.module.css";
 
@@ -11,10 +12,11 @@ export interface StatusProps {
 }
 
 export function Status({ icon, label, variant = "neutral" }: StatusProps) {
+  const display = typeof label === "string" ? statusLabel(label) : label;
   return (
-    <span aria-label={typeof label === "string" ? label : undefined} className={[styles.status, styles[`status${capitalize(variant)}`]].join(" ")} role="status">
+    <span aria-label={typeof display === "string" ? display : undefined} className={[styles.status, styles[`status${capitalize(variant)}`]].join(" ")} role="status">
       {icon ? <span aria-hidden="true" className={styles.statusIcon}>{icon}</span> : null}
-      <span>{label}</span>
+      <span>{display}</span>
     </span>
   );
 }

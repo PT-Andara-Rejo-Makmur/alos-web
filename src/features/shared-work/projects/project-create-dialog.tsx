@@ -2,12 +2,12 @@
 
 import { useState, type FormEvent } from "react";
 
-import { Button, Dialog, FormField } from "@/components/ui";
+import { Dialog, FormField, FormJourney } from "@/components/ui";
 import { apiMessage } from "@/lib/api";
 
 import { createProject } from "./project-model";
 import type { WorkProject } from "./project-types";
-import styles from "./projects.module.css";
+import workStyles from "@/components/ui/work-surface.module.css";
 
 interface ProjectCreateDialogProps {
   readonly onClose: () => void;
@@ -59,36 +59,23 @@ export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateD
 
   return (
     <Dialog onClose={onClose} open={open} title="Tambah Proyek">
-      <form className={styles.createForm} onSubmit={submit}>
-        <FormField label="Kode Proyek" required>
-          <input maxLength={128} onChange={(event) => setCode(event.target.value)} required value={code} />
-        </FormField>
-        <FormField label="Nama Proyek" required>
-          <input maxLength={300} onChange={(event) => setName(event.target.value)} required value={name} />
-        </FormField>
-        <FormField label="Deskripsi">
-          <textarea onChange={(event) => setDescription(event.target.value)} value={description} />
-        </FormField>
-        <FormField label="Tujuan Proyek" required>
-          <textarea required maxLength={4000} onChange={event => setObjective(event.target.value)} value={objective} />
-        </FormField>
-        <FormField label="Prioritas">
-          <select value={priority} onChange={event => setPriority(event.target.value as typeof priority)}>
-            <option value="LOW">Rendah</option><option value="NORMAL">Normal</option><option value="HIGH">Tinggi</option><option value="CRITICAL">Mendesak</option>
-          </select>
-        </FormField>
-        <FormField label="Tanggal Mulai">
-          <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />
-        </FormField>
-        <FormField label="Target Selesai">
-          <input onChange={(event) => setTargetEndDate(event.target.value)} type="date" value={targetEndDate} />
-        </FormField>
-        {error ? <p role="alert">{error}</p> : null}
-        <div className={styles.createActions}>
-          <Button disabled={submitting} onClick={onClose} variant="secondary">Batal</Button>
-          <Button loading={submitting} type="submit">Simpan Proyek</Button>
-        </div>
-      </form>
+      <FormJourney onSubmit={submit} onCancel={onClose} busy={submitting} submitLabel="Simpan Proyek" feedback={error ? <p role="alert">{error}</p> : null} steps={[
+        { title: "Identitas", content: <>
+          <FormField label="Kode Proyek" required><input maxLength={128} value={code} onChange={event => setCode(event.target.value)} required /></FormField>
+          <FormField label="Nama Proyek" required><input maxLength={300} value={name} onChange={event => setName(event.target.value)} required /></FormField>
+          <FormField label="Tujuan Proyek" required><textarea maxLength={4000} value={objective} onChange={event => setObjective(event.target.value)} required /></FormField>
+          <FormField label="Deskripsi"><textarea value={description} onChange={event => setDescription(event.target.value)} /></FormField>
+        </> },
+        { title: "Tanggung Jawab", content: <>
+          <p>Proyek dibuat dalam ruang kerja Anda. Penanggung jawab dan divisi mengikuti pengaturan proyek yang diberikan perusahaan.</p>
+          <FormField label="Prioritas"><select value={priority} onChange={event => setPriority(event.target.value as typeof priority)}><option value="LOW">Rendah</option><option value="NORMAL">Normal</option><option value="HIGH">Tinggi</option><option value="CRITICAL">Mendesak</option></select></FormField>
+        </> },
+        { title: "Rencana", content: <>
+          <FormField label="Tanggal Mulai"><input type="date" value={startDate} onChange={event => setStartDate(event.target.value)} /></FormField>
+          <FormField label="Target Selesai"><input type="date" min={startDate || undefined} value={targetEndDate} onChange={event => setTargetEndDate(event.target.value)} /></FormField>
+        </> },
+        { title: "Tinjau", content: <dl className={workStyles.facts}><div><dt>Proyek</dt><dd>{code} · {name}</dd></div><div><dt>Tujuan</dt><dd>{objective}</dd></div><div><dt>Rencana</dt><dd>{startDate || "Belum ditentukan"} → {targetEndDate || "Belum ditentukan"}</dd></div></dl> },
+      ]} />
     </Dialog>
   );
 }

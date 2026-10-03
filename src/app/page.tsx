@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { CompanyPortal } from "@/features/landing/company-portal";
 
 export default function RootPage() {
-  redirect("/workspace");
+  return <CompanyPortal />;
 }

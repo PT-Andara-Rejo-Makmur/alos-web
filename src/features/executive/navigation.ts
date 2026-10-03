@@ -42,6 +42,7 @@ export function executiveNavigation(workspaceKey: string): readonly AppNavigatio
     },
     {
       items: [
+        { href: `${base}/processes`, icon: CheckSquare, label: "Perlu Tindakan" },
         { href: `${base}/projects`, icon: Briefcase, label: "Proyek" },
         { href: `${base}/tasks`, icon: CheckSquare, label: "Tugas" },
         { href: `${base}/approvals`, icon: FileCheck2, label: "Persetujuan" },

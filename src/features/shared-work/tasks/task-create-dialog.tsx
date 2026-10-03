@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Dialog, FormField } from "@/components/ui";
+import { Button, Dialog, EntitySelect, FormField, FormSection } from "@/components/ui";
 import type { SharedWorkTaskPriority } from "@/lib/contracts";
 import { apiMessage } from "@/lib/api";
 
@@ -77,13 +77,16 @@ export function TaskCreateDialog({ onClose, onCreated, open }: TaskCreateDialogP
   return (
     <Dialog onClose={onClose} open={open} title="Tambah Tugas">
       <form className={styles.createForm} onSubmit={submit}>
-        <FormField label="Judul Tugas" required>
+<FormSection title="Pekerjaan"><FormField label="Judul Tugas" required>
           <input maxLength={500} onChange={(event) => setTitle(event.target.value)} required value={title} />
         </FormField>
-        <FormField label="Deskripsi">
+<FormField label="Deskripsi">
           <textarea onChange={(event) => setDescription(event.target.value)} value={description} />
         </FormField>
-        <FormField label="Prioritas">
+<FormField label="Proyek">
+          <EntitySelect label="Proyek" value={projectId} options={projects.map(project => ({value:project.id,label:project.code + " — " + project.name}))} emptyLabel="Tanpa proyek" onChange={setProjectId} />
+        </FormField></FormSection>
+<FormSection title="Prioritas dan Jadwal"><FormField label="Prioritas">
           <select onChange={(event) => setPriority(event.target.value as SharedWorkTaskPriority)} value={priority}>
             <option value="LOW">Rendah</option>
             <option value="NORMAL">Normal</option>
@@ -91,25 +94,18 @@ export function TaskCreateDialog({ onClose, onCreated, open }: TaskCreateDialogP
             <option value="CRITICAL">Kritis</option>
           </select>
         </FormField>
-        <FormField label="Proyek">
-          <select onChange={(event) => setProjectId(event.target.value)} value={projectId}>
-            <option value="">Tanpa proyek</option>
-            {projects.map((project) => <option key={project.id} value={project.id}>{project.code} — {project.name}</option>)}
-          </select>
-        </FormField>
-        {!projectsConnected ? <p>Daftar proyek belum terhubung. Tugas tetap dapat dibuat tanpa proyek.</p> : null}
-        <FormField label="Tanggal Mulai">
+<FormField label="Tanggal Mulai">
           <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />
         </FormField>
-        <FormField label="Tenggat">
+<FormField label="Tenggat">
           <input onChange={(event) => setDueAt(event.target.value)} type="datetime-local" value={dueAt} />
-        </FormField>
-        {error ? <p role="alert">{error}</p> : null}
-        <div className={styles.createActions}>
+        </FormField></FormSection>{!projectsConnected ? <p>Daftar proyek belum terhubung. Tugas tetap dapat dibuat tanpa proyek.</p> : null}
+{error ? <p role="alert">{error}</p> : null}
+<div className={styles.createActions}>
           <Button disabled={submitting} onClick={onClose} variant="secondary">Batal</Button>
           <Button loading={submitting} type="submit">Simpan Tugas</Button>
         </div>
-      </form>
+</form>
     </Dialog>
   );
 }

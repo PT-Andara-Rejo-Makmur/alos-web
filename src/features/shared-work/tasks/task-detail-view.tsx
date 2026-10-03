@@ -125,7 +125,7 @@ export function TaskDetailView({
         <dt className={drawerStyles.definitionTerm}>Pembuat</dt>
         <dd className={drawerStyles.definitionDetail}>{task.creatorName ?? "—"}</dd>
 
-        <dt className={drawerStyles.definitionTerm}>Workspace</dt>
+        <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
         <dd className={drawerStyles.definitionDetail}>{task.workspaceName ?? "—"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Mulai</dt>

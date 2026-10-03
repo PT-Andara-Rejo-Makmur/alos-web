@@ -332,7 +332,7 @@ describe("Shared Work / Modul Tugas (Tasks)", () => {
       expect(screen.getByRole("columnheader", { name: "Prioritas" })).toBeInTheDocument();
       expect(screen.getByRole("columnheader", { name: "Status" })).toBeInTheDocument();
       expect(screen.getByRole("columnheader", { name: "Tenggat" })).toBeInTheDocument();
-      expect(screen.getByRole("columnheader", { name: "Workspace" })).toBeInTheDocument();
+      expect(screen.getByRole("columnheader", { name: "Ruang Kerja" })).toBeInTheDocument();
       expect(request).toHaveBeenCalledWith("/api/v1/tasks", expect.any(Object));
     });
   });

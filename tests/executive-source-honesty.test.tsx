@@ -1,3 +1,4 @@
+import { performanceFixture } from "./helpers/business-projections";
 import { executiveOverviewFixture } from "./executive-overview-fixture";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -146,6 +147,7 @@ function authenticatedSession(principal = executivePrincipal) {
 describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls + Hygiene)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(api, "authenticatedApiRequest").mockRejectedValue(new api.ApiError(503, "Unavailable", null));
     vi.spyOn(strategyApi, "getExecutiveOverview").mockResolvedValue(executiveOverviewFixture({ plans: [mockPlan], targets: [mockTarget] }));
     mockSearchParams = new URLSearchParams();
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(authenticatedSession());
@@ -203,7 +205,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
 
     expect(await screen.findByRole("heading", { name: "Brief Eksekutif" })).toBeInTheDocument();
     expect(screen.queryByText(/Nihil/i)).not.toBeInTheDocument();
-    expect((await screen.findAllByText("Kapabilitas sumber untuk proyeksi ini belum tersedia.")).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText("Informasi pekerjaan pendukung belum tersedia.")).length).toBeGreaterThan(0);
   });
 
   it("does not infer risk or safety when the Strategy source cannot be loaded", async () => {
@@ -211,8 +213,8 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
 
     render(<ExecutiveBriefPage />);
 
-    expect(await screen.findByText("Data Executive belum dapat dimuat. Silakan coba kembali beberapa saat lagi.")).toBeInTheDocument();
-    expect(screen.getAllByText("Sumber belum dapat dibaca. Data dan jumlah belum dapat ditampilkan.").length).toBeGreaterThan(0);
+    expect((await screen.findAllByText(/Layanan belum dapat memproses permintaan|Koneksi belum dapat digunakan/)).length).toBeGreaterThan(0);
+    expect(screen.getByText("Daftar keputusan belum tersedia.")).toBeInTheDocument();
     expect(screen.queryByText(/Tidak ada target korporasi yang terindikasi berisiko/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/aman/i)).not.toBeInTheDocument();
   });
@@ -221,8 +223,8 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
   it("Scenario 5: Brief does not create fake agendas or deadlines", async () => {
     render(<ExecutiveBriefPage />);
 
-    expect(await screen.findByText("F. Agenda & Tenggat")).toBeInTheDocument();
-    expect((await screen.findAllByText("Kapabilitas sumber untuk proyeksi ini belum tersedia.")).length).toBeGreaterThan(0);
+    expect(await screen.findByRole("heading", { name: "Hari Ini" })).toBeInTheDocument();
+    expect((await screen.findAllByText("Informasi pekerjaan pendukung belum tersedia.")).length).toBeGreaterThan(0);
     expect(screen.queryByText("Pelaporan Triwulan")).not.toBeInTheDocument();
   });
 
@@ -280,42 +282,41 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
       name: "Target Divisi Anomali",
       scope: { type: "DIVISION", ref: null, label: null },
     };
-    vi.spyOn(strategyApi, "listTargets").mockResolvedValue([missingRefTarget]);
+    const detail = { target: missingRefTarget, observations: [], relationships: [], revisions: [], selected_observations: { target: null, actual: null, forecast: null }, performance_state: missingRefTarget.performance_state, authorized_actions: [], last_updated_at: null };
+    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ ...performanceFixture, decisions: [], target_details: [detail] });
 
     render(<ExecutiveDivisionDetailPage divisionKey="sales" />);
 
     expect(await screen.findByRole("heading", { name: "Sales & Marketing" })).toBeInTheDocument();
-    const perfTab = screen.getByRole("tab", { name: "Kinerja" });
-    fireEvent.click(perfTab);
+
 
     // Target without valid scope.ref must NOT leak into sales
     expect(screen.queryByText("Target Divisi Anomali")).not.toBeInTheDocument();
-    expect(await screen.findByText("Belum ada data target yang dialokasikan khusus untuk divisi ini.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada target yang dialokasikan khusus untuk divisi ini.")).toBeInTheDocument();
   });
 
   it("does not present a source failure as an empty division target list", async () => {
-    vi.spyOn(strategyApi, "listPlans").mockRejectedValueOnce(new Error("Request failed"));
+    vi.spyOn(api, "authenticatedApiRequest").mockRejectedValue(new api.ApiError(503, "Unavailable", null));
 
     render(<ExecutiveDivisionDetailPage divisionKey="sales" />);
 
     expect(await screen.findByRole("heading", { name: "Sales & Marketing" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("tab", { name: "Kinerja" }));
 
-    expect(await screen.findByText("Kinerja belum dapat disimpulkan karena data strategi belum tersedia.")).toBeInTheDocument();
-    expect(screen.queryByText("Belum ada data target yang dialokasikan khusus untuk divisi ini.")).not.toBeInTheDocument();
+
+    expect(await screen.findByText("Kinerja belum dapat disimpulkan karena data bisnis belum tersedia.")).toBeInTheDocument();
+    expect(screen.queryByText("Belum ada target yang dialokasikan khusus untuk divisi ini.")).not.toBeInTheDocument();
   });
 
   it("shows only the loading state while division performance data is loading", async () => {
-    vi.spyOn(strategyApi, "listPlans").mockImplementation(() => new Promise(() => {}));
-    vi.spyOn(strategyApi, "listTargets").mockImplementation(() => new Promise(() => {}));
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(() => new Promise(() => {}));
 
     render(<ExecutiveDivisionDetailPage divisionKey="sales" />);
 
     expect(await screen.findByRole("heading", { name: "Sales & Marketing" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("tab", { name: "Kinerja" }));
 
-    expect(screen.getByRole("status", { name: "Memuat kinerja Sales & Marketing" })).toBeInTheDocument();
-    expect(screen.queryByText("Belum ada data target yang dialokasikan khusus untuk divisi ini.")).not.toBeInTheDocument();
+
+    expect(await screen.findByRole("status", { name: "Memuat kinerja Sales & Marketing" })).toBeInTheDocument();
+    expect(screen.queryByText("Belum ada target yang dialokasikan khusus untuk divisi ini.")).not.toBeInTheDocument();
     expect(screen.queryByRole("status", { name: "Belum Terhubung" })).not.toBeInTheDocument();
   });
 
@@ -323,7 +324,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
   it("Scenario 10: Division owner is not hardcoded and shows honest fallback", async () => {
     render(<ExecutiveDivisionsPage />);
 
-    expect(await screen.findByRole("heading", { name: "Divisi" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Kondisi Divisi" })).toBeInTheDocument();
     expect(screen.queryByText("Kepala Divisi Sales & Marketing")).not.toBeInTheDocument();
     expect(screen.queryByText("Kepala Divisi Property & Teknik")).not.toBeInTheDocument();
   });
@@ -332,7 +333,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
   it("Scenario 11: DIVISION_LEAD does not leak as a fabricated label", async () => {
     render(<ExecutiveDivisionsPage />);
 
-    expect(await screen.findByRole("heading", { name: "Divisi" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Kondisi Divisi" })).toBeInTheDocument();
     expect(screen.queryByText(/DIVISION_LEAD/i)).not.toBeInTheDocument();
   });
 
@@ -372,7 +373,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
 
     const workspacePicker = screen.getByLabelText("Ruang Kerja Penanggung Jawab *") as HTMLSelectElement;
     expect(workspacePicker.value).toBe("workspace_exec");
-    expect(screen.getByRole("option", { name: "Pusat Kendali" })).toBeInTheDocument();
+    expect(workspacePicker.options[workspacePicker.selectedIndex]?.text).toBe("Pusat Kendali");
     expect(screen.queryByPlaceholderText("ID Ruang Kerja")).not.toBeInTheDocument();
   });
 
@@ -393,7 +394,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     const createBtn = await screen.findByRole("button", { name: "Buat Renstra" });
     fireEvent.click(createBtn);
 
-    const roleInput = screen.getByLabelText("Peran / Jabatan Penanggung Jawab *") as HTMLInputElement;
+    const roleInput = screen.getByLabelText("Jabatan Penanggung Jawab *") as HTMLInputElement;
     expect(roleInput.value).toBe("");
   });
 
@@ -542,7 +543,7 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     expect(await screen.findByRole("heading", { name: "Brief Eksekutif" })).toBeInTheDocument();
     // Directive creation is not an active button pretending to work
     expect(screen.queryByRole("button", { name: "Tambah Arahan" })).not.toBeInTheDocument();
-    expect(await screen.findByText(/Sales & Marketing, Finance & Pajak, Property & Teknik, Legal, HR\/GA, IT belum terhubung/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Buka Perlu Tindakan/ })).toHaveAttribute("href", "/workspace/pusat-kendali-direksi/processes");
   });
 
   // 23. Docs do not claim unavailable features as Live/Tersedia

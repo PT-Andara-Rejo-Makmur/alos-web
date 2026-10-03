@@ -31,4 +31,8 @@ export type { StatusProps, StatusVariant } from "./status";
 export { Tabs } from "./tabs";
 export type { TabItem, TabsProps } from "./tabs";
 export { Toolbar } from "./toolbar";
+export { FormSection } from "./form-section";
+export { EntitySelect } from "./entity-select";
+export { Stepper } from "./stepper";
+export { FormJourney } from "./form-journey";
 export type { ToolbarProps } from "./toolbar";

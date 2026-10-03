@@ -1,4 +1,5 @@
 "use client";
+import { readableValue } from "@/lib/presentation";
 
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -201,7 +202,7 @@ export function ReportsPage({ workspaceKey, embed }: ReportsPageProps) {
         render: (r) => (
           <div className={styles.reportTitleCell}>
             <span className={styles.reportTitleText}>{r.title}</span>
-            <span className={styles.reportTypeText}>{r.reportType}</span>
+            <span className={styles.reportTypeText}>{readableValue(r.reportType)}</span>
           </div>
         ),
       },

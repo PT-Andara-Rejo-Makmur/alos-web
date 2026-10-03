@@ -2,7 +2,7 @@
 
 import { House, type LucideIcon } from "lucide-react";
 import { useCallback, useRef, useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { selectActiveWorkspace, type SessionProjection, workspaceDomainFromMetadata } from "@/features/session";
 import type { WorkspaceAccessProjection } from "@/lib/contracts";
@@ -64,7 +64,7 @@ export function getAppShellProfile(session: SessionProjection): AppShellProfile 
       activeWorkspaceId: principal.active_workspace?.workspace.workspace_id ?? null,
       displayName,
       email: principal.email || null,
-      workspaceAccess: principal.workspace_access,
+      workspaceAccess: [...(principal.active_workspace ? [principal.active_workspace] : []), ...principal.workspace_access].filter((access,index,items) => access.active && access.workspace.active && items.findIndex(item => item.workspace.workspace_id === access.workspace.workspace_id) === index),
       workspaceName,
       initials: initialsFor(displayName),
     };
@@ -85,7 +85,7 @@ export function getAppShellProfile(session: SessionProjection): AppShellProfile 
   };
 }
 
-const sharedWorkSections = new Set(["projects", "tasks", "approvals", "documents", "reports", "findings"]);
+const sharedWorkSections = new Set(["projects", "tasks", "approvals", "documents", "reports", "findings", "processes"]);
 
 export function workspaceDestination(pathname: string, workspace: WorkspaceAccessProjection): string {
   const workspaceKey = encodeURIComponent(workspace.workspace.workspace_key);
@@ -123,6 +123,8 @@ export function AppShell({
   session: SessionProjection;
 }>) {
   const router = useRouter();
+  const pathname = usePathname() ?? "/workspace";
+  const context = navigationSections.flatMap(section => section.items).filter(item => pathname === item.href || pathname.startsWith(item.href + "/")).sort((a,b) => b.href.length - a.href.length)[0]?.label ?? "Beranda";
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -164,6 +166,7 @@ export function AppShell({
 
   return (
     <div className={styles.shell}>
+      <a className="alos-skip-link" href="#workspace-content">Langsung ke pekerjaan</a>
       <AppSidebar
         collapsed={sidebarCollapsed}
         loggingOut={loggingOut}
@@ -175,6 +178,7 @@ export function AppShell({
 
       <div className={styles.body}>
         <AppTopbar
+          context={context}
           loggingOut={loggingOut}
           menuButtonRef={menuButtonRef}
           mobileNavigationOpen={mobileNavigationOpen}
@@ -185,7 +189,7 @@ export function AppShell({
         switchingWorkspace={switchingWorkspace}
         workspaceSwitchError={workspaceSwitchError}
         />
-        <main className={styles.main}>
+        <main className={styles.main} id="workspace-content" tabIndex={-1}>
           <div className={styles.content}>{children}</div>
         </main>
       </div>

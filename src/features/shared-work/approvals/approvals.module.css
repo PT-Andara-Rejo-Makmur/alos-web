@@ -70,3 +70,5 @@
   gap: var(--alos-space-3);
   width: 100%;
 }
+
+.createForm { display: grid; gap: var(--alos-space-4); }

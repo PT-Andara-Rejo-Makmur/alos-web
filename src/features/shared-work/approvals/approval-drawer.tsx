@@ -104,7 +104,7 @@ export function ApprovalDrawer({
         <dt className={drawerStyles.definitionTerm}>Approver</dt>
         <dd className={drawerStyles.definitionDetail}>{approval.approverName ?? "—"}</dd>
 
-        <dt className={drawerStyles.definitionTerm}>Workspace</dt>
+        <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
         <dd className={drawerStyles.definitionDetail}>{approval.workspaceName ?? "—"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Diajukan</dt>

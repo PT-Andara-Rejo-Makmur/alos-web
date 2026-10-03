@@ -94,8 +94,7 @@ export function LoginPage({ activated = false }: { activated?: boolean }) {
             Satu sistem untuk bekerja, mengendalikan, dan bertumbuh.
           </h1>
           <p className={styles.visualBody}>
-            ALOS menyatukan proses, data, keputusan, dan AI Agent dalam satu operating system
-            perusahaan yang terukur dan berbasis bukti.
+            ALOS menghubungkan pekerjaan, data, keputusan, dan asisten perusahaan agar setiap langkah jelas dan didukung informasi yang tepat.
           </p>
           <div className={styles.visualDivider} aria-hidden="true" />
           <p className={styles.visualTagline}>OPERATE &middot; ORCHESTRATE &middot; GROW</p>
@@ -131,8 +130,7 @@ export function LoginPage({ activated = false }: { activated?: boolean }) {
           <p className={styles.formEyebrow}>ANDARA LEAN OPERATING SYSTEM</p>
           <h2 className={styles.formHeading}>Selamat datang kembali.</h2>
           <p className={styles.formDescription}>
-            Masuk menggunakan akun PT Andara Rejo Makmur untuk mengakses workspace sesuai peran dan hak
-            akses Anda.
+            Masuk menggunakan akun PT Andara Rejo Makmur untuk membuka ruang kerja dan melanjutkan pekerjaan Anda.
           </p>
 
           {/* Form */}
@@ -150,7 +148,7 @@ export function LoginPage({ activated = false }: { activated?: boolean }) {
 
         {/* Form Footer */}
         <div className={styles.formFooter}>
-          <p className={styles.footerMeta}>PT ANDARA REJO MAKMUR &middot; INTERNAL SYSTEM</p>
+          <p className={styles.footerMeta}>PT ANDARA REJO MAKMUR &middot; SISTEM INTERNAL PERUSAHAAN</p>
         </div>
       </main>
     </div>

@@ -65,7 +65,7 @@ export function Tabs({
           const panelId = `${baseId}-panel-${item.id}`;
           return (
             <button
-              aria-controls={panelId}
+              aria-controls={selected && item.content !== undefined ? panelId : undefined}
               aria-selected={selected}
               className={[styles.tab, selected ? styles.tabSelected : ""].filter(Boolean).join(" ")}
               disabled={item.disabled}

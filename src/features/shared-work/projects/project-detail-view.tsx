@@ -6,13 +6,13 @@ import { useEffect, useState } from "react";
 
 import { Button, Dialog, type TabItem } from "@/components/ui";
 import type { SessionProjection } from "@/features/session";
+import { statusLabel } from "@/lib/presentation";
 import { apiMessage, authenticatedApiRequest } from "@/lib/api";
 import type { SharedWorkEntityType, SharedWorkRelationProjection } from "@/lib/contracts";
 
 import { DetailPageShell } from "../shared/drawers/detail-page-shell";
 import { SharedWorkActivityPanel, SharedWorkCommentsPanel, SharedWorkEvidencePanel } from "../shared/shared-work-relations";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
-import { WorkEmptyState } from "../shared/empty-states/work-empty-state";
 import { RelationshipSummary } from "../shared/relationship/relationship-summary";
 import { ProjectStatusBadge } from "../shared/status/project-status";
 import { RiskBadge } from "../shared/status/work-status";
@@ -91,7 +91,7 @@ export function ProjectDetailView({
     return <ul>{matching.map((item) => <li key={item.entity_id}>
       <Button onClick={() => router.push(
         `${workspaceKey ? `/workspace/${workspaceKey}` : "/workspace"}/${paths[type]}/${encodeURIComponent(item.entity_id)}`,
-      )} variant="ghost">{item.title} · {item.status}</Button>
+      )} variant="ghost">{item.title} · {statusLabel(item.status)}</Button>
     </li>)}</ul>;
   }
 
@@ -131,7 +131,7 @@ export function ProjectDetailView({
         <dd className={drawerStyles.definitionDetail}>{project.objective ?? "Belum dicatat"}</dd>
         <dt className={drawerStyles.definitionTerm}>Prioritas</dt>
         <dd className={drawerStyles.definitionDetail}>{{ LOW: "Rendah", NORMAL: "Normal", HIGH: "Tinggi", CRITICAL: "Mendesak" }[project.priority ?? "NORMAL"]}</dd>
-        <dt className={drawerStyles.definitionTerm}>Pemilik</dt>
+        <dt className={drawerStyles.definitionTerm}>Penanggung Jawab</dt>
         <dd className={drawerStyles.definitionDetail}>{project.ownerName ?? "—"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
@@ -186,13 +186,7 @@ export function ProjectDetailView({
     },
     {
       id: "plan",
-      label: "Rencana",
-      content: (
-        <WorkEmptyState
-          description="Belum ada rincian tahapan rencana atau target pencapaian terstruktur."
-          title="Belum ada rencana yang terdaftar"
-        />
-      ),
+      label: "Milestone", content: <ProjectBusinessRecords projectId={project.id} resourceFilter="project_milestones" />,
     },
     {
       id: "tasks",
@@ -207,7 +201,7 @@ export function ProjectDetailView({
     },
     {
       id: "approvals",
-      label: "Persetujuan",
+      label: "Proses & Keputusan",
       content: relationContent("APPROVAL"),
     },
     {

@@ -176,23 +176,13 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
 
   // 1. Brief actual composition
   it("renders Executive Brief composition with sections A to H without raw empty state soup", async () => {
+
     render(<ExecutiveBriefPage />);
-
-    expect(await screen.findByRole("heading", { name: "Brief Eksekutif" })).toBeInTheDocument();
-    expect(screen.getByText("A. Kondisi Perusahaan Saat Ini")).toBeInTheDocument();
-    expect(screen.getByText("B. Sorotan Utama")).toBeInTheDocument();
-    expect(screen.getByText("C. Keputusan Menunggu")).toBeInTheDocument();
-    expect(screen.getByText("D. Temuan & Perhatian")).toBeInTheDocument();
-    expect(screen.getByText("E. Status Proyek")).toBeInTheDocument();
-    expect(screen.getByText("F. Agenda & Tenggat")).toBeInTheDocument();
-    expect(screen.getByText("G. Koneksi Domain")).toBeInTheDocument();
-    expect(screen.getByText("H. GENESIS Advisory")).toBeInTheDocument();
-
-    // Directive notice when task mutation is not available
-    expect(
-      await screen.findByText(/Sales & Marketing, Finance & Pajak, Property & Teknik, Legal, HR\/GA, IT belum terhubung/),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Tambah Arahan" })).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading",{name:"Brief Eksekutif"})).toBeInTheDocument();
+    for(const name of ["Hari Ini","Perhatian Utama","Kinerja","Proyek dan Risiko"]) expect(screen.getByRole("heading",{name})).toBeInTheDocument();
+    expect(screen.getByRole("link",{name:/Tanya ARA tentang kondisi perusahaan/})).toHaveAttribute("href","/workspace/pusat-kendali-direksi/ara");
+    expect(screen.queryByText("G. Koneksi Domain")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button",{name:"Tambah Arahan"})).not.toBeInTheDocument();
   });
 
   // 2. Form Renstra & RKAP completeness
@@ -203,16 +193,17 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     const createBtn = await screen.findByRole("button", { name: "Buat Renstra" });
     fireEvent.click(createBtn);
 
-    expect(await screen.findByText("Formulir Renstra")).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", {name:"Tambah Renstra"})).toBeInTheDocument();
     expect(screen.getByLabelText("Nama Renstra *")).toBeInTheDocument();
     expect(screen.getByLabelText("Tanggal Mulai *")).toBeInTheDocument();
     expect(screen.getByLabelText("Tanggal Selesai *")).toBeInTheDocument();
     expect(screen.getByLabelText("Frekuensi Pengukuran *")).toBeInTheDocument();
-    expect(screen.getByLabelText("Ruang Lingkup *")).toBeInTheDocument();
+    expect(screen.getByLabelText("Ruang Lingkup *")).toBeDisabled();
     expect(screen.getByLabelText("Ruang Kerja Penanggung Jawab *")).toBeInTheDocument();
-    expect(screen.getByLabelText("Peran / Jabatan Penanggung Jawab *")).toBeInTheDocument();
+    expect(screen.getByLabelText("Jabatan Penanggung Jawab *")).toBeInTheDocument();
     expect(screen.getByLabelText("Dampak Keputusan *")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Simpan Draf" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Lanjut" })).toBeInTheDocument();
+    expect(screen.queryByRole("button",{name:"Simpan Draf"})).not.toBeInTheDocument();
   });
 
   it("opens RKAP form and verifies Renstra Induk and canonical fields", async () => {
@@ -225,7 +216,7 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
     const createBtn = await screen.findByRole("button", { name: "Buat RKAP" });
     fireEvent.click(createBtn);
 
-    expect(await screen.findByText("Formulir RKAP")).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", {name:"Tambah RKAP"})).toBeInTheDocument();
     expect(screen.getByLabelText("Nama RKAP *")).toBeInTheDocument();
     expect(screen.getByLabelText("Renstra Induk *")).toBeInTheDocument();
     expect(screen.getByLabelText("Tanggal Mulai *")).toBeInTheDocument();
@@ -253,39 +244,33 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
 
   // 4. Form Target metadata + TARGET observation separation
   it("enforces Target metadata Step 1 and observation TARGET Step 2 separation", async () => {
-    vi.mocked(strategyApi.listPlans).mockResolvedValue([{ ...mockPlan, lifecycle_state: "DRAFT" }]);
+
+    vi.mocked(strategyApi.listPlans).mockResolvedValue([{...mockPlan,lifecycle_state:"DRAFT"}]);
+    const create=vi.spyOn(strategyApi,"createTarget").mockResolvedValue(mockTarget);
+    const observe=vi.spyOn(strategyApi,"createObservation").mockResolvedValue(mockTarget.observations[0]);
     render(<ExecutivePlanningPage />);
-
-    expect(await screen.findByRole("heading", { name: "Rencana & Target" })).toBeInTheDocument();
-    const targetTab = await screen.findByRole("tab", { name: "Target" });
-    fireEvent.click(targetTab);
-
-    const addBtn = await screen.findByRole("button", { name: "Tambah Target" });
-    fireEvent.click(addBtn);
-
-    expect(await screen.findByText(/Formulir Target/)).toBeInTheDocument();
-    expect(screen.getByText("Langkah 1:")).toBeInTheDocument();
-    expect(screen.queryByLabelText("Referensi Definisi KPI")).not.toBeInTheDocument();
-    expect(screen.getByText("Referensi KPI akan tersedia setelah sumber definisi KPI terhubung.")).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole("tab",{name:"Target"}));
+    fireEvent.click(await screen.findByRole("button",{name:"Tambah Target"}));
+    expect(await screen.findByRole("dialog",{name:"Tambah Target Kinerja"})).toBeVisible();
     expect(screen.queryByPlaceholderText(/ID definisi KPI/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/ID Bukti Dokumen/i)).not.toBeInTheDocument();
-
-    // Fill metadata Step 1
-    fireEvent.change(screen.getByLabelText("Kode Indikator *"), { target: { value: "METRIC_COUNT" } });
-    fireEvent.change(screen.getByLabelText("Kode Target *"), { target: { value: "TGT-NEW-01" } });
-    fireEvent.change(screen.getByLabelText("Nama Target *"), { target: { value: "Target Baru" } });
-    fireEvent.change(screen.getByLabelText("Ruang Kerja Penanggung Jawab *"), { target: { value: "workspace_exec" } });
-    fireEvent.change(screen.getByLabelText("Peran / Jabatan Penanggung Jawab *"), { target: { value: "Direktur" } });
-
-    const nextBtn = screen.getByRole("button", { name: "Lanjut: Nilai Target →" });
-    fireEvent.click(nextBtn);
-
-    // Step 2: Observasi TARGET
-    expect(await screen.findByText("Langkah 2:")).toBeInTheDocument();
-    expect(screen.getByLabelText("Nilai Target *")).toBeInTheDocument();
-    expect(
-      screen.getAllByText(/Nilai target dicatat sebagai observasi/i).length,
-    ).toBeGreaterThan(0);
+    fireEvent.change(screen.getByLabelText("Indikator yang Diukur *"),{target:{value:"METRIC_COUNT"}});
+    fireEvent.change(screen.getByLabelText("Kode Target *"),{target:{value:"TGT-NEW-01"}});
+    fireEvent.change(screen.getByLabelText("Nama Target *"),{target:{value:"Target Baru"}});
+    fireEvent.change(screen.getByLabelText("Periode Mulai *"),{target:{value:"2027-01-01"}});
+    fireEvent.change(screen.getByLabelText("Periode Selesai *"),{target:{value:"2027-12-31"}});
+    fireEvent.change(screen.getByLabelText("Nilai Target *"),{target:{value:"12.5"}});
+    fireEvent.click(screen.getByRole("button",{name:"Lanjut"}));
+    fireEvent.change(screen.getByLabelText("Jabatan Penanggung Jawab *"),{target:{value:"EXECUTIVE"}});
+    fireEvent.click(screen.getByRole("button",{name:"Lanjut"}));
+    fireEvent.change(screen.getByLabelText(/Bukti Dokumen Pendukung/),{target:{value:"evidence:target"}});
+    fireEvent.click(screen.getByRole("button",{name:"Lanjut"}));
+    expect(create).not.toHaveBeenCalled();expect(observe).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button",{name:"Simpan Target"}));
+    await waitFor(()=>expect(observe).toHaveBeenCalledTimes(1));
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(create.mock.calls[0][0]).toMatchObject({code:"TGT-NEW-01",metric_code:"METRIC_COUNT",owner_role_ref:"EXECUTIVE"});
+    const metadata=create.mock.calls[0][0];
+    expect(observe.mock.calls[0]).toEqual([metadata.target_id,expect.objectContaining({target_id:metadata.target_id,kind:"TARGET",value:12.5,verification_state:"PENDING_VERIFICATION",source_mode:"MANUAL_EVIDENCED",evidence_refs:["evidence:target"]})]);
   });
 
   // 5. Assumption ratio validation (0 - 1)
@@ -301,12 +286,12 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
 
     expect(await screen.findByText("Formulir Asumsi")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Nama Asumsi *"), { target: { value: "Rasio Penjualan" } });
-    fireEvent.change(screen.getByLabelText("Satuan (Unit) *"), { target: { value: "RATIO" } });
+    fireEvent.change(screen.getByLabelText("Satuan *"), { target: { value: "RATIO" } });
     fireEvent.change(screen.getByLabelText(/Nilai \*/), { target: { value: "2.5" } });
     fireEvent.change(screen.getByLabelText("Periode Mulai *"), { target: { value: "2027-01-01" } });
     fireEvent.change(screen.getByLabelText("Periode Selesai *"), { target: { value: "2027-12-31" } });
     fireEvent.change(screen.getByLabelText("Ruang Kerja Penanggung Jawab *"), { target: { value: "workspace_exec" } });
-    fireEvent.change(screen.getByLabelText("Peran / Jabatan Penanggung Jawab *"), { target: { value: "Tim Anggaran" } });
+    fireEvent.change(screen.getByLabelText("Jabatan Penanggung Jawab *"), { target: { value: "EXECUTIVE" } });
 
     const submitBtn = screen.getByRole("button", { name: "Simpan Asumsi" });
     fireEvent.click(submitBtn);
@@ -617,29 +602,21 @@ describe("Executive Workspace Completion & Functional Gap Closure", () => {
 
   // 12. Division Shared Work tabs remain readiness-only until governed cross-workspace projection exists
   it("switches division tabs without using a division key as Shared Work workspace scope", async () => {
+
+    const read=vi.spyOn(api,"authenticatedApiRequest").mockRejectedValue(new api.ApiError(503,"unavailable",null));
     render(<ExecutiveDivisionDetailPage divisionKey="sales" />);
-
-    expect(await screen.findByRole("heading", { name: "Sales & Marketing" })).toBeInTheDocument();
-    expect(screen.getByText("Ringkasan Operasional Divisi")).toBeInTheDocument();
-
-    // Click Kinerja
-    const perfTab = screen.getByRole("tab", { name: "Kinerja" });
-    fireEvent.click(perfTab);
-    expect(screen.getByText("Kinerja Sales & Marketing")).toBeInTheDocument();
-
-    for (const label of ["Proyek", "Tugas", "Persetujuan", "Temuan", "Laporan"]) {
-      fireEvent.click(screen.getByRole("tab", { name: label }));
-      expect(await screen.findByRole("heading", { name: label })).toBeInTheDocument();
-      expect(screen.getByText(new RegExp(`Data ${label} Sales & Marketing belum terhubung ke tampilan Executive`))).toBeInTheDocument();
-      expect(screen.getAllByRole("navigation", { name: "Menu aplikasi" })).toHaveLength(1);
-    }
+    expect(await screen.findByRole("heading",{name:"Sales & Marketing"})).toBeInTheDocument();
+    for(const name of ["Indikator Operasional","Perlu Perhatian","Kinerja Divisi","Pekerjaan Divisi"]) expect(screen.getByRole("heading",{name})).toBeInTheDocument();
+    await waitFor(()=>expect(read).toHaveBeenCalledWith("/api/v1/business/executive/performance",expect.anything()));
+    expect(read.mock.calls.some(([path])=>path.includes("/sales/"))).toBe(false);
+    expect(screen.getAllByRole("navigation",{name:"Menu aplikasi"})).toHaveLength(1);
   });
 
   // 13. UI Hygiene: No technical words and no raw IDs
   it("guards against raw IDs and technical language in user-facing UI", async () => {
     render(<ExecutiveDivisionsPage />);
 
-    expect(await screen.findByRole("heading", { name: "Divisi" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Kondisi Divisi" })).toBeInTheDocument();
 
     // No raw technical terms
     expect(screen.queryByText(/Backend/i)).not.toBeInTheDocument();

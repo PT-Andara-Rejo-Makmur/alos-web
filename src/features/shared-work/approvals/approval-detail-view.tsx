@@ -128,7 +128,7 @@ export function ApprovalDetailView({
         <dt className={drawerStyles.definitionTerm}>Approver</dt>
         <dd className={drawerStyles.definitionDetail}>{approval.approverName ?? "—"}</dd>
 
-        <dt className={drawerStyles.definitionTerm}>Workspace</dt>
+        <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
         <dd className={drawerStyles.definitionDetail}>{approval.workspaceName ?? "—"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Diajukan</dt>
@@ -139,7 +139,7 @@ export function ApprovalDetailView({
 
         {approval.materialityValue ? (
           <>
-            <dt className={drawerStyles.definitionTerm}>Materialitas</dt>
+            <dt className={drawerStyles.definitionTerm}>Nilai Pengajuan</dt>
             <dd className={drawerStyles.definitionDetail}>{approval.materialityValue}</dd>
           </>
         ) : null}
@@ -160,12 +160,12 @@ export function ApprovalDetailView({
             <div className={styles.sodPipeline} style={{ marginTop: "12px" }}>
               <div className={styles.sodStep}>
                 <span className={styles.sodStepRole}>Pengusul</span>
-                <span className={styles.sodStepActor}>{approval.requesterName ?? "Aktor Pengusul"}</span>
+                <span className={styles.sodStepActor}>{approval.requesterName ?? "Pengusul"}</span>
               </div>
               <span className={styles.sodArrow}>→</span>
               <div className={styles.sodStep}>
                 <span className={styles.sodStepRole}>Pengambil Keputusan</span>
-                <span className={styles.sodStepActor}>{approval.approverName ?? approval.approverActorId ?? "Belum diputus"}</span>
+                <span className={styles.sodStepActor}>{approval.approverName ?? "Belum diputus"}</span>
               </div>
             </div>
           </div>

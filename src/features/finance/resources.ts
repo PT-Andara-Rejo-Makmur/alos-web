@@ -42,10 +42,10 @@ export const financeResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, financeApi.bank_accounts),
@@ -102,17 +102,17 @@ export const financeResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": true
     }, financeApi.bank_transactions),
     receivables: defineResource({
         "key": "receivables", "domain": "finance", "title": "Piutang", "identifier": "receivable_id", "createFields": [
             {
-                "name": "customer_ref", "label": "Referensi Customer Tercatat", "required": false, "nullable": true, "type": "text"
+                "name": "customer_ref", "label": "Referensi Pelanggan Tercatat", "required": false, "nullable": true, "type": "text"
             },
             {
                 "name": "reference", "label": "Referensi", "required": true, "nullable": false, "type": "text"
@@ -135,7 +135,7 @@ export const financeResources = {
             }
         ], "columns": [
             {
-                "name": "customer_ref", "label": "Referensi Customer Tercatat", "required": true, "nullable": true, "type": "text"
+                "name": "customer_ref", "label": "Referensi Pelanggan Tercatat", "required": true, "nullable": true, "type": "text"
             },
             {
                 "name": "reference", "label": "Referensi", "required": true, "nullable": false, "type": "text"
@@ -156,10 +156,10 @@ export const financeResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, financeApi.receivables),
@@ -198,10 +198,10 @@ export const financeResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": true
     }, financeApi.receivable_payments),
@@ -252,10 +252,10 @@ export const financeResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, financeApi.payables),
@@ -294,10 +294,10 @@ export const financeResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": true
     }, financeApi.payable_payments),
@@ -327,10 +327,10 @@ export const financeResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, financeApi.budgets),
@@ -391,10 +391,10 @@ export const financeResources = {
                 "name": "revised_amount", "label": "Nominal Revisi", "required": true, "nullable": true, "type": "decimal"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, financeApi.budget_lines),
@@ -433,10 +433,10 @@ export const financeResources = {
                 "name": "reconciled_at", "label": "Reconciled At", "required": true, "nullable": true, "type": "datetime-local"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, financeApi.reconciliations),
@@ -486,10 +486,10 @@ export const financeResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, financeApi.reconciliation_items),
@@ -531,10 +531,10 @@ export const financeResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, financeApi.tax_obligations),
@@ -546,7 +546,7 @@ export const financeResources = {
                 }
             },
             {
-                "name": "document_id", "label": "Dokumen Shared Work", "required": false, "nullable": true, "type": "text", "relation": {
+                "name": "document_id", "label": "Dokumen Pendukung", "required": false, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/documents", "identifier": "document_id", "label": "title", "array": true
                 }
             },
@@ -564,7 +564,7 @@ export const financeResources = {
                 }
             },
             {
-                "name": "document_id", "label": "Dokumen Shared Work", "required": true, "nullable": true, "type": "text", "relation": {
+                "name": "document_id", "label": "Dokumen Pendukung", "required": true, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/documents", "identifier": "document_id", "label": "title", "array": true
                 }
             },
@@ -575,10 +575,10 @@ export const financeResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, financeApi.tax_documents),
@@ -604,10 +604,10 @@ export const financeResources = {
                 "name": "closed_by", "label": "Ditutup Oleh", "required": true, "nullable": true, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, financeApi.month_closes),
@@ -647,10 +647,10 @@ export const financeResources = {
                 "name": "notes", "label": "Catatan", "required": true, "nullable": true, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, financeApi.month_close_items),

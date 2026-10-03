@@ -5,10 +5,10 @@ export const salesResources = {
     customers: defineResource({
         "key": "customers", "domain": "sales", "title": "Customer", "identifier": "customer_id", "createFields": [
             {
-                "name": "customer_code", "label": "Kode Customer", "required": true, "nullable": false, "type": "text"
+                "name": "customer_code", "label": "Kode Pelanggan", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "customer_type", "label": "Jenis Customer", "required": false, "nullable": false, "type": "text", "options": ["INDIVIDUAL", "COMPANY"]
+                "name": "customer_type", "label": "Jenis Pelanggan", "required": false, "nullable": false, "type": "text", "options": ["INDIVIDUAL", "COMPANY"]
             },
             {
                 "name": "name", "label": "Nama", "required": true, "nullable": false, "type": "text"
@@ -21,10 +21,10 @@ export const salesResources = {
             }
         ], "updateFields": [
             {
-                "name": "customer_code", "label": "Kode Customer", "required": false, "nullable": false, "type": "text"
+                "name": "customer_code", "label": "Kode Pelanggan", "required": false, "nullable": false, "type": "text"
             },
             {
-                "name": "customer_type", "label": "Jenis Customer", "required": false, "nullable": false, "type": "text", "options": ["INDIVIDUAL", "COMPANY"]
+                "name": "customer_type", "label": "Jenis Pelanggan", "required": false, "nullable": false, "type": "text", "options": ["INDIVIDUAL", "COMPANY"]
             },
             {
                 "name": "name", "label": "Nama", "required": false, "nullable": false, "type": "text"
@@ -37,10 +37,10 @@ export const salesResources = {
             }
         ], "columns": [
             {
-                "name": "customer_code", "label": "Kode Customer", "required": true, "nullable": false, "type": "text"
+                "name": "customer_code", "label": "Kode Pelanggan", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "customer_type", "label": "Jenis Customer", "required": true, "nullable": false, "type": "text", "options": ["INDIVIDUAL", "COMPANY"]
+                "name": "customer_type", "label": "Jenis Pelanggan", "required": true, "nullable": false, "type": "text", "options": ["INDIVIDUAL", "COMPANY"]
             },
             {
                 "name": "name", "label": "Nama", "required": true, "nullable": false, "type": "text"
@@ -55,17 +55,17 @@ export const salesResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, salesApi.customers),
     leads: defineResource({
         "key": "leads", "domain": "sales", "title": "Prospek & Lead", "identifier": "lead_id", "createFields": [
             {
-                "name": "customer_id", "label": "Customer", "required": false, "nullable": true, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": false, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -84,7 +84,7 @@ export const salesResources = {
             }
         ], "columns": [
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": true, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -101,10 +101,10 @@ export const salesResources = {
                 "name": "owner_actor_id", "label": "Pemilik Lead", "required": true, "nullable": true, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, salesApi.leads),
@@ -113,7 +113,7 @@ export const salesResources = {
             stage: stage as SalesOpportunityPipelineRequest["stage"]
         }), "key": "opportunities", "domain": "sales", "title": "Peluang Penjualan", "identifier": "opportunity_id", "createFields": [
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -146,7 +146,7 @@ export const salesResources = {
             }
         ], "columns": [
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -171,17 +171,17 @@ export const salesResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, salesApi.opportunities),
     site_visits: defineResource({
         "key": "site_visits", "domain": "sales", "title": "Kunjungan Lokasi", "identifier": "site_visit_id", "createFields": [
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -205,7 +205,7 @@ export const salesResources = {
             }
         ], "columns": [
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -224,10 +224,10 @@ export const salesResources = {
                 "name": "notes", "label": "Catatan", "required": true, "nullable": true, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, salesApi.site_visits),
@@ -235,7 +235,7 @@ export const salesResources = {
         "key": "bookings", "domain": "sales", "title": "Booking", "identifier": "booking_id", "createFields": [
       {"name": "opportunity_id", "label": "Peluang Penjualan", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/sales/opportunities", "identifier": "opportunity_id", "label": "name"}},
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -257,7 +257,7 @@ export const salesResources = {
         ], "columns": [
       {"name": "opportunity_id", "label": "Peluang Penjualan", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/sales/opportunities", "identifier": "opportunity_id", "label": "name"}},
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -276,10 +276,10 @@ export const salesResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, salesApi.bookings),
@@ -291,7 +291,7 @@ export const salesResources = {
                 }
             },
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -317,7 +317,7 @@ export const salesResources = {
                 }
             },
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -336,17 +336,17 @@ export const salesResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, salesApi.closings),
     customer_followups: defineResource({
         "key": "customer_followups", "domain": "sales", "title": "Follow-up", "identifier": "followup_id", "createFields": [
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -376,7 +376,7 @@ export const salesResources = {
             }
         ], "columns": [
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -401,17 +401,17 @@ export const salesResources = {
                 "name": "notes", "label": "Catatan", "required": true, "nullable": true, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, salesApi.customer_followups),
     customer_complaints: defineResource({
         "key": "customer_complaints", "domain": "sales", "title": "Keluhan Customer", "identifier": "complaint_id", "createFields": [
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -430,7 +430,7 @@ export const salesResources = {
             }
         ], "columns": [
             {
-                "name": "customer_id", "label": "Customer", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "customer_id", "label": "Pelanggan", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/sales/customers", "identifier": "customer_id", "label": "name"
                 }
             },
@@ -447,10 +447,10 @@ export const salesResources = {
                 "name": "assigned_to", "label": "Penanggung Jawab", "required": true, "nullable": true, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, salesApi.customer_complaints),
@@ -489,10 +489,10 @@ export const salesResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, salesApi.pricings),
@@ -536,10 +536,10 @@ export const salesResources = {
                 "name": "currency", "label": "Mata Uang", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, salesApi.pricing_items),
@@ -557,7 +557,7 @@ export const salesResources = {
                 }
             },
             {
-                "name": "document_id", "label": "Dokumen Shared Work", "required": false, "nullable": true, "type": "text", "relation": {
+                "name": "document_id", "label": "Dokumen Pendukung", "required": false, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/documents", "identifier": "document_id", "label": "title", "array": true
                 }
             }
@@ -581,7 +581,7 @@ export const salesResources = {
                 }
             },
             {
-                "name": "document_id", "label": "Dokumen Shared Work", "required": true, "nullable": true, "type": "text", "relation": {
+                "name": "document_id", "label": "Dokumen Pendukung", "required": true, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/documents", "identifier": "document_id", "label": "title", "array": true
                 }
             },
@@ -589,10 +589,10 @@ export const salesResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, salesApi.collaterals),

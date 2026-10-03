@@ -22,7 +22,7 @@ export const legalResources = {
     },
     {
       "name": "title",
-      "label": "Title",
+      "label": "Judul",
       "required": true,
       "nullable": false,
       "type": "text"
@@ -50,7 +50,7 @@ export const legalResources = {
   "updateFields": [
     {
       "name": "title",
-      "label": "Title",
+      "label": "Judul",
       "required": false,
       "nullable": false,
       "type": "text"
@@ -90,7 +90,7 @@ export const legalResources = {
     },
     {
       "name": "title",
-      "label": "Title",
+      "label": "Judul",
       "required": true,
       "nullable": false,
       "type": "text"
@@ -123,21 +123,21 @@ export const legalResources = {
     },
     {
       "name": "tenant_id",
-      "label": "Tenant Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "organization_id",
-      "label": "Organization Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "workspace_id",
-      "label": "Workspace Id",
+      "label": "Ruang Kerja",
       "type": "text",
       "required": false,
       "nullable": false
@@ -151,14 +151,14 @@ export const legalResources = {
     },
     {
       "name": "created_at",
-      "label": "Created At",
+      "label": "Dicatat",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "updated_at",
-      "label": "Updated At",
+      "label": "Diperbarui",
       "type": "text",
       "required": false,
       "nullable": false
@@ -233,14 +233,14 @@ export const legalResources = {
     },
     {
       "name": "summary",
-      "label": "Summary",
+      "label": "Ringkasan",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "recorded_on",
-      "label": "Recorded On",
+      "label": "Tanggal Pencatatan",
       "required": true,
       "nullable": false,
       "type": "date"
@@ -295,14 +295,14 @@ export const legalResources = {
     },
     {
       "name": "summary",
-      "label": "Summary",
+      "label": "Ringkasan",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "recorded_on",
-      "label": "Recorded On",
+      "label": "Tanggal Pencatatan",
       "required": true,
       "nullable": false,
       "type": "date"
@@ -316,21 +316,21 @@ export const legalResources = {
     },
     {
       "name": "tenant_id",
-      "label": "Tenant Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "organization_id",
-      "label": "Organization Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "workspace_id",
-      "label": "Workspace Id",
+      "label": "Ruang Kerja",
       "type": "text",
       "required": false,
       "nullable": false
@@ -344,14 +344,14 @@ export const legalResources = {
     },
     {
       "name": "created_at",
-      "label": "Created At",
+      "label": "Dicatat",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "updated_at",
-      "label": "Updated At",
+      "label": "Diperbarui",
       "type": "text",
       "required": false,
       "nullable": false
@@ -442,21 +442,21 @@ export const legalResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -517,7 +517,7 @@ export const legalResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -575,7 +575,7 @@ export const legalResources = {
       },
       {
         "name": "document_id",
-        "label": "Dokumen Shared Work",
+        "label": "Dokumen Pendukung",
         "required": false,
         "nullable": true,
         "type": "text",
@@ -626,21 +626,21 @@ export const legalResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -701,7 +701,7 @@ export const legalResources = {
       },
       {
         "name": "document_id",
-        "label": "Dokumen Shared Work",
+        "label": "Dokumen Pendukung",
         "required": false,
         "nullable": true,
         "type": "text",
@@ -713,7 +713,7 @@ export const legalResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -778,7 +778,7 @@ export const legalResources = {
       },
       {
         "name": "document_id",
-        "label": "Dokumen Shared Work",
+        "label": "Dokumen Pendukung",
         "required": false,
         "nullable": true,
         "type": "text",
@@ -829,21 +829,21 @@ export const legalResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -911,7 +911,7 @@ export const legalResources = {
       },
       {
         "name": "document_id",
-        "label": "Dokumen Shared Work",
+        "label": "Dokumen Pendukung",
         "required": false,
         "nullable": true,
         "type": "text",
@@ -923,7 +923,7 @@ export const legalResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1012,21 +1012,21 @@ export const legalResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1114,7 +1114,7 @@ export const legalResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1195,21 +1195,21 @@ export const legalResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1268,7 +1268,7 @@ export const legalResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1351,21 +1351,21 @@ export const legalResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1426,7 +1426,7 @@ export const legalResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1543,21 +1543,21 @@ export const legalResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1652,7 +1652,7 @@ export const legalResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1755,21 +1755,21 @@ export const legalResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1857,7 +1857,7 @@ export const legalResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1940,21 +1940,21 @@ export const legalResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2008,7 +2008,7 @@ export const legalResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2045,21 +2045,21 @@ export const legalResources = {
       },
       {
         "name": "likelihood",
-        "label": "Kemungkinan Explicit",
+        "label": "Kemungkinan",
         "required": true,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "impact",
-        "label": "Dampak Explicit",
+        "label": "Dampak",
         "required": true,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "rating",
-        "label": "Rating Explicit",
+        "label": "Rating",
         "required": true,
         "nullable": false,
         "type": "text"
@@ -2082,21 +2082,21 @@ export const legalResources = {
       },
       {
         "name": "likelihood",
-        "label": "Kemungkinan Explicit",
+        "label": "Kemungkinan",
         "required": true,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "impact",
-        "label": "Dampak Explicit",
+        "label": "Dampak",
         "required": true,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "rating",
-        "label": "Rating Explicit",
+        "label": "Rating",
         "required": true,
         "nullable": false,
         "type": "text"
@@ -2105,21 +2105,21 @@ export const legalResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2152,21 +2152,21 @@ export const legalResources = {
       },
       {
         "name": "likelihood",
-        "label": "Kemungkinan Explicit",
+        "label": "Kemungkinan",
         "required": true,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "impact",
-        "label": "Dampak Explicit",
+        "label": "Dampak",
         "required": true,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "rating",
-        "label": "Rating Explicit",
+        "label": "Rating",
         "required": true,
         "nullable": false,
         "type": "text"
@@ -2187,7 +2187,7 @@ export const legalResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2270,21 +2270,21 @@ export const legalResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2345,7 +2345,7 @@ export const legalResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"

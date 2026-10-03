@@ -7,10 +7,13 @@ import type { SourceState } from "./resource";
 import { SourceMetadata, SourceStateView, sourceFailure } from "./record-panel";
 import styles from "@/features/property/property.module.css";
 import { BusinessSummaryPanel } from "./business-summary";
+import { RoleWorkSummary } from "./role-work-summary";
+import type { SessionProjection } from "@/features/session";
 
 type Overview = SalesOverview | MarketingOverview | PropertyOverview | FinanceOverview | LegalOverview | HrOverview | ItOverview;
 
-export function DomainOverview({ title, domain, read, labels, unavailable }: Readonly<{
+export function DomainOverview({ title, domain, read, labels, unavailable, session }: Readonly<{
+  session?: SessionProjection;
   domain?: "sales" | "property" | "finance" | "legal" | "hr" | "it";
   title: string; read: (signal?: AbortSignal) => Promise<Overview>; labels: Readonly<Record<string, string>>; unavailable: readonly string[];
 }>) {
@@ -23,14 +26,15 @@ export function DomainOverview({ title, domain, read, labels, unavailable }: Rea
     return () => { current = false; controller.abort(); };
   }, [read]);
   const rows = data && ["CONNECTED", "CONNECTED_EMPTY"].includes(state) ? Object.entries(data.counts).map(([key, value]) => ({ key, label: labels[key] ?? key, value })) : [];
-  return <div className={styles.page}><PageHeader title={title} description="Ringkasan rekaman authoritative dalam scope aktif. Rekaman internal tidak menyatakan keputusan final lintas domain." />
-    {data ? <SourceMetadata source={data.source} /> : null}
+  return <div className={styles.page}><PageHeader title={title} description="Kondisi divisi, pekerjaan yang perlu ditangani, dan kinerja dari catatan perusahaan." />
     <SourceStateView state={state} />
+    {session ? <RoleWorkSummary session={session} /> : null}
     {domain ? <BusinessSummaryPanel domain={domain} /> : null}
-    {rows.length ? <Section title="Rekaman Operasional"><DataTable caption={`Ringkasan ${title}`} rows={rows} getRowKey={(row) => row.key} columns={[
+    {rows.length ? <details><summary>Catatan Operasional</summary><Section title="Catatan Operasional"><DataTable caption={`Ringkasan ${title}`} rows={rows} getRowKey={(row) => row.key} columns={[
       { key: "label", header: "Sumber Rekaman", render: (row) => row.label },
       { key: "value", header: "Jumlah Tersimpan", render: (row) => row.value },
-    ]} /></Section> : null}
-    <Section title="Indikator yang Belum Tersedia"><div className={styles.metricGrid}>{unavailable.map((label) => <Metric key={label} label={label} value="—" supportingText="Belum Tersedia: definisi atau sumber authoritative belum lengkap." />)}</div></Section>
+    ]} /></Section></details> : null}
+    <details><summary>Pengukuran Tambahan</summary><div className={styles.metricGrid}>{unavailable.map((label) => <Metric key={label} label={label} value="Belum tersedia" supportingText="Sumber pengukuran belum tersedia." />)}</div></details>
+    {data ? <SourceMetadata source={data.source} /> : null}
   </div>;
 }

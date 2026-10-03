@@ -54,7 +54,7 @@
 }
 
 .overdueDate {
-  color: var(--alos-danger, #d93025);
+  color: var(--alos-status-danger-text);
   font-weight: 600;
   display: inline-flex;
   align-items: center;

@@ -262,8 +262,11 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
       fireEvent.change(screen.getByRole("textbox", { name: /Kode Proyek/ }), { target: { value: "PRJ-PRP-001" } });
       fireEvent.change(screen.getByRole("textbox", { name: /Nama Proyek/ }), { target: { value: "The Park Cluster Residence" } });
       fireEvent.change(screen.getByRole("textbox", { name: /Tujuan Proyek/ }), { target: { value: "Menyelesaikan kesiapan unit cluster" } });
+      fireEvent.click(screen.getByRole("button", {name:"Lanjut"}));
+      fireEvent.click(screen.getByRole("button", {name:"Lanjut"}));
       fireEvent.change(screen.getByLabelText("Tanggal Mulai"), { target: { value: "2026-10-01" } });
       fireEvent.change(screen.getByLabelText("Target Selesai"), { target: { value: "2026-12-31" } });
+      fireEvent.click(screen.getByRole("button", {name:"Lanjut"}));
       fireEvent.click(screen.getByRole("button", { name: "Simpan Proyek" }));
       await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/projects", {
         method: "POST",
@@ -365,10 +368,10 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
       // Check all 8 tabs
       const expectedTabs = [
         "Ringkasan",
-        "Rencana",
+        "Milestone",
         "Tugas",
         "Dokumen",
-        "Persetujuan",
+        "Proses & Keputusan",
         "Temuan",
         "Bukti",
         "Aktivitas",

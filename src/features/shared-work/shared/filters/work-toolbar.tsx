@@ -108,7 +108,7 @@ export function WorkToolbar({
           onChange={(event) => onWorkspaceChange(event.target.value)}
           value={workspaceValue}
         >
-          <option value="ALL">Semua Workspace</option>
+          <option value="ALL">Semua Ruang Kerja</option>
           {workspaceOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}

@@ -58,9 +58,9 @@ export function DataTable<Row>({
             rows.map((row, index) => (
               <tr key={getRowKey(row, index)}>
                 {columns.map((column) => (
-                  <td key={column.key}>{column.render(row, index)}</td>
+                  <td key={column.key} data-label={typeof column.header === "string" ? column.header : undefined}>{column.render(row, index)}</td>
                 ))}
-                {rowAction ? <td>{rowAction(row, index)}</td> : null}
+                {rowAction ? <td data-label="Tindakan">{rowAction(row, index)}</td> : null}
               </tr>
             ))
           )}

@@ -1,3 +1,4 @@
+import { statusLabel } from "@/lib/presentation";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { RecordPanel } from "@/features/business-records/record-panel";
@@ -43,21 +44,22 @@ it("loads all canonical reference pages before enabling a real form", async () =
   expect(await screen.findByRole("option", { name: /Second page buyer/ })).toBeInTheDocument();
   expect(request).toHaveBeenCalledWith("/api/v1/sales/customers?limit=200&offset=1", expect.anything());
   expect(screen.getByRole("button", { name: "Simpan" })).toBeEnabled();
-  fireEvent.change(screen.getByLabelText(/^Customer/), { target: { value: "customer_2" } });
+  fireEvent.change(screen.getByLabelText(/^Pelanggan/), { target: { value: "customer_2" } });
   expect(screen.getByRole("button", { name: "Simpan" })).toBeEnabled();
 });
 
-it.each([[403, "Akses ditolak"], [409, "Konflik data atau lifecycle"], [422, "Input tidak valid"], [503, "Layanan belum dapat memproses permintaan"]])("preserves mutation denial %s and input without fake success", async (status, explanation) => {
+it.each([[403, "Anda tidak memiliki kewenangan"], [409, "Data atau status pengajuan sudah berubah"], [422, "Periksa kelengkapan isian"], [503, "Layanan belum dapat memproses permintaan"]])("preserves mutation denial %s and input without fake success", async (status, explanation) => {
   const request = vi.spyOn(api, "authenticatedApiRequest").mockImplementation((_path, options) => options?.method === "POST"
     ? Promise.reject(new api.ApiError(Number(status), "Canonical rejection", "corr_record_denied"))
     : Promise.resolve({ items: [], total: 0, source: source("CONNECTED_EMPTY", "sales") }));
   render(<RecordPanel resource={salesResources.customers} session={session()} />);
   fireEvent.click(await screen.findByRole("button", { name: "Tambah Customer" }));
-  fireEvent.change(screen.getByLabelText(/Kode Customer/), { target: { value: "C1" } });
+  fireEvent.change(screen.getByLabelText(/Kode Pelanggan/), { target: { value: "C1" } });
   fireEvent.change(screen.getByLabelText(/^Nama/), { target: { value: "Retry Customer" } });
   await waitFor(() => expect(screen.getByRole("button", { name: "Simpan" })).toBeEnabled());
   fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
-  expect(await screen.findByText(new RegExp(String(explanation)))).toHaveTextContent(`(${status}). Canonical rejection Referensi: corr_record_denied`);
+  expect(await screen.findByText(new RegExp(String(explanation)))).toBeInTheDocument();
+  expect(screen.queryByText(/Canonical rejection|corr_record_denied/)).not.toBeInTheDocument();
   expect(screen.getByLabelText(/^Nama/)).toHaveValue("Retry Customer");
   expect(screen.queryByText("Rekaman tersimpan.")).not.toBeInTheDocument();
   expect(request).toHaveBeenCalledWith("/api/v1/sales/customers", expect.objectContaining({ method: "POST" }));
@@ -70,9 +72,10 @@ it("preserves transition conflict and the authoritative prior state", async () =
   render(<RecordPanel resource={financeResources.bank_accounts} session={session()} />);
   fireEvent.click(await screen.findByRole("button", { name: "Lihat detail" }));
   const dialog = screen.getByRole("dialog");
-  fireEvent.click(within(dialog).getByRole("button", { name: "INACTIVE" }));
-  expect(await within(dialog).findByText(/Konflik data atau lifecycle/)).toHaveTextContent("corr_transition");
-  expect(within(dialog).getByText("ACTIVE", { exact: true })).toBeInTheDocument();
+  fireEvent.click(within(dialog).getByRole("button", { name: "Tidak Aktif" }));
+  expect(await within(dialog).findByText(/Data atau status pengajuan sudah berubah/)).toBeInTheDocument();
+  expect(within(dialog).queryByText(/corr_transition/)).not.toBeInTheDocument();
+  expect(within(dialog).getByText("Aktif", { exact: true })).toBeInTheDocument();
   expect(screen.queryByText("Perubahan status tersimpan.")).not.toBeInTheDocument();
 });
 
@@ -118,7 +121,7 @@ it.each([false, true])("binds immutable version choices to their selected Docume
   fireEvent.change(screen.getByLabelText(/^Document Id/), { target: { value: "doc_b" } });
   expect(version).toHaveValue("");
   expect(screen.getByRole("button", { name: "Simpan" })).toBeDisabled();
-  if (failure) { expect(await screen.findByText("Referensi belum dapat dimuat", { selector: "h3, p" })).toBeInTheDocument(); expect(version).toBeDisabled(); }
+  if (failure) { expect(await screen.findByText("Pilihan terkait belum dapat dimuat", { selector: "h3, p" })).toBeInTheDocument(); expect(version).toBeDisabled(); }
   else { await screen.findByRole("option", { name: /^2\.0$/ }); expect(screen.queryByRole("option", { name: /^1\.0$/ })).not.toBeInTheDocument(); }
 });
 
@@ -126,7 +129,7 @@ describe.each([salesResources.customers, marketingResources.campaigns, propertyR
   it("renders loading without fabricated data", () => {
     vi.spyOn(api, "authenticatedApiRequest").mockImplementation(() => new Promise(() => {}));
     render(<RecordPanel resource={resource} session={session()} />);
-    expect(screen.getByLabelText("Memuat data authoritative…")).toBeInTheDocument();
+    expect(screen.getByLabelText("Memuat data perusahaan…")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: `Tambah ${resource.title}` })).not.toBeInTheDocument();
   });
   it.each(["CONNECTED_EMPTY", "UNAVAILABLE", "ERROR"] as const)("keeps %s distinct", async (status) => {
@@ -148,13 +151,13 @@ it("renders connected records with exact source timestamp and canonical action",
   const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ items: [bank], total: 1, source: source("CONNECTED") });
   render(<RecordPanel resource={financeResources.bank_accounts} session={session()} />);
   expect(await screen.findByText("Recorded Bank")).toBeInTheDocument();
-  expect(screen.getByText(/Pembaruan sumber:/)).toHaveTextContent("2027");
+  expect(screen.getByText(/Diperbarui/)).toHaveTextContent("2027");
   fireEvent.click(screen.getByRole("button", { name: "Lihat detail" }));
   const dialog = screen.getByRole("dialog");
-  expect(within(dialog).getByRole("button", { name: "INACTIVE" })).toBeInTheDocument();
-  expect(within(dialog).queryByRole("button", { name: "CLOSED" })).not.toBeInTheDocument();
+  expect(within(dialog).getByRole("button", { name: "Tidak Aktif" })).toBeInTheDocument();
+  expect(within(dialog).queryByRole("button", { name: "Selesai" })).not.toBeInTheDocument();
   request.mockImplementation((_path, options) => Promise.resolve(options?.method === "POST" ? bank : { items: [bank], total: 1, source: source("CONNECTED") }));
-  fireEvent.click(within(dialog).getByRole("button", { name: "INACTIVE" }));
+  fireEvent.click(within(dialog).getByRole("button", { name: "Tidak Aktif" }));
   await waitFor(() => expect(request).toHaveBeenCalledWith("/api/v1/finance/bank-accounts/bank_1/transition", { method: "POST", body: { status: "INACTIVE" } }));
 });
 
@@ -164,7 +167,7 @@ it("hides mutation buttons without canonical write permission", async () => {
   expect(await screen.findByText("Recorded Bank")).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Tambah/ })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Lihat detail" }));
-  expect(screen.queryByRole("button", { name: "INACTIVE" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Tidak Aktif" })).not.toBeInTheDocument();
 });
 
 const recordScope = { tenant_id: "tenant_1", organization_id: "org_1", workspace_id: "workspace_1", created_at: stamp, updated_at: stamp };
@@ -184,9 +187,9 @@ describe.each(["DIVISION_MEMBER", "DIVISION_LEAD"] as const)("material commands 
     render(<RecordPanel resource={resource} session={session("workspace_1", true, role)} />);
     fireEvent.click(await screen.findByRole("button", { name: "Lihat detail" }));
     const dialog = screen.getByRole("dialog");
-    expect(within(dialog).getByText(record.status)).toBeInTheDocument();
+    expect(within(dialog).getByText(statusLabel(record.status))).toBeInTheDocument();
     for (const status of ["ACTIVE", "APPROVED", "CLOSED"]) {
-      expect(within(dialog).queryByRole("button", { name: status })).not.toBeInTheDocument();
+      expect(within(dialog).queryByRole("button", { name: statusLabel(status) })).not.toBeInTheDocument();
     }
     expect(request).not.toHaveBeenCalledWith(expect.stringContaining("/transition"), expect.anything());
   });
@@ -199,15 +202,15 @@ it.each([
   vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ items: [{ ...budget, ...state } satisfies FinanceBudgetProjection], total: 1, source: source("CONNECTED") });
   render(<RecordPanel resource={financeResources.budgets} session={session()} />);
   fireEvent.click(await screen.findByRole("button", { name: "Lihat detail" }));
-  expect(within(screen.getByRole("dialog")).getByRole("button", { name: state.allowed_transitions[0] })).toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: "APPROVED" })).not.toBeInTheDocument();
+  expect(within(screen.getByRole("dialog")).getByRole("button", { name: statusLabel(state.allowed_transitions[0]) })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Disetujui" })).not.toBeInTheDocument();
 });
 
 it.each([true, false])("reports mutation success only after Backend success=%s", async (success) => {
   const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ items: [], total: 0, source: source("CONNECTED_EMPTY", "sales") });
   render(<RecordPanel resource={salesResources.customers} session={session()} />);
   fireEvent.click(await screen.findByRole("button", { name: "Tambah Customer" }));
-  fireEvent.change(screen.getByLabelText(/Kode Customer/), { target: { value: "C1" } });
+  fireEvent.change(screen.getByLabelText(/Kode Pelanggan/), { target: { value: "C1" } });
   fireEvent.change(screen.getByLabelText(/^Nama/), { target: { value: "Recorded Customer" } });
   await waitFor(() => expect(screen.getByRole("button", { name: "Simpan" })).toBeEnabled());
   let resolve: (value: unknown) => void = () => {};
@@ -234,7 +237,7 @@ it("keeps financial aggregates unavailable even with a connected ledger", async 
   const read = vi.fn().mockResolvedValue({ source: source("CONNECTED"), counts, last_updated_at: stamp });
   render(<DomainOverview title="Finance" read={read} labels={{ bank_accounts: "Rekening" }} unavailable={["Kas Tersedia"]} />);
   expect(await screen.findByText("Rekening")).toBeInTheDocument();
-  expect(screen.getByText("Kas Tersedia").closest("article")).toHaveTextContent("—");
+  expect(screen.getByText("Kas Tersedia").closest("article")).toHaveTextContent("Belum tersedia");
   expect(screen.queryByText(/Rp\s*0/)).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Segarkan Data" })).not.toBeInTheDocument();
 });

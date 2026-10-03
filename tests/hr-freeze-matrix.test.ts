@@ -8,14 +8,14 @@ describe("HR / GA master freeze matrix", () => {
   it("keeps unknown HR values source-honest", () => {
     const source = read("src/features/hr/hr-pages.tsx");
     expect(source).toContain("Belum Tersedia");
-    expect(source).toContain("—");
+    expect(read("src/features/business-records/overview.tsx")).toContain('value="Belum tersedia"');
     expect(source).not.toContain("Rp0");
     expect(source).not.toContain("Tidak Ada Kasus");
   });
 
   it("uses Indonesian canonical HR field labels", () => {
     const source = read("src/features/hr/resources.ts");
-    for (const label of ["ID Karyawan", "Nama Lengkap", "Posisi", "Divisi", "Tanggal Bergabung", "Tanggal Kehadiran", "Jam Masuk", "Jam Keluar", "Jenis Cuti", "Tanggal Mulai", "Tanggal Selesai", "Catatan", "Periode Review"]) expect(source).toContain(label);
+    for (const label of ["Karyawan", "Nama Lengkap", "Posisi", "Divisi", "Tanggal Bergabung", "Tanggal Kehadiran", "Jam Masuk", "Jam Keluar", "Jenis Cuti", "Tanggal Mulai", "Tanggal Selesai", "Catatan", "Periode Review"]) expect(source).toContain(label);
   });
 
   it("retains HR and GA menus with honest unavailable capability labels", () => {
@@ -75,7 +75,8 @@ describe("HR / GA master freeze matrix", () => {
     expect(decisions).toContain("Entity relation memakai sumber pilihan resmi; user tidak memasukkan raw internal ID");
     expect(decisions).toContain("HTTP 409/version conflict bukan success");
     expect(decisions).toContain("tidak boleh menimpa data yang lebih baru");
-    expect(forms).toContain("Referensi belum dapat dimuat");
+    expect(forms).toContain("relationErrors");
+    expect(read("src/features/business-records/record-form-fields.tsx")).toContain("relationErrors.includes(field.name)");
     expect(forms).toContain("Perubahan belum tersimpan");
     expect(forms).toContain("disabled={busy || loading || unresolved || blockedReferences}");
   });

@@ -398,7 +398,7 @@ describe("Reports and Findings Authoritative Integration", () => {
     expect(screen.getByRole("dialog", { name: /tambah laporan/i })).toBeInTheDocument();
 
     const titleInput = screen.getByPlaceholderText(/masukkan judul laporan/i);
-    const typeInput = screen.getByPlaceholderText(/contoh: financial/i);
+    const typeInput = screen.getByLabelText(/jenis laporan/i);
 
     fireEvent.change(titleInput, { target: { value: "Laporan Operasional Baru" } });
     fireEvent.change(typeInput, { target: { value: "OPERATIONAL" } });
@@ -459,7 +459,7 @@ describe("Reports and Findings Authoritative Integration", () => {
 
     const titleInput = screen.getByPlaceholderText(/masukkan judul temuan/i);
     const descInput = screen.getByPlaceholderText(/keterangan detail/i);
-    const severitySelect = screen.getByLabelText(/tingkat keparahan/i);
+    const severitySelect = screen.getByLabelText(/tingkat risiko/i);
 
     fireEvent.change(titleInput, { target: { value: "Temuan Kebocoran Pipa" } });
     fireEvent.change(descInput, { target: { value: "Pipa bocor di koridor utama" } });

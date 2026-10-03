@@ -1,5 +1,7 @@
 "use client";
 
+import { statusLabel } from "@/lib/presentation";
+import { RiskBadge } from "../shared/status/work-status";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -159,31 +161,32 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
         ),
       },
       {
-        header: "Pemilik",
+        header: "Penanggung Jawab",
         key: "owner",
         render: (p) => p.ownerName ?? "—",
       },
       {
-        header: "Workspace",
+        header: "Ruang Kerja",
         key: "workspace",
-        render: (p) => p.workspaceName ?? "—",
+        render: (p) => <><span>{p.workspaceName ?? "Belum tersedia"}</span><small className={styles.projectDescText}>Prioritas {statusLabel(p.priority ?? "NORMAL")}</small></>,
       },
       {
-        header: "Periode",
+        header: "Target Selesai",
         key: "period",
-        render: (p) => formatDateRange(p.startDate, p.targetEndDate),
+        render: (p) => formatDateRange(null, p.targetEndDate),
       },
       {
         header: "Status",
         key: "status",
         render: (p) => <ProjectStatusBadge status={p.status} />,
       },
+      { header: "Risiko", key: "risk", render: (p) => <RiskBadge level={p.riskLevel} /> },
       {
         header: "Progres",
         key: "progress",
         render: (p) => {
           if (p.progressPercentage === null || p.progressPercentage === undefined) {
-            return "—";
+            return "Belum tersedia";
           }
           return (
             <div className={styles.progressContainer}>

@@ -370,10 +370,10 @@ describe("Shared Work / FASE D3 sampai D6", () => {
       const versionTab = screen.getByRole("tab", { name: "Versi" });
       fireEvent.click(versionTab);
 
-      expect(screen.getByText("Riwayat Versi Dokumen (Immutable)")).toBeInTheDocument();
-      expect(screen.getByText(/Versi dokumen bersifat immutable/)).toBeInTheDocument();
+      expect(screen.getByText("Riwayat Versi Dokumen")).toBeInTheDocument();
+      expect(screen.getByText(/Versi yang telah tersimpan tidak dapat diubah/)).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: /Edit Versi/i })).not.toBeInTheDocument();
-      expect(screen.getByText("Hash Integritas: sha256:abcd1234efgh5678")).toBeInTheDocument();
+      expect(screen.queryByText(/sha256:abcd1234efgh5678/)).not.toBeInTheDocument();
     });
 
     it("menampilkan quick view drawer untuk dokumen", () => {

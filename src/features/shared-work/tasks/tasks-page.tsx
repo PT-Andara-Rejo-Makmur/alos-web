@@ -144,6 +144,12 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
         if (!isTaskOverdue(t.dueAt, t.status)) return false;
       } else if (activeTab === "team") {
         if (!t.ownerActorId || t.ownerActorId === currentActorId || !activeMemberIds.has(t.ownerActorId)) return false;
+      } else if (activeTab === "blocked" && t.status !== "BLOCKED") {
+        return false;
+      } else if (activeTab === "review" && t.status !== "UNDER_REVIEW") {
+        return false;
+      } else if (activeTab === "completed" && t.status !== "COMPLETED") {
+        return false;
       }
 
       // Status filter
@@ -179,6 +185,9 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
       { id: "assigned_by_me", label: "Ditugaskan oleh Saya" },
       { id: "team", label: "Tim" },
       { id: "overdue", label: "Terlambat" },
+      { id: "blocked", label: "Terhambat" },
+      { id: "review", label: "Perlu Diperiksa" },
+      { id: "completed", label: "Selesai" },
     ],
     [],
   );
@@ -230,7 +239,7 @@ export function TasksPage({ workspaceKey, embed }: TasksPageProps) {
         },
       },
       {
-        header: "Workspace",
+        header: "Ruang Kerja",
         key: "workspace",
         render: (t) => t.workspaceName ?? "—",
       },

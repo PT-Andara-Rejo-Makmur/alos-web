@@ -15,7 +15,7 @@ export function ItAssetDetailPage({
       {() => (
         <div className={styles.page}>
           <PageHeader
-            description="Detail aset akan ditampilkan setelah sumber inventaris IT authoritative tersedia."
+            description="Pantau sistem, pemeriksaan, dan layanan teknologi perusahaan."
             eyebrow="OPERASIONAL IT"
             metadata={`Referensi aset: ${assetId || "—"}`}
             title="Detail Aset IT"

@@ -1,4 +1,5 @@
 "use client";
+import { roleLabel } from "@/lib/presentation";
 import { useEffect, useState } from "react";
 import { DataTable, PageHeader, Section } from "@/components/ui";
 import type { BusinessTargetDetail } from "@/lib/contracts";
@@ -30,7 +31,7 @@ export function StrategyPerformance({ domain }: Readonly<{ domain: string }>) {
       { key: "forecast", header: "Perkiraan", render: (row) => valueForObservation(row.selected_observations?.forecast ?? null) },
       { key: "performance", header: "Kinerja", render: (row) => performanceLabel(row.performance_state) },
       { key: "verification", header: "Verifikasi", render: (row) => row.selected_observations?.actual?.verification_state ?? "—" },
-      { key: "owner", header: "Owner", render: (row) => row.target.owner_role_ref },
+      { key: "owner", header: "Penanggung Jawab", render: (row) => roleLabel(row.target.owner_role_ref) },
       { key: "lifecycle", header: "Lifecycle", render: (row) => row.target.lifecycle_state },
       { key: "updated", header: "Pembaruan Sumber", render: (row) => row.last_updated_at ?? "Tidak diketahui" },
     ]} /></Section> : null}

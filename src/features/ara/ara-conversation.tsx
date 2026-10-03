@@ -1,43 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { AraAuthorityProjection, AraMessageProjection, AraResponseProjection, AraThreadProjection } from "@/lib/contracts";
+import type { AraAuthorityProjection, AraMessageProjection, AraProgressProjection, AraThreadProjection } from "@/lib/contracts";
 import { ApiError } from "@/lib/api";
 import { araApi } from "./api";
-import { ReviewedTask } from "./reviewed-task";
+import { AraAnswer } from "./ara-answer";
+import { AraProgress } from "./ara-progress";
+import { Button, LoadingState } from "@/components/ui";
 import { CapabilityRequests } from "./capability-requests";
 import styles from "./ara.module.css";
-
-const labels = { ANSWER: "Jawaban", NEEDS_INFO: "Perlu informasi", DENIED: "Kewenangan ditolak", NEEDS_REVIEW: "Perlu tinjauan manusia", FAILED: "Gagal" } as const;
-
-function Answer({ response, threadId, runId }: { readonly response: AraResponseProjection; readonly threadId: string; readonly runId: string }) {
-  return <>
-    <strong>{labels[response.response_type]}</strong>
-    <p className={styles.answerText}>{response.answer}</p>
-    {response.action_proposal?.kind === "TASK" ? <ReviewedTask proposal={response.action_proposal} threadId={threadId} runId={runId} /> : response.action_proposal && <aside className={styles.proposal}>
-      <strong>Usulan tindakan · Belum dijalankan</strong><p>{response.action_proposal.summary}</p>
-    </aside>}
-    {response.review_package && <details className={styles.sources}><summary>Paket tinjauan · Rekomendasi AI bersifat advisory</summary>
-      <p>Referensi: {response.review_package.identity.review_id}</p>
-      <p>{response.review_package.ai_recommendation.summary}</p>
-      <p>Keputusan IT dan Director tetap mengikuti approval ALOS.</p>
-    </details>}
-    {response.factory_draft && <details><summary>Draft kapabilitas</summary><p>{response.factory_draft.capability_draft?.purpose}</p><p>Tetap DRAFT. Registrasi dan aktivasi memerlukan alur governance.</p></details>}
-    {response.research_result && <details><summary>Analisis internal berbasis bukti</summary><ul>{response.research_result.findings.map(finding => <li key={finding.finding_id}>{finding.statement}</li>)}</ul></details>}
-    {response.delegation_result && <details><summary>Pembacaan terdelegasi</summary><p>{response.delegation_result.agent_id} · {response.delegation_result.status}</p><p>Run: {response.delegation_result.run_id} · Parent: {response.delegation_result.parent_run_id}</p><p>Child hanya membaca satu sumber dalam kewenangan parent.</p></details>}
-    {response.sources.length > 0 && <details className={styles.sources} open>
-      <summary>Sumber dan bukti ({response.sources.length})</summary>
-      <ul>{response.sources.map(source => <li key={source.evidence_ref.evidence_id}>
-        <strong>{source.domain.replace("_", " ")} · {source.tool_id}</strong>
-        <span>{source.freshness === "CURRENT" ? "Sumber canonical saat run" : "Kesegaran belum diketahui"}</span>
-        <span>Bukti: {source.evidence_ref.evidence_id}</span>
-        <span>Direkam: {source.evidence_ref.captured_at}</span><code>{source.evidence_ref.content_hash}</code>
-      </li>)}</ul>
-    </details>}
-    {response.failed_sources.length > 0 && <p role="alert">Sumber gagal dibaca: {response.failed_sources.join(", ")}</p>}
-    {response.limitations.length > 0 && <details><summary>Batas kemampuan</summary><ul>{response.limitations.map(item => <li key={item}>{item}</li>)}</ul></details>}
-  </>;
-}
 
 export function AraConversation({ authority, workspaceName }: { readonly authority: AraAuthorityProjection; readonly workspaceName: string }) {
   const [threads, setThreads] = useState<readonly AraThreadProjection[]>([]);
@@ -46,6 +17,7 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [progressEvents, setProgressEvents] = useState<AraProgressProjection["events"]>([]);
   const [progressLabel, setProgressLabel] = useState("Mengirim pertanyaan…");
   const [error, setError] = useState<string | null>(null);
   const [activeRun, setActiveRun] = useState<{ threadId: string; runId: string } | null>(null);
@@ -57,7 +29,7 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
     araApi.threads().then(rows => { if (live) { setThreads(rows); setSelected(rows[0]?.thread_id ?? null); } })
       .catch(() => { if (live) setError("Riwayat belum dapat dimuat. Coba buka kembali ARA."); })
       .finally(() => { if (live) setLoading(false); });
-    return () => { live = false; lifecycle.current++; };
+    return () => { live = false; lifecycle.current++; if (pendingTimer.current) clearTimeout(pendingTimer.current); pendingTimer.current = null; };
   }, []);
   useEffect(() => {
     const current = ++epoch.current;
@@ -87,18 +59,20 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
           const labels = { UNDERSTANDING: "Memahami pertanyaan…", RETRIEVING: "Membaca informasi yang dapat diakses…",
             ANALYZING: "Menganalisis informasi…", PREPARING: "Menyiapkan jawaban…",
             WAITING_FOR_REVIEW: "Usulan menunggu pemeriksaan Anda", COMPLETED: "Jawaban siap", FAILED: "Pemrosesan belum berhasil" };
+          if (progress) setProgressEvents(progress.events);
           if (kind) setProgressLabel(labels[kind]);
+          if (kind === "COMPLETED" || kind === "FAILED" || kind === "WAITING_FOR_REVIEW") { pendingTimer.current = null; return; }
         }
       }
       trackRun(threadId, current);
-    }, 500);
+    }, 1000);
   }
 
   async function cancelRun() {
     if (!activeRun) return;
     try {
       await araApi.cancel(activeRun.threadId, activeRun.runId);
-      setError("Pembatalan diminta. Menunggu konfirmasi runtime.");
+      setError("Pembatalan diminta. Menunggu konfirmasi ARA.");
     } catch { setError("Pembatalan belum dapat dikonfirmasi. Silakan coba kembali."); }
   }
 
@@ -116,6 +90,7 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
     if (!draft.trim() || sending || draft.length > 4000) return;
     const current = epoch.current;
     setSending(true); setError(null);
+    setProgressEvents([]);
     setProgressLabel("Mengirim pertanyaan…");
     let threadId = selected;
     try {
@@ -147,36 +122,25 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
     }
   }
 
-  return <main className={styles.conversation}>
-    <header className={styles.conversationHeader}><div><p>{authority.service_available === false ? "Layanan ARA belum tersedia" : `ARA Core Connected · ${authority.runtime_mode === "NORMAL" ? "Model production" : "Mode deterministik"}`}</p><h1>Tanya ARA</h1>
-      <p>Ruang kerja aktif: {workspaceName}</p>
-      <p>Production Model Provider: {authority.production_provider_connected ? "Terhubung" : "Belum Terhubung"} · Klasifikasi maksimum: {authority.maximum_data_classification}</p></div>
-      <button type="button" disabled={sending || loading} onClick={() => void create()}>Percakapan baru</button></header>
-    <CapabilityRequests />
+  return <section className={styles.conversation} aria-labelledby="ara-title">
+    <header className={styles.conversationHeader}><div><p className={styles.eyebrow}>ASISTEN PERUSAHAAN</p><h1 id="ara-title">Tanya ARA</h1><p>{authority.service_available === false ? "ARA belum dapat membantu saat ini. Silakan coba kembali." : "ARA siap membantu berdasarkan data dan akses ruang kerja Anda."}</p></div><Button variant="secondary" disabled={sending || loading} onClick={() => void create()}>Percakapan baru</Button></header>
     <div className={styles.chatLayout}>
       <nav aria-label="Riwayat percakapan" className={styles.threadList}>
-        {threads.map(thread => <button key={thread.thread_id} aria-current={selected === thread.thread_id} type="button"
-          disabled={sending} onClick={() => { setError(null); selectThread(thread.thread_id); }}>{thread.title}<small>{new Date(thread.updated_at).toLocaleDateString("id-ID")}</small></button>)}
-        {!threads.length && !loading && <p>Belum ada percakapan.</p>}
+        <h2>Percakapan</h2>{threads.map(thread => <button key={thread.thread_id} aria-current={selected === thread.thread_id} type="button" disabled={sending} onClick={() => { setError(null); selectThread(thread.thread_id); }}>{thread.title}<small>{new Date(thread.updated_at).toLocaleDateString("id-ID")}</small></button>)}
+        {!threads.length && !loading ? <p>Belum ada percakapan.</p> : null}
       </nav>
       <section className={styles.chatBody} aria-label="Percakapan ARA">
-        <div className={styles.messageList}>
-          {!messages.length && !loading && <div className={styles.emptyChat}><h2>Baca data ruang kerja Anda</h2><p>Tanyakan lead Sales, proyek aktif, persetujuan, piutang, risiko Legal, atau incident IT. Ketersediaan mengikuti kewenangan Anda.</p></div>}
-          {messages.map(message => <article key={message.message_id} className={message.role === "USER" ? styles.userMessage : styles.assistantMessage}>
-            <small>{message.role === "USER" ? "Anda" : "ARA"}</small>
-            {message.response ? <Answer response={message.response} threadId={message.thread_id} runId={message.run_id} /> : <p className={styles.answerText}>{message.content}</p>}
-            <small>Run: {message.run_id} · Referensi: {message.correlation_id}</small>
-          </article>)}
-          {(loading || sending) && <p role="status">{sending ? progressLabel : "Memuat percakapan…"}</p>}
+        <div className={styles.messageList} role="log" aria-label="Pesan percakapan">
+          {!messages.length && !loading ? <div className={styles.emptyChat}><span className={styles.assistantMonogram}>ARA</span><h2>Apa yang perlu kita tangani hari ini?</h2><p>Tanyakan kondisi pekerjaan, pengajuan yang perlu diperiksa, atau informasi dari dokumen. ARA membantu Anda melihat konteks dan langkah berikutnya.</p><div className={styles.suggestions}>{["Apa pekerjaan yang perlu saya tindak lanjuti?", "Ringkas kondisi divisi saya.", "Bantu saya memeriksa dokumen pendukung."].map(text => <button type="button" key={text} onClick={() => setDraft(text)}>{text}</button>)}</div></div> : null}
+          {messages.map(message => <article key={message.message_id} className={message.role === "USER" ? styles.userMessage : styles.assistantMessage}><small>{message.role === "USER" ? "Anda" : "ARA"}</small>{message.response ? <AraAnswer response={message.response} threadId={message.thread_id} runId={message.run_id} /> : <p className={styles.answerText}>{message.content}</p>}<time dateTime={message.created_at}>{new Date(message.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</time></article>)}
+          {loading ? <LoadingState label="Memuat percakapan…" variant="section" /> : null}
+          {sending ? <AraProgress events={progressEvents} label={progressLabel} /> : null}
         </div>
-        {error && <p role="alert" className={styles.chatError}>{error}</p>}
-        {sending && activeRun && <button type="button" onClick={() => void cancelRun()}>Batalkan run</button>}
-        <form className={styles.composer} onSubmit={event => { event.preventDefault(); void send(); }}>
-          <label htmlFor="ara-message">Pesan untuk ARA</label>
-          <textarea id="ara-message" value={draft} maxLength={4000} disabled={sending || loading} onChange={event => setDraft(event.target.value)} placeholder="Tampilkan lead Sales" rows={3} />
-          <button type="submit" disabled={sending || loading || !draft.trim()}>Kirim pesan</button>
-        </form>
+        {error ? <p role="alert" className={styles.chatError}>{error}</p> : null}
+        {sending && activeRun ? <Button variant="ghost" onClick={() => void cancelRun()}>Batalkan permintaan</Button> : null}
+        <form className={styles.composer} onSubmit={event => { event.preventDefault(); void send(); }}><label htmlFor="ara-message">Pesan untuk ARA</label><textarea id="ara-message" value={draft} maxLength={4000} disabled={sending || loading || authority.service_available === false} onChange={event => setDraft(event.target.value)} placeholder="Tanyakan pekerjaan, data, atau dokumen…" rows={3} /><div><small>Periksa sumber sebelum mengambil keputusan.</small><Button type="submit" disabled={sending || loading || !draft.trim() || authority.service_available === false}>Kirim pesan</Button></div></form>
       </section>
+      <aside className={styles.contextPanel} aria-label="Konteks ARA"><h2>Ruang Kerja</h2><strong>{workspaceName}</strong><p>Percakapan mengikuti data dan akses ruang kerja ini.</p><details><summary>Asisten & Otomasi</summary><CapabilityRequests /></details><p>Saran tindakan selalu memerlukan pemeriksaan Anda.</p></aside>
     </div>
-  </main>;
+  </section>;
 }

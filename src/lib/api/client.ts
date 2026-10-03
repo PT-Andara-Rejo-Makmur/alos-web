@@ -2,7 +2,7 @@ import { readCorrelationId, rememberCorrelationId } from "@/lib/correlation/stor
 import type { IntegrationDiagnostic } from "@/lib/contracts";
 
 import { requireBackendBaseUrl } from "./config";
-import { ApiError } from "./errors";
+import { ApiError, ApiRequestError } from "./errors";
 
 export interface ApiRequestOptions extends Omit<RequestInit, "body"> {
   readonly body?: unknown;
@@ -102,12 +102,22 @@ export function withQuery(path: string, query: Record<string, QueryValue>): stri
 }
 
 export function apiMessage(error: unknown): string {
-  if (error instanceof ApiError) {
-    return error.correlationId
-      ? `${error.detail} Referensi: ${error.correlationId}`
-      : error.detail;
+  const detail = error instanceof ApiRequestError ? error.detail : error instanceof Error ? error.message : "";
+  if (["Tautan aktivasi tidak valid atau telah kedaluwarsa.", "Konfirmasi kata sandi tidak cocok.", "Kredensial tidak valid."].includes(detail)) return detail;
+  if (error instanceof ApiRequestError) {
+    if (error.status === 401) return "Sesi Anda sudah berakhir. Silakan masuk kembali.";
+    if (error.status === 403) return "Anda tidak memiliki kewenangan untuk melakukan tindakan ini.";
+    if (error.status === 409) return "Data atau status pengajuan sudah berubah. Buka ulang detail dan periksa tindakan yang masih tersedia.";
+    if (error.status === 413) return "Berkas terlalu besar. Pilih berkas dengan ukuran maksimal 10 MB.";
+    if (error.status === 415) return "Format berkas belum dapat diproses. Gunakan DOCX atau TXT.";
+    if (error.status === 422) return "Periksa kelengkapan isian dan pilihan referensi sebelum mencoba kembali.";
+    if (error.status >= 500) return "Layanan belum dapat memproses permintaan. Silakan coba kembali.";
+    if (/[_A-Z]{4,}/.test(error.detail) || /scope|permission|authority|canonical|runtime|provider|correlation|hash|tool_id|run_id|workspace_id|actor|fetch|network|url|api\//i.test(error.detail)) return "Permintaan belum dapat diproses. Periksa isian dan akses ruang kerja Anda.";
+    return error.detail;
   }
-  return error instanceof Error ? error.message : "Terjadi kegagalan yang tidak diketahui.";
+  return error instanceof Error && /^(Sumber|Hubungan|Daftar|Berkas|Pilih|Data|Periksa|Nilai|Nama|Tanggal|Koneksi|Versi|Dokumen|Permintaan|Layanan|Anda)\b/.test(error.message)
+    && !/fetch|network|TypeError|JSON|contract|backend|reference|api\/|url/i.test(error.message) && !/[_A-Z]{4,}/.test(error.message)
+    ? error.message : "Koneksi belum dapat digunakan. Periksa koneksi lalu coba kembali.";
 }
 
 export function apiErrorDetail(payload: unknown): string | undefined {

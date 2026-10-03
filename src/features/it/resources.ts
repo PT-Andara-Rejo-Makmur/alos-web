@@ -31,7 +31,7 @@ export const itResources = {
       },
       {
         "name": "criticality",
-        "label": "Kekritisan Explicit",
+        "label": "Kekritisan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -67,7 +67,7 @@ export const itResources = {
       },
       {
         "name": "criticality",
-        "label": "Kekritisan Explicit",
+        "label": "Kekritisan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -82,21 +82,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -136,7 +136,7 @@ export const itResources = {
       },
       {
         "name": "criticality",
-        "label": "Kekritisan Explicit",
+        "label": "Kekritisan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -156,7 +156,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -237,21 +237,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -310,7 +310,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -405,21 +405,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -485,7 +485,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -554,21 +554,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -615,7 +615,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -698,21 +698,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -766,7 +766,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -833,21 +833,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -899,7 +899,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -977,21 +977,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1057,7 +1057,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1131,21 +1131,21 @@ export const itResources = {
       {"name": "verification_notes", "label": "Hasil Verifikasi", "required": false, "nullable": true, "type": "text"},
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1209,7 +1209,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1246,7 +1246,7 @@ export const itResources = {
       },
       {
         "name": "priority",
-        "label": "Prioritas Explicit",
+        "label": "Prioritas",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1275,7 +1275,7 @@ export const itResources = {
       },
       {
         "name": "priority",
-        "label": "Prioritas Explicit",
+        "label": "Prioritas",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1290,21 +1290,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1337,7 +1337,7 @@ export const itResources = {
       },
       {
         "name": "priority",
-        "label": "Prioritas Explicit",
+        "label": "Prioritas",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1364,7 +1364,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1443,21 +1443,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1523,7 +1523,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1565,7 +1565,7 @@ export const itResources = {
       },
       {
         "name": "severity",
-        "label": "Severity Explicit",
+        "label": "Severity",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1594,7 +1594,7 @@ export const itResources = {
       },
       {
         "name": "severity",
-        "label": "Severity Explicit",
+        "label": "Severity",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1616,21 +1616,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1668,7 +1668,7 @@ export const itResources = {
       },
       {
         "name": "severity",
-        "label": "Severity Explicit",
+        "label": "Severity",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1702,7 +1702,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1744,7 +1744,7 @@ export const itResources = {
       },
       {
         "name": "severity",
-        "label": "Severity Explicit",
+        "label": "Severity",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1773,7 +1773,7 @@ export const itResources = {
       },
       {
         "name": "severity",
-        "label": "Severity Explicit",
+        "label": "Severity",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1795,21 +1795,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1847,7 +1847,7 @@ export const itResources = {
       },
       {
         "name": "severity",
-        "label": "Severity Explicit",
+        "label": "Severity",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1881,7 +1881,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1962,21 +1962,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2035,7 +2035,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2106,21 +2106,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2179,7 +2179,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2221,7 +2221,7 @@ export const itResources = {
       },
       {
         "name": "result",
-        "label": "Hasil Uji Tercatat",
+        "label": "Hasil",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -2243,21 +2243,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2295,7 +2295,7 @@ export const itResources = {
       },
       {
         "name": "result",
-        "label": "Hasil Uji Tercatat",
+        "label": "Hasil",
         "required": true,
         "nullable": false,
         "type": "text"
@@ -2309,7 +2309,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2390,21 +2390,21 @@ export const itResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2463,7 +2463,7 @@ export const itResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"

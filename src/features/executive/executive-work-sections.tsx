@@ -19,13 +19,13 @@ export function ExecutiveWorkSections({ base, status, data }: Readonly<{
   status: ExecutiveConnectionStatus | "loading";
   data: ExecutiveSharedWorkSummary | null;
 }>) {
-  if (!data) return <Section title="Shared Work"><ExecutiveSourceState status={status} /></Section>;
+  if (!data) return <Section title="Pekerjaan Pendukung"><ExecutiveSourceState status={status} /></Section>;
   const counts = data.counts;
   const link = (resource: string, id: string) => <Link className={styles.detailLink} href={`${base}/${resource}/${encodeURIComponent(id)}`}>Lihat Detail</Link>;
-  const empty = <EmptyState title="Belum ada data." description="Tidak ada entitas dalam visibility ruang kerja aktif." />;
+  const empty = <EmptyState title="Belum ada data." description="Belum ada pekerjaan dalam akses ruang kerja Anda." />;
 
   return <>
-    <Section title="Shared Work" description={`Data authoritative dalam visibility ruang kerja aktif · Waktu sumber ${sourceDate(data.last_updated_at)} · Pratinjau hingga 50 entitas per bagian.`}>
+    <Section title="Pekerjaan Pendukung" description={`Catatan perusahaan sesuai akses ruang kerja Anda · Waktu sumber ${sourceDate(data.last_updated_at)} · Pratinjau hingga 50 entitas per bagian.`}>
       <ExecutiveSourceState status={status} />
       <p>{counts.active_projects} proyek aktif · {counts.on_hold_projects} ditahan · {counts.completed_projects} selesai</p>
       <p>{counts.overdue_tasks} tugas lewat tenggat · {counts.blocked_tasks} terhambat · {counts.critical_tasks} kritis · {counts.pending_review_tasks} menunggu peninjauan</p>
@@ -33,52 +33,52 @@ export function ExecutiveWorkSections({ base, status, data }: Readonly<{
     </Section>
     <div className={styles.twoColumn}>
       <Section title="Peringatan & Temuan" actions={<Link className={styles.detailLink} href={`${base}/findings`}>Lihat Semua Temuan</Link>}>
-        <DataTable caption="Temuan Shared Work" columns={[
+        <DataTable caption="Temuan Pekerjaan Pendukung" columns={[
           { key: "title", header: "Temuan", render: (row) => row.title },
           { key: "severity", header: "Tingkat Temuan", render: (row) => <FindingSeverityBadge severity={row.severity} /> },
           { key: "status", header: "Status", render: (row) => <FindingStatusBadge status={row.status} /> },
-          { key: "owner", header: "Penanggung Jawab", render: (row) => row.owner_name ?? row.owner_actor_id ?? "—" },
+          { key: "owner", header: "Penanggung Jawab", render: (row) => row.owner_name ?? "Belum ditugaskan" },
           { key: "project", header: "Proyek terkait", render: (row) => row.project_id ? link("projects", row.project_id) : "—" },
-          { key: "updated", header: "Update", render: (row) => sourceDate(row.updated_at) },
+          { key: "updated", header: "Diperbarui", render: (row) => sourceDate(row.updated_at) },
         ]} rows={data.findings} getRowKey={(row) => row.finding_id} rowAction={(row) => link("findings", row.finding_id)} emptyState={empty} />
       </Section>
-      <Section title="Persetujuan Shared Work" actions={<Link className={styles.detailLink} href={`${base}/approvals`}>Lihat Semua Persetujuan</Link>}>
-        <DataTable caption="Persetujuan Shared Work" columns={[
-          { key: "subject", header: "Subjek", render: (row) => row.subject_title ?? row.reason ?? row.subject_id },
+      <Section title="Persetujuan Pekerjaan Pendukung" actions={<Link className={styles.detailLink} href={`${base}/approvals`}>Lihat Semua Persetujuan</Link>}>
+        <DataTable caption="Persetujuan Pekerjaan Pendukung" columns={[
+          { key: "subject", header: "Subjek", render: (row) => row.subject_title ?? row.reason ?? "Pengajuan keputusan" },
           { key: "status", header: "Status", render: (row) => <ApprovalStatusBadge status={row.status} /> },
-          { key: "updated", header: "Update", render: (row) => sourceDate(row.decided_at ?? row.requested_at) },
+          { key: "updated", header: "Diperbarui", render: (row) => sourceDate(row.decided_at ?? row.requested_at) },
         ]} rows={data.approvals} getRowKey={(row) => row.approval_id} rowAction={(row) => link("approvals", row.approval_id)} emptyState={empty} />
       </Section>
     </div>
     <Section title="Proyek Relevan" actions={<Link className={styles.detailLink} href={`${base}/projects`}>Lihat Semua Proyek</Link>}>
-      <DataTable caption="Proyek Shared Work" columns={[
+      <DataTable caption="Proyek Pekerjaan Pendukung" columns={[
         { key: "name", header: "Proyek", render: (row) => row.name },
         { key: "status", header: "Status", render: (row) => <ProjectStatusBadge status={row.status} /> },
-        { key: "owner", header: "Penanggung Jawab", render: (row) => row.owner_name ?? row.owner_actor_id ?? "—" },
-        { key: "updated", header: "Update", render: (row) => sourceDate(row.updated_at) },
+        { key: "owner", header: "Penanggung Jawab", render: (row) => row.owner_name ?? "Belum ditugaskan" },
+        { key: "updated", header: "Diperbarui", render: (row) => sourceDate(row.updated_at) },
       ]} rows={data.projects} getRowKey={(row) => row.project_id} rowAction={(row) => link("projects", row.project_id)} emptyState={empty} />
     </Section>
     <Section title="Tugas Relevan" actions={<Link className={styles.detailLink} href={`${base}/tasks`}>Lihat Semua Tugas</Link>}>
-      <DataTable caption="Tugas Shared Work" columns={[
+      <DataTable caption="Tugas Pekerjaan Pendukung" columns={[
         { key: "title", header: "Tugas", render: (row) => row.title },
         { key: "status", header: "Status", render: (row) => <TaskStatusBadge status={row.status} /> },
         { key: "priority", header: "Prioritas", render: (row) => <TaskPriorityBadge priority={row.priority} /> },
         { key: "due", header: "Tenggat", render: (row) => sourceDate(row.due_at) },
-        { key: "updated", header: "Update", render: (row) => sourceDate(row.updated_at) },
+        { key: "updated", header: "Diperbarui", render: (row) => sourceDate(row.updated_at) },
       ]} rows={data.tasks} getRowKey={(row) => row.task_id} rowAction={(row) => link("tasks", row.task_id)} emptyState={empty} />
     </Section>
     <Section title="Laporan Relevan" actions={<Link className={styles.detailLink} href={`${base}/reports`}>Lihat Semua Laporan</Link>}>
-      <DataTable caption="Laporan Shared Work" columns={[
+      <DataTable caption="Laporan Pekerjaan Pendukung" columns={[
         { key: "title", header: "Laporan", render: (row) => row.title },
         { key: "status", header: "Status", render: (row) => <ReportStatusBadge status={row.status} /> },
-        { key: "updated", header: "Update", render: (row) => sourceDate(row.updated_at) },
+        { key: "updated", header: "Diperbarui", render: (row) => sourceDate(row.updated_at) },
       ]} rows={data.reports} getRowKey={(row) => row.report_id} rowAction={(row) => link("reports", row.report_id)} emptyState={empty} />
     </Section>
     <Section title="Dokumen Relevan" actions={<Link className={styles.detailLink} href={`${base}/documents`}>Lihat Semua Dokumen</Link>}>
-      <DataTable caption="Dokumen Shared Work" columns={[
+      <DataTable caption="Dokumen Pekerjaan Pendukung" columns={[
         { key: "title", header: "Dokumen", render: (row) => row.title },
         { key: "status", header: "Status", render: (row) => <DocumentStatusBadge status={row.status} /> },
-        { key: "updated", header: "Update", render: (row) => sourceDate(row.updated_at) },
+        { key: "updated", header: "Diperbarui", render: (row) => sourceDate(row.updated_at) },
       ]} rows={data.documents} getRowKey={(row) => row.document_id} rowAction={(row) => link("documents", row.document_id)} emptyState={empty} />
     </Section>
   </>;

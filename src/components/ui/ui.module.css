@@ -187,9 +187,9 @@
 
 .pageHeaderTitle {
   color: var(--alos-text-primary);
-  font-size: 28px;
+  font-size: var(--alos-font-heading);
   font-weight: 700;
-  line-height: 36px;
+  line-height: 32px;
   margin: 0;
 }
 
@@ -236,7 +236,7 @@
 
 .sectionTitle {
   color: var(--alos-text-primary);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 26px;
   margin: 0;
@@ -818,4 +818,35 @@
   .loadingRow {
     animation: none;
   }
+}
+
+.formSection { border: 0; border-top: 1px solid var(--alos-border); margin: 0; padding: var(--alos-space-5) 0; min-width: 0; }
+.journeyHeading { margin: 0 0 var(--alos-space-4); font-size: 16px; }
+.journeyBody { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: var(--alos-space-4); }
+.journeyBody[hidden] { display: none; }
+.journeyActions { display: flex; justify-content: space-between; gap: var(--alos-space-3); margin-top: var(--alos-space-5); padding-top: var(--alos-space-4); border-top: 1px solid var(--alos-border); position: sticky; bottom: -24px; background: var(--alos-surface); padding-bottom: max(var(--alos-space-4), env(safe-area-inset-bottom)); }
+.formSection legend { font-weight: 600; padding: 0 var(--alos-space-2) 0 0; }
+.formSection > p { margin: 0 0 var(--alos-space-4); color: var(--alos-text-secondary); }
+.formSectionFields { display: grid; gap: var(--alos-space-4); }
+.entitySelect { display: grid; gap: var(--alos-space-2); }
+.stepper { display: flex; list-style: none; margin: 0 0 var(--alos-space-5); padding: 0; gap: var(--alos-space-4); border-bottom: 1px solid var(--alos-border); padding-bottom: var(--alos-space-4); }
+.stepper li { display: flex; align-items: center; gap: var(--alos-space-2); color: var(--alos-text-muted); font-size: 12px; }
+.stepper li > span { display: grid; place-items: center; width: 24px; height: 24px; border: 1px solid var(--alos-border-strong); border-radius: 50%; flex-shrink: 0; }
+.stepper li[aria-current] { color: var(--alos-primary-dark); font-weight: 600; }
+.stepper li[aria-current] > span, .stepper li[data-complete="true"] > span { background: var(--alos-primary); color: white; border-color: var(--alos-primary); }
+.dialog, .drawer { max-height: calc(100dvh - 32px); overscroll-behavior: contain; }
+.overlayHeader { position: sticky; top: 0; background: var(--alos-surface); z-index: 2; }
+.overlayFooter { position: sticky; bottom: 0; background: var(--alos-surface); padding-bottom: max(var(--alos-space-4), env(safe-area-inset-bottom)); }
+@media (max-width: 639px) {
+  .overlay { padding: 0; }
+  .dialog, .drawer { height: 100dvh; max-height: 100dvh; border-radius: 0; width: 100%; }
+  .dataTable { min-width: 0; }
+  .dataTable thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .dataTable tbody, .dataTable tr, .dataTable td { display: block; width: 100%; }
+  .dataTable tr { padding: var(--alos-space-3) var(--alos-space-4); border-bottom: 1px solid var(--alos-border); }
+  .dataTable tr:last-child { border-bottom: 0; }
+  .dataTable td { border: 0; height: auto; min-height: 32px; padding: var(--alos-space-1) 0; overflow-wrap: anywhere; }
+  .dataTable td[data-label] { display: grid; grid-template-columns: minmax(90px, 34%) minmax(0, 1fr); gap: var(--alos-space-3); }
+  .dataTable td[data-label]::before { content: attr(data-label); color: var(--alos-text-secondary); font-size: 12px; }
+  .stepper { flex-direction: column; align-items: flex-start; gap: var(--alos-space-2); }
 }

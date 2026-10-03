@@ -10,35 +10,35 @@ export const hrResources = {
   "createFields": [
     {
       "name": "facility_code",
-      "label": "Facility Code",
+      "label": "Kode Fasilitas",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "title",
-      "label": "Title",
+      "label": "Judul",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "description",
-      "label": "Description",
+      "label": "Deskripsi",
       "required": false,
       "nullable": true,
       "type": "text"
     },
     {
       "name": "needed_on",
-      "label": "Needed On",
+      "label": "Tanggal Dibutuhkan",
       "required": false,
       "nullable": true,
       "type": "date"
     },
     {
       "name": "resolution_notes",
-      "label": "Resolution Notes",
+      "label": "Catatan Penyelesaian",
       "required": false,
       "nullable": true,
       "type": "text"
@@ -47,28 +47,28 @@ export const hrResources = {
   "updateFields": [
     {
       "name": "title",
-      "label": "Title",
+      "label": "Judul",
       "required": false,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "description",
-      "label": "Description",
+      "label": "Deskripsi",
       "required": false,
       "nullable": true,
       "type": "text"
     },
     {
       "name": "needed_on",
-      "label": "Needed On",
+      "label": "Tanggal Dibutuhkan",
       "required": false,
       "nullable": true,
       "type": "date"
     },
     {
       "name": "resolution_notes",
-      "label": "Resolution Notes",
+      "label": "Catatan Penyelesaian",
       "required": false,
       "nullable": true,
       "type": "text"
@@ -77,35 +77,35 @@ export const hrResources = {
   "columns": [
     {
       "name": "facility_code",
-      "label": "Facility Code",
+      "label": "Kode Fasilitas",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "title",
-      "label": "Title",
+      "label": "Judul",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "description",
-      "label": "Description",
+      "label": "Deskripsi",
       "required": false,
       "nullable": true,
       "type": "text"
     },
     {
       "name": "needed_on",
-      "label": "Needed On",
+      "label": "Tanggal Dibutuhkan",
       "required": false,
       "nullable": true,
       "type": "date"
     },
     {
       "name": "resolution_notes",
-      "label": "Resolution Notes",
+      "label": "Catatan Penyelesaian",
       "required": false,
       "nullable": true,
       "type": "text"
@@ -119,42 +119,42 @@ export const hrResources = {
     },
     {
       "name": "tenant_id",
-      "label": "Tenant Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "organization_id",
-      "label": "Organization Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "workspace_id",
-      "label": "Workspace Id",
+      "label": "Ruang Kerja",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "facility_request_id",
-      "label": "Facility Request Id",
+      "label": "Permintaan Fasilitas",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "created_at",
-      "label": "Created At",
+      "label": "Dicatat",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "updated_at",
-      "label": "Updated At",
+      "label": "Diperbarui",
       "type": "text",
       "required": false,
       "nullable": false
@@ -170,21 +170,21 @@ export const hrResources = {
   "createFields": [
     {
       "name": "asset_code",
-      "label": "Asset Code",
+      "label": "Kode Aset",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "name",
-      "label": "Name",
+      "label": "Nama",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "condition",
-      "label": "Condition",
+      "label": "Kondisi",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -196,14 +196,14 @@ export const hrResources = {
     },
     {
       "name": "recorded_on",
-      "label": "Recorded On",
+      "label": "Tanggal Pencatatan",
       "required": true,
       "nullable": false,
       "type": "date"
     },
     {
       "name": "notes",
-      "label": "Notes",
+      "label": "Catatan",
       "required": false,
       "nullable": true,
       "type": "text"
@@ -213,21 +213,21 @@ export const hrResources = {
   "columns": [
     {
       "name": "asset_code",
-      "label": "Asset Code",
+      "label": "Kode Aset",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "name",
-      "label": "Name",
+      "label": "Nama",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "condition",
-      "label": "Condition",
+      "label": "Kondisi",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -239,14 +239,14 @@ export const hrResources = {
     },
     {
       "name": "recorded_on",
-      "label": "Recorded On",
+      "label": "Tanggal Pencatatan",
       "required": true,
       "nullable": false,
       "type": "date"
     },
     {
       "name": "notes",
-      "label": "Notes",
+      "label": "Catatan",
       "required": false,
       "nullable": true,
       "type": "text"
@@ -260,42 +260,42 @@ export const hrResources = {
     },
     {
       "name": "tenant_id",
-      "label": "Tenant Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "organization_id",
-      "label": "Organization Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "workspace_id",
-      "label": "Workspace Id",
+      "label": "Ruang Kerja",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "inventory_item_id",
-      "label": "Inventory Item Id",
+      "label": "Barang Inventaris",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "created_at",
-      "label": "Created At",
+      "label": "Dicatat",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "updated_at",
-      "label": "Updated At",
+      "label": "Diperbarui",
       "type": "text",
       "required": false,
       "nullable": false
@@ -311,7 +311,7 @@ export const hrResources = {
   "createFields": [
     {
       "name": "inventory_item_id",
-      "label": "Inventory Item Id",
+      "label": "Barang Inventaris",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -323,7 +323,7 @@ export const hrResources = {
     },
     {
       "name": "employee_id",
-      "label": "Employee Id",
+      "label": "Karyawan",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -335,14 +335,14 @@ export const hrResources = {
     },
     {
       "name": "handover_on",
-      "label": "Handover On",
+      "label": "Tanggal Serah Terima",
       "required": true,
       "nullable": false,
       "type": "date"
     },
     {
       "name": "event",
-      "label": "Event",
+      "label": "Kegiatan",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -353,7 +353,7 @@ export const hrResources = {
     },
     {
       "name": "notes",
-      "label": "Notes",
+      "label": "Catatan",
       "required": true,
       "nullable": false,
       "type": "text"
@@ -363,7 +363,7 @@ export const hrResources = {
   "columns": [
     {
       "name": "inventory_item_id",
-      "label": "Inventory Item Id",
+      "label": "Barang Inventaris",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -375,7 +375,7 @@ export const hrResources = {
     },
     {
       "name": "employee_id",
-      "label": "Employee Id",
+      "label": "Karyawan",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -387,14 +387,14 @@ export const hrResources = {
     },
     {
       "name": "handover_on",
-      "label": "Handover On",
+      "label": "Tanggal Serah Terima",
       "required": true,
       "nullable": false,
       "type": "date"
     },
     {
       "name": "event",
-      "label": "Event",
+      "label": "Kegiatan",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -405,7 +405,7 @@ export const hrResources = {
     },
     {
       "name": "notes",
-      "label": "Notes",
+      "label": "Catatan",
       "required": true,
       "nullable": false,
       "type": "text"
@@ -419,42 +419,42 @@ export const hrResources = {
     },
     {
       "name": "tenant_id",
-      "label": "Tenant Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "organization_id",
-      "label": "Organization Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "workspace_id",
-      "label": "Workspace Id",
+      "label": "Ruang Kerja",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "asset_handover_id",
-      "label": "Asset Handover Id",
+      "label": "Serah Terima Aset",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "created_at",
-      "label": "Created At",
+      "label": "Dicatat",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "updated_at",
-      "label": "Updated At",
+      "label": "Diperbarui",
       "type": "text",
       "required": false,
       "nullable": false
@@ -470,7 +470,7 @@ export const hrResources = {
   "createFields": [
     {
       "name": "inventory_item_id",
-      "label": "Inventory Item Id",
+      "label": "Barang Inventaris",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -482,21 +482,21 @@ export const hrResources = {
     },
     {
       "name": "performed_on",
-      "label": "Performed On",
+      "label": "Tanggal Pelaksanaan",
       "required": true,
       "nullable": false,
       "type": "date"
     },
     {
       "name": "summary",
-      "label": "Summary",
+      "label": "Ringkasan",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "result",
-      "label": "Result",
+      "label": "Hasil",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -511,7 +511,7 @@ export const hrResources = {
   "columns": [
     {
       "name": "inventory_item_id",
-      "label": "Inventory Item Id",
+      "label": "Barang Inventaris",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -523,21 +523,21 @@ export const hrResources = {
     },
     {
       "name": "performed_on",
-      "label": "Performed On",
+      "label": "Tanggal Pelaksanaan",
       "required": true,
       "nullable": false,
       "type": "date"
     },
     {
       "name": "summary",
-      "label": "Summary",
+      "label": "Ringkasan",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "result",
-      "label": "Result",
+      "label": "Hasil",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -556,42 +556,42 @@ export const hrResources = {
     },
     {
       "name": "tenant_id",
-      "label": "Tenant Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "organization_id",
-      "label": "Organization Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "workspace_id",
-      "label": "Workspace Id",
+      "label": "Ruang Kerja",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "maintenance_record_id",
-      "label": "Maintenance Record Id",
+      "label": "Catatan Pemeliharaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "created_at",
-      "label": "Created At",
+      "label": "Dicatat",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "updated_at",
-      "label": "Updated At",
+      "label": "Diperbarui",
       "type": "text",
       "required": false,
       "nullable": false
@@ -607,21 +607,21 @@ export const hrResources = {
   "createFields": [
     {
       "name": "facility_code",
-      "label": "Facility Code",
+      "label": "Kode Fasilitas",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "assessed_on",
-      "label": "Assessed On",
+      "label": "Tanggal Pemeriksaan",
       "required": true,
       "nullable": false,
       "type": "date"
     },
     {
       "name": "readiness",
-      "label": "Readiness",
+      "label": "Kesiapan",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -633,7 +633,7 @@ export const hrResources = {
     },
     {
       "name": "notes",
-      "label": "Notes",
+      "label": "Catatan",
       "required": true,
       "nullable": false,
       "type": "text"
@@ -643,21 +643,21 @@ export const hrResources = {
   "columns": [
     {
       "name": "facility_code",
-      "label": "Facility Code",
+      "label": "Kode Fasilitas",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "assessed_on",
-      "label": "Assessed On",
+      "label": "Tanggal Pemeriksaan",
       "required": true,
       "nullable": false,
       "type": "date"
     },
     {
       "name": "readiness",
-      "label": "Readiness",
+      "label": "Kesiapan",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -669,7 +669,7 @@ export const hrResources = {
     },
     {
       "name": "notes",
-      "label": "Notes",
+      "label": "Catatan",
       "required": true,
       "nullable": false,
       "type": "text"
@@ -683,42 +683,42 @@ export const hrResources = {
     },
     {
       "name": "tenant_id",
-      "label": "Tenant Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "organization_id",
-      "label": "Organization Id",
+      "label": "Perusahaan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "workspace_id",
-      "label": "Workspace Id",
+      "label": "Ruang Kerja",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "service_assessment_id",
-      "label": "Service Assessment Id",
+      "label": "Pemeriksaan Layanan",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "created_at",
-      "label": "Created At",
+      "label": "Dicatat",
       "type": "text",
       "required": false,
       "nullable": false
     },
     {
       "name": "updated_at",
-      "label": "Updated At",
+      "label": "Diperbarui",
       "type": "text",
       "required": false,
       "nullable": false
@@ -735,7 +735,7 @@ export const hrResources = {
     "createFields": [
       {
         "name": "employee_number",
-        "label": "ID Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text"
@@ -786,7 +786,7 @@ export const hrResources = {
     "updateFields": [
       {
         "name": "employee_number",
-        "label": "ID Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text"
@@ -837,28 +837,28 @@ export const hrResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": false,
         "nullable": false,
         "type": "text",
@@ -870,14 +870,14 @@ export const hrResources = {
       },
       {
         "name": "actor_id",
-        "label": "Aktor Terasosiasi (Identity)",
+        "label": "Akun Karyawan",
         "required": false,
         "nullable": true,
         "type": "text"
       },
       {
         "name": "employee_number",
-        "label": "ID Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text"
@@ -933,7 +933,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -956,7 +956,7 @@ export const hrResources = {
     "createFields": [
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1012,21 +1012,21 @@ export const hrResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1045,7 +1045,7 @@ export const hrResources = {
       },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1092,7 +1092,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1115,7 +1115,7 @@ export const hrResources = {
     "createFields": [
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1188,21 +1188,21 @@ export const hrResources = {
       {"name": "decision_reason", "label": "Alasan Keputusan", "required": false, "nullable": true, "type": "text"},
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1221,7 +1221,7 @@ export const hrResources = {
       },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1282,7 +1282,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1367,21 +1367,21 @@ export const hrResources = {
       {"name": "requesting_workspace_id", "label": "Divisi Pengaju", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/workspaces", "identifier": "workspace.workspace_id", "label": "workspace.workspace_name"}},
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1442,7 +1442,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1535,24 +1535,24 @@ export const hrResources = {
       }
     ],
     "columns": [
-      {"name": "employee_id", "label": "Karyawan Hasil Penerimaan", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/hr/employees", "identifier": "employee_id", "label": "full_name"}},
+      {"name": "employee_id", "label": "Karyawan", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/hr/employees", "identifier": "employee_id", "label": "full_name"}},
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1618,7 +1618,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1685,21 +1685,21 @@ export const hrResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -1758,7 +1758,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -1781,7 +1781,7 @@ export const hrResources = {
   "createFields": [
     {
       "name": "employee_id",
-      "label": "Referensi Karyawan",
+      "label": "Karyawan",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -1849,21 +1849,21 @@ export const hrResources = {
   "columns": [
     {
       "name": "tenant_id",
-      "label": "Tenant",
+      "label": "Perusahaan",
       "required": false,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "organization_id",
-      "label": "Organisasi",
+      "label": "Perusahaan",
       "required": false,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "workspace_id",
-      "label": "Workspace",
+      "label": "Ruang Kerja",
       "required": false,
       "nullable": false,
       "type": "text"
@@ -1882,7 +1882,7 @@ export const hrResources = {
     },
     {
       "name": "employee_id",
-      "label": "Referensi Karyawan",
+      "label": "Karyawan",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -1922,7 +1922,7 @@ export const hrResources = {
     },
     {
       "name": "created_at",
-      "label": "Dibuat",
+      "label": "Dicatat",
       "required": false,
       "nullable": false,
       "type": "datetime-local"
@@ -1957,7 +1957,7 @@ export const hrResources = {
     "createFields": [
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -1976,7 +1976,7 @@ export const hrResources = {
       },
       {
         "name": "rating",
-        "label": "Rating Explicit",
+        "label": "Rating",
         "required": false,
         "nullable": true,
         "type": "decimal"
@@ -1999,7 +1999,7 @@ export const hrResources = {
       },
       {
         "name": "rating",
-        "label": "Rating Explicit",
+        "label": "Rating",
         "required": false,
         "nullable": true,
         "type": "decimal"
@@ -2015,21 +2015,21 @@ export const hrResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2048,7 +2048,7 @@ export const hrResources = {
       },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -2074,7 +2074,7 @@ export const hrResources = {
       },
       {
         "name": "rating",
-        "label": "Rating Explicit",
+        "label": "Rating",
         "required": false,
         "nullable": true,
         "type": "decimal"
@@ -2095,7 +2095,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2178,21 +2178,21 @@ export const hrResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2246,7 +2246,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2281,7 +2281,7 @@ export const hrResources = {
       },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -2296,21 +2296,21 @@ export const hrResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2341,7 +2341,7 @@ export const hrResources = {
       },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -2367,7 +2367,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2422,21 +2422,21 @@ export const hrResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2476,7 +2476,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2511,7 +2511,7 @@ export const hrResources = {
       },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -2523,7 +2523,7 @@ export const hrResources = {
       },
       {
         "name": "readiness",
-        "label": "Kesiapan Explicit",
+        "label": "Kesiapan",
         "required": true,
         "nullable": false,
         "type": "text"
@@ -2539,7 +2539,7 @@ export const hrResources = {
     "updateFields": [
       {
         "name": "readiness",
-        "label": "Kesiapan Explicit",
+        "label": "Kesiapan",
         "required": true,
         "nullable": false,
         "type": "text"
@@ -2555,21 +2555,21 @@ export const hrResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2600,7 +2600,7 @@ export const hrResources = {
       },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -2612,7 +2612,7 @@ export const hrResources = {
       },
       {
         "name": "readiness",
-        "label": "Kesiapan Explicit",
+        "label": "Kesiapan",
         "required": true,
         "nullable": true,
         "type": "text"
@@ -2626,7 +2626,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2649,7 +2649,7 @@ export const hrResources = {
     "createFields": [
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -2693,21 +2693,21 @@ export const hrResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2726,7 +2726,7 @@ export const hrResources = {
       },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -2766,7 +2766,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2790,7 +2790,7 @@ export const hrResources = {
       { "name": "legal_review_required", "label": "Perlu Pemeriksaan Legal", "required": false, "nullable": false, "type": "boolean" },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -2830,7 +2830,7 @@ export const hrResources = {
       },
       {
         "name": "document_id",
-        "label": "Dokumen Shared Work",
+        "label": "Dokumen Pendukung",
         "required": false,
         "nullable": true,
         "type": "text",
@@ -2877,21 +2877,21 @@ export const hrResources = {
       {"name": "legal_review_required", "label": "Perlu Pemeriksaan Legal", "required": false, "nullable": false, "type": "boolean"},
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -2910,7 +2910,7 @@ export const hrResources = {
       },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -2957,7 +2957,7 @@ export const hrResources = {
       },
       {
         "name": "document_id",
-        "label": "Dokumen Shared Work",
+        "label": "Dokumen Pendukung",
         "required": false,
         "nullable": true,
         "type": "text",
@@ -2969,7 +2969,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"
@@ -2992,7 +2992,7 @@ export const hrResources = {
     "createFields": [
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -3004,7 +3004,7 @@ export const hrResources = {
       },
       {
         "name": "document_id",
-        "label": "Dokumen Shared Work",
+        "label": "Dokumen Pendukung",
         "required": false,
         "nullable": true,
         "type": "text",
@@ -3034,21 +3034,21 @@ export const hrResources = {
     "columns": [
       {
         "name": "tenant_id",
-        "label": "Tenant",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "organization_id",
-        "label": "Organisasi",
+        "label": "Perusahaan",
         "required": false,
         "nullable": false,
         "type": "text"
       },
       {
         "name": "workspace_id",
-        "label": "Workspace",
+        "label": "Ruang Kerja",
         "required": false,
         "nullable": false,
         "type": "text"
@@ -3067,7 +3067,7 @@ export const hrResources = {
       },
       {
         "name": "employee_id",
-        "label": "Referensi Karyawan",
+        "label": "Karyawan",
         "required": true,
         "nullable": false,
         "type": "text",
@@ -3079,7 +3079,7 @@ export const hrResources = {
       },
       {
         "name": "document_id",
-        "label": "Dokumen Shared Work",
+        "label": "Dokumen Pendukung",
         "required": false,
         "nullable": true,
         "type": "text",
@@ -3105,7 +3105,7 @@ export const hrResources = {
       },
       {
         "name": "created_at",
-        "label": "Dibuat",
+        "label": "Dicatat",
         "required": false,
         "nullable": false,
         "type": "datetime-local"

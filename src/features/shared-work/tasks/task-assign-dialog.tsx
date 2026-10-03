@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Dialog, FormField } from "@/components/ui";
+import { Button, Dialog, EntitySelect, FormField } from "@/components/ui";
 import { apiMessage } from "@/lib/api";
 import { fetchWorkspaceMembers, type WorkspaceMember } from "../shared/workspace-members";
 
@@ -58,17 +58,10 @@ export function TaskAssignDialog({ task, open, onClose, onAssigned }: TaskAssign
   }
 
   return (
-    <Dialog onClose={onClose} open={open} title="Tugaskan kepada Anggota Workspace">
+    <Dialog onClose={onClose} open={open} title="Tugaskan kepada Anggota Ruang Kerja">
       <form className={styles.createForm} onSubmit={submit}>
         <FormField label="Anggota Tujuan" required>
-          <select disabled={loading} onChange={(event) => setActorId(event.target.value)} required value={actorId}>
-            <option value="">{loading ? "Memuat anggota…" : "Pilih anggota"}</option>
-            {members.map((member) => (
-              <option key={member.actor_id} value={member.actor_id}>
-                {member.display_name}{member.position_title ? ` — ${member.position_title}` : ""}
-              </option>
-            ))}
-          </select>
+          <EntitySelect label="Anggota" disabled={loading} required value={actorId} onChange={setActorId} emptyLabel={loading ? "Memuat anggota…" : "Pilih anggota"} options={members.map(member => ({value:member.actor_id,label:member.display_name + (member.position_title ? " — " + member.position_title : "")}))} />
         </FormField>
         {!loading && members.length === 0 ? <p>Belum ada anggota yang dapat menerima tugas.</p> : null}
         {error ? <p role="alert">{error}</p> : null}

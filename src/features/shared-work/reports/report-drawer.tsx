@@ -8,6 +8,7 @@ import { QuickViewDrawer } from "../shared/drawers/quick-view-drawer";
 import drawerStyles from "../shared/drawers/drawer-layout.module.css";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
 import { ReportFrequencyBadge, ReportStatusBadge } from "./report-status";
+import { readableValue } from "@/lib/presentation";
 import type { WorkReportDefinition, WorkReportResult } from "./report-types";
 import styles from "./reports.module.css";
 
@@ -101,7 +102,7 @@ export function ReportDrawer({
           </dd>
 
           <dt className={drawerStyles.definitionTerm}>Jenis Laporan</dt>
-          <dd className={drawerStyles.definitionDetail}>{report.reportType}</dd>
+          <dd className={drawerStyles.definitionDetail}>{readableValue(report.reportType)}</dd>
 
           <dt className={drawerStyles.definitionTerm}>Periode</dt>
           <dd className={drawerStyles.definitionDetail}>{periodDisplay}</dd>
@@ -112,7 +113,7 @@ export function ReportDrawer({
           <dt className={drawerStyles.definitionTerm}>Pemilik</dt>
           <dd className={drawerStyles.definitionDetail}>{report.ownerName ?? "—"}</dd>
 
-          <dt className={drawerStyles.definitionTerm}>Workspace</dt>
+          <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
           <dd className={drawerStyles.definitionDetail}>{report.workspaceName ?? "—"}</dd>
 
           <dt className={drawerStyles.definitionTerm}>Dibuat</dt>
@@ -179,7 +180,7 @@ export function ReportDrawer({
         <dt className={drawerStyles.definitionTerm}>Pemilik</dt>
         <dd className={drawerStyles.definitionDetail}>{definition?.ownerName ?? "—"}</dd>
 
-        <dt className={drawerStyles.definitionTerm}>Workspace</dt>
+        <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
         <dd className={drawerStyles.definitionDetail}>{definition?.workspaceName ?? "—"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Review Wajib</dt>

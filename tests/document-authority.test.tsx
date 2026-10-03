@@ -134,13 +134,14 @@ describe("authoritative document metadata", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "Versi" }), { target: { value: "1.0" } });
     fireEvent.change(screen.getByRole("combobox", { name: "Sumber Terverifikasi" }), { target: { value: "0" } });
     fireEvent.click(screen.getByRole("button", { name: "Simpan Versi" }));
-    await waitFor(() => expect(screen.getByText("Hash Integritas: " + version.content_hash)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getAllByText("1.0").length).toBeGreaterThan(0));
+    expect(screen.queryByText(version.content_hash)).not.toBeInTheDocument();
     expect(request).toHaveBeenCalledWith("/api/v1/documents/document_1/versions", {
       method: "POST", body: { version: "1.0", source_id: "source_1", source_version: "1" },
     });
   });
 
-  it("submits metadata only and does not offer a file upload", async () => {
+  it("supports metadata before linking a file without creating an upload", async () => {
     const request = vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue(document);
     await createDocument({ title: "Policy", category: "Governance", data_classification: "INTERNAL" });
     expect(request).toHaveBeenCalledWith("/api/v1/documents", {
@@ -150,10 +151,14 @@ describe("authoritative document metadata", () => {
     request.mockClear();
     const onCreated = vi.fn();
     render(<DocumentCreateDialog onClose={vi.fn()} onCreated={onCreated} open />);
+    expect(screen.getByLabelText("Berkas")).toHaveAttribute("accept",".txt,.docx");
+    fireEvent.click(screen.getByRole("button", {name:"Lanjut"}));
     fireEvent.change(screen.getByRole("textbox", { name: /Judul/ }), { target: { value: "Policy" } });
     fireEvent.change(screen.getByRole("textbox", { name: /Kategori/ }), { target: { value: "Governance" } });
     expect(screen.queryByRole("button", { name: /unggah|upload/i })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Simpan Metadata" }));
+    fireEvent.click(screen.getByRole("button", {name:"Lanjut"}));
+    fireEvent.click(screen.getByRole("button", {name:"Lanjut"}));
+    fireEvent.click(screen.getByRole("button", { name: "Simpan Dokumen" }));
     await waitFor(() => expect(onCreated).toHaveBeenCalledOnce());
     expect(request).toHaveBeenCalledWith("/api/v1/documents", {
       method: "POST",
@@ -166,11 +171,11 @@ describe("authoritative document metadata", () => {
     vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue([]);
     const denied = render(<DocumentsPage workspaceKey="property" />);
     await waitFor(() => expect(screen.getByRole("heading", { name: "Dokumen" })).toBeInTheDocument());
-    expect(screen.queryByRole("button", { name: "Tambah Metadata" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tambah Dokumen" })).not.toBeInTheDocument();
     denied.unmount();
     vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(session(["document.create"]));
     render(<DocumentsPage workspaceKey="property" />);
-    await waitFor(() => expect(screen.getByRole("button", { name: "Tambah Metadata" })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByRole("button", { name: "Tambah Dokumen" })).toBeInTheDocument());
   });
 
   it("uses dedicated lifecycle endpoints with exact paths", async () => {
@@ -196,7 +201,7 @@ describe("authoritative document metadata", () => {
     const reviewBtnDisabled = screen.getByRole("button", { name: "Ajukan Review" });
     expect(reviewBtnDisabled).toBeDisabled();
     expect(
-      screen.getByText("Minimal satu versi authoritative diperlukan sebelum dokumen dapat diajukan untuk review.")
+      screen.getByText("Tambahkan setidaknya satu versi dokumen sebelum mengajukannya untuk pemeriksaan.")
     ).toBeInTheDocument();
     draftNoVersion.unmount();
 

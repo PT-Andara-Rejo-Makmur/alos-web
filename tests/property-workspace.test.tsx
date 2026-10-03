@@ -136,7 +136,7 @@ describe("Property workspace", () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
     render(<PropertySummaryPage workspaceKey="proyek-utama" />);
     expect(await screen.findByRole("heading", { name: "Ringkasan Property" })).toBeInTheDocument();
-    expect(screen.getAllByText("—").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Belum tersedia").length).toBeGreaterThan(0);
     expect(screen.queryByText(/Rp\s*0|0%|Tepat Waktu|Available|Aman/)).not.toBeInTheDocument();
   });
 
@@ -151,12 +151,15 @@ describe("Property workspace", () => {
 
   it("summary exposes the complete source status strip and readiness drawer", async () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(propertySession());
-    vi.spyOn(api, "authenticatedApiRequest").mockResolvedValue({ source: { source: "property", status: "CONNECTED_EMPTY", authoritative: true, last_updated_at: null }, counts: {}, last_updated_at: null });
+    vi.spyOn(api, "authenticatedApiRequest").mockImplementation(async (path) => {
+      if (path === "/api/v1/property/overview") return { source: { source: "property", status: "CONNECTED_EMPTY", authoritative: true, last_updated_at: null }, counts: {}, last_updated_at: null } as never;
+      throw new api.ApiError(503, "Source failure", null);
+    });
     render(<PropertySummaryPage workspaceKey="proyek-utama" />);
     expect(await screen.findByRole("heading", { name: "Ringkasan Property" })).toBeInTheDocument();
-    expect(await screen.findByText(/Sumber: property/)).toBeInTheDocument();
-    expect(screen.getByText(/Pembaruan sumber:/)).toHaveTextContent("Tidak diketahui");
-    expect(screen.getByText("Progres Fisik Perusahaan").parentElement).toHaveTextContent("—");
+    await waitFor(() => expect(api.authenticatedApiRequest).toHaveBeenCalledWith("/api/v1/business/property/summary", expect.any(Object)));
+    expect(screen.getAllByText("Belum tersedia").length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Rp\s*0|0%|Tepat Waktu|Available|Aman/)).not.toBeInTheDocument();
 });
 
   it("exposes the final Property form field matrix without enabling mutations", async () => {

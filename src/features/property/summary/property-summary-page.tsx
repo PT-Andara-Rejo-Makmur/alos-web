@@ -8,5 +8,5 @@ const labels = Object.fromEntries(Object.values(propertyResources).map((resource
 const unavailable = ["Progres Fisik Perusahaan", "Deviasi Jadwal", "Kesiapan Teknis Unit"];
 
 export function PropertySummaryPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) {
-  return <PropertyLayout workspaceKey={workspaceKey}>{(session) => <DomainOverview domain="property" key={session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_id : "unknown"} title="Ringkasan Property" labels={labels} unavailable={unavailable} read={propertyApi.overview} />}</PropertyLayout>;
+  return <PropertyLayout workspaceKey={workspaceKey}>{(session) => <DomainOverview session={session} domain="property" key={session.principal && "actor" in session.principal ? session.principal.active_workspace?.workspace.workspace_id : "unknown"} title="Ringkasan Property" labels={labels} unavailable={unavailable} read={propertyApi.overview} />}</PropertyLayout>;
 }

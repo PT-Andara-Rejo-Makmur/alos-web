@@ -205,7 +205,7 @@ export function ApprovalsPage({ workspaceKey, embed }: ApprovalsPageProps) {
         render: (a) => a.requesterName ?? "—",
       },
       {
-        header: "Workspace",
+        header: "Ruang Kerja",
         key: "workspace",
         render: (a) => a.workspaceName ?? "—",
       },

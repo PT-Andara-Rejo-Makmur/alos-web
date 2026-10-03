@@ -25,8 +25,8 @@ export function ExecutiveSourceState({ status, emptyTitle = "Belum ada data." }:
   status: ExecutiveConnectionStatus | "loading";
   emptyTitle?: string;
 }>) {
-  if (status === "loading") return <LoadingState label="Memuat sumber authoritative" variant="section" />;
-  if (status === "CONNECTED_EMPTY") return <EmptyState title={emptyTitle} description="Sumber berhasil dibaca dan belum memiliki data dalam visibility ruang kerja aktif." />;
+  if (status === "loading") return <LoadingState label="Memuat informasi perusahaan…" variant="section" />;
+  if (status === "CONNECTED_EMPTY") return <EmptyState title={emptyTitle} description="Sumber berhasil dibaca dan belum memiliki data dalam ruang kerja Anda." />;
   if (status === "ERROR") return <EmptyState title="Gagal Memuat" description="Sumber belum dapat dibaca. Data dan jumlah belum dapat ditampilkan." />;
   if (status === "UNAVAILABLE") return <EmptyState title="Belum Terhubung" description="Kapabilitas sumber untuk proyeksi ini belum tersedia." />;
   return null;
@@ -60,7 +60,7 @@ export function ExecutiveSourceStatus({ overview, loading, error }: Readonly<{
         {sources.map((source) => <div className={styles.sourceDetail} key={source.domain}>
           <dt>{source.domain}</dt><dd><Status {...connectionLabel(source.status)} /></dd>
           <dt>Waktu data</dt><dd>{sourceDate(source.updated)}</dd>
-          <dt>Sumber authoritative</dt><dd>{source.authoritative === undefined ? "—" : source.authoritative ? "Ya" : "Belum tersedia"}</dd>
+          <dt>Catatan resmi</dt><dd>{source.authoritative === undefined ? "—" : source.authoritative ? "Ya" : "Belum tersedia"}</dd>
         </div>)}
       </dl>
     </Drawer>

@@ -14,7 +14,7 @@ import drawerStyles from "../shared/drawers/drawer-layout.module.css";
 import { hasWorkPermission } from "../shared/permissions/authority";
 import relationshipStyles from "../shared/relationship/relationship.module.css";
 import { DataClassificationBadge } from "../shared/status/work-status";
-import { approveDocument, retireDocument, reviewDocument } from "./document-model";
+import { approveDocument, fetchDocumentDetail, retireDocument, reviewDocument } from "./document-model";
 import { DocumentStatusBadge } from "./document-status";
 import { DocumentVersionDialog } from "./document-version-dialog";
 import { DocumentFileUpload } from "./document-upload";
@@ -205,7 +205,7 @@ export function DocumentDetailView({
         <dt className={drawerStyles.definitionTerm}>Pemilik</dt>
         <dd className={drawerStyles.definitionDetail}>{doc.ownerName ?? "—"}</dd>
 
-        <dt className={drawerStyles.definitionTerm}>Workspace</dt>
+        <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
         <dd className={drawerStyles.definitionDetail}>{doc.workspaceName ?? "—"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Proyek</dt>
@@ -249,7 +249,7 @@ export function DocumentDetailView({
 
           {doc.status === "DRAFT" && hasReviewPerm && !hasVersions ? (
             <Alert
-              message="Minimal satu versi authoritative diperlukan sebelum dokumen dapat diajukan untuk review."
+              message="Tambahkan setidaknya satu versi dokumen sebelum mengajukannya untuk pemeriksaan."
               title="Versi Diperlukan"
               variant="neutral"
             />
@@ -286,8 +286,8 @@ export function DocumentDetailView({
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <Alert
-            message="Versi dokumen bersifat immutable (tidak dapat diubah setelah terbit). Revisi dokumen dilakukan melalui pembuatan versi baru."
-            title="Riwayat Versi Dokumen (Immutable)"
+            message="Versi yang telah tersimpan tidak dapat diubah. Tambahkan versi baru untuk merevisi dokumen."
+            title="Riwayat Versi Dokumen"
             variant="neutral"
           />
 
@@ -306,17 +306,16 @@ export function DocumentDetailView({
                   <div className={styles.versionHeader}>
                     <span className={styles.versionBadge}>{v.version}</span>
                     <span style={{ fontSize: "12px", color: "var(--alos-text-secondary)" }}>
-                      {formatDate(v.createdAt)} oleh {v.creatorName ?? v.createdBy}
+                      {formatDate(v.createdAt)}{v.creatorName ? ` oleh ${v.creatorName}` : ""}
                     </span>
                   </div>
-                  <p>{v.sourceTitle ?? v.sourceId} · sumber versi {v.sourceVersion}</p>
-                  <div className={styles.versionHash}>Hash Integritas: {v.contentHash}</div>
+                  <p>{v.sourceTitle ?? "Dokumen sumber"} · versi {v.sourceVersion}</p>
                 </div>
               ))
             ) : <p>Belum ada versi dokumen yang tercatat.</p>}
           </div>
           {doc.status === "DRAFT" && hasVersionPerm ? (
-            <div><DocumentFileUpload documentId={doc.id} /><Button onClick={() => setVersionOpen(true)} variant="secondary">Tambah Versi dari Sumber</Button></div>
+            <div><DocumentFileUpload documentId={doc.id} onReady={() => { void fetchDocumentDetail(doc.id).then(result => { if (result.connected && result.data) setDoc(result.data); else setActionError(result.message ?? "Versi dokumen belum dapat dimuat. Buka kembali dokumen untuk mencoba lagi."); }); }} /><Button onClick={() => setVersionOpen(true)} variant="secondary">Tambah Versi dari Sumber</Button></div>
           ) : null}
         </div>
       ),
@@ -363,7 +362,7 @@ export function DocumentDetailView({
         </div>
       }
       activeTab={activeTab}
-      description="Rincian metadata dokumen kerja, klasifikasi keamanan, dan versi dokumen."
+      description="Informasi, versi, dan pemeriksaan dokumen kerja."
       eyebrow="DOKUMEN"
       headerMetadata={headerMetadata}
       onTabChange={setActiveTab}

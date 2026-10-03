@@ -4,7 +4,7 @@ export const propertyResources = {
     property_units: defineResource({
         "key": "property_units", "domain": "property", "title": "Unit", "identifier": "property_unit_id", "createFields": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": false, "nullable": true, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": false, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -41,7 +41,7 @@ export const propertyResources = {
             }
         ], "columns": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": true, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": true, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -64,17 +64,17 @@ export const propertyResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, propertyApi.property_units),
     project_milestones: defineResource({
         "key": "project_milestones", "domain": "property", "title": "Milestone", "identifier": "milestone_id", "createFields": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -99,7 +99,7 @@ export const propertyResources = {
             }
         ], "columns": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -116,17 +116,17 @@ export const propertyResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, propertyApi.project_milestones),
     construction_packages: defineResource({
         "key": "construction_packages", "domain": "property", "title": "Paket Konstruksi", "identifier": "construction_package_id", "createFields": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -151,7 +151,7 @@ export const propertyResources = {
             }
         ], "columns": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -168,10 +168,10 @@ export const propertyResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, propertyApi.construction_packages),
@@ -210,17 +210,17 @@ export const propertyResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": true
     }, propertyApi.construction_updates),
     quality_inspections: defineResource({
         "key": "quality_inspections", "domain": "property", "title": "Inspeksi Mutu", "identifier": "inspection_id", "createFields": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": false, "nullable": true, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": false, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -231,14 +231,14 @@ export const propertyResources = {
                 "name": "inspection_date", "label": "Tanggal Inspeksi", "required": true, "nullable": false, "type": "date"
             },
             {
-                "name": "result", "label": "Hasil Inspeksi", "required": true, "nullable": false, "type": "text", "options": ["PASS", "FAIL", "NEEDS_REVIEW"]
+                "name": "result", "label": "Hasil", "required": true, "nullable": false, "type": "text", "options": ["PASS", "FAIL", "NEEDS_REVIEW"]
             },
             {
                 "name": "notes", "label": "Catatan", "required": false, "nullable": true, "type": "text"
             }
         ], "updateFields": [], "columns": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": true, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": true, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -252,16 +252,16 @@ export const propertyResources = {
                 "name": "inspector_actor_id", "label": "Inspektur", "required": true, "nullable": true, "type": "text"
             },
             {
-                "name": "result", "label": "Hasil Inspeksi", "required": true, "nullable": false, "type": "text", "options": ["PASS", "FAIL", "NEEDS_REVIEW"]
+                "name": "result", "label": "Hasil", "required": true, "nullable": false, "type": "text", "options": ["PASS", "FAIL", "NEEDS_REVIEW"]
             },
             {
                 "name": "notes", "label": "Catatan", "required": true, "nullable": true, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": true
     }, propertyApi.quality_inspections),
@@ -273,7 +273,7 @@ export const propertyResources = {
                 }
             },
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": false, "nullable": true, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": false, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -300,7 +300,7 @@ export const propertyResources = {
                 }
             },
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": true, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": true, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -317,17 +317,17 @@ export const propertyResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, propertyApi.quality_ncrs),
     safety_incidents: defineResource({
         "key": "safety_incidents", "domain": "property", "title": "Insiden Keselamatan", "identifier": "safety_incident_id", "createFields": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": false, "nullable": true, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": false, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -349,7 +349,7 @@ export const propertyResources = {
             }
         ], "columns": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": true, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": true, "nullable": true, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -366,22 +366,22 @@ export const propertyResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, propertyApi.safety_incidents),
     change_orders: defineResource({
   "key": "change_orders",
   "domain": "property",
-  "title": "Change Order",
+  "title": "Perubahan Pekerjaan",
   "identifier": "change_order_id",
   "createFields": [
     {
       "name": "project_id",
-      "label": "Proyek Shared Work",
+      "label": "Proyek",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -518,7 +518,7 @@ export const propertyResources = {
   "columns": [
     {
       "name": "project_id",
-      "label": "Proyek Shared Work",
+      "label": "Proyek",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -559,14 +559,14 @@ export const propertyResources = {
     },
     {
       "name": "created_at",
-      "label": "Dicatat Pada",
+      "label": "Dicatat",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "updated_at",
-      "label": "Pembaruan Sumber",
+      "label": "Diperbarui",
       "required": true,
       "nullable": false,
       "type": "text"
@@ -616,13 +616,13 @@ export const propertyResources = {
     payment_certificates: defineResource({
   "key": "payment_certificates",
   "domain": "property",
-  "title": "Payment Certificate",
+  "title": "Sertifikat Pembayaran",
   "identifier": "payment_certificate_id",
   "createFields": [
       {"name": "document_id", "label": "Dokumen Pendukung", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/documents", "identifier": "document_id", "label": "title"}},
     {
       "name": "project_id",
-      "label": "Proyek Shared Work",
+      "label": "Proyek",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -700,7 +700,7 @@ export const propertyResources = {
       {"name": "document_id", "label": "Dokumen Pendukung", "required": false, "nullable": true, "type": "text", "relation": {"path": "/api/v1/documents", "identifier": "document_id", "label": "title"}},
     {
       "name": "project_id",
-      "label": "Proyek Shared Work",
+      "label": "Proyek",
       "required": true,
       "nullable": false,
       "type": "text",
@@ -741,14 +741,14 @@ export const propertyResources = {
     },
     {
       "name": "created_at",
-      "label": "Dicatat Pada",
+      "label": "Dicatat",
       "required": true,
       "nullable": false,
       "type": "text"
     },
     {
       "name": "updated_at",
-      "label": "Pembaruan Sumber",
+      "label": "Diperbarui",
       "required": true,
       "nullable": false,
       "type": "text"
@@ -771,7 +771,7 @@ export const propertyResources = {
     project_handovers: defineResource({
         "key": "project_handovers", "domain": "property", "title": "Serah Terima", "identifier": "handover_id", "createFields": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -796,7 +796,7 @@ export const propertyResources = {
             }
         ], "columns": [
             {
-                "name": "project_id", "label": "Proyek Shared Work", "required": true, "nullable": false, "type": "text", "relation": {
+                "name": "project_id", "label": "Proyek", "required": true, "nullable": false, "type": "text", "relation": {
                     "path": "/api/v1/projects", "identifier": "project_id", "label": "name", "array": true
                 }
             },
@@ -813,10 +813,10 @@ export const propertyResources = {
                 "name": "notes", "label": "Catatan", "required": true, "nullable": true, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, propertyApi.project_handovers),
@@ -867,10 +867,10 @@ export const propertyResources = {
                 "name": "status", "label": "Status", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "created_at", "label": "Dicatat Pada", "required": true, "nullable": false, "type": "text"
+                "name": "created_at", "label": "Dicatat", "required": true, "nullable": false, "type": "text"
             },
             {
-                "name": "updated_at", "label": "Pembaruan Sumber", "required": true, "nullable": false, "type": "text"
+                "name": "updated_at", "label": "Diperbarui", "required": true, "nullable": false, "type": "text"
             }
         ], "immutable": false
     }, propertyApi.land_pipeline),

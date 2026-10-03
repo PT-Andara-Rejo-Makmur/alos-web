@@ -6,5 +6,5 @@ import { PropertyLayout } from "../property-layout";
 const resources = [propertyResources.property_units, propertyResources.project_handovers];
 
 export function PropertyUnitsPage({ workspaceKey }: Readonly<{ workspaceKey?: string }>) {
-  return <PropertyLayout workspaceKey={workspaceKey}>{(session) => <BusinessDataPage session={session} resources={resources} title="Unit & Kesiapan" description="Data teknis tercatat; change order dan payment certificate tidak menyebabkan pembayaran atau approval material." />}</PropertyLayout>;
+  return <PropertyLayout workspaceKey={workspaceKey}>{(session) => <BusinessDataPage session={session} resources={resources} title="Unit & Kesiapan" description="Pantau pekerjaan teknis, dokumen, dan pemeriksaan proyek." />}</PropertyLayout>;
 }

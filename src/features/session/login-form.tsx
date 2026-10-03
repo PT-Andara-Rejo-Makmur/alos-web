@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
-import { apiMessage, sessionApiRequest } from "@/lib/api";
+import { ApiRequestError, apiMessage, sessionApiRequest } from "@/lib/api";
 import type { AuthenticatedPrincipalProjection } from "@/lib/contracts";
 import styles from "./login-page.module.css";
 
@@ -43,7 +43,7 @@ export function LoginForm({ activated = false }: { activated?: boolean }) {
       router.replace(POST_LOGIN_PATH);
       router.refresh();
     } catch (caught) {
-      setError(apiMessage(caught));
+      setError(caught instanceof ApiRequestError && caught.status === 401 ? "Email atau kata sandi tidak sesuai. Periksa kembali dan coba masuk." : apiMessage(caught));
     } finally {
       setSubmitting(false);
     }
@@ -135,15 +135,14 @@ export function LoginForm({ activated = false }: { activated?: boolean }) {
       {/* Security Helper */}
       <div className={styles.securityHelper}>
         <span className={styles.securityDot} aria-hidden="true" />
-        <span>Sesi dikelola ALOS Backend &middot; Cookie HttpOnly</span>
+        <span>Gunakan akun perusahaan untuk masuk dengan aman.</span>
       </div>
 
       {/* Role-based Access Box */}
       <div className={styles.roleBox}>
-        <h3 className={styles.roleBoxTitle}>Akses berbasis peran</h3>
+        <h3 className={styles.roleBoxTitle}>Ruang kerja sesuai tanggung jawab</h3>
         <p className={styles.roleBoxCopy}>
-          Setelah masuk, ALOS menampilkan workspace dan data sesuai role, scope divisi, proyek, serta
-          permission yang diberikan kepada akun Anda.
+          Setelah masuk, pilih ruang kerja Anda untuk melihat pekerjaan, informasi, dan tindakan yang menjadi tanggung jawab Anda.
         </p>
       </div>
 

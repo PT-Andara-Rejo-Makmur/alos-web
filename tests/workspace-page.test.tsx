@@ -62,7 +62,7 @@ describe("WorkspacePage and ALOS App Shell", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("complementary", { name: "Navigasi utama" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "ALOS", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Pilih Ruang Kerja", level: 1 })).toBeInTheDocument();
     });
 
     expect(screen.getByRole("link", { name: "Beranda" })).toHaveAttribute("aria-current", "page");
@@ -166,8 +166,8 @@ describe("WorkspacePage and ALOS App Shell", () => {
       </AppShell>,
     );
 
-    await waitFor(() => expect(screen.getByRole("button", { name: "Pilih workspace" })).toBeInTheDocument());
-    fireEvent.click(screen.getByRole("button", { name: "Pilih workspace" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Pilih ruang kerja" })).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: "Pilih ruang kerja" }));
     expect(screen.getByRole("menuitemradio", { name: /Finance/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("menuitemradio", { name: /Finance/ }));
 
@@ -354,7 +354,7 @@ describe("WorkspacePage and ALOS App Shell", () => {
     render(<WorkspacePage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Koneksi sedang bermasalah. Silakan coba kembali.")).toBeInTheDocument();
+      expect(screen.getByText("Periksa koneksi lalu coba kembali.")).toBeInTheDocument();
     });
     expect(screen.queryByText("Failed to fetch")).not.toBeInTheDocument();
   });

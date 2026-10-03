@@ -1,5 +1,5 @@
 import { emptyWorkFixture, executiveOverviewFixture } from "./executive-overview-fixture";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ExecutiveDashboardPage } from "@/features/executive";
@@ -128,6 +128,7 @@ function authenticatedSession(principal = executivePrincipal) {
 describe("Executive Workspace", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(api, "authenticatedApiRequest").mockRejectedValue(new api.ApiError(503,"Unavailable",null));
     vi.spyOn(strategyApi, "getExecutiveOverview").mockResolvedValue(executiveOverviewFixture({ plans: [activePlan], targets: [] }));
     vi.spyOn(strategyApi, "listAssumptions").mockResolvedValue([]);
     vi.spyOn(strategyApi, "getAuthority").mockResolvedValue({ authorized_actions: [] });
@@ -163,7 +164,8 @@ describe("Executive Workspace", () => {
     expect(screen.queryByText("Sasaran Divisi")).not.toBeInTheDocument();
     expect(screen.getAllByText("—").length).toBeGreaterThan(1);
     expect(screen.queryByText("0")).not.toBeInTheDocument();
-    expect(screen.getAllByText("Belum Terhubung").length).toBeGreaterThanOrEqual(7);
+    expect(screen.getByText("Perlu Keputusan", {selector:"div"}).closest("article")).toHaveTextContent("Belum tersedia");
+    expect(screen.queryByText(/owner_role_ref|workspace_exec|corr_plan/)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Setujui|Tolak|Tahan|Kembalikan/ })).not.toBeInTheDocument();
   }, 15000);
 
@@ -207,7 +209,7 @@ describe("Executive Workspace", () => {
 
     render(<ExecutiveDashboardPage />);
 
-    expect(await screen.findByText("Data belum dapat dimuat.")).toBeInTheDocument();
+    expect(await screen.findByText("Data Executive belum dapat dimuat. Silakan coba kembali beberapa saat lagi.")).toBeInTheDocument();
     expect(screen.getByText("Data Executive belum dapat dimuat. Silakan coba kembali beberapa saat lagi.")).toBeInTheDocument();
     expect(screen.queryByText("Failed to fetch")).not.toBeInTheDocument();
     expect(screen.queryByText("Request failed")).not.toBeInTheDocument();
@@ -227,7 +229,7 @@ describe("Executive Workspace", () => {
     render(<ExecutiveDashboardPage />);
 
     expect(await screen.findByRole("heading", { name: "Pusat Kendali Eksekutif" })).toBeInTheDocument();
-    expect(screen.getAllByRole("status", { name: "Memuat" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText(/Memuat sumber|Memuat informasi|Memuat pengajuan/).length).toBeGreaterThan(0);
     expect(screen.queryByText("Gagal Memuat")).not.toBeInTheDocument();
   });
 
@@ -255,14 +257,14 @@ describe("Executive Workspace", () => {
     const targets = vi.spyOn(strategyApi, "listTargets");
     render(<ExecutiveDashboardPage />);
     expect(await screen.findByText("Temuan faktual")).toBeInTheDocument();
-    expect(within(screen.getByText("Keputusan Menunggu").closest("article")!).getByText("17")).toBeInTheDocument();
-    expect(within(screen.getByText("Temuan Aktif").closest("article")!).getByText("9")).toBeInTheDocument();
+    expect(screen.getByText(/17 persetujuan menunggu/)).toBeInTheDocument();
+    expect(screen.getByText("Perlu Keputusan", {selector:"div"}).closest("article")).toHaveTextContent("Belum tersedia");
+    expect(screen.getByText(/9 temuan aktif/)).toBeInTheDocument();
+    const supporting=screen.getByText("Pekerjaan Pendukung",{selector:"summary"}).closest("details")!;
+    expect(supporting).not.toHaveAttribute("open");
+    fireEvent.click(screen.getByText("Pekerjaan Pendukung",{selector:"summary"}));
     for (const label of ["Menunggu Keputusan", "Disetujui", "Dikembalikan", "Ditolak", "Ditahan", "Rendah"]) expect(screen.getByText(label)).toBeInTheDocument();
-    for (const label of ["Pendapatan", "Penjualan / Closing", "Kas & Likuiditas", "Progres Proyek"]) {
-      const card = within(screen.getByText(label).closest("article")!);
-      expect(card.getByText("—")).toBeInTheDocument();
-      expect(card.getByText("Belum Terhubung")).toBeInTheDocument();
-    }
+    expect(screen.queryByText("Kas & Likuiditas")).not.toBeInTheDocument();
     expect(plans).not.toHaveBeenCalled();
     expect(targets).not.toHaveBeenCalled();
     expect(screen.queryByRole("button", { name: "Segarkan Data" })).not.toBeInTheDocument();
@@ -274,10 +276,10 @@ describe("Executive Workspace", () => {
     vi.spyOn(strategyApi, "getExecutiveOverview").mockResolvedValueOnce(executiveOverviewFixture({ work: emptyWorkFixture() }));
     render(<ExecutiveDashboardPage />);
     expect(await screen.findByText("Belum ada target perusahaan.")).toBeInTheDocument();
-    expect(screen.getAllByText("Terhubung · Belum ada data").length).toBeGreaterThan(0);
-    expect(within(screen.getByText("Keputusan Menunggu").closest("article")!).getByText("0")).toBeInTheDocument();
-    expect(within(screen.getByText("Pendapatan").closest("article")!).queryByText("0")).not.toBeInTheDocument();
-    expect(screen.getByText("Waktu sumber · —")).toBeInTheDocument();
+    expect(screen.getAllByText("Belum ada data.").length).toBeGreaterThan(0);
+    expect(screen.getByText(/0 persetujuan menunggu/)).toBeInTheDocument();
+    expect(screen.getByText("Perlu Keputusan", {selector:"div"}).closest("article")).toHaveTextContent("Belum tersedia");
+    expect(screen.getByText("Diperbarui —")).toBeInTheDocument();
   });
 
   it.each(["ERROR", "UNAVAILABLE"] as const)("keeps %s Shared Work unknown while Strategy succeeds", async (status) => {
@@ -286,10 +288,10 @@ describe("Executive Workspace", () => {
     vi.spyOn(strategyApi, "getExecutiveOverview").mockResolvedValueOnce({ ...overview, shared_work: { ...overview.shared_work, status }, shared_work_data: null });
     render(<ExecutiveDashboardPage />);
     expect(await screen.findByText("Target Authoritative")).toBeInTheDocument();
-    const card = within(screen.getByText("Keputusan Menunggu").closest("article")!);
-    expect(card.getByText("—")).toBeInTheDocument();
-    expect(card.queryByText("0")).not.toBeInTheDocument();
-    expect(card.getByText(status === "ERROR" ? "Gagal Memuat" : "Belum Terhubung")).toBeInTheDocument();
+    const card = screen.getByText("Perlu Keputusan", {selector:"div"}).closest("article")!;
+    expect(card).toHaveTextContent("Belum tersedia");
+    expect(within(card).queryByText("0")).not.toBeInTheDocument();
+    expect(screen.getAllByText(status === "ERROR" ? "Gagal Memuat" : "Belum Terhubung").length).toBeGreaterThan(0);
   });
 
   it("keeps connected Shared Work when Strategy fails, without rendering old targets", async () => {
@@ -299,6 +301,6 @@ describe("Executive Workspace", () => {
     render(<ExecutiveDashboardPage />);
     expect((await screen.findAllByText("Gagal Memuat")).length).toBeGreaterThan(0);
     expect(screen.queryByText("Belum ada target perusahaan.")).not.toBeInTheDocument();
-    expect(within(screen.getByText("Keputusan Menunggu").closest("article")!).getByText("0")).toBeInTheDocument();
+    expect(screen.getByText(/0 persetujuan menunggu/)).toBeInTheDocument();
   });
 });

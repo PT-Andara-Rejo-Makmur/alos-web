@@ -110,7 +110,7 @@ export function DocumentDrawer({
         <dt className={drawerStyles.definitionTerm}>Pemilik</dt>
         <dd className={drawerStyles.definitionDetail}>{doc.ownerName ?? "—"}</dd>
 
-        <dt className={drawerStyles.definitionTerm}>Workspace</dt>
+        <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
         <dd className={drawerStyles.definitionDetail}>{doc.workspaceName ?? "—"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Proyek</dt>

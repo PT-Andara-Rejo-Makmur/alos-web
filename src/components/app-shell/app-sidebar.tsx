@@ -106,7 +106,7 @@ export function AppSidebar({
                 <Link
                   aria-current={active ? "page" : undefined}
                   aria-label={item.label}
-                  className={[styles.navigationItem, active ? styles.navigationItemActive : ""].filter(Boolean).join(" ")}
+                  className={[styles.navigationItem, active ? styles.navigationItemActive : "", item.href.endsWith("/processes") ? styles.actionInbox : ""].filter(Boolean).join(" ")}
                   href={item.href}
                   key={item.href}
                   onClick={onNavigate}

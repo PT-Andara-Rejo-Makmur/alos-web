@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui";
+import { activityLabel } from "@/lib/presentation";
 import type { SessionProjection } from "@/features/session";
 import { apiMessage, authenticatedApiRequest } from "@/lib/api";
 import type {
@@ -83,8 +84,8 @@ export function SharedWorkEvidencePanel(props: Props) {
     {error ? <p role="alert">{error}</p> : null}
     <EvidenceList items={items.map((item) => ({
       id: item.evidence_id,
-      title: item.source_title ?? item.source_id,
-      source: item.source_id,
+      title: item.source_title ?? "Bukti pendukung",
+      source: "Dokumen perusahaan",
       verificationStatus: item.validation_status === "VERIFIED" ? "VERIFIED" : "UNVERIFIED",
       occurredAt: item.linked_at,
       version: item.source_version ?? null,
@@ -97,7 +98,7 @@ export function SharedWorkEvidencePanel(props: Props) {
         <option value="">Pilih bukti</option>
         {candidates.filter((item) => !items.some((linked) => linked.evidence_id === item.evidence_id))
           .map((item) => <option key={item.evidence_id} value={item.evidence_id}>
-            {item.source_title ?? item.source_id} · {item.source_version ?? ""}
+            {item.source_title ?? "Bukti pendukung"} · {item.source_version ?? ""}
           </option>)}
       </select>
       <Button disabled={!selected || busy} type="submit">Hubungkan Bukti</Button>
@@ -122,7 +123,7 @@ export function SharedWorkActivityPanel(props: Props) {
   if (error) return <p role="alert">{error}</p>;
   return <ActivityTimeline items={items.map((item) => ({
     id: String(item.audit_id), actorName: item.actor_name,
-    actionText: item.event_type.replaceAll("_", " ").replaceAll(".", " · "),
+    actionText: activityLabel(item.event_type),
     occurredAt: item.occurred_at,
   }))} />;
 }

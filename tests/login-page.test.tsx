@@ -48,14 +48,8 @@ describe("LoginPage Component", () => {
     // Submit button
     expect(screen.getByRole("button", { name: /Masuk ke ALOS/i })).toBeInTheDocument();
 
-    // Security & Role boxes
-    expect(
-      screen.getByText(/Sesi dikelola ALOS Backend · Cookie HttpOnly/i)
-    ).toBeInTheDocument();
-    expect(screen.getByText("Akses berbasis peran")).toBeInTheDocument();
-    expect(
-      screen.getByText(/Setelah masuk, ALOS menampilkan workspace dan data sesuai role/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Masuk menggunakan akun PT Andara Rejo Makmur/)).toBeInTheDocument();
+    expect(screen.queryByText(/Cookie HttpOnly|ALOS Backend/)).not.toBeInTheDocument();
 
     // Back to home link
     expect(screen.getAllByText("Kembali ke beranda").length).toBeGreaterThanOrEqual(1);

@@ -109,7 +109,7 @@ export function TaskDrawer({
           {task.projectName ?? (task.projectId ? "Proyek terkait" : "—")}
         </dd>
 
-        <dt className={drawerStyles.definitionTerm}>Workspace</dt>
+        <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
         <dd className={drawerStyles.definitionDetail}>{task.workspaceName ?? "—"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Pembuat</dt>

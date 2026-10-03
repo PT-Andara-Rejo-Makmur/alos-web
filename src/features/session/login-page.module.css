@@ -415,7 +415,7 @@
 .footerMeta {
   font-size: 0.68rem;
   letter-spacing: 0.1em;
-  color: rgba(168, 173, 181, 0.5);
+  color: #a8adb5;
   margin: 0;
 }
 
@@ -432,6 +432,7 @@
 /* Mobile Banner */
 .mobileBanner {
   display: none;
+  position: relative;
 }
 
 /* ==========================================================================

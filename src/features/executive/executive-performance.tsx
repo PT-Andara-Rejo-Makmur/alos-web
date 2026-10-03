@@ -36,6 +36,7 @@ import {
   verificationLabel,
 } from "./executive-model";
 import styles from "./executive.module.css";
+import { roleLabel } from "@/lib/presentation";
 
 export function ExecutivePerformancePage({ workspaceKey }: Readonly<{ workspaceKey?: string }> = {}) {
   return (
@@ -302,7 +303,7 @@ function TargetPerformanceDetail({
           <p style={{ margin: "var(--alos-space-1) 0 0", fontSize: "13px" }}>
             Lingkup: {scopeLabel(target.scope)}
             <br />
-            Penanggung Jawab: {target.owner_role_ref || "—"}
+            Penanggung Jawab: {roleLabel(target.owner_role_ref)}
           </p>
         </div>
 
@@ -338,7 +339,7 @@ function TargetPerformanceDetail({
             {
               header: "Dasar Angka",
               key: "mode",
-              render: (obs) => (obs.source_mode === "SOURCE_LINKED" ? "Tertaut Sumber" : "Manual Berbukti"),
+              render: (obs) => (obs.source_mode === "SOURCE_LINKED" ? "Diperbarui dari sumber perusahaan" : "Diisi dengan bukti"),
             },
             {
               header: "Tanggal Pengamatan",

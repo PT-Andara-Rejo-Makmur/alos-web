@@ -71,8 +71,8 @@ describe("HR / GA workspace", () => {
     render(<SummaryRoute {...params({ workspaceKey: "sdm-utama" })} />);
     expect(await screen.findByRole("heading", { name: "HR & GA" })).toBeInTheDocument();
     await waitFor(() => expect(api.authenticatedApiRequest).toHaveBeenCalledWith("/api/v1/hr/overview", expect.any(Object)));
-    expect(screen.getByText("Turnover")).toBeInTheDocument();
-    expect(screen.getAllByText("—").length).toBeGreaterThan(0);
+    expect(await screen.findByText("Turnover")).toBeInTheDocument();
+    expect(screen.getAllByText("Belum tersedia").length).toBeGreaterThan(0);
   });
 
   it("does not render HR content for a workspace key mismatch", async () => {
@@ -116,7 +116,7 @@ describe("HR / GA workspace", () => {
     vi.spyOn(api, "sessionApiRequest").mockResolvedValue(hrSession());
     render(<ComplianceRoute {...params({ workspaceKey: "sdm-utama" })} />);
     expect(await screen.findByRole("tab", { name: "Kontrak Kerja" })).toBeInTheDocument();
-    expect(screen.getByText("Signing Kontrak Kerja Final")).toBeInTheDocument();
+    expect(screen.getByText("Penandatanganan Digital Kontrak Kerja")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Ambil/Telaah dari Dokumen" })).not.toBeInTheDocument();
     expect(hrResources.employment_contracts.createFields.find((field) => field.name === "document_id")?.relation?.path).toBe("/api/v1/documents");
   });

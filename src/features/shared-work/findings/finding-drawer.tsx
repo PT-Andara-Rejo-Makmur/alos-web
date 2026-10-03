@@ -111,7 +111,7 @@ export function FindingDrawer({
         <dt className={drawerStyles.definitionTerm}>Pemilik / PIC</dt>
         <dd className={drawerStyles.definitionDetail}>{finding.ownerName ?? "—"}</dd>
 
-        <dt className={drawerStyles.definitionTerm}>Workspace</dt>
+        <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
         <dd className={drawerStyles.definitionDetail}>{finding.workspaceName ?? "—"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Ditemukan</dt>
