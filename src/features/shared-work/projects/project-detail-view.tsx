@@ -61,6 +61,8 @@ export function ProjectDetailView({
   const [relations, setRelations] = useState<readonly SharedWorkRelationProjection[]>([]);
   const [relationsLoading, setRelationsLoading] = useState(true);
   const [relationsError, setRelationsError] = useState<string | null>(null);
+  const activeWorkspace = session?.principal && "actor" in session.principal
+    ? session.principal.active_workspace?.workspace : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -132,7 +134,7 @@ export function ProjectDetailView({
         <dt className={drawerStyles.definitionTerm}>Prioritas</dt>
         <dd className={drawerStyles.definitionDetail}>{{ LOW: "Rendah", NORMAL: "Normal", HIGH: "Tinggi", CRITICAL: "Mendesak" }[project.priority ?? "NORMAL"]}</dd>
         <dt className={drawerStyles.definitionTerm}>Penanggung Jawab</dt>
-        <dd className={drawerStyles.definitionDetail}>{project.ownerName ?? "—"}</dd>
+        <dd className={drawerStyles.definitionDetail}>{project.ownerName?.trim() || "Belum ditentukan"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Ruang Kerja</dt>
         <dd className={drawerStyles.definitionDetail}>{project.workspaceName ?? "—"}</dd>
@@ -259,7 +261,10 @@ export function ProjectDetailView({
       tabs={tabs}
       title={project.name}
     />
-    {editOpen ? <ProjectEditDialog onClose={() => setEditOpen(false)} onSaved={setProject} open project={project} /> : null}
+    {editOpen ? <ProjectEditDialog onClose={() => setEditOpen(false)} onSaved={setProject} open project={project}
+      key={`${project.id}:${activeWorkspace?.workspace_id ?? ""}`}
+      workspaceId={activeWorkspace?.workspace_id ?? null}
+    /> : null}
     <Dialog onClose={() => setArchiveOpen(false)} open={archiveOpen} title="Arsipkan Proyek">
       <p>Proyek yang diarsipkan tidak dapat diubah lagi.</p>
       {actionError ? <p role="alert">{actionError}</p> : null}

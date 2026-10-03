@@ -126,6 +126,8 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
   const effectiveWorkspaceKey = authoritativeWorkspaceKey;
 
   const canCreate = useMemo(() => canCreateProject(session), [session]);
+  const activeWorkspace = session?.principal && "actor" in session.principal
+    ? session.principal.active_workspace?.workspace : null;
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
@@ -163,7 +165,7 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
       {
         header: "Penanggung Jawab",
         key: "owner",
-        render: (p) => p.ownerName ?? "—",
+        render: (p) => p.ownerName?.trim() || "Belum ditentukan",
       },
       {
         header: "Ruang Kerja",
@@ -317,9 +319,12 @@ export function ProjectsPage({ workspaceKey, embed }: ProjectsPageProps) {
           workspaceKey={effectiveWorkspaceKey}
         />
         <ProjectCreateDialog
+          key={activeWorkspace?.workspace_id}
           onClose={() => setCreateOpen(false)}
           onCreated={(created) => setProjects((current) => [created, ...current])}
           open={createOpen}
+          workspaceId={activeWorkspace?.workspace_id ?? null}
+          workspaceName={activeWorkspace?.workspace_name ?? null}
         />
       </div>
   );

@@ -1,4 +1,4 @@
-import { authenticatedApiRequest, withQuery } from "@/lib/api";
+import { ApiRequestError, apiMessage, authenticatedApiRequest, withQuery } from "@/lib/api";
 import type { SharedWorkProjectCreateRequest, SharedWorkProjectProjection, SharedWorkProjectUpdateRequest } from "@/lib/contracts";
 
 import { sourceStateCopy, sourceStateFor } from "../shared/source-state";
@@ -8,6 +8,15 @@ export interface FetchProjectsOptions {
   readonly search?: string;
   readonly signal?: AbortSignal;
   readonly status?: string;
+}
+
+export function projectMutationMessage(error: unknown, ownerSelected: boolean): string {
+  // The Backend uses the same non-disclosing 404 for an inaccessible Project
+  // and a rejected owner. Preserve that ambiguity in the user-facing message.
+  if (ownerSelected && error instanceof ApiRequestError && error.status === 404 && error.code === "WORK_RECORD_NOT_FOUND") {
+    return "Penanggung jawab yang dipilih tidak memiliki akses ke ruang kerja proyek ini, atau proyek sudah tidak tersedia. Muat ulang data lalu coba lagi.";
+  }
+  return apiMessage(error);
 }
 
 export function projectFromProjection(project: SharedWorkProjectProjection): WorkProject {

@@ -253,8 +253,7 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
       });
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession(principal));
       const request = vi.spyOn(api, "authenticatedApiRequest")
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce(canonicalProject);
+        .mockImplementation(async (_path, options) => (options?.method === "POST" ? canonicalProject : []) as never);
 
       render(<ProjectsPage workspaceKey="property" />);
 
@@ -319,9 +318,11 @@ describe("Shared Work / Pekerjaan Foundation & Proyek Module", () => {
         },
       }));
       const request = vi.spyOn(api, "authenticatedApiRequest")
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce({ ...canonicalProject, name: "Proyek direvisi" })
-        .mockResolvedValueOnce({ ...canonicalProject, name: "Proyek direvisi", status: "ARCHIVED" });
+        .mockImplementation(async (_path, options) => {
+          if (options?.method === "PATCH") return { ...canonicalProject, name: "Proyek direvisi" } as never;
+          if (options?.method === "POST") return { ...canonicalProject, name: "Proyek direvisi", status: "ARCHIVED" } as never;
+          return [] as never;
+        });
       render(<ProjectDetailView project={sampleProject} session={session} workspaceKey="property" />);
 
       fireEvent.click(screen.getByRole("button", { name: "Ubah Proyek" }));

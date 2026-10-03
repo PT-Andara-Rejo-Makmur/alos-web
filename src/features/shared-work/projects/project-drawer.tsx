@@ -80,8 +80,8 @@ export function ProjectDrawer({
       }
     >
       <dl className={drawerStyles.definitionList}>
-        <dt className={drawerStyles.definitionTerm}>Pemilik</dt>
-        <dd className={drawerStyles.definitionDetail}>{project.ownerName ?? "—"}</dd>
+        <dt className={drawerStyles.definitionTerm}>Penanggung Jawab</dt>
+        <dd className={drawerStyles.definitionDetail}>{project.ownerName?.trim() || "Belum ditentukan"}</dd>
 
         <dt className={drawerStyles.definitionTerm}>Mulai</dt>
         <dd className={drawerStyles.definitionDetail}>{formatDate(project.startDate)}</dd>

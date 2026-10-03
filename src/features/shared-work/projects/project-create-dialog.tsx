@@ -3,9 +3,8 @@
 import { useState, type FormEvent } from "react";
 
 import { Dialog, FormField, FormJourney } from "@/components/ui";
-import { apiMessage } from "@/lib/api";
-
-import { createProject } from "./project-model";
+import { createProject, projectMutationMessage } from "./project-model";
+import { ProjectOwnerField, type ProjectOwnerSelection } from "./project-owner-field";
 import type { WorkProject } from "./project-types";
 import workStyles from "@/components/ui/work-surface.module.css";
 
@@ -13,14 +12,17 @@ interface ProjectCreateDialogProps {
   readonly onClose: () => void;
   readonly onCreated: (project: WorkProject) => void;
   readonly open: boolean;
+  readonly workspaceId: string | null;
+  readonly workspaceName: string | null;
 }
 
-export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateDialogProps) {
+export function ProjectCreateDialog({ onClose, onCreated, open, workspaceId, workspaceName }: ProjectCreateDialogProps) {
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [objective, setObjective] = useState("");
   const [priority, setPriority] = useState<"LOW" | "NORMAL" | "HIGH" | "CRITICAL">("NORMAL");
+  const [owner, setOwner] = useState<ProjectOwnerSelection | null>(null);
   const [startDate, setStartDate] = useState("");
   const [targetEndDate, setTargetEndDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -37,6 +39,7 @@ export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateD
         name: name.trim(),
         objective: objective.trim(),
         priority,
+        ...(owner ? { owner_actor_id: owner.actorId } : {}),
         ...(description.trim() ? { description: description.trim() } : {}),
         ...(startDate ? { start_date: startDate } : {}),
         ...(targetEndDate ? { target_end_date: targetEndDate } : {}),
@@ -47,11 +50,12 @@ export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateD
       setDescription("");
       setObjective("");
       setPriority("NORMAL");
+      setOwner(null);
       setStartDate("");
       setTargetEndDate("");
       onClose();
     } catch (caught) {
-      setError(apiMessage(caught));
+      setError(projectMutationMessage(caught, Boolean(owner)));
     } finally {
       setSubmitting(false);
     }
@@ -67,14 +71,15 @@ export function ProjectCreateDialog({ onClose, onCreated, open }: ProjectCreateD
           <FormField label="Deskripsi"><textarea value={description} onChange={event => setDescription(event.target.value)} /></FormField>
         </> },
         { title: "Tanggung Jawab", content: <>
-          <p>Proyek dibuat dalam ruang kerja Anda. Penanggung jawab dan divisi mengikuti pengaturan proyek yang diberikan perusahaan.</p>
+          <dl className={workStyles.facts}><div><dt>Ruang Kerja</dt><dd>{workspaceName || "Belum tersedia"}</dd></div></dl>
+          <ProjectOwnerField workspaceId={workspaceId} value={owner} onChange={setOwner} disabled={submitting} />
           <FormField label="Prioritas"><select value={priority} onChange={event => setPriority(event.target.value as typeof priority)}><option value="LOW">Rendah</option><option value="NORMAL">Normal</option><option value="HIGH">Tinggi</option><option value="CRITICAL">Mendesak</option></select></FormField>
         </> },
         { title: "Rencana", content: <>
           <FormField label="Tanggal Mulai"><input type="date" value={startDate} onChange={event => setStartDate(event.target.value)} /></FormField>
           <FormField label="Target Selesai"><input type="date" min={startDate || undefined} value={targetEndDate} onChange={event => setTargetEndDate(event.target.value)} /></FormField>
         </> },
-        { title: "Tinjau", content: <dl className={workStyles.facts}><div><dt>Proyek</dt><dd>{code} · {name}</dd></div><div><dt>Tujuan</dt><dd>{objective}</dd></div><div><dt>Rencana</dt><dd>{startDate || "Belum ditentukan"} → {targetEndDate || "Belum ditentukan"}</dd></div></dl> },
+        { title: "Tinjau", content: <dl className={workStyles.facts}><div><dt>Proyek</dt><dd>{code} · {name}</dd></div><div><dt>Tujuan</dt><dd>{objective}</dd></div><div><dt>Penanggung Jawab</dt><dd>{owner?.name || "Belum ditentukan"}</dd></div><div><dt>Rencana</dt><dd>{startDate || "Belum ditentukan"} → {targetEndDate || "Belum ditentukan"}</dd></div></dl> },
       ]} />
     </Dialog>
   );
