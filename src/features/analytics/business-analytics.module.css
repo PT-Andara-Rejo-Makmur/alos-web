@@ -100,6 +100,29 @@
   border: 0;
 }
 
+.gridCompact {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--alos-space-4);
+  min-width: 0;
+  margin-top: var(--alos-space-4);
+}
+
+.chartCardCompact {
+  border-top: 1px solid var(--alos-border);
+  padding-top: var(--alos-space-3);
+}
+
+.chartFrameCompact {
+  height: 220px;
+}
+
+@media (max-width: 1024px) {
+  .gridCompact {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 760px) {
   .grid {
     grid-template-columns: minmax(0, 1fr);
@@ -116,5 +139,9 @@
 
   .chartFrameTall {
     height: 320px;
+  }
+
+  .chartFrameCompact {
+    height: 220px;
   }
 }

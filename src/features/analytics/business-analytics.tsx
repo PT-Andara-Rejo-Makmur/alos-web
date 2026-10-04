@@ -45,27 +45,42 @@ const CHART_COLORS = {
 
 const CHART_LABELS: Readonly<Record<string, string>> = {
   closing_count: "Jumlah Closing selesai",
-  closing_value: "Nilai Closing",
+  closing_value: "Nilai Penjualan",
   receipts_amount: "Nilai pembayaran piutang",
   payments_amount: "Nilai pembayaran utang",
   candidate_count: "Kandidat tercatat",
   incident_count: "Insiden dicatat",
-  sales_funnel: "Sales Funnel",
+  active_pipeline_by_stage: "Pipeline Aktif menurut Tahap",
   milestones_by_status: "Milestone menurut status",
   ncr_by_status: "NCR menurut status",
   payment_exposure: "Piutang dan utang menurut jatuh tempo",
   contracts_by_status: "Kontrak menurut status",
   contract_expiry: "Kontrak aktif menurut tanggal akhir",
+  risks_by_status: "Risiko menurut status",
   candidate_funnel: "Kandidat menurut tahap rekrutmen",
   incidents_by_status: "Insiden menurut status",
   security_by_severity: "Temuan keamanan menurut tingkat keparahan",
   releases_by_status: "Rilis menurut status",
 };
 
+const MAX_SAFE_CHART_NUMBER = Number.MAX_SAFE_INTEGER;
+
+export function isSafeChartValue(value: string | number | null, unit: AnalyticsUnit): boolean {
+  if (value === null) return true;
+  if (unit === "COUNT") {
+    return typeof value === "number" ? Number.isSafeInteger(value) : (
+      Number.isInteger(Number(value)) && Math.abs(Number(value)) <= MAX_SAFE_CHART_NUMBER
+    );
+  }
+  const number = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(number) && Math.abs(number) <= MAX_SAFE_CHART_NUMBER;
+}
+
 function chartNumber(value: string | number | null, unit: AnalyticsUnit): number | null {
   if (value === null) return null;
+  if (!isSafeChartValue(value, unit)) return null;
   if (unit === "COUNT") {
-    return typeof value === "number" && Number.isSafeInteger(value) ? value : null;
+    return typeof value === "number" && Number.isSafeInteger(value) ? value : Math.round(Number(value));
   }
   const number = typeof value === "number" ? value : Number(value);
   return Number.isFinite(number) ? number : null;
@@ -134,6 +149,8 @@ function ChartFrame({
   headers,
   tall = false,
   emptyMessage = "Belum cukup data untuk menampilkan tren.",
+  isUnsafe = false,
+  variant = "default",
   children,
 }: Readonly<{
   title: string;
@@ -144,20 +161,27 @@ function ChartFrame({
   headers: readonly { key: string; label: string; unit?: AnalyticsUnit }[];
   tall?: boolean;
   emptyMessage?: string;
+  isUnsafe?: boolean;
+  variant?: "default" | "compact";
   children: ReactNode;
 }>) {
   const uniqueId = useId().replace(/:/g, "");
   const titleId = `analytics-${uniqueId}`;
+  const frameClass = `${styles.chartFrame} ${tall ? styles.chartFrameTall : ""} ${variant === "compact" ? styles.chartFrameCompact : ""}`;
   return (
-    <article className={styles.chartCard} aria-labelledby={`${titleId}-title`}>
+    <article className={`${styles.chartCard} ${variant === "compact" ? styles.chartCardCompact : ""}`} aria-labelledby={`${titleId}-title`}>
       <h3 id={`${titleId}-title`}>{title}</h3>
       <p className={styles.meta}>{metadata}</p>
       <p id={`${titleId}-description`} className={styles.srOnly}>
         {description} Data angka juga tersedia pada tabel pendamping.
       </p>
-      {rowCount ? (
+      {isUnsafe ? (
+        <div className={styles.empty} role="status">
+          Nilai tersedia dalam tabel karena skalanya tidak aman untuk divisualisasikan.
+        </div>
+      ) : rowCount ? (
         <div
-          className={`${styles.chartFrame} ${tall ? styles.chartFrameTall : ""}`}
+          className={frameClass}
           aria-labelledby={`${titleId}-title`}
           aria-describedby={`${titleId}-description`}
         >
@@ -167,7 +191,7 @@ function ChartFrame({
         <div className={styles.empty} role="status">{emptyMessage}</div>
       )}
       {rows.length ? (
-        <details className={styles.tableDetails}>
+        <details className={styles.tableDetails} open={isUnsafe}>
           <summary>Lihat data dalam tabel</summary>
           <div className={styles.tableWrap}>
             <table className={styles.dataTable}>
@@ -198,13 +222,22 @@ export function TrendChart({
   series,
   period,
   generatedAt,
-}: Readonly<{ series: AnalyticsSeries; period: AnalyticsPeriod; generatedAt: string }>) {
-  const chartRows = series.points.flatMap(point => {
+  variant = "default",
+}: Readonly<{
+  series: AnalyticsSeries;
+  period: AnalyticsPeriod;
+  generatedAt: string;
+  variant?: "default" | "compact";
+}>) {
+  const hasUnsafe = series.points.some(
+    point => point.value !== null && !isSafeChartValue(point.value, series.unit)
+  );
+  const chartRows = hasUnsafe ? [] : series.points.flatMap(point => {
     const value = chartNumber(point.value, series.unit);
     return value === null ? [] : [{ label: periodLabel(point.period), period: point.period, value, exact: point.value }];
   });
   const rows: ChartRow[] = series.points.map(point => ({ period: dateLabel(point.period), label: dateLabel(point.period), value: point.value }));
-  const description = `${series.label}; ${chartRows.length} period${chartRows.length === 1 ? "e" : "e"} memiliki catatan.`;
+  const description = `${series.label}; ${chartRows.length} periode memiliki catatan.`;
   return (
     <ChartFrame
       title={series.label}
@@ -214,6 +247,8 @@ export function TrendChart({
       rows={rows}
       headers={[{ key: "period", label: "Periode" }, { key: "value", label: series.label, unit: series.unit }]}
       emptyMessage={!series.available ? "Belum tersedia" : chartRows.length === 1 ? "Belum cukup data untuk menampilkan tren." : "Belum ada catatan pada periode ini."}
+      isUnsafe={hasUnsafe}
+      variant={variant}
     >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartRows} accessibilityLayer margin={{ top: 8, right: 12, left: 12, bottom: 4 }}>
@@ -237,8 +272,16 @@ export function TrendChart({
 export function BreakdownChart({
   breakdown,
   generatedAt,
-}: Readonly<{ breakdown: AnalyticsBreakdown; generatedAt: string }>) {
-  const chartRows: ChartRow[] = breakdown.items.flatMap(item => {
+  variant = "default",
+}: Readonly<{
+  breakdown: AnalyticsBreakdown;
+  generatedAt: string;
+  variant?: "default" | "compact";
+}>) {
+  const hasUnsafe = breakdown.items.some(
+    item => item.value !== null && !isSafeChartValue(item.value, breakdown.unit)
+  );
+  const chartRows: ChartRow[] = hasUnsafe ? [] : breakdown.items.flatMap(item => {
     const value = chartNumber(item.value, breakdown.unit);
     return value === null ? [] : [{ label: item.label, value, exact: item.value }];
   });
@@ -253,6 +296,8 @@ export function BreakdownChart({
       headers={[{ key: "label", label: "Kategori" }, { key: "value", label: breakdown.label, unit: breakdown.unit }]}
       tall={chartRows.length > 6}
       emptyMessage={!breakdown.available ? "Belum tersedia" : "Belum ada catatan yang dapat ditampilkan."}
+      isUnsafe={hasUnsafe}
+      variant={variant}
     >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartRows} layout="vertical" accessibilityLayer margin={{ top: 8, right: 16, left: 6, bottom: 4 }}>
@@ -278,7 +323,13 @@ export function ComparisonChart({
   comparison,
   generatedAt,
   metadata,
-}: Readonly<{ comparison: AnalyticsComparison; generatedAt?: string; metadata?: string }>) {
+  variant = "default",
+}: Readonly<{
+  comparison: AnalyticsComparison;
+  generatedAt?: string;
+  metadata?: string;
+  variant?: "default" | "compact";
+}>) {
   const fields = [
     { key: "value", label: "Progres" },
     { key: "target_value", label: "Target" },
@@ -286,7 +337,15 @@ export function ComparisonChart({
     { key: "forecast_value", label: "Perkiraan" },
   ].filter(field => (comparison.code === "project_progress" || field.key !== "value")
     && comparison.items.some(item => comparisonValue(item, field.key) !== null));
-  const chartRows: ChartRow[] = comparison.items.map(item => {
+
+  const hasUnsafe = comparison.items.some(item =>
+    fields.some(field => {
+      const val = comparisonValue(item, field.key);
+      return val !== null && !isSafeChartValue(val, comparison.unit);
+    })
+  );
+
+  const chartRows: ChartRow[] = hasUnsafe ? [] : comparison.items.map(item => {
     const values: ChartRow = { label: item.label };
     for (const field of fields) {
       const exactValue = comparisonValue(item, field.key);
@@ -320,6 +379,8 @@ export function ComparisonChart({
       headers={headers}
       tall={chartRows.length > 6}
       emptyMessage={!comparison.available ? "Belum tersedia" : "Belum ada nilai yang dapat dibandingkan."}
+      isUnsafe={hasUnsafe}
+      variant={variant}
     >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartRows} layout="vertical" accessibilityLayer margin={{ top: 8, right: 16, left: 6, bottom: 4 }}>
@@ -405,9 +466,14 @@ export function StrategyTargetCharts({
   );
 }
 
-function missingChart(code: string) {
-  const label = CHART_LABELS[code] ?? (code === "project_progress" ? "Progres proyek" : "Analitik tambahan");
-  return <article className={styles.chartCard} key={code}><h3>{label}</h3><div className={styles.empty}>Belum tersedia</div></article>;
+function missingChart(code: string, variant: "default" | "compact" = "default") {
+  const label = CHART_LABELS[code] ?? (code === "project_progress" ? "Progres Proyek" : code === "strategy_target_actual" ? "Target vs Aktual" : "Analitik tambahan");
+  return (
+    <article className={`${styles.chartCard} ${variant === "compact" ? styles.chartCardCompact : ""}`} key={code}>
+      <h3>{label}</h3>
+      <div className={styles.empty}>Belum tersedia</div>
+    </article>
+  );
 }
 
 function AnalyticsCharts({ projection }: Readonly<{ projection: BusinessAnalyticsProjection }>) {
@@ -425,10 +491,10 @@ function AnalyticsCharts({ projection }: Readonly<{ projection: BusinessAnalytic
     executive: ["closing_value", "closing_count"],
   };
   const breakdownCodes: Readonly<Record<AnalyticsDomain, readonly string[]>> = {
-    sales: ["sales_funnel"],
+    sales: ["active_pipeline_by_stage"],
     property: ["milestones_by_status", "ncr_by_status"],
     finance: ["payment_exposure"],
-    legal: ["contracts_by_status", "contract_expiry"],
+    legal: ["contracts_by_status", "contract_expiry", "risks_by_status"],
     hr: ["candidate_funnel"],
     it: ["incidents_by_status", "security_by_severity", "releases_by_status"],
     executive: [],
@@ -451,13 +517,13 @@ function AnalyticsCharts({ projection }: Readonly<{ projection: BusinessAnalytic
     const item = comparisons.get(code);
     charts.push(item
       ? <ComparisonChart key={code} comparison={item} generatedAt={projection.generated_at} />
-      : missingChart("Progres proyek"));
+      : missingChart(code));
   }
   if (projection.domain === "executive") {
     const targets = [...comparisons.values()].filter(item => item.code.startsWith("strategy_target_actual_"));
     charts.push(targets.length
       ? targets.map(item => <ComparisonChart key={item.code} comparison={item} generatedAt={projection.generated_at} />)
-      : missingChart("Target, aktual, dan perkiraan perusahaan"));
+      : missingChart("strategy_target_actual"));
   }
   return <div className={styles.grid}>{charts}</div>;
 }
@@ -510,4 +576,98 @@ export function BusinessAnalyticsPanel({ domain }: Readonly<{ domain: Exclude<An
 
 export function ExecutiveAnalyticsPanel() {
   return <AnalyticsPanel domain="executive" executive title="Kinerja Perusahaan" />;
+}
+
+export function useExecutiveAnalytics() {
+  const [projection, setProjection] = useState<BusinessAnalyticsProjection | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const period = analyticsPeriod();
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const query = new URLSearchParams({
+      from: period.from,
+      to: period.to,
+      granularity: period.granularity,
+    });
+    authenticatedApiRequest<unknown>(`/api/v1/business/executive/analytics?${query}`, {
+      signal: controller.signal,
+    })
+      .then(result => {
+        if (controller.signal.aborted) return;
+        if (!isBusinessAnalyticsProjection(result, "executive")) {
+          throw new Error("Projection analitik belum memberikan data yang sesuai.");
+        }
+        setProjection(result);
+        setError(null);
+        setLoading(false);
+      })
+      .catch(failure => {
+        if (!controller.signal.aborted) {
+          setError(apiMessage(failure));
+          setLoading(false);
+        }
+      });
+    return () => controller.abort();
+  }, [period.from, period.to, period.granularity]);
+
+  return { projection, loading, error };
+}
+
+export function ExecutiveCompactAnalytics({
+  projection,
+  loading = false,
+  error = null,
+}: Readonly<{
+  projection: BusinessAnalyticsProjection | null;
+  loading?: boolean;
+  error?: string | null;
+}>) {
+  if (loading) {
+    return <LoadingState label="Memuat analitik ringkas…" variant="section" />;
+  }
+  if (error) {
+    return <Alert message={error} title="Analitik belum dapat dimuat" variant="warning" />;
+  }
+  if (!projection) {
+    return <div className={styles.empty}>Belum tersedia</div>;
+  }
+
+  const salesSeries = projection.series.find(s => s.code === "closing_value");
+  const projectProgress = projection.comparisons.find(c => c.code === "project_progress");
+  const targetActual = projection.comparisons.find(c => c.code.startsWith("strategy_target_actual_"));
+
+  return (
+    <div className={styles.gridCompact}>
+      {salesSeries ? (
+        <TrendChart
+          series={salesSeries}
+          period={projection.period}
+          generatedAt={projection.generated_at}
+          variant="compact"
+        />
+      ) : (
+        missingChart("closing_value", "compact")
+      )}
+      {projectProgress ? (
+        <ComparisonChart
+          comparison={projectProgress}
+          generatedAt={projection.generated_at}
+          variant="compact"
+        />
+      ) : (
+        missingChart("project_progress", "compact")
+      )}
+      {targetActual ? (
+        <ComparisonChart
+          comparison={{ ...targetActual, label: "Target vs Aktual" }}
+          generatedAt={projection.generated_at}
+          variant="compact"
+        />
+      ) : (
+        missingChart("strategy_target_actual", "compact")
+      )}
+    </div>
+  );
 }

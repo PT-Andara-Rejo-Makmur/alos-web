@@ -9,6 +9,7 @@ import { useExecutiveOverview } from "./executive-data";
 import { formatValue, performanceLabel, performanceVariant, periodLabel, valueForObservation } from "./executive-model";
 import { ExecutiveSourceState, sourceDate } from "./executive-source-status";
 import { BusinessPerformancePanel, useBusinessPerformance } from "./business-performance";
+import { useExecutiveAnalytics } from "@/features/analytics/business-analytics";
 import { ExecutiveWorkSections } from "./executive-work-sections";
 import styles from "./executive.module.css";
 import workStyles from "@/components/ui/work-surface.module.css";
@@ -21,6 +22,7 @@ function ExecutiveSummaryContent({ workspaceKey }: Readonly<{ workspaceKey: stri
   const base = `/workspace/${encodeURIComponent(workspaceKey)}`;
   const { data, error, loading, sessionExpired } = useExecutiveOverview(workspaceKey);
   const business = useBusinessPerformance(workspaceKey);
+  const analytics = useExecutiveAnalytics();
   const strategyStatus = data?.strategy.status ?? (loading ? "loading" : "ERROR");
   const workStatus = data?.shared_work.status ?? (loading ? "loading" : "ERROR");
   const strategy = ["CONNECTED", "CONNECTED_EMPTY"].includes(strategyStatus) ? data?.strategy_data : null;
@@ -37,7 +39,7 @@ function ExecutiveSummaryContent({ workspaceKey }: Readonly<{ workspaceKey: stri
       <Metric label="Untuk Diketahui" value={business.data ? String(business.data.acknowledgements.length) : "Belum tersedia"} />
       <Metric label="Rencana Aktif" value={plan?.name ?? "Belum tersedia"} supportingText={plan ? periodLabel(plan.period) : "Rencana perusahaan"} />
     </div>
-    <BusinessPerformancePanel workspaceKey={workspaceKey} data={business.data} error={business.error} />
+    <BusinessPerformancePanel workspaceKey={workspaceKey} data={business.data} error={business.error} analytics={analytics} />
     <Section title="Kondisi Divisi" actions={<Link className={styles.detailLink} href={`${base}/divisions`}>Lihat Semua Divisi →</Link>}><ExecutiveDivisionOverview data={business.data} base={base} /></Section>
     <Section title="Proyek Perusahaan" actions={<Link className={styles.detailLink} href={`${base}/projects`}>Lihat Proyek →</Link>}>
       <ExecutiveSourceState status={workStatus} />
