@@ -546,18 +546,24 @@ describe("Executive Source Honesty & Authority Mandatory Scenarios (23 Controls 
     expect(screen.getByRole("link", { name: /Buka Perlu Tindakan/ })).toHaveAttribute("href", "/workspace/pusat-kendali-direksi/processes");
   });
 
-  // 23. Docs do not claim unavailable features as Live/Tersedia
-  it("Scenario 23: Documentation registries do not claim unavailable endpoints as LIVE or Tersedia", () => {
+  // 23. Historical gaps and current governed ARA capabilities remain explicit.
+  it("Scenario 23: Documentation distinguishes historical gaps from governed ARA and pending model evaluation", () => {
     const dataReqPath = path.resolve(__dirname, "../docs/executive-data-requirements.md");
     const workspaceDocPath = path.resolve(__dirname, "../docs/executive-workspace.md");
 
     const dataReqContent = fs.readFileSync(dataReqPath, "utf-8");
     const workspaceContent = fs.readFileSync(workspaceDocPath, "utf-8");
 
-    expect(dataReqContent).toMatch(/exec\.planning\.extraction.*(UI READY \/ NEEDS BACKEND|NOT CONNECTED)/);
-    expect(dataReqContent).toMatch(/exec\.initiatives\.table.*(UI READY \/ NEEDS BACKEND|NEEDS BACKEND)/);
-    expect(dataReqContent).toMatch(/exec\.ara\.dialog.*NOT CONNECTED/);
-    expect(workspaceContent).toMatch(/Tanya ARA.*READINESS ONLY/);
+    const historicalRequirements = dataReqContent.split("## Historical Stage 3 requirements")[1];
+    expect(historicalRequirements).toBeDefined();
+    expect(historicalRequirements).toMatch(/exec\.planning\.extraction.*(UI READY \/ NEEDS BACKEND|NOT CONNECTED)/);
+    expect(historicalRequirements).toMatch(/exec\.initiatives\.table.*(UI READY \/ NEEDS BACKEND|NEEDS BACKEND)/);
+    expect(historicalRequirements).toMatch(/exec\.ara\.dialog.*NOT CONNECTED/);
+    expect(workspaceContent).toMatch(/Inisiatif Strategis.*Readiness only/);
+    const araCapability = workspaceContent.split("\n").find((line) => line.startsWith("| Tanya ARA |"));
+    expect(araCapability).toContain("through Backend");
+    expect(araCapability).toContain("TEST and NORMAL are distinct");
+    expect(araCapability).toContain("real-model quality eval remains pending");
   });
 
   // Architecture Hygiene Guard: Static codebase audit
