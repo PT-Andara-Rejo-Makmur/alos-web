@@ -6,21 +6,21 @@
 }
 
 .searchContainer {
+  max-width: 360px;
   position: relative;
   width: 100%;
-  max-width: 340px;
 }
 
 .searchInput {
-  width: 100%;
-  min-height: 38px;
-  padding: 0 var(--alos-space-3) 0 36px;
   background: var(--alos-surface);
   border: 1px solid var(--alos-border-strong);
   border-radius: var(--alos-radius-input);
-  font-size: 14px;
   color: var(--alos-text-primary);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  font-size: 14px;
+  min-height: 40px;
+  padding: 0 var(--alos-space-3) 0 38px;
+  transition: border-color var(--alos-transition-fast), box-shadow var(--alos-transition-fast);
+  width: 100%;
 }
 
 .searchInput:focus {
@@ -30,37 +30,43 @@
 }
 
 .searchIcon {
+  color: var(--alos-text-muted);
+  left: 12px;
+  pointer-events: none;
   position: absolute;
-  left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--alos-text-muted);
-  pointer-events: none;
 }
 
 .clearSearch {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
+  align-items: center;
   background: none;
   border: none;
   color: var(--alos-text-muted);
   cursor: pointer;
-  padding: 2px;
   display: flex;
-  align-items: center;
+  padding: 2px;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: color var(--alos-transition-fast);
+}
+
+.clearSearch:hover {
+  color: var(--alos-text-primary);
 }
 
 .filterSelect {
-  min-height: 38px;
-  padding: 0 var(--alos-space-3);
   background: var(--alos-surface);
   border: 1px solid var(--alos-border-strong);
   border-radius: var(--alos-radius-input);
-  font-size: 14px;
   color: var(--alos-text-primary);
   cursor: pointer;
+  font-size: 14px;
+  min-height: 40px;
+  padding: 0 var(--alos-space-3);
+  transition: border-color var(--alos-transition-fast);
 }
 
 .filterSelect:focus {
@@ -70,10 +76,10 @@
 }
 
 .filterGroup {
-  display: flex;
   align-items: center;
-  gap: var(--alos-space-2);
+  display: flex;
   flex-wrap: wrap;
+  gap: var(--alos-space-2);
 }
 
 @media (max-width: 768px) {

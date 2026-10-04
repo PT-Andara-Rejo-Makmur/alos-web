@@ -150,7 +150,8 @@ describe("authoritative document metadata", () => {
     });
     request.mockClear();
     const onCreated = vi.fn();
-    render(<DocumentCreateDialog onClose={vi.fn()} onCreated={onCreated} open />);
+    const onClose = vi.fn();
+    render(<DocumentCreateDialog onClose={onClose} onCreated={onCreated} open />);
     expect(screen.getByLabelText("Berkas")).toHaveAttribute("accept",".txt,.docx");
     fireEvent.click(screen.getByRole("button", {name:"Lanjut"}));
     fireEvent.change(screen.getByRole("textbox", { name: /Judul/ }), { target: { value: "Policy" } });
@@ -160,6 +161,7 @@ describe("authoritative document metadata", () => {
     fireEvent.click(screen.getByRole("button", {name:"Lanjut"}));
     fireEvent.click(screen.getByRole("button", { name: "Simpan Dokumen" }));
     await waitFor(() => expect(onCreated).toHaveBeenCalledOnce());
+    await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
     expect(request).toHaveBeenCalledWith("/api/v1/documents", {
       method: "POST",
       body: { title: "Policy", category: "Governance", data_classification: "INTERNAL", description: null, project_id: null, effective_date: null, expiry_date: null },

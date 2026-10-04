@@ -7,6 +7,9 @@
 
 # test dan tooling
 /coverage/
+/playwright-report/
+/test-results/
+/.pnpm-patches/
 *.tsbuildinfo
 
 # environment lokal; contoh tetap dilacak

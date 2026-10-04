@@ -1,8 +1,8 @@
 # Legal Workspace
 
-Sumber operasional canonical kini terhubung sesuai [mapping Legal, HR & GA dan IT](legal-hr-it-operations.md). Catatan SOURCE UNAVAILABLE berikut merekam desain awal; capability tanpa persistence/authority tetap unavailable.
+Sumber operasional canonical kini terhubung sesuai [mapping Legal, HR & GA dan IT](legal-hr-it-operations.md). Capability internal mengikuti authority Backend; connector eksternal dan fitur tanpa contract/policy tetap unavailable.
 
-Status: **UI FINAL / SOURCE UNAVAILABLE — INTEGRATION PENDING**.
+Status: **CONNECTED untuk capability internal canonical; PARTIAL untuk seluruh kebutuhan bisnis**.
 
 Legal menggunakan boundary canonical `/workspace/[workspaceKey]/...`. `workspace` dari session adalah authority; `workspace_key` hanya identitas URL. Domain Legal hanya valid apabila `resolveWorkspaceDomain(session, requestedWorkspaceKey)` menghasilkan `valid: true` dan `domain: LEGAL`. URL, nama ruang kerja, role, dan local storage tidak menentukan authority.
 

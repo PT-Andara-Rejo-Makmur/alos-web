@@ -14,7 +14,7 @@ Sales may propose booking and maintain relationship data when permissions and co
 
 ## Sales UI boundary
 
-Booking request, cancellation request, follow-up, document completion, dan campaign maintenance hanya disediakan sebagai struktur UX. Selama capability canonical belum tersedia, submit disabled dan tidak menghasilkan success state. Sales tidak memiliki action frontend untuk menerima booking fee, membayar refund, memvalidasi SPK final, approve KPR, issue SP3K, menyelesaikan akad, atau menetapkan official closing.
+Booking, Follow-up, Campaign dan proses pembiayaan memakai command canonical Backend sesuai permission dan lifecycle. Approval independen tidak langsung mengeksekusi business record; execution memeriksa snapshot dan consumption. Pencatatan SP3K/akad/Closing tidak membuktikan keputusan bank atau legal validity. Frontend tidak mentransfer booking fee/refund atau mengarang success untuk capability yang belum tersedia.
 
 ## Deferred until dashboard phase complete
 

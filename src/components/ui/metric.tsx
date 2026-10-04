@@ -7,11 +7,12 @@ export interface MetricProps {
   readonly status?: ReactNode;
   readonly supportingText?: ReactNode;
   readonly value: ReactNode;
+  readonly unavailable?: boolean;
 }
 
-export function Metric({ label, status, supportingText, value }: MetricProps) {
+export function Metric({ label, status, supportingText, value, unavailable = false }: MetricProps) {
   return (
-    <article className={styles.metric}>
+    <article className={styles.metric} data-unavailable={unavailable || undefined}>
       <div className={styles.metricLabel}>{label}</div>
       <div className={styles.metricValue}>{value}</div>
       {supportingText ? <div className={styles.metricSupportingText}>{supportingText}</div> : null}

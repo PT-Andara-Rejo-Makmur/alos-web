@@ -15,21 +15,26 @@
 
 .sidebar {
   align-self: flex-start;
-  background: var(--alos-primary-dark);
+  background: linear-gradient(180deg, #0e2b23 0%, #081d17 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 2px 0 16px 0 rgba(0, 0, 0, 0.12);
   color: white;
   display: flex;
-  flex: 0 0 232px;
+  flex: 0 0 236px;
   flex-direction: column;
   height: 100vh;
   height: 100dvh;
   position: sticky;
   top: 0;
-  padding: var(--alos-space-6) var(--alos-space-4) var(--alos-space-4);
-  width: 232px;
+  padding: var(--alos-space-5) var(--alos-space-4) var(--alos-space-4);
+  width: 236px;
+  z-index: 10;
 }
 
 .sidebarHeader {
-  padding: 0 var(--alos-space-2) var(--alos-space-5);
+  padding: 0 var(--alos-space-2) var(--alos-space-4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: var(--alos-space-3);
 }
 
 .sidebarHeaderRow {
@@ -45,30 +50,40 @@
   flex: 1;
   gap: var(--alos-space-3);
   min-width: 0;
+  transition: opacity var(--alos-transition);
+}
+
+.logoLink:hover {
+  opacity: 0.92;
 }
 
 .logoMark {
   height: 32px;
   object-fit: contain;
   width: 32px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .logoName {
   font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  background: linear-gradient(135deg, #ffffff 40%, #cce0d8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .navigation {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  scrollbar-color: rgb(218 237 228 / 42%) transparent;
+  scrollbar-color: rgb(218 237 228 / 32%) transparent;
   scrollbar-width: thin;
+  padding: var(--alos-space-1) 0;
 }
 
 .navigation::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .navigation::-webkit-scrollbar-track {
@@ -76,14 +91,14 @@
 }
 
 .navigation::-webkit-scrollbar-thumb {
-  background: rgb(218 237 228 / 32%);
-  border: 2px solid transparent;
+  background: rgb(218 237 228 / 24%);
+  border: 1px solid transparent;
   border-radius: 999px;
   background-clip: padding-box;
 }
 
 .navigation::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(218 237 228 / 48%);
+  background-color: rgb(218 237 228 / 40%);
 }
 
 .navigationSection + .navigationSection {
@@ -91,40 +106,51 @@
 }
 
 .sectionLabel {
-  color: rgb(255 255 255 / 70%);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  line-height: 18px;
+  color: rgb(255 255 255 / 45%);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  line-height: 16px;
   margin: 0 0 var(--alos-space-2);
   padding: 0 var(--alos-space-3);
+  text-transform: uppercase;
 }
 
 .navigationItem {
   align-items: center;
   border-radius: var(--alos-radius-button);
-  color: rgb(255 255 255 / 72%);
+  color: rgb(255 255 255 / 75%);
   display: flex;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 500;
   gap: var(--alos-space-3);
-  height: 40px;
+  height: 38px;
   padding: 0 var(--alos-space-3);
+  position: relative;
+  transition: all var(--alos-transition);
 }
 
 .navigationItem:hover {
   background: rgb(255 255 255 / 8%);
   color: white;
+  transform: translateX(2px);
 }
 
 .navigationItemActive {
-  background: rgb(255 255 255 / 12%);
-  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-weight: 600;
+  border-left: 3px solid #34d399;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+  padding-left: calc(var(--alos-space-3) - 3px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .navigationItemActive:hover {
-  background: rgb(255 255 255 / 17%);
-  color: white;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  transform: none;
 }
 
 .navigationItemLabel {
@@ -135,8 +161,9 @@
 }
 
 .sidebarFooter {
-  border-top: 1px solid rgb(255 255 255 / 13%);
-  padding-top: var(--alos-space-4);
+  border-top: 1px solid rgb(255 255 255 / 10%);
+  padding-top: var(--alos-space-3);
+  margin-top: auto;
 }
 
 .profileSummary {
@@ -144,7 +171,16 @@
   display: flex;
   gap: var(--alos-space-3);
   min-width: 0;
-  padding: 0 var(--alos-space-2) var(--alos-space-4);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--alos-radius-panel);
+  padding: var(--alos-space-2) var(--alos-space-3);
+  margin-bottom: var(--alos-space-2);
+  transition: background-color var(--alos-transition);
+}
+
+.profileSummary:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .profileDetails {
@@ -168,9 +204,9 @@
 }
 
 .profileEmail {
-  color: rgb(255 255 255 / 58%);
-  font-size: 12px;
-  line-height: 18px;
+  color: rgb(255 255 255 / 60%);
+  font-size: 11px;
+  line-height: 16px;
 }
 
 .logoutButton {
@@ -178,15 +214,16 @@
   background: transparent;
   border: 0;
   border-radius: var(--alos-radius-button);
-  color: rgb(255 255 255 / 72%);
+  color: rgb(255 255 255 / 70%);
   cursor: pointer;
   display: flex;
   font-size: 13px;
   gap: var(--alos-space-3);
-  min-height: 40px;
+  min-height: 36px;
   padding: 0 var(--alos-space-3);
   text-align: left;
   width: 100%;
+  transition: all var(--alos-transition);
 }
 
 .logoutButton:hover:not(:disabled) {
@@ -199,21 +236,24 @@
   cursor: wait;
 }
 
-.pageContext { display:flex; gap:8px; align-items:center; color:var(--alos-text-muted); font-size:12px; margin-right:auto; min-width:0; }
+.pageContext { display:flex; gap:8px; align-items:center; color:var(--alos-text-muted); font-size:13px; margin-right:auto; min-width:0; }
 .pageContext strong { color:var(--alos-text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .switchError { position:absolute; top:100%; left:16px; right:16px; padding:8px 12px; margin:0; background:var(--alos-status-danger-background); color:var(--alos-status-danger-text); border:1px solid currentColor; border-radius:6px; z-index:40; }
 @media(max-width:1024px) { .pageContext { display:none; } }
 .topbar {
   align-items: center;
-  background: var(--alos-surface);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--alos-border);
+  box-shadow: 0 1px 2px 0 rgb(16 34 29 / 0.02);
   display: flex;
-  height: 64px;
+  height: 58px;
   justify-content: space-between;
-  padding: 0 var(--alos-space-8);
+  padding: 0 var(--alos-space-6);
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 20;
 }
 
 .menuButton {
@@ -267,22 +307,26 @@
 
 .workspaceTrigger {
   align-items: center;
-  background: transparent;
-  border: 1px solid transparent;
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
   border-radius: var(--alos-radius-button);
+  box-shadow: var(--alos-shadow-xs);
   color: var(--alos-text-primary);
   cursor: pointer;
   display: flex;
   gap: var(--alos-space-2);
   max-width: min(52vw, 520px);
-  min-height: 40px;
-  padding: var(--alos-space-1) var(--alos-space-2);
+  min-height: 36px;
+  padding: 4px 12px;
   text-align: left;
+  transition: all var(--alos-transition);
 }
 
 .workspaceTrigger:hover:not(:disabled),
 .workspaceTrigger:focus-visible {
-  background: var(--alos-primary-very-soft);
+  background: var(--alos-surface);
+  border-color: var(--alos-border-strong);
+  box-shadow: var(--alos-shadow-sm);
 }
 
 .workspaceTrigger:disabled {
@@ -291,13 +335,14 @@
 
 .workspaceLabel {
   color: var(--alos-text-muted);
-  font-size: 12px;
-  line-height: 18px;
+  font-size: 11.5px;
+  line-height: 16px;
+  font-weight: 500;
 }
 
 .workspaceName {
   color: var(--alos-text-primary);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -306,15 +351,16 @@
 
 .workspaceMenu {
   background: var(--alos-surface);
-  border: 1px solid var(--alos-border-strong);
+  border: 1px solid var(--alos-border);
   border-radius: var(--alos-radius-panel);
-  box-shadow: 0 12px 28px rgb(23 33 29 / 13%);
+  box-shadow: var(--alos-shadow-floating);
   left: 0;
-  min-width: 300px;
+  min-width: 320px;
   padding: var(--alos-space-2);
   position: absolute;
   top: calc(100% + var(--alos-space-2));
-  z-index: 4;
+  z-index: 50;
+  animation: alosFadeIn 0.15s ease-out;
 }
 
 .workspaceMenuHeader {
@@ -352,6 +398,7 @@
   padding: var(--alos-space-2) var(--alos-space-3);
   text-align: left;
   width: 100%;
+  transition: all var(--alos-transition);
 }
 
 .workspaceMenuItem:hover:not(:disabled),
@@ -392,24 +439,28 @@
 
 .profileTrigger {
   align-items: center;
-  background: transparent;
-  border: 1px solid transparent;
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
   border-radius: var(--alos-radius-button);
+  box-shadow: var(--alos-shadow-xs);
   color: var(--alos-text-primary);
   cursor: pointer;
   display: flex;
   gap: var(--alos-space-2);
-  min-height: 40px;
-  padding: var(--alos-space-1) var(--alos-space-2);
+  min-height: 36px;
+  padding: 4px 10px;
+  transition: all var(--alos-transition);
 }
 
 .profileTrigger:hover {
-  background: var(--alos-primary-very-soft);
+  background: var(--alos-surface);
+  border-color: var(--alos-border-strong);
+  box-shadow: var(--alos-shadow-sm);
 }
 
 .profileTriggerName {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -418,14 +469,16 @@
 
 .profileMenu {
   background: var(--alos-surface);
-  border: 1px solid var(--alos-border-strong);
+  border: 1px solid var(--alos-border);
   border-radius: var(--alos-radius-panel);
-  box-shadow: 0 12px 28px rgb(23 33 29 / 13%);
-  min-width: 216px;
+  box-shadow: var(--alos-shadow-floating);
+  min-width: 220px;
   padding: var(--alos-space-2);
   position: absolute;
   right: 0;
   top: calc(100% + var(--alos-space-2));
+  z-index: 50;
+  animation: alosFadeIn 0.15s ease-out;
 }
 
 .profileMenuSummary {
@@ -465,11 +518,12 @@
   padding: 0 var(--alos-space-3);
   text-align: left;
   width: 100%;
+  transition: all var(--alos-transition);
 }
 
 .profileMenuLogout:hover:not(:disabled) {
-  background: var(--alos-primary-very-soft);
-  color: var(--alos-primary-dark);
+  background: var(--alos-status-danger-background);
+  color: var(--alos-status-danger-text);
 }
 
 .profileMenuLogout:disabled {
@@ -480,14 +534,15 @@
 .main {
   background: var(--alos-app-background);
   flex: 1;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 58px);
 }
 
 .content {
   margin: 0 auto;
   max-width: 1600px;
-  padding: 28px 32px;
+  padding: 24px 32px;
   width: 100%;
+  animation: alosFadeIn 0.25s ease-out;
 }
 
 .mobileNavigationLayer {

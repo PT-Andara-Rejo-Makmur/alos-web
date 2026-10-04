@@ -4,6 +4,7 @@ FROM node:22-alpine AS dependencies
 WORKDIR /app
 RUN corepack enable
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches ./patches
 RUN --mount=type=cache,id=alos-web-pnpm-store,target=/root/.local/share/pnpm/store \
     pnpm config set fetch-timeout 600000 && \
     pnpm config set fetch-retries 5 && \
@@ -22,12 +23,15 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 COPY --from=contracts generated/typescript /alos-contracts/generated/typescript
 RUN ./node_modules/.bin/next build
+RUN pnpm prune --prod
 
 FROM node:22-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN corepack enable
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /opt/yarn-v* && \
+    rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
+    /usr/local/bin/yarn /usr/local/bin/yarnpkg /usr/local/bin/pnpm /usr/local/bin/pnpx
 RUN addgroup --system --gid 1001 alos && adduser --system --uid 1001 --ingroup alos alos
 COPY --from=builder --chown=alos:alos /app/package.json ./package.json
 COPY --from=builder --chown=alos:alos /app/node_modules ./node_modules

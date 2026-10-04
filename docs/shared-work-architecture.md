@@ -203,7 +203,7 @@ Otoritas kepemilikan dan akses data:
 
 ---
 
-## 8. Permission Matrix (Target Vocabulary)
+## 8. Permission Object Vocabulary
 
 | Modul | Read Permission | Create Permission | Update/Mutation Permission | Lifecycle/State Permission |
 |---|---|---|---|---|
@@ -214,7 +214,12 @@ Otoritas kepemilikan dan akses data:
 | **Laporan** | `report.read` | `report.create` | `report.review` | `report.publish`, `report.archive` |
 | **Temuan** | `finding.read` | `finding.create` | `finding.assign`, `finding.update` | `finding.verify`, `finding.close` |
 
-*Catatan: Seluruh permission di atas adalah target vocabulary terencana. Implementasi saat ini di Frontend membaca `permission_refs`, `role_refs`, dan `scope_refs` dari session aktif secara adaptif dan fail-closed.*
+Permission object di atas adalah referensi capability consumer, bukan grant authority.
+Frontend membaca `permission_refs`, `role_refs` dan `scope_refs` dari session aktif.
+Backend dapat menerima permission work yang sesuai sebagai alternatif object permission,
+tetapi tetap memeriksa owner visibility, membership, classification dan pemisahan actor.
+Lihat policy pada `SharedWorkService` serta projection permissions canonical; tabel ini
+tidak mengizinkan bypass human decision atau perubahan scope dari browser.
 
 ---
 
@@ -297,29 +302,36 @@ Sesuai `src/alos/documents/models.py`:
   - `CRITICAL` $\rightarrow$ **Kritis**
 - Status presentation:
   - `OPEN` $\rightarrow$ **Terbuka**
-  - `IN_REVIEW` $\rightarrow$ **Dalam Peninjauan**
   - `ASSIGNED` $\rightarrow$ **Ditugaskan**
   - `IN_PROGRESS` $\rightarrow$ **Dalam Perbaikan**
   - `PENDING_VERIFICATION` $\rightarrow$ **Menunggu Verifikasi**
   - `VERIFIED` $\rightarrow$ **Terverifikasi**
   - `CLOSED` $\rightarrow$ **Ditutup**
-  - `CANCELLED` $\rightarrow$ **Dibatalkan**
-  - `DUPLICATE` $\rightarrow$ **Duplikat**
+
+Status Temuan mengikuti `FindingStatus` pada `shared-work.schema.json`; frontend
+tidak menambah IN_REVIEW/CANCELLED/DUPLICATE sebagai lifecycle Temuan canonical.
 
 ---
 
-## 11. API Gap Analysis (Hasil Audit Realitas)
+## 11. Integrasi API Terkini
 
-| Fitur | Database (0013 / 0005) | Backend Service | Contracts Schema | Public API Route | Backend Permission | Status Kesiapan |
-|---|---|---|---|---|---|---|
-| **Proyek** | `core.projects`, `core.project_workspaces` | **Belum Ada** | **Belum Ada** | **Belum Ada** | **Belum Ada** | *DB Siap, API Belum Terhubung* |
-| **Tugas** | `core.tasks`, `core.task_workspaces` | **Belum Ada** | **Belum Ada** | **Belum Ada** | **Belum Ada** | *DB Siap, API Belum Terhubung* |
-| **Persetujuan** | `core.work_approvals`, `core.work_approval_workspaces` | **Belum Ada** | **Belum Ada** | **Belum Ada** | **Belum Ada** | *DB Siap, API Belum Terhubung* |
-| **Dokumen** | `core.documents`, `core.document_versions` | `DocumentRegistry` (in-memory) | **Belum Ada** | **Belum Ada** | `scope.documents.*` | *Service Siap, Public Route Belum Terhubung* |
-| **Laporan** | `core.work_reports`, `core.work_report_workspaces` | **Belum Ada** | **Belum Ada** | **Belum Ada** | **Belum Ada** | *DB Siap, API Belum Terhubung* |
-| **Temuan** | `core.work_findings`, `core.work_finding_workspaces` | **Belum Ada** | **Belum Ada** | **Belum Ada** | **Belum Ada** | *DB Siap, API Belum Terhubung* |
+Semua resource berikut memiliki owner Backend, contracts, API, scope dan persistence.
+Spesifikasi UX tidak menggantikan lifecycle/field canonical; Backend tetap authority.
 
-> **Konsekuensi Frontend**: Sesuai mandat, frontend **TIDAK MEMBUAT MOCK RUNTIME** atau rute palsu. Ketika backend mengembalikan status 404/501 (karena route belum didaftarkan di backend), antarmuka menampilkan status **"Belum Terhubung"** secara elegan dan informatif.
+| Fitur | API canonical | Owner dan batas |
+| --- | --- | --- |
+| Proyek | `/api/v1/projects` | SharedWorkService; tenant/workspace links dan membership owner |
+| Tugas | `/api/v1/tasks` | SharedWorkService; assignment dan dependency, completion/progress diperiksa Backend |
+| Persetujuan | `/api/v1/approvals` | Human decision independen, requested action/snapshot dan consumption |
+| Dokumen | `/api/v1/documents` | Metadata/immutable version, upload job, private object store, review/approval |
+| Laporan | `/api/v1/reports` | Submit/review/publish/archive dengan pemisahan actor/permission |
+| Temuan | `/api/v1/findings` | Submit/verify/close; tugas korektif tertaut wajib COMPLETED sebelum verify/close |
+| Anggota workspace | `/api/v1/workspace-members` | Projection membership aktif untuk assignment; bukan HR atau Identity authority kedua |
+
+Read/mutation memakai permission object dan/atau work permission yang diterima
+Backend. Workspace asing ditolak, bukan dianggap data kosong. Contract source ada
+pada [Shared Work schemas](https://github.com/PT-Andara-Rejo-Makmur/alos-contracts/blob/development/schemas/shared-work/README.md).
+Unknown/outage ditampilkan sesuai hasil API; daftar kosong hanya setelah scoped query berhasil.
 
 ---
 
@@ -379,42 +391,22 @@ Route list lama `/workspace/{projects|tasks|approvals|documents|reports|findings
 sebagai compatibility redirect ke active workspace. Route canonical dan seluruh detail selalu
 memakai `/workspace/[workspaceKey]/...`.
 
-Action create Proyek/Tugas hanya terlihat bila permission authoritative tersedia. Selama mutation
-belum tersedia, action tersebut disabled dan tidak membuat row atau success state lokal. Scope tab
-Tim tetap `Belum Terhubung` sampai Backend menyediakan team boundary canonical.
+Action create/assign/mutate hanya tersedia sesuai permission Backend. Assignment membaca
+anggota workspace melalui `/api/v1/workspace-members`. Team visibility tetap mengikuti
+projection/scope Backend; client tidak membentuk tim dari akun atau role lokal.
 
 ---
 
-## 14. Implementation Sequence
+## 14. Penerimaan dan Batas yang Tersisa
 
-1. **FASE A — Audit**: Audit realitas database, services, contracts, public routes, dan permissions (*Selesai*).
-2. **FASE B — Gap Analysis & Architecture**: Dokumentasi menyeluruh dan identifikasi kebutuhan (*Selesai*).
-3. **FASE C — Shared Work Foundation**: Pembangunan modul reusable di `src/features/shared-work/shared/` (*Selesai*).
-4. **FASE D1 — Proyek**: Implementasi modul Proyek secara lengkap, visual review approval, tab scroller removal, centering empty state (*Selesai & Disetujui*).
-5. **FASE D2 — Tugas**: Implementasi modul Tugas universal lintas workspace, filter status & prioritas, TaskDrawer, full detail view, fail-closed authority (*Selesai & Disetujui*).
-6. **FASE D3 — Persetujuan**: Universal approval surface, pemisahan peran Pengusul $\rightarrow$ Reviewer $\rightarrow$ Approver, decision drawer & detail view, fail-closed actions (*Selesai*).
-7. **FASE D4 — Dokumen**: Business context documents, klasifikasi data (`PUBLIC` s/d `RESTRICTED`), versi immutable (tanpa "Edit Versi"), detail view (*Selesai*).
-8. **FASE D5 — Laporan**: Pemisahan tegas Hasil Laporan dan Definisi Laporan, frequency badge, tidak ada fake export PDF/DOCX, detail view (*Selesai*).
-9. **FASE D6 — Temuan**: Pelacakan deviasi/masalah operasional, severity mapping, relasi corrective action ke Tugas, tidak ada otoritas otomatis GENESIS (*Selesai*).
-10. **STOP**: Tunggu review menyeluruh dari pengguna.
+Browser/API disposable membuktikan task dependency, isolation, approval pending/self/
+stale/replay, metadata-only document, TXT/DOCX worker, immutable versions dan hash,
+independent review, Reports publish/archive serta Findings verify/close.
+Lihat [UAT development](https://github.com/PT-Andara-Rejo-Makmur/alos-infra/blob/development/docs/BUSINESS_UAT_2026-10-04.md). Fixture sintetis bukan data perusahaan atau approval produksi.
 
----
-
-## 15. Known Gaps & NEEDS DECISION
-
-### Gaps Aktual (Audit 4 Modul Terkini):
-- **Persetujuan**: Database `core.work_approvals` siap di `0013` dengan kolom `approval_id`, `subject_type`, `subject_id`, `requested_by`, `approver_actor_id`, `status` (server_default="PENDING"), `decision`, `reason`. Belum ada mutation endpoint di backend. Frontend menyajikan alur SoD secara read-only jujur tanpa tombol no-op.
-- **Dokumen**: Backend memiliki model `DocumentMetadata` dan `DocumentVersion` di `0005` & `persistence/models.py`. Public REST route `/api/v1/documents` belum didaftarkan. UI menyajikan versi immutable dan proteksi klasifikasi fail-closed.
-- **Laporan**: Database `core.work_reports` di `0013` memiliki `report_id`, `title`, `report_type`, `status` (server_default="DRAFT"), `owner_actor_id`. Pemisahan hasil laporan dan definisi laporan diimplementasikan di frontend. Export engine (PDF/DOCX) belum ada dan tidak dibuat tiruan tombolnya.
-- **Temuan**: Database `core.work_findings` di `0013` memiliki `finding_id`, `title`, `description`, `severity`, `status`, `source_type`. Relasi corrective action dipetakan ke Tugas. Belum ada API backend publik.
-
-### Item NEEDS DECISION:
-1. **Persetujuan Canonical Subject Types**:
-   - Nilai subjek yang diakomodasi: `PROJECT`, `TASK`, `DOCUMENT`, `REPORT`, `FINDING`, serta domain material (`PAYMENT`, `CONTRACT`, dsb.). Belum ada validasi CHECK constraint di DB.
-2. **Dokumen Storage Adapter & File Upload API**:
-   - Menunggu backend mengimplementasikan adapter storage S3/MinIO atau local file system untuk attachment.
-3. **Laporan Template Definition & Aggregation Engine**:
-   - Menunggu service backend untuk query generator lintas workspace.
-4. **Temuan Workflow Transitions & GENESIS Candidate Integration**:
-   - Menunggu validasi flow human-in-the-loop untuk promosi kandidat temuan AI menjadi temuan resmi.
-
+TEXT/DOCX didukung; PDF/OCR dan export laporan PDF/DOCX tidak dinyatakan tersedia.
+Object-store/backup/restore produksi perlu konfigurasi dan proof environment tujuan.
+Subject types dan material actions hanya yang didefinisikan contracts; nama UX atau
+status presentasi tidak menambah enum, grant atau approval authority.
+Angka yang belum diukur, team agregat tanpa projection dan AI extraction yang belum
+terintegrasi tetap ditampilkan unknown/unavailable. Backend menolak unsupported action.

@@ -1,38 +1,42 @@
 .definitionList {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  row-gap: var(--alos-space-3);
   column-gap: var(--alos-space-4);
-  font-size: 14px;
-  line-height: 1.5;
+  display: grid;
+  font-size: 13px;
+  grid-template-columns: 140px 1fr;
+  line-height: 1.6;
   margin: var(--alos-space-3) 0 var(--alos-space-4) 0;
+  row-gap: var(--alos-space-3);
 }
 
 .definitionTerm {
-  color: var(--alos-text-secondary);
-  font-weight: 500;
+  color: var(--alos-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   margin: 0;
 }
 
 .definitionDetail {
   color: var(--alos-text-primary);
+  font-size: 13px;
+  font-weight: 500;
   margin: 0;
   word-break: break-word;
 }
 
 .drawerSection {
+  border-top: 1px solid var(--alos-border);
   margin-top: var(--alos-space-4);
   padding-top: var(--alos-space-4);
-  border-top: 1px solid var(--alos-border);
 }
 
 .drawerSectionTitle {
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   color: var(--alos-text-muted);
-  margin: 0 0 var(--alos-space-2) 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  margin: 0 0 var(--alos-space-3) 0;
+  text-transform: uppercase;
 }
 
 .detailShell {
@@ -43,40 +47,44 @@
 }
 
 .detailHeaderMeta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--alos-space-4);
-  padding: var(--alos-space-4);
   background: var(--alos-surface);
   border: 1px solid var(--alos-border);
   border-radius: var(--alos-radius-panel);
+  box-shadow: var(--alos-shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-4);
+  padding: var(--alos-space-5);
 }
 
 .detailHeaderTop {
-  display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  display: flex;
   flex-wrap: wrap;
   gap: var(--alos-space-3);
+  justify-content: space-between;
 }
 
 .detailHeaderTitle {
-  font-size: 20px;
-  font-weight: 600;
   color: var(--alos-text-primary);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
 .detailHeaderCode {
-  font-size: 13px;
-  font-family: monospace;
-  color: var(--alos-text-muted);
-  background: var(--alos-surface-alt);
-  padding: 2px 6px;
-  border-radius: var(--alos-radius-badge);
+  background: var(--alos-primary-very-soft);
   border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-badge);
+  color: var(--alos-primary-dark);
   display: inline-block;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   margin-bottom: var(--alos-space-1);
+  padding: 3px 8px;
 }
 
 .detailTabContent {

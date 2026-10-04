@@ -46,6 +46,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Audit dependency security
+        run: pnpm security
+
       - name: Typecheck
         run: pnpm typecheck
 

@@ -248,15 +248,13 @@ describe("Shared Work / FASE D3 sampai D6", () => {
 
     it("menampilkan pesan non-teknis jujur saat backend persetujuan belum terhubung", async () => {
       vi.spyOn(api, "sessionApiRequest").mockResolvedValueOnce(authenticatedSession());
-      vi.spyOn(api, "authenticatedApiRequest").mockRejectedValueOnce(
+      vi.spyOn(api, "authenticatedApiRequest").mockRejectedValue(
         new ApiError(404, "Not Found", "corr_404"),
       );
 
       render(<ApprovalsPage workspaceKey="property" />);
 
-      await waitFor(() => {
-        expect(screen.getByText("Data Persetujuan Belum Terhubung")).toBeInTheDocument();
-      });
+      expect(await screen.findByText("Data Persetujuan Belum Terhubung", {}, { timeout: 5000 })).toBeInTheDocument();
 
       expect(
         screen.getByText(

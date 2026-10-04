@@ -11,18 +11,33 @@ import { CapabilityRequests } from "./capability-requests";
 import styles from "./ara.module.css";
 
 export function AraConversation({ authority, workspaceName }: { readonly authority: AraAuthorityProjection; readonly workspaceName: string }) {
+  const serviceAvailable = authority.status === "ACTIVE" && (authority.service_available
+    ?? (authority.runtime_mode === "DETERMINISTIC_TEST" || authority.production_provider_connected));
   const [threads, setThreads] = useState<readonly AraThreadProjection[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [messages, setMessages] = useState<readonly AraMessageProjection[]>([]);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [progressEvents, setProgressEvents] = useState<AraProgressProjection["events"]>([]);
   const [progressLabel, setProgressLabel] = useState("Mengirim pertanyaan…");
   const [error, setError] = useState<string | null>(null);
   const [activeRun, setActiveRun] = useState<{ threadId: string; runId: string } | null>(null);
   const pendingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const epoch = useRef(0);
+  const messageList = useRef<HTMLDivElement>(null);
+  const composer = useRef<HTMLTextAreaElement>(null);
+  const followLatest = useRef(true);
+  const wasSending = useRef(false);
+  useEffect(() => {
+    if (wasSending.current && !sending) composer.current?.focus();
+    wasSending.current = sending;
+  }, [sending]);
+  useEffect(() => {
+    const list = messageList.current;
+    if (list && followLatest.current) list.scrollTop = list.scrollHeight;
+  }, [messages, sending, pendingMessage, progressLabel]);
   useEffect(() => {
     const lifecycle = epoch;
     let live = true;
@@ -41,6 +56,7 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
 
   function selectThread(threadId: string) {
     if (threadId === selected) return;
+    followLatest.current = true;
     setMessages([]); setLoading(true); setSelected(threadId);
   }
 
@@ -53,6 +69,7 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
       if (latest?.role === "USER" && latest.run_id) {
         setActiveRun({ threadId, runId: latest.run_id });
         setMessages(rows!);
+        setPendingMessage(null);
         const progress = await araApi.progress(threadId, latest.run_id).catch(() => null);
         if (epoch.current === current && pendingTimer.current !== null) {
           const kind = progress?.events.at(-1)?.kind;
@@ -83,12 +100,15 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
       const thread = await araApi.create();
       if (epoch.current !== current) return;
       setThreads(rows => [thread, ...rows]); selectThread(thread.thread_id); setDraft("");
-    } catch { setError("Percakapan belum dapat dibuat. Silakan coba kembali."); }
-    finally { setLoading(false); }
+    } catch { if (epoch.current === current) setError("Percakapan belum dapat dibuat. Silakan coba kembali."); }
+    finally { if (epoch.current === current) setLoading(false); }
   }
   async function send() {
-    if (!draft.trim() || sending || draft.length > 4000) return;
+    if (!serviceAvailable || !draft.trim() || sending || draft.length > 4000) return;
     const current = epoch.current;
+    const message = draft.trim();
+    followLatest.current = true;
+    setPendingMessage(message);
     setSending(true); setError(null);
     setProgressEvents([]);
     setProgressLabel("Mengirim pertanyaan…");
@@ -100,7 +120,7 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
         threadId = thread.thread_id; setThreads(rows => [thread, ...rows]);
       }
       trackRun(threadId, current);
-      await araApi.send(threadId, { message: draft.trim() });
+      await araApi.send(threadId, { message });
       if (epoch.current !== current) return;
       const rows = await araApi.messages(threadId);
       if (epoch.current !== current) return;
@@ -118,29 +138,154 @@ export function AraConversation({ authority, workspaceName }: { readonly authori
     } finally {
       if (pendingTimer.current) clearTimeout(pendingTimer.current);
       pendingTimer.current = null;
-      if (epoch.current === current) { setSending(false); setActiveRun(null); }
+      if (epoch.current === current) { setSending(false); setActiveRun(null); setPendingMessage(null); composer.current?.focus(); }
     }
   }
 
   return <section className={styles.conversation} aria-labelledby="ara-title">
-    <header className={styles.conversationHeader}><div><p className={styles.eyebrow}>ASISTEN PERUSAHAAN</p><h1 id="ara-title">Tanya ARA</h1><p>{authority.service_available === false ? "ARA belum dapat membantu saat ini. Silakan coba kembali." : "ARA siap membantu berdasarkan data dan akses ruang kerja Anda."}</p></div><Button variant="secondary" disabled={sending || loading} onClick={() => void create()}>Percakapan baru</Button></header>
+    <header className={styles.conversationHeader}>
+      <div>
+        <p className={styles.eyebrow}>ASISTEN PERUSAHAAN</p>
+        <h1 id="ara-title">Tanya ARA</h1>
+        <p>{!serviceAvailable ? "ARA belum dapat membantu saat ini. Silakan coba kembali." : "ARA siap membantu berdasarkan data dan akses ruang kerja Anda."}</p>
+      </div>
+      <Button variant="secondary" disabled={sending || loading} onClick={() => void create()}>Percakapan baru</Button>
+    </header>
     <div className={styles.chatLayout}>
       <nav aria-label="Riwayat percakapan" className={styles.threadList}>
-        <h2>Percakapan</h2>{threads.map(thread => <button key={thread.thread_id} aria-current={selected === thread.thread_id} type="button" disabled={sending} onClick={() => { setError(null); selectThread(thread.thread_id); }}>{thread.title}<small>{new Date(thread.updated_at).toLocaleDateString("id-ID")}</small></button>)}
-        {!threads.length && !loading ? <p>Belum ada percakapan.</p> : null}
+        <div className={styles.threadListHeader}>
+          <h2>Percakapan</h2>
+          {threads.length > 0 ? <span className={styles.threadCountBadge}>{threads.length}</span> : null}
+        </div>
+        <div className={styles.threadListBody}>
+          {threads.map(thread => (
+            <button
+              key={thread.thread_id}
+              aria-current={selected === thread.thread_id}
+              type="button"
+              disabled={sending}
+              onClick={() => { setError(null); selectThread(thread.thread_id); }}
+              className={styles.threadItem}
+            >
+              <div className={styles.threadItemTitleRow}>
+                <span className={styles.threadBubbleIcon} aria-hidden="true">💬</span>
+                <span className={styles.threadItemTitle}>{thread.title}</span>
+              </div>
+              <small>{new Date(thread.updated_at).toLocaleDateString("id-ID")}</small>
+            </button>
+          ))}
+          {!threads.length && !loading ? <p className={styles.emptyThreadsNotice}>Belum ada percakapan.</p> : null}
+        </div>
       </nav>
       <section className={styles.chatBody} aria-label="Percakapan ARA">
-        <div className={styles.messageList} role="log" aria-label="Pesan percakapan">
-          {!messages.length && !loading ? <div className={styles.emptyChat}><span className={styles.assistantMonogram}>ARA</span><h2>Apa yang perlu kita tangani hari ini?</h2><p>Tanyakan kondisi pekerjaan, pengajuan yang perlu diperiksa, atau informasi dari dokumen. ARA membantu Anda melihat konteks dan langkah berikutnya.</p><div className={styles.suggestions}>{["Apa pekerjaan yang perlu saya tindak lanjuti?", "Ringkas kondisi divisi saya.", "Bantu saya memeriksa dokumen pendukung."].map(text => <button type="button" key={text} onClick={() => setDraft(text)}>{text}</button>)}</div></div> : null}
-          {messages.map(message => <article key={message.message_id} className={message.role === "USER" ? styles.userMessage : styles.assistantMessage}><small>{message.role === "USER" ? "Anda" : "ARA"}</small>{message.response ? <AraAnswer response={message.response} threadId={message.thread_id} runId={message.run_id} /> : <p className={styles.answerText}>{message.content}</p>}<time dateTime={message.created_at}>{new Date(message.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</time></article>)}
+        <div ref={messageList} className={styles.messageList} role="log" aria-label="Pesan percakapan" onScroll={event => { const list = event.currentTarget; followLatest.current = list.scrollHeight - list.scrollTop - list.clientHeight < 80; }}>
+          {!messages.length && !loading && !sending ? (
+            <div className={styles.emptyChat}>
+              <span className={styles.assistantMonogram}>ARA</span>
+              <h2>Apa yang perlu kita tangani hari ini?</h2>
+              <p>Tanyakan kondisi pekerjaan, pengajuan yang perlu diperiksa, atau informasi dari dokumen. ARA membantu Anda melihat konteks dan langkah berikutnya.</p>
+              <div className={styles.suggestions}>
+                {["Apa pekerjaan yang perlu saya tindak lanjuti?", "Ringkas kondisi divisi saya.", "Bantu saya memeriksa dokumen pendukung."].map(text => (
+                  <button type="button" key={text} onClick={() => { setDraft(text); composer.current?.focus(); }}>
+                    <span className={styles.suggestionIcon} aria-hidden="true">💡</span>
+                    <span>{text}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {messages.map(message => (
+            <article key={message.message_id} className={message.role === "USER" ? styles.userMessage : styles.assistantMessage}>
+              <div className={styles.messageMeta}>
+                <span className={message.role === "USER" ? styles.avatarUser : styles.avatarAssistant} aria-hidden="true">
+                  {message.role === "USER" ? "U" : "ARA"}
+                </span>
+                <small className={styles.senderLabel}>{message.role === "USER" ? "Anda" : "ARA"}</small>
+                {message.response?.response_type === "ANSWER" && message.response.sources.length > 0
+                  ? <span className={styles.verifiedTag}>{message.response.failed_sources.length ? "Sumber parsial" : "Berbasis sumber"}</span> : null}
+                <time dateTime={message.created_at}>{new Date(message.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</time>
+              </div>
+              <div className={styles.messageBodyContent}>
+                {message.response ? <AraAnswer response={message.response} threadId={message.thread_id} runId={message.run_id} /> : <p className={styles.answerText}>{message.content}</p>}
+              </div>
+            </article>
+          ))}
+          {pendingMessage ? (
+            <article className={styles.userMessage}>
+              <div className={styles.messageMeta}>
+                <span className={styles.avatarUser} aria-hidden="true">U</span>
+                <small className={styles.senderLabel}>Anda</small>
+              </div>
+              <div className={styles.messageBodyContent}>
+                <p className={styles.answerText}>{pendingMessage}</p>
+              </div>
+              <div className={styles.pendingIndicator}>
+                <span className={styles.pendingDot} aria-hidden="true" />
+                <small>Menunggu ARA…</small>
+              </div>
+            </article>
+          ) : null}
           {loading ? <LoadingState label="Memuat percakapan…" variant="section" /> : null}
           {sending ? <AraProgress events={progressEvents} label={progressLabel} /> : null}
         </div>
         {error ? <p role="alert" className={styles.chatError}>{error}</p> : null}
         {sending && activeRun ? <Button variant="ghost" onClick={() => void cancelRun()}>Batalkan permintaan</Button> : null}
-        <form className={styles.composer} onSubmit={event => { event.preventDefault(); void send(); }}><label htmlFor="ara-message">Pesan untuk ARA</label><textarea id="ara-message" value={draft} maxLength={4000} disabled={sending || loading || authority.service_available === false} onChange={event => setDraft(event.target.value)} placeholder="Tanyakan pekerjaan, data, atau dokumen…" rows={3} /><div><small>Periksa sumber sebelum mengambil keputusan.</small><Button type="submit" disabled={sending || loading || !draft.trim() || authority.service_available === false}>Kirim pesan</Button></div></form>
+        <form className={styles.composer} onSubmit={event => { event.preventDefault(); void send(); }}>
+          <label htmlFor="ara-message">Pesan untuk ARA</label>
+          <div className={styles.composerInputWrapper}>
+            <textarea
+              ref={composer}
+              id="ara-message"
+              onKeyDown={event => { if (event.key === "Enter" && (event.ctrlKey || event.metaKey) && !event.nativeEvent.isComposing) { event.preventDefault(); void send(); } }}
+              value={draft}
+              maxLength={4000}
+              disabled={sending || loading || !serviceAvailable}
+              onChange={event => setDraft(event.target.value)}
+              placeholder="Tanyakan pekerjaan, data, atau dokumen…"
+              rows={3}
+            />
+          </div>
+          <div className={styles.composerFooter}>
+            <small className={styles.composerHint}>
+              <kbd className={styles.kbd}>Ctrl</kbd> / <kbd className={styles.kbd}>⌘</kbd> + <kbd className={styles.kbd}>Enter</kbd> untuk mengirim · Periksa sumber sebelum mengambil keputusan.
+            </small>
+            <Button type="submit" disabled={sending || loading || !draft.trim() || !serviceAvailable} className={styles.sendButton}>
+              <span className={styles.sendIcon} aria-hidden="true">➤</span>
+              Kirim pesan
+            </Button>
+          </div>
+        </form>
       </section>
-      <aside className={styles.contextPanel} aria-label="Konteks ARA"><h2>Ruang Kerja</h2><strong>{workspaceName}</strong><p>Percakapan mengikuti data dan akses ruang kerja ini.</p><details><summary>Asisten & Otomasi</summary><CapabilityRequests /></details><p>Saran tindakan selalu memerlukan pemeriksaan Anda.</p></aside>
+      <aside className={styles.contextPanel} aria-label="Konteks ARA">
+        <div className={styles.contextHeader}>
+          <h2>Ruang Kerja</h2>
+          <span className={styles.contextStatusDot} data-available={serviceAvailable} title={serviceAvailable ? "ARA tersedia" : "ARA belum tersedia"} />
+        </div>
+        <div className={styles.workspaceCard}>
+          <div className={styles.workspaceCardHeader}>
+            <span className={styles.workspaceCardIcon} aria-hidden="true">🏛️</span>
+            <strong className={styles.workspaceName}>{workspaceName}</strong>
+          </div>
+          <p className={styles.workspaceDescription}>Percakapan mengikuti data dan akses ruang kerja ini.</p>
+          <div className={styles.workspaceTags}>
+            <span className={styles.workspaceTag}>{serviceAvailable ? "ARA tersedia" : "ARA belum tersedia"}</span>
+            <span className={styles.workspaceTag}>Data sesuai akses Anda</span>
+          </div>
+        </div>
+        <div className={styles.governanceCard}>
+          <div className={styles.governanceHeader}>
+            <span className={styles.governanceIcon} aria-hidden="true">🔒</span>
+            <strong>Tata Kelola AI</strong>
+          </div>
+          <p>Saran tindakan selalu memerlukan pemeriksaan Anda.</p>
+        </div>
+        <details className={styles.contextDetails}>
+          <summary>Asisten & Otomasi</summary>
+          <div className={styles.contextDetailsBody}>
+            <CapabilityRequests />
+          </div>
+        </details>
+      </aside>
     </div>
   </section>;
 }

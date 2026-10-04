@@ -3,6 +3,9 @@
 .next
 node_modules
 coverage
+test-results
+playwright-report
+.pnpm-patches
 .env*
 !.env.example
 *.log

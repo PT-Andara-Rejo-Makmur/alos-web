@@ -1,33 +1,27 @@
 # Finance Governance Matrix
 
-| Area | Authority | Status frontend |
-| --- | --- | --- |
-| Kas dan rekening | Finance source resmi | Belum Terhubung |
-| Penerimaan dan verifikasi | Finance governance | Form disabled |
-| Payment dan settlement | Finance governance | Readiness only |
-| Rekonsiliasi | Finance/human confirmation | Tidak membuat candidate |
-| Pajak | Finance/Legal sesuai keputusan | Belum Dinilai |
-| Anggaran finansial | Finance + Strategy boundary | Form disabled |
-| RAB teknis | Property | Read-only dari Finance |
-| Kontrak/legal | Legal | Read-only dari Finance |
-| Target korporat | Strategy | Projection target saja |
-| Bukti dokumen | Shared Work Document | Reuse universal |
+| Area | Authority dan batas implementasi |
+| --- | --- |
+| Rekening/transaksi | Finance owner; immutable recorded transaction dan exact Decimal, bukan saldo bank live |
+| Receivable/Payable/payment | Finance owner; reference, outstanding, duplicate/overpayment dan evidence diperiksa Backend |
+| Budget | Requester berizin; independent owner lead dengan decision permission; action approval dan explicit execute |
+| Rekonsiliasi/pajak | Canonical internal verification; tanpa fund transfer, DJP submission atau inferred compliance |
+| Origin sertifikat | Property/Finance lewat process/reference yang diotorisasi, tanpa akses bebas ke workspace lain |
+| Legal validity | Legal/human evidence; pembayaran atau approved document bukan legal signature |
+| Target/KPI | Strategy + owner projection; verified actual tetap melalui lifecycle Strategy |
+| Dokumen | Shared Work immutable version, classification dan review/approval |
 
-Classification PUBLIC, INTERNAL, CONFIDENTIAL, dan RESTRICTED harus ditentukan oleh source resmi. Frontend tidak mengubah policy akses atau authority.
+Approval tidak langsung mengubah record bisnis. APPROVED hanya dapat dieksekusi
+untuk subject/action/snapshot yang cocok. Backend mengunci record dan approval,
+memvalidasi lifecycle, menandai consumption, menulis business state/audit dan
+memvalidasi projection dalam satu transaksi. PENDING/RETURNED/REJECTED/HELD,
+self-approval, keputusan stale dan replay ditolak.
 
-## Matriks tindakan
+Budget approve/activate/close memakai approval berbeda sesuai requested action.
+Classification dan data scope berasal dari Principal/owner, bukan pilihan frontend.
+Nominal, ambang materialitas dan policy perusahaan tidak dikarang. Final month close,
+automatic settlement dan live bank/DJP connector tetap memerlukan authority/policy.
 
-| Action | Requester | Reviewer | Approver | Materiality | Evidence | Result |
-| --- | --- | --- | --- | --- | --- | --- |
-| Buat penerimaan | Finance authorized actor | Finance verification | NEEDS DECISION | NEEDS DECISION | Bukti penerimaan | Menunggu Verifikasi; bukan otomatis terverifikasi |
-| Buat piutang | Finance authorized actor | Finance verification | NEEDS DECISION | NEEDS DECISION | Referensi/bukti sumber | Receivable draft/open |
-| Ajukan permintaan pembayaran | Finance authorized actor | Finance reviewer | NEEDS DECISION | NEEDS DECISION | Invoice, dokumen, bukti | Payment request; Approved ≠ Paid |
-| Catat tagihan/utang | Finance authorized actor | Finance reviewer | NEEDS DECISION | NEEDS DECISION | Invoice dan dokumen pendukung | Payable record |
-| Jalankan pembayaran | Finance payment authority | Finance reviewer | NEEDS DECISION | NEEDS DECISION | Payment approval dan bukti | Payment execution; Payment ≠ Settlement |
-| Selesaikan transaksi | Finance authority | Finance reviewer | NEEDS DECISION | NEEDS DECISION | Settlement evidence | Settlement; belum otomatis rekonsiliasi |
-| Konfirmasi rekonsiliasi | Finance/human reviewer | Finance reviewer | NEEDS DECISION | NEEDS DECISION | Bank statement dan transaksi | Confirmed match; candidate bukan konfirmasi |
-| Buat/revisi anggaran | Finance authorized actor | Finance reviewer | Strategy/Finance boundary | NEEDS DECISION | Budget/revision evidence | Versi anggaran baru; tidak overwrite versi aktif |
-| Catat kewajiban pajak | Finance authorized actor | Finance/tax reviewer | Legal/Finance boundary | NEEDS DECISION | Dokumen pajak | Tax obligation; kepatuhan tetap Belum Dinilai bila source tidak ada |
-| Telaah kandidat ekstraksi | Authorized reviewer | Human reviewer | Sesuai materialitas | NEEDS DECISION | Dokumen sumber | Candidate/draft, bukan state authoritative |
-
-Otoritas, ambang materialitas, dan lifecycle final ditandai `NEEDS DECISION`, `NEEDS CONTRACT`, atau `NEEDS BACKEND` sampai sumber resminya tersedia. Finance tidak mengubah authority Sales, Property, Legal, Strategy, atau Shared Work.
+Requirements form/data yang lebih luas tetap merupakan kebutuhan bisnis; tidak
+semuanya implementasi siap. Lihat [coverage owner](https://github.com/PT-Andara-Rejo-Makmur/alos-backend/blob/development/docs/canonical-business-coverage.md)
+dan [operasi bisnis](https://github.com/PT-Andara-Rejo-Makmur/alos-backend/blob/development/docs/business-operations.md).

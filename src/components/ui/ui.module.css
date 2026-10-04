@@ -177,34 +177,44 @@
 }
 
 .pageHeaderEyebrow {
-  color: var(--alos-primary);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  line-height: 18px;
-  margin: 0 0 var(--alos-space-2);
+  color: var(--alos-accent-gold-dark);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 16px;
+  margin: 0 0 6px;
+  text-transform: uppercase;
 }
 
 .pageHeaderTitle {
   color: var(--alos-text-primary);
-  font-size: var(--alos-font-heading);
-  font-weight: 700;
-  line-height: 32px;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
   margin: 0;
 }
 
 .pageHeaderDescription {
   color: var(--alos-text-secondary);
-  font-size: 15px;
-  line-height: 21px;
-  margin: var(--alos-space-2) 0 0;
+  font-size: 14.5px;
+  line-height: 22px;
+  margin: 6px 0 0;
 }
 
 .pageHeaderMetadata {
   color: var(--alos-text-muted);
-  font-size: 12px;
-  line-height: 18px;
-  margin-top: var(--alos-space-3);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 16px;
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-badge);
+  padding: 3px 10px;
 }
 
 .pageHeaderActions {
@@ -215,80 +225,101 @@
 }
 
 .section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--alos-space-4);
-}
-
-.sectionBordered {
   background: var(--alos-surface);
   border: 1px solid var(--alos-border);
   border-radius: var(--alos-radius-panel);
-  padding: var(--alos-space-5);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  transition: all var(--alos-transition);
+}
+
+.sectionBordered {
+  border-color: var(--alos-border-strong);
+  box-shadow: var(--alos-shadow-sm);
+}
+
+.section .section {
+  background: var(--alos-surface-alt, #fafbfc);
+  border: 1px solid var(--alos-border-subtle);
+  border-radius: calc(var(--alos-radius-panel) - 2px);
+  box-shadow: none;
 }
 
 .sectionHeader {
-  align-items: flex-start;
+  align-items: center;
+  background: var(--alos-surface-alt, #fafbfc);
+  border-bottom: 1px solid var(--alos-border);
   display: flex;
   gap: var(--alos-space-4);
   justify-content: space-between;
+  padding: var(--alos-space-4) var(--alos-space-5);
+}
+
+.section .section .sectionHeader {
+  background: transparent;
+  padding: var(--alos-space-3) var(--alos-space-4);
+}
+
+.sectionHeaderCopy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .sectionTitle {
   color: var(--alos-text-primary);
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 26px;
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 22px;
   margin: 0;
 }
 
 .sectionDescription {
-  color: var(--alos-text-secondary);
-  font-size: 14px;
-  line-height: 21px;
-  margin: var(--alos-space-1) 0 0;
+  color: var(--alos-text-muted);
+  font-size: 12.5px;
+  line-height: 18px;
+  margin: 2px 0 0;
 }
 
 .sectionActions {
+  align-items: center;
   display: flex;
   flex: 0 0 auto;
   gap: var(--alos-space-2);
 }
 
-.metric {
-  min-width: 0;
-  padding: var(--alos-space-4);
+.sectionBody {
+  padding: var(--alos-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-4);
 }
 
-.metricLabel {
-  color: var(--alos-text-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 18px;
+.sectionBody:has(> .tableViewport:only-child),
+.sectionBody:has(> .tableViewport:last-child) {
+  padding-bottom: 0;
 }
 
-.metricValue {
-  color: var(--alos-text-primary);
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 32px;
-  margin-top: var(--alos-space-2);
+.sectionBody:has(> .tableViewport:only-child) {
+  padding: 0;
 }
 
-.metricSupportingText {
-  color: var(--alos-text-muted);
-  font-size: 12px;
-  line-height: 18px;
-  margin-top: var(--alos-space-1);
+.sectionBody > .tableViewport {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-.metricStatus {
-  margin-top: var(--alos-space-3);
-}
 
 .tableViewport {
   border: 1px solid var(--alos-border);
   border-radius: var(--alos-radius-panel);
+  box-shadow: var(--alos-shadow-xs);
+  background: var(--alos-surface);
   overflow-x: auto;
 }
 
@@ -301,23 +332,27 @@
 .dataTable th {
   background: var(--alos-table-header);
   color: var(--alos-text-secondary);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  height: 48px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  height: 42px;
   line-height: 18px;
   padding: 0 var(--alos-space-4);
   text-align: left;
   white-space: nowrap;
+  border-bottom: 1px solid var(--alos-border);
 }
 
 .dataTable td {
   border-top: 1px solid var(--alos-border);
   color: var(--alos-text-primary);
-  font-size: 13px;
-  height: 52px;
+  font-size: 13.5px;
+  height: 50px;
   line-height: 18px;
   padding: 0 var(--alos-space-4);
   vertical-align: middle;
+  transition: background-color var(--alos-transition);
 }
 
 .dataTable tbody tr:hover {
@@ -336,9 +371,46 @@
 
 .tableEmpty {
   color: var(--alos-text-muted) !important;
-  padding: var(--alos-space-8) var(--alos-space-4) !important;
+  padding: var(--alos-space-10) var(--alos-space-6) !important;
   text-align: center;
   vertical-align: middle;
+}
+
+.tableEmptyCard {
+  align-items: center;
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--alos-space-2);
+  justify-content: center;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.tableEmptyIcon {
+  align-items: center;
+  background: var(--alos-primary-very-soft, #f4f8f6);
+  border: 1px solid var(--alos-primary-soft, #eaf3f0);
+  border-radius: 50%;
+  color: var(--alos-primary, #155e4b);
+  display: inline-flex;
+  height: 48px;
+  justify-content: center;
+  margin-bottom: var(--alos-space-1);
+  width: 48px;
+}
+
+.tableEmptyText {
+  color: var(--alos-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.tableEmptyHint {
+  color: var(--alos-text-muted);
+  font-size: 12.5px;
+  line-height: 18px;
+  margin: 0;
 }
 
 .tableSkeleton,
@@ -357,11 +429,12 @@
   border: 1px solid transparent;
   border-radius: var(--alos-radius-badge);
   display: inline-flex;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
-  gap: var(--alos-space-2);
-  line-height: 18px;
-  padding: 2px var(--alos-space-2);
+  gap: 6px;
+  line-height: 16px;
+  padding: 3px 10px;
+  letter-spacing: 0.02em;
 }
 
 .statusIcon {
@@ -408,14 +481,20 @@
 }
 
 .tabList {
-  align-items: flex-end;
-  border-bottom: 1px solid var(--alos-border);
-  display: flex;
-  gap: var(--alos-space-5);
+  align-items: center;
+  background: #f1f5f9;
+  border: 1px solid var(--alos-border);
+  border-radius: 10px;
+  display: inline-flex;
+  gap: 3px;
+  padding: 4px;
+  width: fit-content;
+  max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .tabList::-webkit-scrollbar {
@@ -425,27 +504,35 @@
 }
 
 .tab {
+  align-items: center;
   background: transparent;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  color: var(--alos-text-muted);
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--alos-text-secondary);
   cursor: pointer;
+  display: inline-flex;
   font-size: 13px;
   font-weight: 500;
+  gap: 6px;
+  justify-content: center;
   line-height: 20px;
-  margin-bottom: -1px;
-  min-height: 40px;
-  padding: 0 var(--alos-space-1);
+  min-height: 32px;
+  padding: 4px 14px;
   white-space: nowrap;
+  transition: all 0.15s ease-in-out;
 }
 
 .tab:hover:not(:disabled) {
-  color: var(--alos-primary);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--alos-text-primary);
 }
 
+.tabActive,
 .tabSelected {
-  border-bottom-color: var(--alos-primary);
-  color: var(--alos-primary-dark);
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.06);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  color: #0e2b23;
   font-weight: 600;
 }
 
@@ -849,4 +936,82 @@
   .dataTable td[data-label] { display: grid; grid-template-columns: minmax(90px, 34%) minmax(0, 1fr); gap: var(--alos-space-3); }
   .dataTable td[data-label]::before { content: attr(data-label); color: var(--alos-text-secondary); font-size: 12px; }
   .stepper { flex-direction: column; align-items: flex-start; gap: var(--alos-space-2); }
+}
+
+/* ==========================================================================
+   Metric Primitive — Cruip Mosaic / Shadcn Dashboard Style
+   ========================================================================== */
+
+.metric {
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-card);
+  box-shadow: var(--alos-shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-2);
+  min-width: 0;
+  padding: var(--alos-space-4) var(--alos-space-5);
+  position: relative;
+  transition: all var(--alos-transition-normal);
+}
+
+.metric:hover {
+  border-color: var(--alos-border-strong);
+  box-shadow: var(--alos-shadow-sm);
+  transform: translateY(-1px);
+}
+
+.metric[data-unavailable] {
+  background: var(--alos-surface-alt);
+  border-style: dashed;
+  opacity: 0.85;
+}
+
+.metricLabel {
+  color: var(--alos-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.metricValue {
+  color: var(--alos-text-primary);
+  font-size: clamp(16px, 1.25vw, 22px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.metric[data-unavailable="true"] .metricValue,
+.metric[data-unavailable] .metricValue {
+  color: var(--alos-text-muted);
+  font-size: 13.5px;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.metricSupportingText {
+  color: var(--alos-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.metricStatus {
+  align-self: flex-start;
+  background: var(--alos-primary-very-soft);
+  border: 1px solid var(--alos-primary-soft);
+  border-radius: var(--alos-radius-badge);
+  color: var(--alos-primary-dark);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+  padding: 2px 8px;
+  text-transform: uppercase;
 }

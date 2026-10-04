@@ -1,29 +1,234 @@
-.page { display: flex; flex-direction: column; gap: var(--alos-space-5); }
-.contextBar { display: grid; gap: var(--alos-space-3); grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.contextItem { background: var(--alos-surface); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-button); display: flex; flex-direction: column; gap: 3px; padding: var(--alos-space-3); }
-.contextLabel { color: var(--alos-text-muted); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
-.contextValue { color: var(--alos-text-primary); font-size: 13px; font-weight: 600; }
-.metricGrid { display: grid; gap: var(--alos-space-3); grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.moduleColumns { display: flex; flex-wrap: wrap; gap: var(--alos-space-2); margin: 0; padding: 0; list-style: none; }
-.moduleColumn { background: var(--alos-primary-very-soft); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-badge); color: var(--alos-primary-dark); font-size: 12px; padding: 6px 9px; }
-.flowGrid { display: grid; gap: var(--alos-space-3); grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.flowCard { background: var(--alos-surface); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-button); display: flex; flex-direction: column; gap: var(--alos-space-2); padding: var(--alos-space-3); }
-.flowCard strong { color: var(--alos-primary-dark); font-size: 13px; letter-spacing: .08em; }
-.flowCard > span { color: var(--alos-text-secondary); font-size: 12px; }
-.formGrid { display: grid; gap: var(--alos-space-4); grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.formFull { grid-column: 1 / -1; }
-.formControl { background: var(--alos-surface); border: 1px solid var(--alos-border-strong); border-radius: var(--alos-radius-button); color: var(--alos-text-primary); min-height: 40px; padding: 0 var(--alos-space-3); width: 100%; }
-.formHint { color: var(--alos-text-muted); font-size: 12px; line-height: 18px; margin: 0; }
-.sourceState { align-items: flex-start; background: var(--alos-surface-alt); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-button); display: flex; flex-direction: column; gap: 4px; padding: var(--alos-space-4); }
-.sourceState strong { color: var(--alos-text-primary); font-size: 14px; }
-.sourceState span { color: var(--alos-text-secondary); font-size: 13px; line-height: 19px; }
-.accessState { align-items: center; background: var(--alos-app-background); display: flex; justify-content: center; min-height: 100dvh; padding: var(--alos-space-4); }
-.accessCard { background: var(--alos-surface); border: 1px solid var(--alos-border); border-radius: var(--alos-radius-panel); max-width: 440px; padding: var(--alos-space-8); width: 100%; }
-.accessBrand { color: var(--alos-primary); font-size: 12px; font-weight: 700; letter-spacing: .14em; margin: 0 0 var(--alos-space-3); }
-.accessTitle { font-size: 20px; line-height: 28px; margin: 0 0 var(--alos-space-2); }
-.accessText { color: var(--alos-text-secondary); line-height: 21px; margin: 0; }
-.actions { display: flex; flex-wrap: wrap; gap: var(--alos-space-2); }
-@media (max-width: 1024px) { .metricGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 768px) { .flowGrid { grid-template-columns: 1fr; } .formGrid { grid-template-columns: 1fr; } .formFull { grid-column: auto; } }
-@media (max-width: 639px) { .contextBar, .metricGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 390px) { .contextBar, .metricGrid { grid-template-columns: 1fr; } }
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-6);
+}
+
+.contextBar {
+  display: grid;
+  gap: var(--alos-space-3);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.contextItem {
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-card);
+  box-shadow: var(--alos-shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: var(--alos-space-4);
+}
+
+.contextLabel {
+  color: var(--alos-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.contextValue {
+  color: var(--alos-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.metricGrid {
+  display: grid;
+  gap: var(--alos-space-4);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.moduleColumns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--alos-space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.moduleColumn {
+  background: var(--alos-primary-very-soft);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-badge);
+  color: var(--alos-primary-dark);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+}
+
+.flowGrid {
+  display: grid;
+  gap: var(--alos-space-4);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.flowCard {
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-card);
+  box-shadow: var(--alos-shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--alos-space-2);
+  padding: var(--alos-space-4);
+  transition: all var(--alos-transition-normal);
+}
+
+.flowCard:hover {
+  border-color: var(--alos-primary);
+  box-shadow: var(--alos-shadow-sm);
+  transform: translateY(-1px);
+}
+
+.flowCard strong {
+  color: var(--alos-primary-dark);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.flowCard > span {
+  color: var(--alos-text-secondary);
+  font-size: 13px;
+}
+
+.formGrid {
+  display: grid;
+  gap: var(--alos-space-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.formFull {
+  grid-column: 1 / -1;
+}
+
+.formControl {
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border-strong);
+  border-radius: var(--alos-radius-input);
+  color: var(--alos-text-primary);
+  font-size: 14px;
+  min-height: 40px;
+  padding: 0 var(--alos-space-3);
+  transition: border-color var(--alos-transition-fast), box-shadow var(--alos-transition-fast);
+  width: 100%;
+}
+
+.formControl:focus {
+  border-color: var(--alos-primary);
+  box-shadow: 0 0 0 2px var(--alos-primary-soft);
+  outline: none;
+}
+
+.formHint {
+  color: var(--alos-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+  margin: 0;
+}
+
+.sourceState {
+  align-items: flex-start;
+  background: var(--alos-surface-alt);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-card);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--alos-space-4);
+}
+
+.sourceState strong {
+  color: var(--alos-text-primary);
+  font-size: 14px;
+}
+
+.sourceState span {
+  color: var(--alos-text-secondary);
+  font-size: 13px;
+  line-height: 19px;
+}
+
+.accessState {
+  align-items: center;
+  background: var(--alos-app-background);
+  display: flex;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: var(--alos-space-4);
+}
+
+.accessCard {
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-panel);
+  box-shadow: var(--alos-shadow-md);
+  max-width: 440px;
+  padding: var(--alos-space-8);
+  width: 100%;
+}
+
+.accessBrand {
+  color: var(--alos-primary);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  margin: 0 0 var(--alos-space-3);
+}
+
+.accessTitle {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  margin: 0 0 var(--alos-space-2);
+}
+
+.accessText {
+  color: var(--alos-text-secondary);
+  line-height: 21px;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--alos-space-2);
+}
+
+@media (max-width: 1024px) {
+  .metricGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .flowGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formFull {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 639px) {
+  .contextBar,
+  .metricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 390px) {
+  .contextBar,
+  .metricGrid {
+    grid-template-columns: 1fr;
+  }
+}

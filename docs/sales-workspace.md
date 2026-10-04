@@ -1,35 +1,29 @@
 # Sales & Marketing Workspace
 
-Ruang kerja Sales berada di `/workspace/[workspaceKey]` sesuai `workspace_key` pada active workspace yang diproyeksikan Backend. Akses hanya terbuka untuk workspace bertipe `BUSINESS` dengan `division_code` `SALES`; parameter URL, role lokal, dan penyimpanan browser tidak memberikan akses.
+| Menu aktif | Sumber dan batas |
+| --- | --- |
+| Ringkasan / Pipeline | Overview dan opportunities canonical; browser tidak membuat conversion/revenue sendiri |
+| Prospek & Lead | Customer/Lead, relasi unit dan qualification melalui owner Sales |
+| Aktivitas & Tindak Lanjut | Site Visit, Follow-up dan Complaint yang tercatat |
+| Booking & Closing | Booking/Closing; approval independen dan eksekusi eksplisit, relasi Property/Finance diperiksa Backend |
+| KPR & Akad | Catatan pembiayaan/proses Backend; bukan koneksi bank atau bukti akad sah otomatis |
+| Kampanye & Saluran | Campaign, Channel, Attribution, Content, Pricing/Collateral; tanpa metrik iklan live |
+| Target & Kinerja | Projection Strategy dan indikator canonical dengan sumber/verification |
 
-| Menu | Route | Ketersediaan |
-| --- | --- | --- |
-| Ringkasan | `/summary` | UI FINAL / SOURCE UNAVAILABLE |
-| Pipeline Penjualan | `/pipeline` | UI FINAL / SOURCE UNAVAILABLE |
-| Prospek & Lead | `/leads` | UI FINAL / SOURCE UNAVAILABLE |
-| Aktivitas & Tindak Lanjut | `/activities` | UI FINAL / SOURCE UNAVAILABLE |
-| Booking & Closing | `/bookings` | UI FINAL / SOURCE UNAVAILABLE / NEEDS INTEGRATION Finance, Legal, dan Property |
-| KPR & Akad | `/kpr` | UI FINAL / SOURCE UNAVAILABLE / NEEDS INTEGRATION Finance dan Legal |
-| Campaign & Channel | `/campaigns` | UI FINAL / SOURCE UNAVAILABLE |
-| Target & Kinerja | `/performance` | UI FINAL / SOURCE UNAVAILABLE / NEEDS INTEGRATION Strategy Sales |
-| Proyek, Tugas, Persetujuan, Dokumen, Laporan, Temuan | route Shared Work | Shared Work universal |
-| Tanya ARA | `/ara` | READINESS ONLY / NEEDS INTEGRATION |
+Navigation dimiliki `src/features/sales/navigation.ts`. Customer → Lead → QUALIFIED,
+booking approval/pending/self/replay/stale decision dan Campaign reload telah diuji.
+Sales tidak dapat memberi legal validity, menjalankan refund/bank transfer atau
+membuat keputusan KPR hanya melalui perubahan state frontend.
 
-Nilai yang belum authoritative ditampilkan sebagai `—`; tidak ada catatan, metrik, atau closing simulasi.
+Workspace memakai `/workspace/[workspaceKey]/...` dari session Backend. URL hanya
+identity navigasi; tenant, organization, workspace, role, permission dan scope
+ditentukan Backend. Shared Work, Perlu Tindakan dan ARA menggunakan workspace
+yang sama. Desain final dan business feature tidak diubah oleh dokumentasi ini.
 
-Ringkasan bersifat read-first dan tidak menyediakan form input utama. Pipeline menyediakan filter, stage summary, tabel daftar, dan quick view; belum ada baris bisnis karena source pipeline authoritative belum tersedia.
+CONNECTED berarti sumber/command internal tersedia, bukan seluruh kebutuhan
+bisnis atau connector eksternal siap. Empty hanya setelah query scoped berhasil;
+unknown tetap null/— dan outage tetap error. Rincian field/lifecycle/authority ada
+pada [coverage authoritative](https://github.com/PT-Andara-Rejo-Makmur/alos-backend/blob/development/docs/canonical-business-coverage.md).
+Kebutuhan form/data tetap disimpan sebagai requirements, bukan daftar fitur siap.
 
-Sales tidak dapat menetapkan booking fee received, validitas SPK, KPR approved, SP3K issued, akad completed, refund paid, atau official closing. State tersebut tetap read-only dari authority Finance, Legal, Property, atau outcome governed.
-
-Semua halaman domain Sales sudah memiliki struktur UI final: tabel, filter, tab, quick view/detail, state loading/unavailable/error yang dapat dikembangkan, serta form UX. Karena source authoritative belum tersedia, daftar tidak mengarang record dan mutation submit tetap disabled dengan pesan yang eksplisit.
-
-## Deferred until dashboard phase complete
-
-- Contracts required untuk projection dan capability mutation Sales.
-- Backend services/projections required untuk data Sales dan freshness/scope.
-- Cross-domain authority untuk Finance, Legal, Property, Strategy, dan governed closing.
-- GENESIS extraction integration melalui jalur Backend yang ter-govern.
-
-`workspace_key` pada URL hanya menentukan tujuan navigasi. Halaman Sales membandingkannya dengan active workspace projection dari Backend dan menolak akses apabila keduanya tidak sama.
-
-> NEEDS CONTRACT / NEEDS DECISION: `division_code` saat ini merupakan string pada contract identity, belum enum atau capability khusus Sales. Web fail-closed kecuali nilainya tepat `SALES`; Backend dan Contracts perlu menetapkan mapping Sales yang canonical sebelum integrasi domain diaktifkan.
+[Bukti UAT development](https://github.com/PT-Andara-Rejo-Makmur/alos-infra/blob/development/docs/BUSINESS_UAT_2026-10-04.md).

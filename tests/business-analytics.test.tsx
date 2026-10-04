@@ -123,6 +123,13 @@ function noResize() {
 }
 
 describe("business analytics projection", () => {
+  it("shows verified zero categories without an invented chart scale and keeps their exact table", () => {
+    const breakdown = salesProjection().breakdowns[0];
+    render(<BreakdownChart breakdown={{ ...breakdown, items: breakdown.items.map(item => ({ ...item, value: 0 })) }} generatedAt="2026-10-04T00:00:00Z" />);
+    expect(screen.getByRole("status")).toHaveTextContent("Seluruh kategori bernilai 0 pada snapshot ini.");
+    expect(screen.getAllByRole("cell", { name: "0" })).toHaveLength(4);
+    expect(document.querySelector(".recharts-wrapper")).toBeNull();
+  });
   it("keeps an authoritative zero distinct from an unavailable series", () => {
     const projection = salesProjection();
     expect(isBusinessAnalyticsProjection(projection, "sales")).toBe(true);

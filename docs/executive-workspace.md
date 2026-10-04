@@ -15,10 +15,10 @@ It owns no business database, entity lifecycle, KPI, approval system or AI summa
 | Verification (`performance` action/drawer) | Canonical Strategy observation verification and planning verification; permission gated |
 | Assumptions, cascade, history | Existing planning/review/detail tabs and drawers; no added navigation menu |
 | Inisiatif Strategis (`initiatives`) | Readiness only; no canonical initiative or project-to-strategy relationship is inferred |
-| Divisi (`divisions`) | Dedicated Strategy targets where explicit scope permits; business-domain connection remains unavailable |
+| Divisi (`divisions`) | Dedicated Strategy targets where explicit scope permits; owner overview sources are connected within explicitly authorized scope |
 | Detail Divisi (`divisions/{sales,property,finance,legal,hr,it}`) | Strategy detail where explicit scope exists; division Shared Work tabs remain unavailable because no canonical division-to-workspace projection exists |
 | Proyek, Tugas, Persetujuan, Laporan, Temuan, Dokumen | Existing canonical Shared Work list/detail APIs; active workspace visibility; default Executive is read-oriented |
-| Tanya ARA and Analisis GENESIS | READINESS ONLY / Belum Terhubung; no new calls, prompt, summary or recommendation |
+| Tanya ARA | Governed conversation/read tools through Backend; TEST and NORMAL are distinct; real-model quality eval remains pending |
 
 Routes use `/workspace/[workspaceKey]/...`, with workspaceKey from the authoritative
 active session. `/workspace/executive` remains a compatibility redirect to the actual

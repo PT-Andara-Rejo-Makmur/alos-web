@@ -2,7 +2,7 @@
 
 ## Prasyarat
 
-Gunakan Node.js 22 dan pnpm. ALOS Backend tidak wajib untuk memasang dependency atau menjalankan
+Gunakan Node.js 22+ dan pnpm 11.19.0 sesuai `package.json`. ALOS Backend tidak wajib untuk memasang dependency atau menjalankan
 quality gate.
 
 ## Windows PowerShell

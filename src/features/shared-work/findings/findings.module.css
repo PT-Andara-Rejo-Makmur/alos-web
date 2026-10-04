@@ -1,7 +1,7 @@
 .pageContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--alos-space-4);
+  gap: var(--alos-space-5);
   width: 100%;
 }
 
@@ -21,52 +21,54 @@
 }
 
 .findingTitleText {
-  font-weight: 600;
   color: var(--alos-text-primary);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .findingCategoryText {
-  font-size: 12px;
   color: var(--alos-text-muted);
+  font-size: 12px;
 }
 
 .correctiveActionBox {
+  background: var(--alos-surface);
+  border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-card);
+  box-shadow: var(--alos-shadow-xs);
   display: flex;
   flex-direction: column;
   gap: var(--alos-space-2);
-  padding: var(--alos-space-3);
-  background: var(--alos-surface);
-  border: 1px solid var(--alos-border);
-  border-radius: var(--alos-radius-badge);
+  padding: var(--alos-space-3) var(--alos-space-4);
 }
 
 .correctiveActionTitle {
+  color: var(--alos-text-primary);
   font-size: 13px;
   font-weight: 600;
-  color: var(--alos-text-primary);
 }
 
 .correctiveActionDesc {
-  font-size: 13px;
   color: var(--alos-text-secondary);
+  font-size: 13px;
   line-height: 1.5;
 }
 
 .taskLinkBox {
-  display: flex;
   align-items: center;
-  gap: var(--alos-space-2);
-  padding: var(--alos-space-2) var(--alos-space-3);
   background: var(--alos-surface-alt);
   border: 1px solid var(--alos-border);
-  border-radius: var(--alos-radius-badge);
+  border-radius: var(--alos-radius-card);
+  display: flex;
   font-size: 13px;
+  gap: var(--alos-space-2);
+  padding: var(--alos-space-2) var(--alos-space-3);
 }
 
 .drawerFooterActions {
   display: flex;
-  justify-content: flex-end;
   gap: var(--alos-space-3);
+  justify-content: flex-end;
   width: 100%;
 }
 
@@ -77,7 +79,7 @@
 
 .createActions {
   display: flex;
+  gap: var(--alos-space-3);
   justify-content: flex-end;
-  gap: var(--alos-space-2);
 }
 

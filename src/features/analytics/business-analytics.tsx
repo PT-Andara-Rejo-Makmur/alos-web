@@ -35,12 +35,12 @@ type AnalyticsUnit = AnalyticsSeries["unit"];
 type ChartRow = Record<string, string | number | null> & { label: string };
 
 const CHART_COLORS = {
-  primary: "#245b43",
-  actual: "#245b43",
-  target: "#758579",
-  forecast: "#ad9152",
-  grid: "#e4e9e5",
-  text: "#5c6961",
+  primary: "#155e4b",
+  actual: "#155e4b",
+  target: "#6b7a72",
+  forecast: "#b38838",
+  grid: "#e5ece8",
+  text: "#52615a",
 } as const;
 
 const CHART_LABELS: Readonly<Record<string, string>> = {
@@ -286,16 +286,17 @@ export function BreakdownChart({
     return value === null ? [] : [{ label: item.label, value, exact: item.value }];
   });
   const rows: ChartRow[] = breakdown.items.map(item => ({ label: item.label, value: item.value }));
+  const allZero = chartRows.length > 0 && chartRows.every(row => row.value === 0);
   return (
     <ChartFrame
       title={breakdown.label}
       description={`${breakdown.label}; ${breakdown.items.length} kategori tersedia.`}
       metadata={snapshotMetadata(generatedAt, breakdown.source)}
-      rowCount={breakdown.available ? chartRows.length : 0}
+      rowCount={breakdown.available && !allZero ? chartRows.length : 0}
       rows={rows}
       headers={[{ key: "label", label: "Kategori" }, { key: "value", label: breakdown.label, unit: breakdown.unit }]}
       tall={chartRows.length > 6}
-      emptyMessage={!breakdown.available ? "Belum tersedia" : "Belum ada catatan yang dapat ditampilkan."}
+      emptyMessage={!breakdown.available ? "Belum tersedia" : allZero ? "Seluruh kategori bernilai 0 pada snapshot ini." : "Belum ada catatan yang dapat ditampilkan."}
       isUnsafe={hasUnsafe}
       variant={variant}
     >
@@ -308,7 +309,7 @@ export function BreakdownChart({
             tooltipValue(value, (item.payload as ChartRow | undefined)?.exact),
             breakdown.unit,
           )} />
-          <Bar dataKey="value" name={breakdown.label} fill={CHART_COLORS.primary} radius={[0, 2, 2, 0]} isAnimationActive={false} />
+          <Bar dataKey="value" name={breakdown.label} fill={CHART_COLORS.primary} radius={[0, 4, 4, 0]} isAnimationActive={false} />
         </BarChart>
       </ResponsiveContainer>
     </ChartFrame>
@@ -401,7 +402,7 @@ export function ComparisonChart({
               dataKey={field.key}
               name={field.label}
               fill={field.key === "target_value" ? CHART_COLORS.target : field.key === "forecast_value" ? CHART_COLORS.forecast : CHART_COLORS.actual}
-              radius={[0, 2, 2, 0]}
+              radius={[0, 4, 4, 0]}
               isAnimationActive={false}
             />
           ))}

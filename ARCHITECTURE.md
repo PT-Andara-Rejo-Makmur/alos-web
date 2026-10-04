@@ -15,11 +15,12 @@ Browser
 
 - `/login` menyediakan login.
 - `/api/session/*` menangani login, pembacaan session, dan logout melalui boundary same-origin.
-- `/workspace` adalah temporary landing setelah status session diperiksa.
+- `/workspace` memuat pilihan workspace yang diizinkan dan mengarahkan ke active workspace.
+- `/workspace/[workspaceKey]/...` memuat dashboard divisi, Shared Work, ARA dan administrasi sesuai permission.
 - `/api/backend/*` meneruskan request terautentikasi ke ALOS Backend.
 - `src/lib/contracts/` menjadi contract facade frontend untuk sumber `alos-contracts`.
-- Reusable data adapter boleh digunakan di bawah facade tersebut jika masih diperlukan oleh
-  runtime foundation.
+- Adapter feature memvalidasi projection API dan mempertahankan null/unknown, Decimal string,
+  lifecycle dan pembatasan tindakan dari Backend.
 
 ALOS Backend memegang authentication, authorization, canonical state, dan integrasi ke GENESIS
 atau internal systems. Browser/Web tidak memanggil GENESIS secara langsung.

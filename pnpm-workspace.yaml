@@ -2,3 +2,5 @@ allowBuilds:
   unrs-resolver: true
 minimumReleaseAgeExclude:
   - '@types/node@22.20.3'
+patchedDependencies:
+  braces@3.0.3: patches/braces@3.0.3.patch

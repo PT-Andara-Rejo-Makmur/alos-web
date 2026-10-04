@@ -152,6 +152,13 @@ describe("business presentation on active surfaces", () => {
     expect(api.apiMessage(new api.ApiRequestError("Periksa tanggal akhir rencana.", 400))).toBe("Periksa tanggal akhir rencana.");
   });
 
+  it("explains an unfinished corrective action without exposing diagnostics or bypassing denial", () => {
+    const code = "FINDING_CORRECTIVE_ACTION_INCOMPLETE";
+    const error = new api.ApiRequestError("internal task diagnostic", 409, "trace-reference", code);
+    expect(api.apiMessage(error)).toBe("Selesaikan tugas tindakan korektif yang tertaut sebelum memverifikasi atau menutup temuan.");
+    expect(api.apiMessage(new api.ApiRequestError("internal task diagnostic", 403, null, code))).toBe("Anda tidak memiliki kewenangan untuk melakukan tindakan ini.");
+  });
+
   it("uses impact labels in record tables and form options without replacing business codes", () => {
     expect(recordFieldValue(severity, "CRITICAL")).toBe("Kritis");
     expect(recordFieldValue({ ...severity, name: "name", options: undefined }, "PT ARM")).toBe("PT ARM");

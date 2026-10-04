@@ -17,14 +17,14 @@ export function Section({ actions, bordered = false, children, description, titl
     <section className={classes}>
       {title || description || actions ? (
         <header className={styles.sectionHeader}>
-          <div>
+          <div className={styles.sectionHeaderCopy}>
             {title ? <h2 className={styles.sectionTitle}>{title}</h2> : null}
             {description ? <p className={styles.sectionDescription}>{description}</p> : null}
           </div>
           {actions ? <div className={styles.sectionActions}>{actions}</div> : null}
         </header>
       ) : null}
-      {children}
+      <div className={styles.sectionBody}>{children}</div>
     </section>
   );
 }

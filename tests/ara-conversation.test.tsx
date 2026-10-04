@@ -17,17 +17,21 @@ describe("ARA conversation", () => {
   it.each([true, false])("keeps provider diagnostics out of business conversation %s", async (connected) => {
     render(<AraConversation authority={{...authority, runtime_mode: "NORMAL", production_provider_connected: connected}} workspaceName="Sales" />);
     expect(screen.queryByText(/Production Model Provider|runtime|run ID/i)).not.toBeInTheDocument();
-    expect(screen.getByText("ARA siap membantu berdasarkan data dan akses ruang kerja Anda.")).toBeInTheDocument();
+    expect(screen.getByText(connected ? "ARA siap membantu berdasarkan data dan akses ruang kerja Anda."
+      : "ARA belum dapat membantu saat ini. Silakan coba kembali.")).toBeInTheDocument();
+    expect(screen.getByRole("textbox")).toBeDisabled();
     await waitFor(() => expect(araApi.threads).toHaveBeenCalled());
+    await waitFor(() => connected ? expect(screen.getByRole("textbox")).toBeEnabled() : expect(screen.getByRole("textbox")).toBeDisabled());
   });
 
-  it.each([["ANSWER", "Jawaban"], ["DENIED", "Informasi belum dapat diakses"], ["NEEDS_INFO", "Perlu informasi tambahan"], ["NEEDS_REVIEW", "Perlu pemeriksaan Anda"], ["FAILED", "Jawaban belum tersedia"]] as const)("renders %s distinctly and restores persisted history", async (kind, label) => {
+  it.each([["ANSWER", "Jawaban"], ["CONVERSATION", "ARA"], ["DENIED", "Informasi belum dapat diakses"], ["NEEDS_INFO", "Perlu informasi tambahan"], ["NEEDS_REVIEW", "Perlu pemeriksaan Anda"], ["FAILED", "Jawaban belum tersedia"]] as const)("renders %s distinctly and restores persisted history", async (kind, label) => {
     vi.mocked(araApi.messages).mockResolvedValue([message(kind)]);
     const { unmount } = render(<AraConversation authority={authority} workspaceName="Sales" />);
     expect(await screen.findByText(label, { selector: "strong" })).toBeInTheDocument();
     unmount(); render(<AraConversation authority={authority} workspaceName="Sales" />);
     expect(await screen.findByText(label, { selector: "strong" })).toBeInTheDocument();
     expect(screen.getByText("Data canonical")).toBeInTheDocument();
+    expect(screen.queryByText(/Terverifikasi|Berbasis sumber|Model: ALOS GENESIS v2/)).not.toBeInTheDocument();
   });
 
   it("creates a thread and sends only the minimal request", async () => {
@@ -55,6 +59,30 @@ describe("ARA conversation", () => {
     expect(screen.queryByText("Data canonical")).not.toBeInTheDocument();
   });
 
+  it("sends with the keyboard and shows the pending question before the server answers", async () => {
+    let finish!: () => void;
+    const send = vi.spyOn(araApi, "send").mockImplementation(() => new Promise(resolve => {
+      finish = () => resolve({ thread_id: thread.thread_id, run_id: "run_test", correlation_id: "corr_test", status: "COMPLETED", runtime_mode: "DETERMINISTIC_TEST", created_at: thread.created_at });
+    }));
+    render(<AraConversation authority={authority} workspaceName="Sales" />);
+    const input = screen.getByRole("textbox");
+    await waitFor(() => expect(input).toBeEnabled());
+    fireEvent.change(input, { target: { value: "Ringkas tindak lanjut saya" } });
+    fireEvent.keyDown(input, { key: "Enter", ctrlKey: true });
+    expect(send).toHaveBeenCalledExactlyOnceWith(thread.thread_id, { message: "Ringkas tindak lanjut saya" });
+    expect(screen.getByRole("log")).toHaveTextContent("Ringkas tindak lanjut saya");
+    expect(screen.getByRole("log")).toHaveTextContent("Menunggu ARA");
+    vi.mocked(araApi.messages).mockResolvedValue([
+      { ...message("ANSWER"), message_id: "user_test", role: "USER", content: "Ringkas tindak lanjut saya", response: undefined },
+      message("ANSWER"),
+    ]);
+    finish();
+    await waitFor(() => expect(input).toBeEnabled());
+    expect(screen.queryByText("Menunggu ARA…")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Ringkas tindak lanjut saya")).toHaveLength(1);
+    await waitFor(() => expect(input).toHaveFocus());
+  });
+
   it("displays source lineage without model-generated links", async () => {
     const sourced = message("ANSWER");
     const response = sourced.response!;
@@ -62,6 +90,7 @@ describe("ARA conversation", () => {
     render(<AraConversation authority={authority} workspaceName="Sales" />);
     expect(await screen.findByText("Sumber yang digunakan")).toBeInTheDocument();
     expect(screen.getByText("1 sumber yang dapat diakses")).toBeInTheDocument();
+    expect(screen.getByText("Berbasis sumber")).toBeInTheDocument();
     expect(screen.getByText("Sales & Marketing")).toBeInTheDocument();
     expect(screen.queryByText(/evidence_test|source_test|sales.lead.list/)).not.toBeInTheDocument();
     expect(screen.queryByText(`sha256:${"a".repeat(64)}`)).not.toBeInTheDocument();

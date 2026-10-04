@@ -108,6 +108,7 @@ export function apiMessage(error: unknown): string {
   if (error instanceof ApiRequestError) {
     if (error.status === 401) return "Sesi Anda sudah berakhir. Silakan masuk kembali.";
     if (error.status === 403) return "Anda tidak memiliki kewenangan untuk melakukan tindakan ini.";
+    if (error.status === 409 && error.code === "FINDING_CORRECTIVE_ACTION_INCOMPLETE") return "Selesaikan tugas tindakan korektif yang tertaut sebelum memverifikasi atau menutup temuan.";
     if (error.status === 409) return "Data atau status pengajuan sudah berubah. Buka ulang detail dan periksa tindakan yang masih tersedia.";
     if (error.status === 413) return "Berkas terlalu besar. Pilih berkas dengan ukuran maksimal 10 MB.";
     if (error.status === 415) return "Format berkas belum dapat diproses. Gunakan DOCX atau TXT.";

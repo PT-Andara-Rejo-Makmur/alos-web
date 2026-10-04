@@ -1,6 +1,6 @@
 # ALOS Web
 
-ALOS Web adalah frontend clean baseline untuk ALOS. Browser berinteraksi dengan Web melalui
+ALOS Web adalah dashboard dan frontend ALOS. Browser berinteraksi dengan Web melalui
 boundary yang terdefinisi; ALOS Backend tetap menjadi authority untuk session dan data.
 
 ## Boundary runtime
@@ -20,19 +20,21 @@ Runtime frontend saat ini mencakup:
 - pemeriksaan dan pengelolaan session melalui `/api/session/*`;
 - `/workspace` sebagai landing setelah pemeriksaan session;
 - AppShell canonical dan route publik `/workspace/[workspaceKey]/...` untuk tujuh domain;
-- UI final Stage 3 untuk Executive, Sales, Property, Finance, Legal, HR & GA, dan IT;
+- dashboard Executive, Sales, Property, Finance, Legal, HR & GA, dan IT;
 - Shared Work universal dan ARA universal dalam keadaan source-honest;
 - `/api/backend/*` sebagai API/BFF boundary untuk request yang sudah terautentikasi.
 
 Root `/` mengarahkan pengguna ke `/workspace`. Frontend tidak memanggil GENESIS secara langsung,
 tidak menyimpan secret, dan tidak membuat authority baru.
 
-## Status UI Stage 3
+## Status implementasi
 
-Tree dashboard lama telah dihapus pada fase UI Reset. Penggantinya sekarang tersedia melalui
-AppShell dan navigation canonical berdasarkan active workspace projection. UI tidak membuat data
-bisnis, jawaban ARA, atau status keberhasilan ketika source atau mutation Backend belum tersedia.
-Canonical contracts dan integrasi domain Backend lanjutan tetap menjadi pekerjaan Stage 4.
+Navigasi mengikuti active workspace dari Backend. Workspace bisnis dan Shared Work memakai
+API canonical, termasuk approval, dokumen berversi dan worker. Desain final pengguna dipertahankan.
+Source yang belum tersedia, error dan nilai yang belum diketahui ditampilkan secara eksplisit.
+Implementasi internal yang terhubung tidak membuktikan connector eksternal atau kesiapan produksi.
+Lihat [cakupan bisnis authoritative](https://github.com/PT-Andara-Rejo-Makmur/alos-backend/blob/development/docs/canonical-business-coverage.md)
+dan [bukti UAT development](https://github.com/PT-Andara-Rejo-Makmur/alos-infra/blob/development/docs/BUSINESS_UAT_2026-10-04.md).
 
 ## Contract boundary
 
@@ -52,8 +54,9 @@ pnpm lint
 pnpm typecheck
 pnpm test
 pnpm build
+pnpm security
 ```
 
-Dokumentasi baseline: [Architecture](ARCHITECTURE.md), [API integration](docs/API_INTEGRATION.md),
-[Canonical identity access](docs/CANONICAL_IDENTITY_ACCESS.md), [Development](docs/DEVELOPMENT.md),
-[Installation](docs/INSTALLATION.md), dan [Running](docs/RUNNING.md).
+Mulai dari [indeks dokumentasi](docs/README.md), [instalasi](docs/INSTALLATION.md),
+[menjalankan Web](docs/RUNNING.md), dan [integrasi API](docs/API_INTEGRATION.md).
+Browser E2E hanya dijalankan pada stack disposable dengan opt-in; lihat [pengembangan](docs/DEVELOPMENT.md).

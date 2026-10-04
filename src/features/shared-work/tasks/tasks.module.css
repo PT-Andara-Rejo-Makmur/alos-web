@@ -1,7 +1,7 @@
 .pageContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--alos-space-4);
+  gap: var(--alos-space-5);
   width: 100%;
 }
 
@@ -12,8 +12,8 @@
 
 .createActions {
   display: flex;
+  gap: var(--alos-space-3);
   justify-content: flex-end;
-  gap: var(--alos-space-2);
 }
 
 .noticeContainer {
@@ -26,11 +26,11 @@
 }
 
 .toolbarContainer {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--alos-space-3);
+  display: flex;
   flex-wrap: wrap;
+  gap: var(--alos-space-3);
+  justify-content: space-between;
 }
 
 .taskTitleCell {
@@ -40,64 +40,67 @@
 }
 
 .taskTitleText {
-  font-weight: 600;
   color: var(--alos-text-primary);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .taskDescText {
-  font-size: 12px;
   color: var(--alos-text-muted);
-  max-width: 340px;
+  font-size: 12px;
+  max-width: 360px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .overdueDate {
-  color: var(--alos-status-danger-text);
-  font-weight: 600;
-  display: inline-flex;
   align-items: center;
+  color: var(--alos-status-danger-text);
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 600;
   gap: 4px;
 }
 
 .normalDate {
   color: var(--alos-text-primary);
+  font-size: 13px;
 }
 
 .dependencySection {
-  margin-top: var(--alos-space-3);
+  margin-top: var(--alos-space-4);
 }
 
 .dependencyList {
   display: flex;
   flex-direction: column;
   gap: var(--alos-space-2);
-  margin-top: var(--alos-space-1);
+  margin-top: var(--alos-space-2);
 }
 
 .dependencyItem {
-  display: flex;
   align-items: center;
-  gap: var(--alos-space-2);
-  font-size: 13px;
-  color: var(--alos-text-primary);
   background: var(--alos-surface-alt);
-  padding: 4px 8px;
-  border-radius: var(--alos-radius-badge);
   border: 1px solid var(--alos-border);
+  border-radius: var(--alos-radius-card);
+  color: var(--alos-text-primary);
+  display: flex;
+  font-size: 13px;
+  gap: var(--alos-space-2);
+  padding: 6px 12px;
 }
 
 .drawerFooterActions {
   display: flex;
-  justify-content: flex-end;
   gap: var(--alos-space-3);
+  justify-content: flex-end;
   width: 100%;
 }
 
 .metaRow {
-  display: flex;
   align-items: center;
-  gap: var(--alos-space-2);
+  display: flex;
   flex-wrap: wrap;
+  gap: var(--alos-space-2);
 }

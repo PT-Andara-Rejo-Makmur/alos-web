@@ -1,41 +1,29 @@
 # Property Workspace
 
-Property menggunakan canonical workspace boundary `/workspace/[workspaceKey]`. Workspace object dari Backend/session adalah authority; `workspace_key` hanya identity URL; domain diturunkan melalui `resolveWorkspaceDomain()` dari metadata authoritative.
+| Menu aktif | Sumber dan batas |
+| --- | --- |
+| Ringkasan / Portofolio Proyek | Overview owner dan Shared Work Project existing, bukan Project authority kedua |
+| Progres & Jadwal | Construction updates dan milestone dengan input/evidence yang tercatat |
+| Pekerjaan & Milestone | Package, Update, Change Order, Certificate dan Handover melalui owner API |
+| Unit & Kesiapan | Property Unit; luas/penilaian yang belum ada tetap null, perubahan material mengikuti approval |
+| Inspeksi & Kualitas | Inspection, NCR dan Safety Incident; severity tidak diinfer dari teks |
+| Target & Kinerja | Strategy projection dan indikator yang tersedia |
 
-## Status frontend
+Navigation dimiliki `src/features/property/navigation.ts`. Contractor registry,
+Material/Procurement dan RAB/BOQ belum memiliki capability canonical lengkap dan
+tidak ada pada menu aktif. Route legacy yang tersisa tidak dinyatakan siap.
+Ekstraksi AI/technical readiness tidak dibuat dari data sintetis. Relasi sertifikat,
+Change Order dan tugas korektif tetap mengikuti owner serta human approval.
 
-| Menu | Route | Status |
-| --- | --- | --- |
-| Ringkasan | `/summary` | UI FINAL / SOURCE UNAVAILABLE |
-| Portofolio Proyek | `/portfolio` | UI FINAL / SOURCE UNAVAILABLE |
-| Progres & Jadwal | `/progress` | UI FINAL / SOURCE UNAVAILABLE |
-| Pekerjaan & Milestone | `/execution` | UI FINAL / SOURCE UNAVAILABLE |
-| Unit & Kesiapan | `/units` | UI FINAL / SOURCE UNAVAILABLE |
-| Inspeksi & Kualitas | `/quality` | UI FINAL / SOURCE UNAVAILABLE |
-| Kontraktor | `/contractors` | UI FINAL / SOURCE UNAVAILABLE |
-| Anggaran & RAB | `/budget` | UI FINAL / SOURCE UNAVAILABLE |
-| Material & Pengadaan | `/materials` | UI FINAL / SOURCE UNAVAILABLE |
-| Target & Kinerja | `/performance` | UI FINAL / SOURCE UNAVAILABLE |
-| Proyek, Tugas, Persetujuan, Dokumen, Laporan, Temuan | Shared Work routes | Universal / SOURCE DEPENDENT |
-| Tanya ARA | `/ara` | Universal / INTEGRATION PENDING |
+Workspace memakai `/workspace/[workspaceKey]/...` dari session Backend. URL hanya
+identity navigasi; tenant, organization, workspace, role, permission dan scope
+ditentukan Backend. Shared Work, Perlu Tindakan dan ARA menggunakan workspace
+yang sama. Desain final dan business feature tidak diubah oleh dokumentasi ini.
 
-PropertyLayout hanya menerima workspace dengan domain `PROPERTY`, active workspace yang aktif, dan requested key yang sama dengan active key. URL, role frontend, localStorage, dan literal key tidak memberikan authority.
+CONNECTED berarti sumber/command internal tersedia, bukan seluruh kebutuhan
+bisnis atau connector eksternal siap. Empty hanya setelah query scoped berhasil;
+unknown tetap null/— dan outage tetap error. Rincian field/lifecycle/authority ada
+pada [coverage authoritative](https://github.com/PT-Andara-Rejo-Makmur/alos-backend/blob/development/docs/canonical-business-coverage.md).
+Kebutuhan form/data tetap disimpan sebagai requirements, bukan daftar fitur siap.
 
-Portfolio mereferensikan canonical Shared Work Project. Tombol `Buka Proyek` menuju `/workspace/{workspaceKey}/projects/{projectId}`; tidak ada entity Project kedua di `src/features/property`.
-
-Cross-domain state Finance, Legal, Sales, Strategy, dan approval ditampilkan sebagai projection read-only. Property frontend tidak memanggil endpoint domain speculative dan tidak mengarang record.
-
-Ringkasan menampilkan context bar, status source untuk Project, Progress, Unit, Contractor, Finance, Sales, Legal, dan Material, enam metric ringkas, Kondisi Proyek, Perhatian Utama, Kesiapan Unit, Ringkasan Kontraktor, Ringkasan Anggaran, serta Persetujuan & Temuan. Tombol `Lihat Status Data` membuka detail kesiapan source.
-
-Portfolio memiliki quick view teknis dan tombol `Buka Proyek` menuju `/workspace/{workspaceKey}/projects/{projectId}`; tidak ada entity Project kedua di `src/features/property`. Detail Unit dan Kontraktor memiliki tab kesiapan yang tetap source-honest dan tervalidasi oleh PropertyLayout.
-
-Quality memakai alur `Inspeksi → Temuan → Tindakan Korektif → Bukti → Verifikasi → Tutup`. Temuan tetap Shared Work Finding dan tindakan korektif tetap Shared Work Task. Semua command Property masih disabled/unavailable sampai capability authoritative tersedia.
-
-Ekstraksi dokumen hanya menampilkan source unavailable dan pesan bahwa kandidat belum tersedia ketika layanan ekstraksi belum terhubung. Frontend tidak membuat kandidat, confidence, atau hasil ekstraksi sintetis.
-
-## Deferred until dashboard phase complete
-
-- Property projection dan command contracts.
-- Backend services/projections serta freshness/scope metadata.
-- Cross-domain authority integration.
-- GENESIS extraction integration melalui Backend.
+[Bukti UAT development](https://github.com/PT-Andara-Rejo-Makmur/alos-infra/blob/development/docs/BUSINESS_UAT_2026-10-04.md).
